@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Brief History of Black Holes — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  /* Starfield canvas sits behind everything */
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{ /* subtle vignette + nebula glow */
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:680px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+
+  /* visuals: canvas figures + AI-image slots */
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+  /* slot you can replace with an AI-generated image */
+  .imgslot{position:relative; min-height:200px; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:repeating-linear-gradient(45deg,rgba(120,140,230,0.05),rgba(120,140,230,0.05) 12px,transparent 12px,transparent 24px);
+    border:1px dashed rgba(140,160,230,0.35); border-radius:14px; color:var(--muted); padding:24px; font-size:13px}
+  .imgslot b{color:var(--ink)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* ---------- stellar zoo grid ---------- */
+  .zoo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:6px}
+  .zoo-card{background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center}
+  .zoo-card canvas{width:100%; height:auto; background:radial-gradient(circle at 50% 45%, #0a0c1a, #000); border-radius:10px; display:block}
+  .zoo-card .zt{font-weight:700; font-size:13.5px; margin-top:9px; color:#fff}
+  .zoo-card .zk{font-size:11px; color:var(--cyan); letter-spacing:.4px; text-transform:uppercase; margin-top:1px}
+  .zoo-card .zd{font-size:11.6px; color:var(--muted); line-height:1.5; margin-top:6px}
+
+  /* ---------- glossary layout + left rail ---------- */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* Wide MathJax equations are the main mobile-overflow culprit: they force the
+       layout viewport wider than the phone, which shrink-zooms the whole page and
+       leaves interactive plots mis-scaled. Let wide math scroll inside its own box. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  /* inline hover-glossary terms */
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">A Brief History of Black Holes <small>Interactive companion · after Becky Smethurst</small></div>
+    <div class="links">
+      <a href="#spectra">Starlight</a>
+      <a href="#emspectrum">EM spectrum</a>
+      <a href="#lines">Spectral lines</a>
+      <a href="#life">Star life</a>
+      <a href="#death">Stellar death</a>
+      <a href="#zoo">Stellar zoo</a>
+      <a href="#neutron">Neutron stars</a>
+      <a href="#darkstar">Dark stars</a>
+      <a href="#horizon">Event horizon</a>
+      <a href="#spaghetti">Spaghetti</a>
+      <a href="#timedilation">Time dilation</a>
+      <a href="#sgra">Sgr A*</a>
+      <a href="#accretion">Accretion</a>
+      <a href="#hawking">Hawking</a>
+      <a href="#waves">Waves</a>
+      <a href="#image">The shadow</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>How we reasoned our way to <span class="grad">black holes</span></h1>
+  <p class="sub">Each chapter retraces a real discovery — what was known, what someone dared to think, how they tested it, and what the data forced them to conclude. Drag the sliders to re-run the experiments yourself.</p>
+  <p class="byline">A fan-made, interactive companion to <b>A Brief History of Black Holes</b> by <b>Dr. Becky Smethurst</b>. Move every slider — the plots recompute the physics live.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every astronomy term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. STARLIGHT / CECILIA PAYNE -->
+<!-- ============================================================= -->
+<section class="chapter" id="spectra">
+  <span class="era">1814 – 1925 · What are stars made of?</span>
+  <h2>Reading a star's temperature in its colour</h2>
+  <p class="who">Fraunhofer · Kirchhoff &amp; Bunsen · Planck &amp; Wien · <b>Cecilia Payne-Gaposchkin</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>In 1814 Fraunhofer saw dark lines crossing the Sun's spectrum; by 1859 Kirchhoff &amp; Bunsen showed each line is a fingerprint of a chemical element. And a glowing body's <i>colour</i> betrays its temperature: Planck's 1900 law and Wien's law say a hotter object peaks at a bluer wavelength.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>If the continuous glow gives the temperature and the dark lines give the elements, a stellar spectrum should reveal both what a star is made of and how hot it is — without ever leaving Earth.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In her 1925 Harvard thesis, <b>Cecilia Payne</b> applied Saha's ionisation equation to thousands of spectra. The strength of a line depends on temperature, not just abundance — so she had to disentangle the two.</p></div>
+    <div class="beat found"><div class="tag">What she found</div>
+      <p>Stars are overwhelmingly <b>hydrogen and helium</b> — a million times more hydrogen than the Earth-like mix everyone expected. Pressured by Henry Norris Russell, she hedged and called it "almost certainly spurious." She was right; he later came round. It is now called the single most brilliant PhD thesis in astronomy.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: a glowing body's spectrum (Planck's law)</h3>
+    <p class="hint">Slide a star's surface temperature. The curve is the Planck blackbody spectrum; the marker is Wien's peak. Watch the peak slide from red toward blue as the star heats up — and the swatch shows the colour your eye would see.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Surface temperature <b><span id="bb_t">5778</span> K</b></label>
+        <input id="bb_temp" type="range" min="2500" max="30000" step="50" value="5778">
+      </div>
+      <div class="ctl">
+        <label>Jump to a real star</label>
+        <select id="bb_preset">
+          <option value="3000">Betelgeuse — M, 3500 K (red)</option>
+          <option value="5778" selected>The Sun — G, 5778 K (yellow)</option>
+          <option value="6600">Procyon — F, 6600 K</option>
+          <option value="9940">Sirius — A, 9940 K (white)</option>
+          <option value="12000">Rigel — B, 12000 K (blue-white)</option>
+          <option value="30000">Zeta Ophiuchi — O, 30000 K (blue)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Wien peak</div><div class="v"><span id="bb_peak">501</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Spectral class</div><div class="v" id="bb_class">G</div></div>
+      <div class="stat"><div class="k">Total output ∝ T⁴</div><div class="v"><span id="bb_lum">1.0</span><small>× Sun's surface</small></div></div>
+      <div class="stat"><div class="k">Perceived colour</div><div class="v"><span id="bb_swatch" style="display:inline-block;width:18px;height:18px;border-radius:4px;vertical-align:-3px;border:1px solid #fff3"></span></div></div>
+    </div>
+    <div id="plot_bb" class="plot"></div>
+    <div class="eq">
+      $$ B_\lambda(T)=\frac{2hc^2}{\lambda^5}\,\frac{1}{e^{\,hc/\lambda k_B T}-1}, \qquad \lambda_{\text{peak}}=\frac{2.898\times10^{-3}}{T}\ \text{m (Wien)} $$
+    </div>
+  </div>
+
+  <div class="figrow two">
+    <figure><canvas id="star_canvas" width="520" height="300"></canvas>
+      <figcaption>A temperature-coloured star disk, rendered live from the slider above (limb-darkened, blackbody colour).</figcaption></figure>
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Cecilia_Helena_Payne_Gaposchkin_(1900-1979).jpg?width=560" alt="Cecilia Payne-Gaposchkin" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" data-slot="cecilia" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>Portrait/scene of Cecilia Payne. Replace with &lt;img src="..."&gt;</div></div>
+      <figcaption>Cecilia Payne-Gaposchkin, who found stars are made of hydrogen (public domain).</figcaption>
+    </figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A hot B-type star has a surface temperature of $T=10{,}000$ K. Using Wien's law $\lambda_{\text{peak}}=\dfrac{2.898\times10^{-3}}{T}$ m, at what wavelength does it shine brightest, and in which band is that?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply Wien's law.</b> $\lambda_{\text{peak}}=\dfrac{2.898\times10^{-3}}{10{,}000}=2.898\times10^{-7}$ m.</li>
+          <li><b>Convert to nanometres.</b> $2.898\times10^{-7}\text{ m}=290$ nm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda_{\text{peak}}\approx290$ nm — in the ultraviolet, just shortward of visible, which is why hot stars look blue-white to the eye.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A blackbody's energy output per unit area follows Stefan–Boltzmann, flux $\propto T^4$. A blue O-star surface sits at $30{,}000$ K, the Sun's at $5778$ K. How many times more power does each square metre of the O-star radiate?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Take the temperature ratio.</b> $\dfrac{T_O}{T_\odot}=\dfrac{30{,}000}{5778}=5.19$.</li>
+          <li><b>Raise to the fourth power.</b> $\left(5.19\right)^4=727$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $730\times$ — each patch of the O-star's surface blazes hundreds of times brighter, the steep $T^4$ scaling behind the brilliance of massive stars.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A star's spectrum peaks at $\lambda_{\text{peak}}=290$ nm. Use Wien's law backwards to find its surface temperature, then name the spectral class (O&gt;30000, B&gt;10000, A&gt;7500 K).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rearrange Wien's law for $T$.</b> $T=\dfrac{2.898\times10^{-3}}{\lambda_{\text{peak}}}$.</li>
+          <li><b>Substitute (in metres).</b> $T=\dfrac{2.898\times10^{-3}}{290\times10^{-9}}=9990$ K.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $T\approx9990$ K, a class-B star — reading temperature straight off the colour of light is exactly the trick Payne's spectra relied on.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 1b. ELECTROMAGNETIC SPECTRUM -->
+<!-- ============================================================= -->
+<section class="chapter" id="emspectrum">
+  <span class="era">Light beyond the rainbow</span>
+  <h2>The whole electromagnetic spectrum</h2>
+  <p class="who">Herschel · Maxwell · and every telescope since</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Visible light is a sliver. In 1800 William Herschel found "invisible" heat — infrared — beyond the red, and within a century Maxwell showed light is an electromagnetic wave. Radio, microwave, infrared, visible, ultraviolet, X-ray and gamma are all the same thing at different wavelengths.</p></div>
+    <div class="beat idea"><div class="tag">Why it matters here</div>
+      <p>Black holes are invisible, but the gas around them screams across the spectrum. We image Sgr A* in <b>radio</b>, watch accretion disks glow in <b>X-rays</b>, and catch infant stars in <b>infrared</b>. Each band is a different window.</p></div>
+    <div class="beat test"><div class="tag">The relationships</div>
+      <p>Shorter wavelength means higher frequency and more energetic photons: $c=\lambda f$ and $E=hf=hc/\lambda$. A gamma-ray photon carries a trillion times the energy of a radio photon.</p></div>
+    <div class="beat found"><div class="tag">The catch</div>
+      <p>Earth's atmosphere blocks most of it — only visible light and some radio reach the ground. To see the X-ray and gamma-ray universe, we must go to space.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Slide across the spectrum</h3>
+    <p class="hint">Drag the marker from kilometre-long radio waves down to picometre gamma rays. Read off the wavelength, frequency and photon energy — and what astronomers see in that band.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Wavelength <b><span id="em_wl">550 nm</span></b></label>
+        <input id="em_slider" type="range" min="-12" max="3" step="0.02" value="-6.26">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ wavelength in metres (3 = 1 km radio, −12 = 1 pm gamma)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Band</div><div class="v" id="em_band" style="font-size:16px">Visible</div></div>
+      <div class="stat"><div class="k">Frequency</div><div class="v"><span id="em_freq">545</span> <small id="em_fu">THz</small></div></div>
+      <div class="stat"><div class="k">Photon energy</div><div class="v"><span id="em_en">2.3</span> <small id="em_eu">eV</small></div></div>
+      <div class="stat"><div class="k">Reaches the ground?</div><div class="v" id="em_atm" style="font-size:14px">yes</div></div>
+    </div>
+    <figure><canvas id="em_canvas" width="900" height="150"></canvas>
+      <figcaption id="em_cap">In astronomy: the visible band — the light Cecilia Payne's spectra were taken in.</figcaption></figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> An accretion disk glows in X-rays at wavelength $\lambda=1.0$ nm. Using $f=c/\lambda$ and $E=hf$, find the photon's frequency and its energy in keV ($h=6.626\times10^{-34}$ J·s, $1$ eV $=1.602\times10^{-19}$ J).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Frequency.</b> $f=\dfrac{c}{\lambda}=\dfrac{2.998\times10^8}{1.0\times10^{-9}}=3.0\times10^{17}$ Hz.</li>
+          <li><b>Energy in joules.</b> $E=hf=(6.626\times10^{-34})(3.0\times10^{17})=1.99\times10^{-16}$ J.</li>
+          <li><b>Convert to eV.</b> $E=\dfrac{1.99\times10^{-16}}{1.602\times10^{-19}}=1240$ eV $=1.24$ keV.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $f\approx3.0\times10^{17}$ Hz, $E\approx1.24$ keV — an X-ray photon carrying thousands of times the energy of visible light, the glow of million-degree gas.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A gamma-ray photon from a black-hole jet carries $E=1.0$ MeV. Using $\lambda=hc/E$, find its wavelength in picometres.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Energy in joules.</b> $E=1.0\times10^{6}\times1.602\times10^{-19}=1.602\times10^{-13}$ J.</li>
+          <li><b>Apply $\lambda=hc/E$.</b> $\lambda=\dfrac{(6.626\times10^{-34})(2.998\times10^8)}{1.602\times10^{-13}}=1.24\times10^{-12}$ m.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx1.24$ pm — smaller than an atomic nucleus, the vanishingly short wavelength of the most violent light in the Universe.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Radio astronomers map hydrogen at the "21-cm line" ($\lambda=0.21$ m). Using $f=c/\lambda$, what frequency is that, and does such radio light reach the ground?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the wave relation.</b> $f=\dfrac{c}{\lambda}=\dfrac{2.998\times10^8}{0.21}$.</li>
+          <li><b>Evaluate.</b> $f=1.43\times10^{9}$ Hz $=1.43$ GHz.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $f\approx1.43$ GHz — radio, which passes freely through the atmosphere, so ground-based dishes (and the EHT) can observe it.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 1c. SPECTRAL LINES -->
+<!-- ============================================================= -->
+<section class="chapter" id="lines">
+  <span class="era">1859 · The barcode of an atom</span>
+  <h2>Emission &amp; absorption lines — starlight's barcode</h2>
+  <p class="who"><b>Gustav Kirchhoff</b> &amp; Robert Bunsen</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Heat a pure element and it glows at sharp, fixed wavelengths — bright <b>emission lines</b>, unique to each element. Kirchhoff and Bunsen turned this into chemistry-at-a-distance in 1859.</p></div>
+    <div class="beat idea"><div class="tag">Kirchhoff's three laws</div>
+      <p>A hot dense object gives a smooth rainbow (continuum). A hot thin gas adds bright emission lines. And a cool gas in front of a continuum carves dark <b>absorption lines</b> — exactly the Fraunhofer lines in the Sun, where cooler outer gas absorbs specific colours.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Each element absorbs and emits the <i>same</i> set of wavelengths. Hydrogen's Balmer series (Hα red, Hβ blue-green, …) and calcium's H &amp; K lines became a barcode you could match against any star.</p></div>
+    <div class="beat found"><div class="tag">What it revealed</div>
+      <p>The pattern and strength of lines give a star's composition, temperature and motion. The same trick uncovers gas swirling around black holes — and its redshift tells us how fast it moves.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Build a stellar spectrum</h3>
+    <p class="hint">Pick a spectral type and a viewing geometry. <b>Absorption</b> = cool gas in front of the star (dark lines on a rainbow). <b>Emission</b> = glowing thin gas (bright lines on black) — Kirchhoff's laws in action. Hot blue stars show weak lines; cool stars show a forest of them.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Spectral type</label>
+        <select id="ln_type">
+          <option value="O">O — 35,000 K (blue, few lines)</option>
+          <option value="A" selected>A — 9,500 K (strong hydrogen)</option>
+          <option value="G">G — 5,800 K (Sun: Ca, Na, Fe)</option>
+          <option value="M">M — 3,300 K (cool, many metals)</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Kirchhoff geometry</label>
+        <select id="ln_mode">
+          <option value="abs" selected>Absorption (cool gas in front)</option>
+          <option value="emi">Emission (hot thin gas)</option>
+        </select>
+      </div>
+    </div>
+    <figure><canvas id="ln_canvas" width="900" height="120"></canvas>
+      <figcaption>Simulated spectrograph strip — the rainbow (or black) with each element's lines at its true wavelengths.</figcaption></figure>
+    <div id="plot_ln" class="plot" style="height:300px"></div>
+    <div class="eq">$$ \frac{1}{\lambda}=R_H\left(\frac{1}{2^2}-\frac{1}{n^2}\right)\ \text{(hydrogen Balmer series, } n=3,4,5\ldots) $$</div>
+  </div>
+
+  <div class="figrow two">
+    <figure><canvas id="prism_canvas" width="520" height="260"></canvas>
+      <figcaption>A prism fanning white light into its spectrum (procedural).</figcaption></figure>
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Fraunhofer_lines.svg?width=560" alt="The solar spectrum with Fraunhofer absorption lines" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block;background:#fff" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" data-slot="solar-spectrum" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>A real solar spectrum (Fraunhofer lines).</div></div>
+      <figcaption>The Sun’s spectrum crossed by Fraunhofer absorption lines (public domain).</figcaption>
+    </figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The hydrogen Balmer series follows $\dfrac{1}{\lambda}=R_H\left(\dfrac{1}{2^2}-\dfrac{1}{n^2}\right)$ with $R_H=1.097\times10^{7}$ m⁻¹. Find the wavelength of the H$\alpha$ line ($n=3$).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Insert $n=3$.</b> $\dfrac{1}{\lambda}=1.097\times10^{7}\left(\dfrac{1}{4}-\dfrac{1}{9}\right)=1.097\times10^{7}(0.1389)$.</li>
+          <li><b>Evaluate.</b> $\dfrac{1}{\lambda}=1.524\times10^{6}$ m⁻¹, so $\lambda=6.56\times10^{-7}$ m.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx656$ nm — the deep-red H$\alpha$ line, the brightest fingerprint of hydrogen and the glow of countless nebulae.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Using the same Balmer formula, find the H$\beta$ line ($n=4$) and confirm it lands in the blue-green.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Insert $n=4$.</b> $\dfrac{1}{\lambda}=1.097\times10^{7}\left(\dfrac{1}{4}-\dfrac{1}{16}\right)=1.097\times10^{7}(0.1875)$.</li>
+          <li><b>Evaluate.</b> $\dfrac{1}{\lambda}=2.057\times10^{6}$ m⁻¹, so $\lambda=4.86\times10^{-7}$ m.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx486$ nm — blue-green, exactly where H$\beta$ appears in stellar spectra; the same barcode lets us identify gas around black holes.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Where does the Balmer series end? Take $n\to\infty$ in $\dfrac{1}{\lambda}=R_H\left(\dfrac{1}{4}-\dfrac{1}{n^2}\right)$ to find the series limit wavelength.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Let $n\to\infty$.</b> The $1/n^2$ term vanishes: $\dfrac{1}{\lambda}=R_H\cdot\dfrac{1}{4}=\dfrac{1.097\times10^{7}}{4}$.</li>
+          <li><b>Evaluate.</b> $\dfrac{1}{\lambda}=2.743\times10^{6}$ m⁻¹, so $\lambda=3.65\times10^{-7}$ m.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx365$ nm — the Balmer limit in the near-ultraviolet, where the discrete lines crowd together and merge into a continuum.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 1d. LIFE OF A STAR -->
+<!-- ============================================================= -->
+<section class="chapter" id="life">
+  <span class="era">The life of a star</span>
+  <h2>From gas cloud to grave — the H–R diagram</h2>
+  <p class="who"><b>Ejnar Hertzsprung</b> &amp; <b>Henry Norris Russell</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>By 1910 Hertzsprung and Russell plotted stars' luminosity against their temperature. Stars didn't scatter randomly — most fell on a diagonal stripe, the <b>main sequence</b>, with giants and dwarfs off to the sides.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>A star's whole life is a journey across this diagram. On the main sequence it fuses hydrogen to helium; its mass sets where it sits, how brightly it burns, and how long it lives.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Mass is destiny. A heavy star is hot, blazing and short-lived; a red dwarf sips its fuel for trillions of years. When the core's hydrogen runs out, the star swells into a <b>red giant</b> or <b>supergiant</b>.</p></div>
+    <div class="beat found"><div class="tag">The conclusion</div>
+      <p>The ending depends on mass: a Sun-like star puffs off a <b>planetary nebula</b> and leaves a white dwarf; a massive star explodes as a supernova, leaving a neutron star or black hole.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Place a star on the H–R diagram</h3>
+    <p class="hint">Set the birth mass. The marker lands on the main sequence; the dotted arrow traces where it will evolve, and the readouts give its colour, brightness, lifetime and ultimate fate.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Birth mass <b><span id="hr_mlbl">1.0</span> M☉</b></label>
+        <input id="hr_mass" type="range" min="0.1" max="40" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Spectral type</div><div class="v" id="hr_type">G</div></div>
+      <div class="stat"><div class="k">Luminosity</div><div class="v"><span id="hr_lum">1</span> <small>L☉</small></div></div>
+      <div class="stat"><div class="k">Main-sequence life</div><div class="v"><span id="hr_life">10</span> <small id="hr_lu">billion yr</small></div></div>
+      <div class="stat"><div class="k">Ultimate fate</div><div class="v" id="hr_fate" style="font-size:14px">White dwarf</div></div>
+    </div>
+    <div id="plot_hr" class="plot" style="height:440px"></div>
+    <div class="eq">$$ L\approx M^{3.5}L_\odot,\qquad t_{\text{MS}}\approx 10\ \text{Gyr}\times\frac{M}{L}\approx 10\,\text{Gyr}\times M^{-2.5} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A main-sequence star has $M=2\,M_\odot$. Using $L\approx M^{3.5}L_\odot$, how much brighter is it than the Sun?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the mass–luminosity law.</b> $L=M^{3.5}=2^{3.5}$ (in solar units).</li>
+          <li><b>Evaluate.</b> $2^{3.5}=11.3$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $11\,L_\odot$ — doubling the mass makes the star roughly eleven times brighter, the steep cost of being heavy.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The same $2\,M_\odot$ star: using $t_{\text{MS}}\approx10\text{ Gyr}\times M^{-2.5}$, how long does it live on the main sequence?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the lifetime law.</b> $t_{\text{MS}}=10\text{ Gyr}\times2^{-2.5}$.</li>
+          <li><b>Evaluate.</b> $2^{-2.5}=0.177$, so $t_{\text{MS}}=1.77$ Gyr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1.8$ billion years — far shorter than the Sun's 10 Gyr; heavy stars burn bright and die young.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A $10\,M_\odot$ star is destined to leave a neutron star or black hole. How long does it spend on the main sequence ($t_{\text{MS}}\approx10\text{ Gyr}\times M^{-2.5}$)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the lifetime law.</b> $t_{\text{MS}}=10\text{ Gyr}\times10^{-2.5}$.</li>
+          <li><b>Evaluate.</b> $10^{-2.5}=3.16\times10^{-3}$, so $t_{\text{MS}}=0.0316$ Gyr $=31.6$ Myr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> only about $32$ million years — a black-hole progenitor lives a cosmic blink before exploding.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. STELLAR DEATH / CHANDRASEKHAR -->
+<!-- ============================================================= -->
+<section class="chapter" id="death">
+  <span class="era">1930 · How stars die</span>
+  <h2>The mass limit that dooms a star to collapse</h2>
+  <p class="who"><b>Subrahmanyan Chandrasekhar</b> · vs. Sir Arthur Eddington</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A dead star with no fuel left should be held up by <i>electron degeneracy pressure</i> — a quantum refusal of electrons to share a state. Everyone assumed this could support a stellar corpse of any mass forever.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>On the boat to England in 1930, 19-year-old Chandrasekhar combined degeneracy pressure with special relativity. Relativity caps how fast electrons can push back — so the support is not unlimited.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>He computed the maximum mass a white dwarf can carry. Above it, gravity wins. Eddington publicly ridiculed the result — "there should be a law of Nature to prevent a star from behaving in this absurd way."</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>The <b>Chandrasekhar limit ≈ 1.4 M☉</b>. A heavier core cannot stop collapsing — it becomes a neutron star, and if heavier still, a black hole. He was vindicated and shared the 1983 Nobel Prize.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: what does a star leave behind?</h3>
+    <p class="hint">Set a star's birth mass. The bar shows the remnant: most of a massive star is blown off in a supernova, and only the core's fate matters. Cross the thresholds and watch the corpse change.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Initial stellar mass <b><span id="rm_m">25</span> M☉</b></label>
+        <input id="rm_mass" type="range" min="0.5" max="60" step="0.5" value="25">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Final remnant</div><div class="v" id="rm_remnant">Black hole</div></div>
+      <div class="stat"><div class="k">Core mass (approx)</div><div class="v"><span id="rm_core">2.6</span> <small>M☉</small></div></div>
+      <div class="stat"><div class="k">vs. Chandrasekhar 1.4 M☉</div><div class="v" id="rm_cmp">core too heavy</div></div>
+    </div>
+    <div id="plot_remnant" class="plot" style="height:260px"></div>
+    <div class="eq">$$ M_{\text{Ch}}=\frac{\omega_3^{0}\sqrt{3\pi}}{2}\left(\frac{\hbar c}{G}\right)^{3/2}\frac{1}{(\mu_e m_H)^2}\approx 1.4\,M_\odot $$</div>
+  </div>
+
+  <div class="figrow two">
+    <figure><canvas id="superno_canvas" width="520" height="280"></canvas>
+      <figcaption>Procedural supernova shell + collapsing core (animated).</figcaption></figure>
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/SN1994D.jpg?width=560" alt="Supernova SN 1994D in galaxy NGC 4526" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" data-slot="supernova" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>A supernova or a portrait of Chandrasekhar.</div></div>
+      <figcaption>Supernova SN 1994D (bright spot, lower left) outshining its galaxy — NASA/ESA (public domain).</figcaption>
+    </figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A dying star leaves a degenerate core of $1.2\,M_\odot$. With the Chandrasekhar limit at $\approx1.4\,M_\odot$, does electron degeneracy pressure hold it up, and what kind of remnant results?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Compare to the limit.</b> $1.2\,M_\odot &lt; 1.4\,M_\odot$, so the core is below the Chandrasekhar mass.</li>
+          <li><b>Interpret.</b> Electron degeneracy pressure can still balance gravity — no collapse.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the core survives as a <b>white dwarf</b>; only cores above $1.4\,M_\odot$ are doomed to collapse into a neutron star or black hole.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A core of $3.0\,M_\odot$ exceeds even the neutron-star limit and becomes a black hole. Using $R_s=\dfrac{2GM}{c^2}$, what is its event-horizon radius?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass in kg.</b> $M=3.0\times1.989\times10^{30}=5.97\times10^{30}$ kg.</li>
+          <li><b>Apply the formula.</b> $R_s=\dfrac{2(6.674\times10^{-11})(5.97\times10^{30})}{(2.998\times10^8)^2}$.</li>
+          <li><b>Evaluate.</b> $R_s=8.86\times10^{3}$ m $=8.86$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $R_s\approx8.9$ km — the whole horizon is the size of a small city, the hallmark of a stellar-mass black hole.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A white dwarf packs $1.0\,M_\odot$ into roughly an Earth-sized sphere ($R=6.371\times10^6$ m). Estimate its mean density ($\rho=M/\tfrac{4}{3}\pi R^3$).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Volume.</b> $V=\tfrac{4}{3}\pi(6.371\times10^6)^3=1.08\times10^{21}$ m³.</li>
+          <li><b>Density.</b> $\rho=\dfrac{1.989\times10^{30}}{1.08\times10^{21}}=1.84\times10^{9}$ kg/m³.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\rho\approx1.8\times10^{9}$ kg/m³ — over a tonne per cubic centimetre, the crush that degeneracy pressure barely holds back.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2b. STELLAR ZOO -->
+<!-- ============================================================= -->
+<section class="chapter" id="zoo">
+  <span class="era">A field guide</span>
+  <h2>The stellar zoo — stars and their corpses</h2>
+  <p class="who">Every type of star and remnant, to scale in spirit</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The family</div>
+      <p>Stars come in a sweep of masses, from feeble red dwarfs to monstrous blue supergiants — sorted by the spectral sequence <b>O B A F G K M</b>, hottest to coolest. How they die, and what they leave behind, is set almost entirely by mass.</p></div>
+    <div class="beat found"><div class="tag">The corpses</div>
+      <p>The leftovers are the strangest objects in the sky: an Earth-sized white dwarf, a city-sized neutron star, a beaming pulsar, an ultra-magnetic magnetar, and — at the end of the heaviest stars — a black hole.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>A gallery of subtypes</h3>
+    <p class="hint">Each icon is rendered live in your browser. Hover the highlighted terms for definitions; the cards run from ordinary stars to the exotic remnants this book is really about.</p>
+    <div id="zooGrid" class="zoo-grid"></div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2c. NEUTRON STARS -->
+<!-- ============================================================= -->
+<section class="chapter" id="neutron">
+  <span class="era">1967 · Little green men?</span>
+  <h2>Neutron stars, pulsars &amp; magnetars</h2>
+  <p class="who"><b>Jocelyn Bell Burnell</b> · Antony Hewish</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Theory said a collapsing core too heavy for a white dwarf would crush its protons and electrons into neutrons — a <b>neutron star</b>: about 1.4 Suns squeezed into a 24 km ball, so dense a teaspoon weighs a billion tonnes.</p></div>
+    <div class="beat idea"><div class="tag">The discovery</div>
+      <p>In 1967 Jocelyn Bell Burnell found a radio signal pulsing every 1.337 seconds — so regular it was half-jokingly tagged "LGM-1" for little green men. It was a spinning neutron star sweeping a beam past Earth: a <b>pulsar</b>, a cosmic lighthouse.</p></div>
+    <div class="beat test"><div class="tag">The physics</div>
+      <p>Collapse conserves angular momentum, so the tiny star spins up to hundreds of times a second, its surface racing at a sizeable fraction of light-speed. Its magnetic field, compressed, becomes colossal — and in a <b>magnetar</b>, the strongest in the Universe.</p></div>
+    <div class="beat found"><div class="tag">Why they matter</div>
+      <p>Pulsars are nature's most precise clocks, and the heaviest of them sit right at the doorway to becoming black holes. Merging neutron stars even forge gold — and ring spacetime with gravitational waves.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Spin up a pulsar</h3>
+    <p class="hint">Set the spin period. The neutron star sweeps its beams around; each time one points at Earth (the dashed line) you see a pulse in the timing plot below. Crank it to milliseconds and the surface approaches light-speed.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Spin period <b><span id="ns_plbl">1.337</span> s</b></label>
+        <input id="ns_period" type="range" min="-2.85" max="0.9" step="0.01" value="0.126">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ seconds (−2.85 ≈ 1.4 ms millisecond pulsar, 0.9 ≈ 8 s)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Rotations / second</div><div class="v"><span id="ns_rot">0.75</span></div></div>
+      <div class="stat"><div class="k">Equatorial speed</div><div class="v"><span id="ns_v">0.0002</span> <small>× c</small></div></div>
+      <div class="stat"><div class="k">Type</div><div class="v" id="ns_type" style="font-size:14px">Normal pulsar</div></div>
+    </div>
+    <div class="figrow two">
+      <figure><canvas id="ns_canvas" width="520" height="320"></canvas>
+        <figcaption>Spinning neutron star with twin beams (animated). A pulse registers when a beam crosses the line of sight to Earth.</figcaption></figure>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div id="plot_ns" class="plot" style="height:200px"></div>
+        <figure class="realfig" style="margin:0">
+          <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Crab_Nebula.jpg?width=520" alt="The Crab Nebula, home of a famous pulsar" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+          <div class="imgslot" data-slot="pulsar" style="display:none;min-height:100px;border:0;border-radius:0"><div><b>AI-image slot.</b><br>Crab-Nebula pulsar / magnetar art.</div></div>
+          <figcaption>The Crab Nebula — a supernova remnant with a pulsar at its heart. NASA/ESA (public domain).</figcaption>
+        </figure>
+      </div>
+    </div>
+    <div class="eq">$$ v_{\text{eq}}=\frac{2\pi R}{P}\quad(R\approx 12\ \text{km}),\qquad \text{density}\sim 4\times10^{17}\ \text{kg/m}^3 $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Jocelyn Bell's first pulsar spins once every $P=1.337$ s. For a $R=12$ km neutron star, find its equatorial speed $v_{\text{eq}}=\dfrac{2\pi R}{P}$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Circumference.</b> $2\pi R=2\pi(1.2\times10^4)=7.54\times10^{4}$ m.</li>
+          <li><b>Divide by the period.</b> $v_{\text{eq}}=\dfrac{7.54\times10^{4}}{1.337}=5.64\times10^{4}$ m/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v_{\text{eq}}\approx5.6\times10^{4}$ m/s $\approx0.02\%$ of light-speed — even this "slow" pulsar's surface races at tens of km per second.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A millisecond pulsar spins every $P=1.4$ ms. With $R=12$ km, what fraction of the speed of light does its equator reach ($v_{\text{eq}}=2\pi R/P$)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Equatorial speed.</b> $v_{\text{eq}}=\dfrac{2\pi(1.2\times10^4)}{1.4\times10^{-3}}=5.39\times10^{7}$ m/s.</li>
+          <li><b>As a fraction of $c$.</b> $\dfrac{5.39\times10^{7}}{2.998\times10^8}=0.18$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $0.18\,c$ — the surface whips around at nearly a fifth of light-speed, the limit at which a neutron star would fly apart.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A neutron star holds $1.4\,M_\odot$ in a $R=12$ km sphere. Compute its mean density $\rho=M/\tfrac{4}{3}\pi R^3$ and compare to water ($10^3$ kg/m³).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass and volume.</b> $M=1.4\times1.989\times10^{30}=2.78\times10^{30}$ kg; $V=\tfrac{4}{3}\pi(1.2\times10^4)^3=7.24\times10^{12}$ m³.</li>
+          <li><b>Density.</b> $\rho=\dfrac{2.78\times10^{30}}{7.24\times10^{12}}=3.85\times10^{17}$ kg/m³.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\rho\approx4\times10^{17}$ kg/m³ — about nuclear density, so a sugar-cube's worth would weigh roughly a billion tonnes.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. DARK STARS / MICHELL -->
+<!-- ============================================================= -->
+<section class="chapter" id="darkstar">
+  <span class="era">1783 · The first black hole idea</span>
+  <h2>A star so heavy that light cannot escape</h2>
+  <p class="who"><b>Rev. John Michell</b> · (and, independently, Pierre-Simon Laplace, 1796)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Newton's gravity gives every body an <i>escape velocity</i>: throw something faster than $v_{esc}=\sqrt{2GM/r}$ and it never falls back. Light, people then thought, was a stream of corpuscles — particles that should feel gravity too.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Michell asked: what if a star were so massive and compact that its escape velocity reached the speed of light? Then even light could not leave. He called them <b>"dark stars."</b></p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Set $v_{esc}=c$ and solve for the size. For the Sun's density, you would need a star several hundred times the Sun's diameter — a thought experiment with real numbers, presented to the Royal Society in 1783.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>Such an object would be invisible, yet its gravity would still tug on companion stars — exactly how we hunt black holes today. The idea slept for over a century until relativity revived it.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The test: push the escape velocity up to light-speed</h3>
+    <p class="hint">Pick an object's mass, then shrink its radius. As it gets denser the escape velocity climbs. When the bar reaches $c$, you've built a dark star — and the radius you crossed is the event horizon.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Mass <b><span id="ds_mlbl">1.0</span> M☉</b></label>
+        <input id="ds_mass" type="range" min="-1" max="9" step="0.05" value="0">
+        <label style="margin-top:2px"><span style="font-size:11px">log scale: Earth → billion-solar-mass</span><b></b></label>
+      </div>
+      <div class="ctl">
+        <label>Radius (fraction of the Schwarzschild radius) <b><span id="ds_rlbl">3.0</span>× r<sub>s</sub></b></label>
+        <input id="ds_rad" type="range" min="1" max="200" step="0.5" value="30">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Escape velocity</div><div class="v"><span id="ds_v">38.6</span> <small>% of c</small></div></div>
+      <div class="stat"><div class="k">Object radius</div><div class="v"><span id="ds_r">8.9</span> <small id="ds_runit">km</small></div></div>
+      <div class="stat"><div class="k">Schwarzschild r<sub>s</sub></div><div class="v"><span id="ds_rs">3.0</span> <small id="ds_rsunit">km</small></div></div>
+    </div>
+    <div class="verdict" id="ds_verdict">Slide the radius down toward 1 × r<sub>s</sub>…</div>
+    <div id="plot_ds" class="plot" style="height:300px"></div>
+    <div class="eq">$$ v_{esc}=\sqrt{\frac{2GM}{r}} \;\;\xrightarrow{\;v_{esc}=c\;}\;\; r_s=\frac{2GM}{c^2} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> What is Earth's escape velocity? Use $v_{esc}=\sqrt{\dfrac{2GM}{r}}$ with $M=5.972\times10^{24}$ kg and $r=6.371\times10^{6}$ m.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{2GM}{r}=\dfrac{2(6.674\times10^{-11})(5.972\times10^{24})}{6.371\times10^{6}}=1.251\times10^{8}$ m²/s².</li>
+          <li><b>Take the square root.</b> $v_{esc}=\sqrt{1.251\times10^{8}}=1.12\times10^{4}$ m/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v_{esc}\approx11.2$ km/s — the familiar launch speed to leave Earth; Michell asked what mass would push this all the way up to $c$.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Set $v_{esc}=c$ for a $1\,M_\odot$ dark star. Solving $\sqrt{2GM/r}=c$ gives $r=2GM/c^2$. How small must the Sun be crushed?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rearrange.</b> $r=\dfrac{2GM}{c^2}$.</li>
+          <li><b>Substitute.</b> $r=\dfrac{2(6.674\times10^{-11})(1.989\times10^{30})}{(2.998\times10^8)^2}$.</li>
+          <li><b>Evaluate.</b> $r=2.95\times10^{3}$ m $=2.95$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> just $2.95$ km — squeeze the Sun inside a 3 km ball and even light cannot escape; this radius is the Schwarzschild radius.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> What is the escape velocity at the Sun's actual surface ($M=1.989\times10^{30}$ kg, $R_\odot=6.96\times10^{8}$ m)? Compare to $c$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{2GM}{R_\odot}=\dfrac{2(6.674\times10^{-11})(1.989\times10^{30})}{6.96\times10^{8}}=3.81\times10^{11}$ m²/s².</li>
+          <li><b>Square root.</b> $v_{esc}=\sqrt{3.81\times10^{11}}=6.18\times10^{5}$ m/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v_{esc}\approx618$ km/s — only $0.2\%$ of $c$, so the real Sun is nowhere near a dark star; you must shrink it 235,000-fold first.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. SCHWARZSCHILD / EVENT HORIZON -->
+<!-- ============================================================= -->
+<section class="chapter" id="horizon">
+  <span class="era">1915 – 1916 · Geometry, not force</span>
+  <h2>The exact size of a hole in spacetime</h2>
+  <p class="who"><b>Karl Schwarzschild</b>, solving Einstein's equations — from the WWI front line</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Einstein's 1915 general relativity recast gravity as curved spacetime, but his field equations are fearsomely nonlinear. Einstein doubted anyone would find an exact solution soon.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Schwarzschild, serving in the German army, solved them for a single spherical mass within weeks — writing the maths in the trenches. His solution has a special radius where time and space swap roles.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>At $r_s=2GM/c^2$ the maths blows up. Was it a real edge or a mathematical artefact? It is real in the sense that matters: cross it and no signal can ever climb back out. It is the <b>event horizon</b>.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>Every mass has one. Squeeze the Sun inside 3 km, or the Earth inside 9 mm, and it becomes a black hole. Schwarzschild died months later; the radius bears his name.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: how big is the horizon?</h3>
+    <p class="hint">The event horizon scales <i>linearly</i> with mass. The log–log line below shows it from atoms to galaxies; the markers are real objects. Pick one and read off how small you'd have to crush it.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Mass <b><span id="sw_mlbl">1.0 M☉</span></b></label>
+        <input id="sw_mass" type="range" min="-9" max="40" step="0.1" value="0">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ scale, in solar masses (−9 ≈ a human, 40 ≈ a galaxy cluster)</span><b></b></label>
+      </div>
+      <div class="ctl">
+        <label>Or pick an object</label>
+        <select id="sw_preset">
+          <option value="-25.5">A human (70 kg)</option>
+          <option value="-6.5">The Earth</option>
+          <option value="0" selected>The Sun</option>
+          <option value="1.18">A neutron star (15 M☉ progenitor)</option>
+          <option value="6.6">Sgr A* — our galaxy's centre (4.1M M☉)</option>
+          <option value="9.8">M87* — first ever imaged (6.5B M☉)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Schwarzschild radius</div><div class="v"><span id="sw_rs">2.95</span> <small id="sw_unit">km</small></div></div>
+      <div class="stat"><div class="k">For comparison</div><div class="v" id="sw_cmp" style="font-size:14px">size of a small town</div></div>
+    </div>
+    <div id="plot_sw" class="plot"></div>
+    <div class="eq">$$ r_s=\frac{2GM}{c^2}\approx 2.95\ \text{km}\times\frac{M}{M_\odot} $$</div>
+  </div>
+
+  <div class="figrow two">
+    <figure><canvas id="bh_canvas" width="520" height="320"></canvas>
+      <figcaption>Procedural black hole: shadow, photon ring, and a Doppler-brightened accretion disk (animated).</figcaption></figure>
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Schwarzschild.jpg?width=560" alt="Karl Schwarzschild" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" data-slot="schwarzschild" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>Schwarzschild, or an artist’s event horizon.</div></div>
+      <figcaption>Karl Schwarzschild, who solved Einstein’s equations from the WWI front (public domain).</figcaption>
+    </figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Sgr A* weighs $M=4.1\times10^{6}\,M_\odot$. Find its Schwarzschild radius $R_s=\dfrac{2GM}{c^2}$ and express it in AU ($1$ AU $=1.496\times10^{11}$ m).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass in kg.</b> $M=4.1\times10^{6}\times1.989\times10^{30}=8.15\times10^{36}$ kg.</li>
+          <li><b>Apply the formula.</b> $R_s=\dfrac{2(6.674\times10^{-11})(8.15\times10^{36})}{(2.998\times10^8)^2}=1.21\times10^{10}$ m.</li>
+          <li><b>Convert to AU.</b> $\dfrac{1.21\times10^{10}}{1.496\times10^{11}}=0.081$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $R_s\approx1.2\times10^{7}$ km $\approx0.08$ AU — about a fifth of Mercury's orbit, the size of our galaxy's central horizon.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> How small would Earth ($M=5.972\times10^{24}$ kg) have to be crushed to become a black hole? Find $R_s=2GM/c^2$ in millimetres.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the formula.</b> $R_s=\dfrac{2(6.674\times10^{-11})(5.972\times10^{24})}{(2.998\times10^8)^2}$.</li>
+          <li><b>Evaluate.</b> $R_s=8.87\times10^{-3}$ m $=8.87$ mm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $R_s\approx8.9$ mm — squeeze the entire Earth to the size of a marble and it becomes a black hole.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> M87* holds $M=6.5\times10^{9}\,M_\odot$. Find its Schwarzschild radius in AU. (Since $R_s\propto M$, you can also scale from the $2.95$ km per $M_\odot$ rule.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Use the linear scaling.</b> $R_s=2.95\text{ km}\times6.5\times10^{9}=1.92\times10^{10}$ km $=1.92\times10^{13}$ m.</li>
+          <li><b>Convert to AU.</b> $\dfrac{1.92\times10^{13}}{1.496\times10^{11}}=128$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $R_s\approx128$ AU — larger than the entire orbit of Pluto, a single horizon swallowing our whole planetary system.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. SPAGHETTIFICATION -->
+<!-- ============================================================= -->
+<section class="chapter" id="spaghetti">
+  <span class="era">Falling in · Tidal forces</span>
+  <h2>Why a small black hole is deadlier than a giant one</h2>
+  <p class="who">Newtonian tides · the counter-intuitive twist Becky loves</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Gravity is stronger nearer the source, so your feet feel more pull than your head as you fall in. That difference — the <i>tidal force</i> — stretches you head-to-toe and squeezes you sideways: <b>spaghettification</b>.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Tidal stretching grows as $1/r^3$, far faster than gravity's own $1/r^2$. So the danger is set by how close the horizon sits — which depends on mass.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Evaluate the stretch <i>at the horizon</i>. The algebra gives a surprise: tidal force at $r_s$ scales as $1/M^2$. Bigger black hole, gentler crossing.</p></div>
+    <div class="beat found"><div class="tag">The conclusion</div>
+      <p>At a stellar-mass black hole you are pulled apart <i>long before</i> reaching the horizon. At a supermassive one you could sail across the horizon barely noticing — the violence comes later.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The test: how hard are you stretched on the way in?</h3>
+    <p class="hint">Choose a black hole mass. The curve is the tidal stretch on a 1.8 m body versus distance (in horizon radii). The dashed line is roughly the lethal threshold (~10 g across your body). Where it crosses the curve tells you whether you die outside or inside the horizon.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Black hole mass <b><span id="sp_mlbl">10 M☉</span></b></label>
+        <input id="sp_mass" type="range" min="0" max="9" step="0.1" value="1">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ solar masses: 1 = stellar, 6.6 = Sgr A*</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Tidal stretch at horizon</div><div class="v"><span id="sp_g">2e7</span> <small>g</small></div></div>
+      <div class="stat"><div class="k">Lethal at</div><div class="v"><span id="sp_lethal">7300</span> <small>× r<sub>s</sub></small></div></div>
+    </div>
+    <div class="verdict" id="sp_verdict"></div>
+    <div id="plot_sp" class="plot"></div>
+    <div class="eq">$$ \Delta a \approx \frac{2GM\,h}{r^3}\quad\Rightarrow\quad \Delta a\big|_{r=r_s}=\frac{h\,c^6}{4G^2M^2}\ \propto\ \frac{1}{M^2} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Falling toward a $10\,M_\odot$ black hole ($R_s=2.95\text{ km}\times10=29.5$ km), compute the tidal stretch $\Delta a=\dfrac{2GMh}{r^3}$ across an $h=1.8$ m body right at the horizon, in units of $g=9.81$ m/s².</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass and radius.</b> $M=10\times1.989\times10^{30}=1.989\times10^{31}$ kg; $r=R_s=2.95\times10^{4}$ m.</li>
+          <li><b>Numerator.</b> $2GMh=2(6.674\times10^{-11})(1.989\times10^{31})(1.8)=4.78\times10^{21}$.</li>
+          <li><b>Divide by $r^3$.</b> $\Delta a=\dfrac{4.78\times10^{21}}{(2.95\times10^4)^3}=1.86\times10^{8}$ m/s² $=1.9\times10^{7}\,g$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1.9\times10^{7}\,g$ — tens of millions of g across your body; a stellar black hole shreds you long before the horizon.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Now a supermassive $10^{6}\,M_\odot$ hole ($R_s=2.95\times10^{6}$ km $=2.95\times10^{9}$ m). Compute the same horizon tidal stretch on a $1.8$ m body, in $g$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass and radius.</b> $M=10^{6}\times1.989\times10^{30}=1.989\times10^{36}$ kg; $r=2.95\times10^{9}$ m.</li>
+          <li><b>Numerator.</b> $2GMh=2(6.674\times10^{-11})(1.989\times10^{36})(1.8)=4.78\times10^{26}$.</li>
+          <li><b>Divide by $r^3$.</b> $\Delta a=\dfrac{4.78\times10^{26}}{(2.95\times10^9)^3}=1.86\times10^{-2}$ m/s² $\approx1.9\times10^{-3}\,g$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> only about $0.002\,g$ — utterly gentle. You would cross a supermassive horizon without feeling a thing, confirming the $\Delta a\propto1/M^2$ rule.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> For the $10\,M_\odot$ hole, at what distance $r$ does the tidal stretch reach a lethal $\sim10\,g$? Solve $\dfrac{2GMh}{r^3}=10\times9.81$ for $r$, then express it in $R_s$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Solve for $r$.</b> $r=\left(\dfrac{2GMh}{98.1}\right)^{1/3}=\left(\dfrac{4.78\times10^{21}}{98.1}\right)^{1/3}$.</li>
+          <li><b>Evaluate.</b> $r=(4.87\times10^{19})^{1/3}=3.65\times10^{6}$ m.</li>
+          <li><b>In horizon radii.</b> $\dfrac{r}{R_s}=\dfrac{3.65\times10^{6}}{2.95\times10^4}=124$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $124\,R_s$ — you are torn apart roughly a hundred horizon-radii out, far outside the hole, the grim signature of a small black hole.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5b. GRAVITATIONAL TIME DILATION -->
+<!-- ============================================================= -->
+<section class="chapter" id="timedilation">
+  <span class="era">Relativity · The ultimate time machine</span>
+  <h2>Time runs slow near a black hole</h2>
+  <p class="who">Einstein · tested by Pound &amp; Rebka · dramatised by <i>Interstellar</i></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>General relativity says clocks tick slower the deeper they sit in a gravity well. It’s tiny on Earth — but real: GPS satellites must correct for it, and the 1959 Pound–Rebka experiment measured it in a lift shaft.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Near a black hole the effect runs wild. Hover just outside the event horizon and your clock crawls compared to a distant observer’s — approach the horizon and time almost stops, seen from afar.</p></div>
+    <div class="beat test"><div class="tag">The maths</div>
+      <p>The slow-down factor is $\sqrt{1-r_s/r}$. In <i>Interstellar</i>, an hour on Miller’s planet near Gargantua passed as seven years back home — a factor of ~61,000, only possible skimming a rapidly spinning black hole.</p></div>
+    <div class="beat found"><div class="tag">The conclusion</div>
+      <p>Time is not universal; gravity bends it. A black hole is a one-way time machine into the future — and the light that climbs out of the well is stretched and reddened on the way.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Hover near the horizon and watch a clock</h3>
+    <p class="hint">Set how close you hover, in horizon radii. The dial shows how much time passes far away while one hour passes for you. Slide toward 1 × r<sub>s</sub> and the gap explodes.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Distance above horizon <b><span id="td_rlbl">2.0</span> × r<sub>s</sub></b></label>
+        <input id="td_r" type="range" min="-8" max="2" step="0.01" value="0">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀(r/r<sub>s</sub> − 1): left = skimming the horizon, right = far away</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Your clock rate</div><div class="v"><span id="td_rate">0.71</span> <small>× distant time</small></div></div>
+      <div class="stat"><div class="k">1 hour for you =</div><div class="v" id="td_far">1.4 h</div></div>
+      <div class="stat"><div class="k">Light is redshifted</div><div class="v"><span id="td_z">×1.4</span></div></div>
+    </div>
+    <div class="verdict" id="td_verdict"></div>
+    <div id="plot_td" class="plot"></div>
+    <div class="eq">$$ \frac{d\tau}{dt}=\sqrt{1-\frac{r_s}{r}},\qquad 1+z=\frac{1}{\sqrt{1-r_s/r}} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> You hover at $r=2r_s$ above a black hole. Using $\dfrac{d\tau}{dt}=\sqrt{1-\dfrac{r_s}{r}}$, how fast does your clock run compared with a distant observer's?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{r_s}{r}=\dfrac{r_s}{2r_s}=0.5$.</li>
+          <li><b>Apply the formula.</b> $\dfrac{d\tau}{dt}=\sqrt{1-0.5}=\sqrt{0.5}=0.707$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> your clock ticks at $0.71\times$ the distant rate — already a 29% slowdown just two horizon-radii out.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> You hover very close, at $r=1.01\,r_s$. For every $1$ hour you experience, how much time passes far away? (Distant time $=\dfrac{\text{your time}}{\sqrt{1-r_s/r}}$.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Compute the factor.</b> $\dfrac{r_s}{r}=\dfrac{1}{1.01}=0.9901$, so $1-0.9901=9.9\times10^{-3}$.</li>
+          <li><b>Take the root and invert.</b> $\sqrt{9.9\times10^{-3}}=0.0995$, so the dilation $=\dfrac{1}{0.0995}=10.0$.</li>
+          <li><b>Scale the hour.</b> Distant time $=10.0\times1$ h.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $10$ hours pass outside for each hour you feel — skim still closer and the gap explodes, the <i>Interstellar</i> effect.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Light emitted by gas hovering at $r=4\,r_s$ climbs out to a distant observer. Find its gravitational redshift $1+z=\dfrac{1}{\sqrt{1-r_s/r}}$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{r_s}{r}=\dfrac{1}{4}=0.25$.</li>
+          <li><b>Apply the formula.</b> $1+z=\dfrac{1}{\sqrt{1-0.25}}=\dfrac{1}{\sqrt{0.75}}=\dfrac{1}{0.866}=1.15$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $1+z\approx1.15$, a 15% redshift — light loses energy climbing out of the well, reddening as it escapes.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. WEIGHING SGR A* -->
+<!-- ============================================================= -->
+<section class="chapter" id="sgra">
+  <span class="era">1992 – 2020 · The monster next door</span>
+  <h2>Weighing the black hole at the Milky Way's heart</h2>
+  <p class="who"><b>Andrea Ghez</b> &amp; <b>Reinhard Genzel</b> · Nobel Prize 2020 (with Roger Penrose)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Something invisible and compact lurked at the galactic centre, blazing faintly in radio as <b>Sagittarius A*</b>. But was it really a black hole — or just a dense star cluster?</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Track individual stars whipping around the centre. Their orbits obey Kepler's third law, and the orbit fixes the mass inside — no light from the object required.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>For two decades, two teams imaged the star <b>S2</b> with adaptive optics, watching it swing through a 16-year orbit and round its closest approach in 2018. Period and orbit size in, mass out.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p><b>≈ 4 million solar masses</b> packed inside S2's tiny orbit — far too dense to be anything but a black hole. Nobel Prize, 2020.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: run Kepler's third law on S2's orbit</h3>
+    <p class="hint">Set the orbit's size and period (defaults are S2's real values). Kepler's law converts them straight into the hidden mass. The plot draws the ellipse with the black hole sitting at the focus.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Semi-major axis <b><span id="kp_albl">1000</span> AU</b></label>
+        <input id="kp_a" type="range" min="400" max="2000" step="10" value="1000">
+      </div>
+      <div class="ctl">
+        <label>Orbital period <b><span id="kp_plbl">16.0</span> yr</b></label>
+        <input id="kp_p" type="range" min="8" max="30" step="0.1" value="16">
+      </div>
+      <div class="ctl">
+        <label>Eccentricity <b><span id="kp_elbl">0.88</span></b></label>
+        <input id="kp_e" type="range" min="0" max="0.95" step="0.01" value="0.88">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Enclosed mass</div><div class="v"><span id="kp_mass">3.9</span> <small>million M☉</small></div></div>
+      <div class="stat"><div class="k">Closest approach</div><div class="v"><span id="kp_peri">120</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Its Schwarzschild radius</div><div class="v"><span id="kp_rs">0.08</span> <small>AU</small></div></div>
+    </div>
+    <div id="plot_kp" class="plot" style="height:420px"></div>
+    <div class="eq">$$ \frac{a^3}{P^2}=\frac{G M}{4\pi^2}\quad\Rightarrow\quad M\,[M_\odot]=\frac{(a\,[\text{AU}])^3}{(P\,[\text{yr}])^2} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The star S2 orbits Sgr A* with semi-major axis $a=1000$ AU and period $P=16$ yr. Using the tidy form $M\,[M_\odot]=\dfrac{(a\,[\text{AU}])^3}{(P\,[\text{yr}])^2}$, weigh the central object.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Cube the axis.</b> $a^3=1000^3=1.0\times10^{9}$.</li>
+          <li><b>Square the period.</b> $P^2=16^2=256$.</li>
+          <li><b>Divide.</b> $M=\dfrac{1.0\times10^{9}}{256}=3.91\times10^{6}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3.9$ million $M_\odot$ — packed inside S2's tiny orbit, far too dense to be anything but a black hole.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Using S2's more precise values, $a=970$ AU and $P=16.05$ yr, recompute the enclosed mass with $M=a^3/P^2$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Cube and square.</b> $a^3=970^3=9.13\times10^{8}$; $P^2=16.05^2=257.6$.</li>
+          <li><b>Divide.</b> $M=\dfrac{9.13\times10^{8}}{257.6}=3.54\times10^{6}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3.5$ million $M_\odot$ — consistent with the modern $\sim4$ million $M_\odot$ figure that won the 2020 Nobel Prize.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> With $a=1000$ AU and eccentricity $e=0.88$, how close does S2 sweep past the black hole at pericentre, $r_{\text{peri}}=a(1-e)$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the pericentre formula.</b> $r_{\text{peri}}=a(1-e)=1000(1-0.88)$.</li>
+          <li><b>Evaluate.</b> $r_{\text{peri}}=1000\times0.12=120$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $120$ AU — about three times Pluto's distance, where S2 whips around at a few percent of light-speed, testing general relativity itself.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6b. ACCRETION / QUASARS / EDDINGTON -->
+<!-- ============================================================= -->
+<section class="chapter" id="accretion">
+  <span class="era">1963 · The brightest things in the Universe</span>
+  <h2>How a black hole shines — accretion &amp; quasars</h2>
+  <p class="who"><b>Maarten Schmidt</b> · and the Eddington limit</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A black hole emits nothing — yet in 1963 Maarten Schmidt found "quasars": starlike radio sources, billions of light-years away, outshining whole galaxies. What could be so small yet so luminous?</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Gas spiralling toward a black hole can’t fall straight in; it forms an <b>accretion disk</b>. Friction heats it to millions of degrees, and it blazes in ultraviolet and X-rays — converting up to ~10% of the infalling mass to pure energy, far beating nuclear fusion.</p></div>
+    <div class="beat test"><div class="tag">The limit</div>
+      <p>There’s a ceiling. As the disk brightens, its own radiation pressure pushes outward; past the <b>Eddington luminosity</b> it blows the fuel away. That caps how fast a black hole can feed — and grow.</p></div>
+    <div class="beat found"><div class="tag">What it explained</div>
+      <p>Quasars are supermassive black holes feeding near their Eddington limit in the young Universe — devouring a few Suns a year. Accretion is both how black holes betray themselves and how they grew to millions of solar masses.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Feed a black hole</h3>
+    <p class="hint">Set the black hole’s mass and how hard it’s feeding (its Eddington ratio). Read off the luminosity, the appetite in Suns-per-year, and the inner-disk temperature — note how a small black hole’s disk runs X-ray hot while a giant’s glows cooler in the ultraviolet.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Black hole mass <b><span id="ac_mlbl">1.0×10⁸ M☉</span></b></label>
+        <input id="ac_mass" type="range" min="0" max="10" step="0.1" value="8">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ solar masses (1 = stellar, 8 = a quasar)</span><b></b></label>
+      </div>
+      <div class="ctl">
+        <label>Eddington ratio <b><span id="ac_rlbl">1.0</span></b></label>
+        <input id="ac_ratio" type="range" min="-2" max="0" step="0.02" value="0">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ of L / L<sub>Edd</sub> (1% → 100% of the limit)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Eddington luminosity</div><div class="v"><span id="ac_ledd">1.3e12</span> <small>L☉</small></div></div>
+      <div class="stat"><div class="k">Actual luminosity</div><div class="v"><span id="ac_l">1.3e12</span> <small>L☉</small></div></div>
+      <div class="stat"><div class="k">Appetite</div><div class="v"><span id="ac_mdot">2.2</span> <small>M☉ / yr</small></div></div>
+      <div class="stat"><div class="k">Inner-disk temp</div><div class="v"><span id="ac_temp">1e5</span> <small>K</small></div></div>
+    </div>
+    <div id="plot_ac" class="plot"></div>
+    <div class="eq">$$ L_{\text{Edd}}=\frac{4\pi G M m_p c}{\sigma_T}\approx 1.26\times10^{31}\,\text{W}\,\frac{M}{M_\odot},\qquad L=\eta\,\dot{m}c^2\ (\eta\approx0.1) $$</div>
+  </div>
+
+  <div class="figrow two">
+    <figure><canvas id="quasar_canvas" width="520" height="320"></canvas>
+      <figcaption>Procedural accretion disk around a feeding black hole (animated).</figcaption></figure>
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Artist%27s%20rendering%20ULAS%20J1120%2B0641.jpg" alt="Artist's impression of a distant quasar" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" data-slot="quasar" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>A quasar / active galactic nucleus.</div></div>
+      <figcaption>Artist’s impression of a quasar — ESO/M. Kornmesser (CC BY 4.0).</figcaption>
+    </figure>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A quasar holds a $10^{8}\,M_\odot$ black hole. Its Eddington luminosity is $L_{\text{Edd}}\approx1.26\times10^{31}\,\text{W}\times\dfrac{M}{M_\odot}$. Find $L_{\text{Edd}}$ and express it in solar luminosities ($L_\odot=3.828\times10^{26}$ W).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the scaling.</b> $L_{\text{Edd}}=1.26\times10^{31}\times10^{8}=1.26\times10^{39}$ W.</li>
+          <li><b>Convert to $L_\odot$.</b> $\dfrac{1.26\times10^{39}}{3.828\times10^{26}}=3.29\times10^{12}\,L_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3.3\times10^{12}\,L_\odot$ — trillions of Suns, brighter than the entire host galaxy, which is why quasars shine across the Universe.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> If that quasar shines at its Eddington limit with efficiency $\eta=0.1$, how much mass must it swallow per year? Use $L=\eta\dot{m}c^2\Rightarrow\dot{m}=L/(\eta c^2)$, then convert to $M_\odot$/yr ($1$ yr $=3.156\times10^{7}$ s).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Solve for $\dot{m}$.</b> $\dot{m}=\dfrac{L}{\eta c^2}=\dfrac{1.26\times10^{39}}{0.1\,(2.998\times10^8)^2}=1.40\times10^{23}$ kg/s.</li>
+          <li><b>Per year.</b> $\dot{m}=1.40\times10^{23}\times3.156\times10^{7}=4.42\times10^{30}$ kg/yr.</li>
+          <li><b>In solar masses.</b> $\dfrac{4.42\times10^{30}}{1.989\times10^{30}}=2.22\,M_\odot$/yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2.2\,M_\odot$ per year — the quasar devours a couple of Suns annually, the appetite that grew these monsters in the young Universe.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A stellar-mass black hole of $10\,M_\odot$ accretes. What is its Eddington luminosity, in $L_\odot$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the scaling.</b> $L_{\text{Edd}}=1.26\times10^{31}\times10=1.26\times10^{32}$ W.</li>
+          <li><b>Convert.</b> $\dfrac{1.26\times10^{32}}{3.828\times10^{26}}=3.29\times10^{5}\,L_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3.3\times10^{5}\,L_\odot$ — a feeding stellar black hole can outshine hundreds of thousands of Suns, blazing in X-rays as an X-ray binary.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. HAWKING -->
+<!-- ============================================================= -->
+<section class="chapter" id="hawking">
+  <span class="era">1974 · Black holes are not quite black</span>
+  <h2>The glow that makes black holes evaporate</h2>
+  <p class="who"><b>Stephen Hawking</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Bekenstein argued a black hole must have entropy, proportional to its horizon area. But anything with entropy and a temperature should radiate — and a black hole was supposed to swallow everything.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Hawking applied quantum field theory near the horizon. The vacuum fizzes with particle pairs; near a horizon one can fall in while its partner escapes, carrying away energy.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>He derived the temperature of that leakage. It is inversely proportional to mass: small black holes are <i>hot</i>, giant ones are colder than deep space.</p></div>
+    <div class="beat found"><div class="tag">The conclusion</div>
+      <p>Black holes slowly <b>evaporate</b>. A stellar black hole would take $10^{67}$ years; but a mountain-mass primordial one would be detonating right about now. It tied gravity, quantum theory and thermodynamics in one knot we still can't fully untie.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: temperature and lifetime versus mass</h3>
+    <p class="hint">Slide the mass across 50 orders of magnitude. Note where the lifetime equals the age of the Universe — that's the size of a primordial black hole that would be exploding today.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Black hole mass <b><span id="hw_mlbl">1.0 M☉</span></b></label>
+        <input id="hw_mass" type="range" min="8" max="40" step="0.1" value="30.3">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ kilograms (11 ≈ a mountain, 30.3 = the Sun, 39 ≈ a billion suns)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Hawking temperature</div><div class="v"><span id="hw_t">6e-8</span> <small>K</small></div></div>
+      <div class="stat"><div class="k">Evaporation time</div><div class="v"><span id="hw_life">2e67</span> <small>yr</small></div></div>
+      <div class="stat"><div class="k">vs. age of Universe</div><div class="v" id="hw_cmp" style="font-size:14px">far longer</div></div>
+    </div>
+    <div id="plot_hw" class="plot"></div>
+    <div class="eq">$$ T_H=\frac{\hbar c^3}{8\pi G M k_B},\qquad t_{\text{evap}}\approx 2.1\times10^{67}\,\text{yr}\left(\frac{M}{M_\odot}\right)^{3} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Find the Hawking temperature of a $1\,M_\odot$ black hole using $T_H=\dfrac{\hbar c^3}{8\pi G M k_B}$ ($\hbar=1.0546\times10^{-34}$, $k_B=1.381\times10^{-23}$).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Numerator.</b> $\hbar c^3=(1.0546\times10^{-34})(2.998\times10^8)^3=2.84\times10^{-9}$.</li>
+          <li><b>Denominator.</b> $8\pi G M k_B=8\pi(6.674\times10^{-11})(1.989\times10^{30})(1.381\times10^{-23})=4.61\times10^{-2}$.</li>
+          <li><b>Divide.</b> $T_H=\dfrac{2.84\times10^{-9}}{4.61\times10^{-2}}=6.17\times10^{-8}$ K.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $T_H\approx6.2\times10^{-8}$ K — far colder than deep space (2.7 K), so a solar-mass hole absorbs far more than it radiates.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> How long does a $10\,M_\odot$ black hole take to evaporate? Use $t_{\text{evap}}\approx2.1\times10^{67}\,\text{yr}\left(\dfrac{M}{M_\odot}\right)^3$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Cube the mass ratio.</b> $\left(\dfrac{10\,M_\odot}{M_\odot}\right)^3=10^3=1000$.</li>
+          <li><b>Multiply.</b> $t_{\text{evap}}=2.1\times10^{67}\times1000=2.1\times10^{70}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2\times10^{70}$ years — unimaginably longer than the $1.4\times10^{10}$-year age of the Universe; stellar black holes are effectively eternal.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A primordial black hole of mass $M=1\times10^{11}$ kg formed in the Big Bang. Using $t_{\text{evap}}\approx2.1\times10^{67}\,\text{yr}\,(M/M_\odot)^3$ with $M_\odot=1.989\times10^{30}$ kg, has it already evaporated (age of Universe $\approx1.4\times10^{10}$ yr)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass ratio.</b> $\dfrac{M}{M_\odot}=\dfrac{1\times10^{11}}{1.989\times10^{30}}=5.03\times10^{-20}$.</li>
+          <li><b>Cube it.</b> $(5.03\times10^{-20})^3=1.27\times10^{-58}$.</li>
+          <li><b>Lifetime.</b> $t_{\text{evap}}=2.1\times10^{67}\times1.27\times10^{-58}=2.7\times10^{9}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2.7$ billion years — shorter than the Universe's age, so a hole this size would have already detonated; slightly heavier ones would be exploding right now.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. GRAVITATIONAL WAVES -->
+<!-- ============================================================= -->
+<section class="chapter" id="waves">
+  <span class="era">14 September 2015 · Hearing two black holes collide</span>
+  <h2>The chirp that proved black holes merge</h2>
+  <p class="who"><b>LIGO</b> · event GW150914 · Nobel Prize 2017</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Einstein predicted that accelerating masses ripple spacetime, but the waves are absurdly faint — he doubted they'd ever be measured. Two orbiting black holes should spiral together, radiating these ripples.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>As the pair spirals in, the orbit speeds up, so the wave's frequency and amplitude rise together into a "<b>chirp</b>" — a precise, predictable swoop ending in a merger.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>LIGO's two 4-km laser arms watch for a length change of $10^{-19}$ m — a thousandth the width of a proton. On its first run it caught a textbook chirp.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p>Two black holes of <b>36 and 29 M☉</b>, 1.3 billion light-years away, merged into one of 62 — radiating <b>3 M☉ of pure energy</b> as gravitational waves in a fifth of a second. Nobel Prize, 2017.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The data: build your own inspiral chirp</h3>
+    <p class="hint">Set the two black hole masses. The waveform is the schematic inspiral strain — frequency and amplitude both sweep up to the merger. Heavier black holes merge at lower frequency and "ring" sooner.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Black hole 1 <b><span id="gw_m1l">36</span> M☉</b></label>
+        <input id="gw_m1" type="range" min="5" max="80" step="1" value="36">
+      </div>
+      <div class="ctl">
+        <label>Black hole 2 <b><span id="gw_m2l">29</span> M☉</b></label>
+        <input id="gw_m2" type="range" min="5" max="80" step="1" value="29">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Chirp mass</div><div class="v"><span id="gw_mc">28</span> <small>M☉</small></div></div>
+      <div class="stat"><div class="k">Final black hole</div><div class="v"><span id="gw_final">62</span> <small>M☉</small></div></div>
+      <div class="stat"><div class="k">Energy radiated</div><div class="v"><span id="gw_erad">3.0</span> <small>M☉ c²</small></div></div>
+    </div>
+    <div id="plot_gw" class="plot"></div>
+    <div class="eq">$$ \mathcal{M}=\frac{(m_1 m_2)^{3/5}}{(m_1+m_2)^{1/5}},\qquad f_{\text{gw}}(\tau)=\frac{1}{\pi}\left(\frac{5}{256\,\tau}\right)^{3/8}\left(\frac{G\mathcal{M}}{c^3}\right)^{-5/8} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> GW150914 merged two black holes of $m_1=36\,M_\odot$ and $m_2=29\,M_\odot$. Compute the chirp mass $\mathcal{M}=\dfrac{(m_1 m_2)^{3/5}}{(m_1+m_2)^{1/5}}$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Numerator.</b> $(m_1 m_2)^{3/5}=(36\times29)^{0.6}=(1044)^{0.6}=64.4$.</li>
+          <li><b>Denominator.</b> $(m_1+m_2)^{1/5}=(65)^{0.2}=2.29$.</li>
+          <li><b>Divide.</b> $\mathcal{M}=\dfrac{64.4}{2.29}=28.1\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\mathcal{M}\approx28\,M_\odot$ — the single number that sets the chirp's frequency sweep, read straight off LIGO's signal.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Two equal $30\,M_\odot$ black holes merge. Find the chirp mass, and estimate the energy radiated as gravitational waves if $\sim5\%$ of the total mass is lost.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Chirp mass.</b> $\mathcal{M}=\dfrac{(30\times30)^{0.6}}{(60)^{0.2}}=\dfrac{59.7}{2.27}=26.1\,M_\odot$.</li>
+          <li><b>Energy radiated.</b> $5\%$ of $(30+30)=60\,M_\odot$ is $0.05\times60=3.0\,M_\odot c^2$.</li>
+          <li><b>Final hole.</b> $60-3.0=57\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\mathcal{M}\approx26\,M_\odot$, with about $3\,M_\odot c^2$ blasted out as waves, leaving a $\sim57\,M_\odot$ hole — three Suns turned to pure spacetime ripples in a fraction of a second.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A lighter pair, $m_1=m_2=10\,M_\odot$, spirals together. What is their chirp mass?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Numerator.</b> $(10\times10)^{0.6}=(100)^{0.6}=15.8$.</li>
+          <li><b>Denominator.</b> $(20)^{0.2}=1.82$.</li>
+          <li><b>Divide.</b> $\mathcal{M}=\dfrac{15.8}{1.82}=8.71\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\mathcal{M}\approx8.7\,M_\odot$ — a smaller chirp mass means the signal sweeps up to higher frequency before merging, the fingerprint of a lighter pair.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 9. EHT IMAGE -->
+<!-- ============================================================= -->
+<section class="chapter" id="image">
+  <span class="era">10 April 2019 · Seeing the unseeable</span>
+  <h2>The first photograph of a shadow</h2>
+  <p class="who">The <b>Event Horizon Telescope</b> · M87*, and in 2022, our own Sgr A*</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>General relativity predicted a black hole would cast a dark "shadow" about 2.6 times the horizon size, ringed by light bent around it. No telescope on Earth was sharp enough to see it.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Turn the whole planet into one telescope. Link radio dishes from Hawaii to the South Pole so they act as a single Earth-sized lens — enough resolution to read a newspaper in New York from a café in Paris.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In April 2017 the array stared at <b>M87*</b>, a 6.5-billion-solar-mass giant 55 million light-years away. Petabytes of data flew home on hard drives; two years of computation assembled the image.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p>A glowing ring around a dark heart — exactly the size and shape Einstein's maths demanded, a century on. The shadow is real.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The render: a black hole's shadow and ring</h3>
+    <p class="hint">A live procedural render of the lensed accretion disk and photon ring. Tilt the disk and spin it; one side brightens because the gas racing toward you is Doppler-boosted — the asymmetry the EHT actually saw.</p>
+    <div class="controls">
+      <div class="ctl"><label>Disk tilt <b><span id="eh_tl">68</span>°</b></label><input id="eh_tilt" type="range" min="5" max="85" step="1" value="68"></div>
+      <div class="ctl"><label>Doppler asymmetry <b><span id="eh_dl">0.8</span></b></label><input id="eh_dop" type="range" min="0" max="1" step="0.05" value="0.8"></div>
+      <div class="ctl"><label>Disk glow <b><span id="eh_gl">1.0</span></b></label><input id="eh_glow" type="range" min="0.4" max="1.6" step="0.05" value="1.0"></div>
+    </div>
+    <div class="figrow two">
+      <figure><canvas id="eht_canvas" width="520" height="420"></canvas>
+        <figcaption>Procedural EHT-style render (Doppler-brightened ring around a shadow), driven by the sliders.</figcaption></figure>
+      <figure class="realfig" style="margin:0">
+        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Black_hole_-_Messier_87_crop_max_res.jpg?width=520" alt="The first image of a black hole, M87*, by the Event Horizon Telescope" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+        <div class="imgslot" data-slot="eht" style="display:none;border:0;border-radius:0"><div><b>AI-image slot.</b><br>The real EHT image of M87* / Sgr A*.</div></div>
+        <figcaption>The first image of a black hole: M87*, 2019 — EHT Collaboration (CC BY 4.0).</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> M87* ($M=6.5\times10^{9}\,M_\odot$, $R_s\approx1.92\times10^{13}$ m) lies $d=16.8$ Mpc away ($1$ Mpc $=3.086\times10^{22}$ m). Its dark shadow has a diameter $\approx5.2\,R_s$. Find its angular size, $\theta=\dfrac{5.2\,R_s}{d}$, in microarcseconds ($1$ rad $=2.063\times10^{11}$ µas).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Shadow diameter.</b> $D=5.2\,R_s=5.2\times1.92\times10^{13}=9.98\times10^{13}$ m.</li>
+          <li><b>Distance in metres.</b> $d=16.8\times3.086\times10^{22}=5.18\times10^{23}$ m.</li>
+          <li><b>Angle and conversion.</b> $\theta=\dfrac{9.98\times10^{13}}{5.18\times10^{23}}=1.93\times10^{-10}$ rad $\times2.063\times10^{11}=39.7$ µas.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $40$ µas — the orange-on-the-Moon angle the Event Horizon Telescope actually resolved in 2019.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Our own Sgr A* ($M=4.1\times10^{6}\,M_\odot$, $R_s\approx1.21\times10^{10}$ m) sits just $d=8.0$ kpc away ($1$ kpc $=3.086\times10^{19}$ m). Find its shadow's angular size ($\theta=5.2R_s/d$) in µas.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Shadow diameter.</b> $D=5.2\times1.21\times10^{10}=6.29\times10^{10}$ m.</li>
+          <li><b>Distance.</b> $d=8.0\times3.086\times10^{19}=2.47\times10^{20}$ m.</li>
+          <li><b>Angle.</b> $\theta=\dfrac{6.29\times10^{10}}{2.47\times10^{20}}=2.55\times10^{-10}$ rad $\times2.063\times10^{11}=52.6$ µas.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $53$ µas — slightly larger on the sky than M87*, despite being a thousand times lighter, because it is so much closer; imaged by the EHT in 2022.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The EHT observes at $\lambda=1.3$ mm with an Earth-sized aperture $A=1.0\times10^{7}$ m. Its resolution is $\theta\approx\dfrac{1.22\,\lambda}{A}$. Find $\theta$ in µas and confirm it can resolve the $\sim40$ µas shadow.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the diffraction limit.</b> $\theta=\dfrac{1.22\times1.3\times10^{-3}}{1.0\times10^{7}}=1.59\times10^{-10}$ rad.</li>
+          <li><b>Convert to µas.</b> $\theta=1.59\times10^{-10}\times2.063\times10^{11}=32.7$ µas.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\theta\approx33$ µas — finer than the $40$ µas shadow, which is exactly why the array had to span the whole planet.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A hobby project that pairs the discovery stories in <b>Becky Smethurst's <i>A Brief History of Black Holes</i></b> with interactive recreations of the physics. The plots compute real formulae live; the black-hole, star and supernova figures are rendered procedurally in your browser (no external images), and the dashed "AI-image slots" are placeholders you can replace with your own artwork.</p>
+  <p style="margin-top:8px">Constants used (SI): $G=6.674\times10^{-11}$, $c=2.998\times10^8$, $\hbar=1.055\times10^{-34}$, $k_B=1.381\times10^{-23}$, $M_\odot=1.989\times10^{30}$ kg. Some illustrations (the chirp, the remnant thresholds) are deliberately schematic — accurate in scaling and spirit, simplified in detail. Not affiliated with the author or publisher.</p>
+</footer>
+
+<script>
+/* =======================================================================
+   Constants (SI)
+======================================================================= */
+const G=6.674e-11, C=2.998e8, HBAR=1.0546e-34, KB=1.381e-23, H=6.626e-34;
+const MSUN=1.989e30, MEARTH=5.972e24, WIEN=2.898e-3, AU=1.496e11, YR=3.156e7;
+const LSUN=3.828e26;
+const C2=C*C, C6=Math.pow(C,6);
+
+/* number helpers */
+function sup(n){return String(n).replace(/-/g,'−').replace(/[0-9]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]);}
+function sci(x,sig=2){
+  if(x===0) return '0';
+  if(!isFinite(x)) return '∞';
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  if(e>=-2 && e<4){ // plain
+    const r=x.toPrecision(sig);
+    return parseFloat(r).toLocaleString(undefined,{maximumSignificantDigits:sig});
+  }
+  const m=(x/Math.pow(10,e)).toPrecision(sig);
+  return `${parseFloat(m)}×10${sup(e)}`;
+}
+function commas(x){return Math.round(x).toLocaleString();}
+
+/* shared Plotly dark layout */
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:62,r:18,t:18,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+
+/* blackbody temperature -> approximate sRGB (Tanner Helland) */
+function bbColor(K){
+  let t=K/100, r,g,b;
+  r = t<=66 ? 255 : 329.6987*Math.pow(t-60,-0.13320476);
+  g = t<=66 ? 99.4708*Math.log(t)-161.1196 : 288.1222*Math.pow(t-60,-0.07551485);
+  b = t>=66 ? 255 : (t<=19 ? 0 : 138.5177*Math.log(t-10)-305.0448);
+  const cl=v=>Math.max(0,Math.min(255,Math.round(v)));
+  return [cl(r),cl(g),cl(b)];
+}
+function specClass(T){
+  if(T>=30000)return['O','Zeta Oph'];if(T>=10000)return['B','Rigel'];
+  if(T>=7500)return['A','Sirius'];if(T>=6000)return['F','Procyon'];
+  if(T>=5200)return['G','the Sun'];if(T>=3700)return['K','Arcturus'];
+  return['M','Betelgeuse'];
+}
+
+/* =======================================================================
+   1. BLACKBODY / STELLAR SPECTRA
+======================================================================= */
+(function(){
+  const tEl=document.getElementById('bb_temp'), lbl=document.getElementById('bb_t');
+  const peak=document.getElementById('bb_peak'), cls=document.getElementById('bb_class');
+  const lum=document.getElementById('bb_lum'), sw=document.getElementById('bb_swatch');
+  const preset=document.getElementById('bb_preset');
+
+  function planck(lam_nm,T){ // returns relative spectral radiance
+    const lam=lam_nm*1e-9;
+    return (2*H*C2/Math.pow(lam,5))/(Math.exp(H*C/(lam*KB*T))-1);
+  }
+  function draw(){
+    const T=+tEl.value; lbl.textContent=T;
+    const xs=[],ys=[]; let pk=0;
+    for(let nm=120; nm<=2200; nm+=8){ xs.push(nm); const v=planck(nm,T); ys.push(v); if(v>pk)pk=v; }
+    const ynorm=ys.map(v=>v/pk);
+    const lp=WIEN/T*1e9;
+    // visible band shading via shapes
+    const shapes=[{type:'rect',xref:'x',yref:'paper',x0:380,x1:750,y0:0,y1:1,
+      fillcolor:'rgba(180,180,255,0.06)',line:{width:0}}];
+    const [r,gg,b]=bbColor(T);
+    const trace={x:xs,y:ynorm,mode:'lines',line:{color:`rgb(${r},${gg},${b})`,width:3},
+      fill:'tozeroy', fillcolor:`rgba(${r},${gg},${b},0.12)`, hovertemplate:'%{x:.0f} nm<extra></extra>'};
+    const peakMarker={x:[lp],y:[1.0],mode:'markers+text',text:['Wien peak'],textposition:'top center',
+      textfont:{color:'#ffb24a'}, marker:{color:'#ffb24a',size:9}, hoverinfo:'skip'};
+    Plotly.react('plot_bb',[trace,peakMarker], baseLayout({
+      shapes, xaxis:{title:'wavelength (nm)',range:[120,2000],gridcolor:'rgba(140,160,230,0.12)'},
+      yaxis:{title:'relative intensity',range:[0,1.12],gridcolor:'rgba(140,160,230,0.12)'}
+    }), PCFG);
+    peak.textContent=Math.round(lp);
+    const [sc,star]=specClass(T); cls.textContent=sc;
+    lum.textContent=sci(Math.pow(T/5778,4),2);
+    sw.style.background=`rgb(${r},${gg},${b})`;
+    drawStar(T);
+  }
+  // temperature-coloured star disk
+  function drawStar(T){
+    const cv=document.getElementById('star_canvas'), x=cv.getContext('2d');
+    const W=cv.width,Hh=cv.height; x.clearRect(0,0,W,Hh); x.fillStyle='#000'; x.fillRect(0,0,W,Hh);
+    const cx=W/2,cy=Hh/2,R=Math.min(W,Hh)*0.36;
+    const [r,g,b]=bbColor(T);
+    // outer glow
+    let gl=x.createRadialGradient(cx,cy,R*0.6,cx,cy,R*2.4);
+    gl.addColorStop(0,`rgba(${r},${g},${b},0.5)`); gl.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=gl; x.beginPath(); x.arc(cx,cy,R*2.4,0,7); x.fill();
+    // limb-darkened disk
+    let gd=x.createRadialGradient(cx-R*0.25,cy-R*0.25,R*0.1,cx,cy,R);
+    gd.addColorStop(0,`rgb(${Math.min(255,r+40)},${Math.min(255,g+40)},${Math.min(255,b+40)})`);
+    gd.addColorStop(0.7,`rgb(${r},${g},${b})`);
+    gd.addColorStop(1,`rgb(${r*0.5|0},${g*0.5|0},${b*0.5|0})`);
+    x.fillStyle=gd; x.beginPath(); x.arc(cx,cy,R,0,7); x.fill();
+    x.fillStyle='rgba(255,255,255,0.85)'; x.font='13px -apple-system,sans-serif';
+    x.fillText(`${Math.round(T).toLocaleString()} K — class ${specClass(T)[0]}`, 14, Hh-14);
+  }
+  tEl.addEventListener('input',draw);
+  preset.addEventListener('change',()=>{tEl.value=preset.value; draw();});
+  draw();
+})();
+
+/* =======================================================================
+   2. STELLAR REMNANT / CHANDRASEKHAR
+======================================================================= */
+(function(){
+  const m=document.getElementById('rm_mass'), lbl=document.getElementById('rm_m');
+  const rem=document.getElementById('rm_remnant'), core=document.getElementById('rm_core'), cmp=document.getElementById('rm_cmp');
+  function coreMass(M){ // crude core-mass proxy in M_sun
+    if(M<8) return 0.1+0.1*M;            // -> white dwarf (<1.4)
+    if(M<25) return 1.2+0.09*(M-8);      // -> neutron star
+    return 2.0+0.06*(M-25);              // -> black hole
+  }
+  function draw(){
+    const M=+m.value; lbl.textContent=M;
+    const cm=coreMass(M); core.textContent=cm.toFixed(2);
+    let r,color;
+    if(M<8){ r='White dwarf'; color='#9fd8ff'; cmp.textContent='core < 1.4 (held up)'; }
+    else if(M<25){ r='Neutron star'; color='#c7b6ff'; cmp.textContent='core > 1.4 (collapses)'; }
+    else { r='Black hole'; color='#ff6b9d'; cmp.textContent='core far too heavy'; }
+    rem.textContent=r; rem.style.color=color;
+    // regions bar + marker
+    const regions=[
+      {x0:0.5,x1:8,c:'rgba(159,216,255,0.30)',t:'white dwarf'},
+      {x0:8,x1:25,c:'rgba(199,182,255,0.30)',t:'neutron star'},
+      {x0:25,x1:60,c:'rgba(255,107,157,0.30)',t:'black hole'}];
+    const shapes=regions.map(rg=>({type:'rect',xref:'x',yref:'paper',x0:rg.x0,x1:rg.x1,y0:0,y1:1,fillcolor:rg.c,line:{width:0}}));
+    shapes.push({type:'line',xref:'x',yref:'paper',x0:M,x1:M,y0:0,y1:1,line:{color:'#fff',width:2,dash:'dot'}});
+    const anns=regions.map(rg=>({x:(rg.x0+rg.x1)/2,y:0.5,xref:'x',yref:'paper',text:rg.t,showarrow:false,font:{color:'#dfe5ff',size:12}}));
+    anns.push({x:M,y:1.06,xref:'x',yref:'paper',text:`${M} M☉`,showarrow:false,font:{color:'#fff',size:12}});
+    Plotly.react('plot_remnant',[{x:[M],y:[0.5],mode:'markers',marker:{size:0.1,color:'#fff'},hoverinfo:'skip'}],
+      baseLayout({shapes,annotations:anns,
+        xaxis:{title:'initial stellar mass (M☉)',range:[0.5,60]},
+        yaxis:{visible:false,range:[0,1]}}), PCFG);
+  }
+  m.addEventListener('input',draw); draw();
+  // animated supernova canvas
+  (function(){
+    const cv=document.getElementById('superno_canvas'), x=cv.getContext('2d');
+    const W=cv.width,Hh=cv.height; let t=0;
+    const pts=Array.from({length:140},()=>({a:Math.random()*7,v:0.3+Math.random()*1.4,h:Math.random()}));
+    function frame(){
+      t+=0.016; x.fillStyle='rgba(0,0,0,0.18)'; x.fillRect(0,0,W,Hh);
+      const cx=W/2,cy=Hh/2; const phase=(t%6)/6;
+      pts.forEach(p=>{
+        const rad=phase*p.v*Math.min(W,Hh)*0.55;
+        const px=cx+Math.cos(p.a)*rad, py=cy+Math.sin(p.a)*rad*0.7;
+        const al=(1-phase)*0.9;
+        x.fillStyle=`rgba(255,${150+100*p.h|0},${60*p.h|0},${al})`;
+        x.beginPath(); x.arc(px,py,1.6,0,7); x.fill();
+      });
+      // collapsing core
+      const cr=6+4*Math.sin(t*3)*(1-phase);
+      let gd=x.createRadialGradient(cx,cy,0,cx,cy,cr*3);
+      gd.addColorStop(0,'rgba(255,255,255,0.9)'); gd.addColorStop(1,'rgba(120,140,255,0)');
+      x.fillStyle=gd; x.beginPath(); x.arc(cx,cy,cr*3,0,7); x.fill();
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+})();
+
+/* =======================================================================
+   3. DARK STAR / ESCAPE VELOCITY
+======================================================================= */
+(function(){
+  const mEl=document.getElementById('ds_mass'), rEl=document.getElementById('ds_rad');
+  const mlbl=document.getElementById('ds_mlbl'), rlbl=document.getElementById('ds_rlbl');
+  const vEl=document.getElementById('ds_v'), rOut=document.getElementById('ds_r'), runit=document.getElementById('ds_runit');
+  const rsOut=document.getElementById('ds_rs'), rsunit=document.getElementById('ds_rsunit'), verdict=document.getElementById('ds_verdict');
+  function fmtLen(m){ if(m>=AU) return [ (m/AU).toPrecision(3),'AU'];
+    if(m>=1e3) return [(m/1e3).toPrecision(3),'km']; if(m>=1) return [m.toPrecision(3),'m'];
+    return [(m*1000).toPrecision(3),'mm']; }
+  function draw(){
+    const M=Math.pow(10,+mEl.value)*MSUN; mlbl.textContent=sci(M/MSUN,2);
+    const rs=2*G*M/C2; const k=+rEl.value; rlbl.textContent=k.toFixed(1);
+    const r=k*rs; const v=Math.sqrt(2*G*M/r);
+    vEl.textContent=(v/C*100).toPrecision(3);
+    let f=fmtLen(r); rOut.textContent=f[0]; runit.textContent=f[1];
+    let fs=fmtLen(rs); rsOut.textContent=fs[0]; rsunit.textContent=fs[1];
+    if(k<=1.001){ verdict.className='verdict bad'; verdict.innerHTML='🕳️ <b>Dark star.</b> Escape velocity has reached the speed of light — not even light gets out. You are at the event horizon.'; }
+    else if(v/C>0.5){ verdict.className='verdict bad'; verdict.innerHTML='⚠️ Light is badly slowed on the way out. Keep shrinking the radius toward 1 × r<sub>s</sub>.'; }
+    else { verdict.className='verdict'; verdict.innerHTML='Light still escapes easily. Shrink the radius to crank the escape velocity up toward c.'; }
+    // curve v/c vs r/rs
+    const xs=[],ys=[]; for(let kk=1;kk<=60;kk+=0.5){ xs.push(kk); ys.push(Math.sqrt(1/kk)); }
+    Plotly.react('plot_ds',[
+      {x:xs,y:ys,mode:'lines',line:{color:'#3fd0ff',width:3},hovertemplate:'%{x:.1f} r_s → %{y:.2f} c<extra></extra>'},
+      {x:[k],y:[Math.sqrt(1/k)],mode:'markers',marker:{color:'#ffb24a',size:12},hoverinfo:'skip'}
+    ], baseLayout({
+      shapes:[{type:'line',xref:'paper',x0:0,x1:1,y0:1,y1:1,line:{color:'#ff6b9d',width:1.5,dash:'dash'}}],
+      annotations:[{x:40,y:1.0,text:'v = c  (light trapped)',showarrow:false,yshift:10,font:{color:'#ff6b9d',size:12}}],
+      xaxis:{title:'radius (in Schwarzschild radii, r / r_s)',range:[1,60]},
+      yaxis:{title:'escape velocity (fraction of c)',range:[0,1.1]}
+    }), PCFG);
+  }
+  mEl.addEventListener('input',draw); rEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   4. SCHWARZSCHILD RADIUS
+======================================================================= */
+(function(){
+  const mEl=document.getElementById('sw_mass'), preset=document.getElementById('sw_preset');
+  const mlbl=document.getElementById('sw_mlbl'), rsOut=document.getElementById('sw_rs'), unit=document.getElementById('sw_unit'), cmp=document.getElementById('sw_cmp');
+  function fmtLen(m){
+    if(m>=9.46e15) return [(m/9.46e15).toPrecision(3),'light-yr'];
+    if(m>=AU) return [(m/AU).toPrecision(3),'AU'];
+    if(m>=1e3) return [(m/1e3).toPrecision(3),'km'];
+    if(m>=1) return [m.toPrecision(3),'m'];
+    if(m>=1e-3) return [(m*1e3).toPrecision(3),'mm'];
+    return [(m*1e9).toPrecision(3),'nm'];
+  }
+  function compare(rs){
+    if(rs<1e-12)return'smaller than an atomic nucleus';
+    if(rs<1e-3)return'sub-millimetre — atomic scales';
+    if(rs<1)return'marble to fingertip';
+    if(rs<1e4)return'town-sized';
+    if(rs<1.5e8)return'smaller than the Sun';
+    if(rs<AU*40)return'a planetary orbit';
+    return'a small solar system';
+  }
+  function draw(){
+    const logM=+mEl.value; const M=Math.pow(10,logM)*MSUN;
+    mlbl.textContent = sci(M/MSUN,2)+' M☉';
+    const rs=2*G*M/C2; const f=fmtLen(rs); rsOut.textContent=f[0]; unit.textContent=f[1];
+    cmp.textContent=compare(rs);
+    // log-log line + named markers
+    const lx=[],ly=[]; for(let e=-9;e<=40;e++){ lx.push(e); ly.push(Math.log10(2*G*Math.pow(10,e)*MSUN/C2)); }
+    const named=[
+      {n:'human',e:-25.5+0},{n:'Earth',e:-6.5},{n:'Sun',e:0},{n:'Sgr A*',e:6.6},{n:'M87*',e:9.8}
+    ].map(o=>({x:o.e,y:Math.log10(2*G*Math.pow(10,o.e)*MSUN/C2),n:o.n}));
+    Plotly.react('plot_sw',[
+      {x:lx,y:ly,mode:'lines',line:{color:'#b08cff',width:2.5},hoverinfo:'skip'},
+      {x:named.map(o=>o.x),y:named.map(o=>o.y),text:named.map(o=>o.n),mode:'markers+text',
+        textposition:'top center', textfont:{color:'#cfd6f5',size:11},
+        marker:{color:'#3fd0ff',size:9}, hoverinfo:'skip'},
+      {x:[logM],y:[Math.log10(rs)],mode:'markers',marker:{color:'#ffb24a',size:14,line:{color:'#fff',width:1}},hoverinfo:'skip'}
+    ], baseLayout({
+      xaxis:{title:'log₁₀ mass (in solar masses)',range:[-10,42]},
+      yaxis:{title:'log₁₀ Schwarzschild radius (metres)'}
+    }), PCFG);
+  }
+  mEl.addEventListener('input',draw);
+  preset.addEventListener('change',()=>{mEl.value=preset.value; draw();});
+  draw();
+})();
+
+/* animated procedural black hole (reused style) */
+function renderBlackHole(canvasId, opts){
+  const cv=document.getElementById(canvasId); if(!cv) return;
+  const x=cv.getContext('2d'); const W=cv.width,Hh=cv.height;
+  let th=0;
+  const state=opts||{};
+  function frame(){
+    th+=0.012;
+    x.fillStyle='#000'; x.fillRect(0,0,W,Hh);
+    const cx=W/2, cy=Hh/2;
+    const R=Math.min(W,Hh)*0.13;                 // shadow radius
+    const tilt=(state.tilt!==undefined?state.tilt:65)*Math.PI/180;
+    const squash=Math.cos(tilt);                  // disk vertical squash
+    const dop=(state.dop!==undefined?state.dop:0.8);
+    const glow=(state.glow!==undefined?state.glow:1.0);
+    const Rin=R*1.4, Rout=R*4.2;
+    // accretion disk: many arcs, brightness modulated by approaching side (Doppler)
+    for(let i=0;i<260;i++){
+      const a=(i/260)*Math.PI*2 + th;
+      const rr=Rin+(Rout-Rin)*((i*97)%260)/260;
+      const px=cx+Math.cos(a)*rr;
+      const py=cy+Math.sin(a)*rr*squash;
+      // approaching side (left) brighter
+      const appr=(Math.cos(a)<0)?(1+dop*1.3):(1-dop*0.55);
+      const tnorm=(rr-Rin)/(Rout-Rin);
+      const r=255, g=Math.max(40,210-150*tnorm)|0, b=Math.max(20,120-110*tnorm)|0;
+      const al=Math.max(0,(0.5-0.4*tnorm))*appr*glow;
+      x.fillStyle=`rgba(${r},${g},${b},${al})`;
+      x.beginPath(); x.arc(px,py,2.1,0,7); x.fill();
+    }
+    // photon ring
+    x.strokeStyle=`rgba(255,220,170,${0.85*glow})`; x.lineWidth=2.4;
+    x.beginPath(); x.arc(cx,cy,R*1.18,0,7); x.stroke();
+    let pr=x.createRadialGradient(cx,cy,R*1.0,cx,cy,R*1.5);
+    pr.addColorStop(0,'rgba(255,200,140,0)'); pr.addColorStop(0.6,`rgba(255,200,140,${0.4*glow})`); pr.addColorStop(1,'rgba(255,200,140,0)');
+    x.fillStyle=pr; x.beginPath(); x.arc(cx,cy,R*1.5,0,7); x.fill();
+    // shadow
+    x.fillStyle='#000'; x.beginPath(); x.arc(cx,cy,R*1.05,0,7); x.fill();
+    requestAnimationFrame(frame);
+  }
+  frame();
+  return state;
+}
+renderBlackHole('bh_canvas',{tilt:62,dop:0.8,glow:1.0});
+
+/* =======================================================================
+   5. SPAGHETTIFICATION
+======================================================================= */
+(function(){
+  const mEl=document.getElementById('sp_mass'), mlbl=document.getElementById('sp_mlbl');
+  const gOut=document.getElementById('sp_g'), lethalOut=document.getElementById('sp_lethal'), verdict=document.getElementById('sp_verdict');
+  const Hbody=1.8, GLETHAL=10*9.81; // m/s^2 difference threshold (~10 g)
+  function draw(){
+    const M=Math.pow(10,+mEl.value)*MSUN; mlbl.textContent=sci(M/MSUN,2)+' M☉';
+    const rs=2*G*M/C2;
+    const tidalAt=r=>2*G*M*Hbody/Math.pow(r,3);
+    const gHoriz=tidalAt(rs)/9.81; gOut.textContent=sci(gHoriz,2);
+    // distance (in r_s) where tidal = lethal:  2GMh/(k rs)^3 = GLETHAL
+    const rLethal=Math.cbrt(2*G*M*Hbody/GLETHAL); const kLethal=rLethal/rs;
+    lethalOut.textContent=sci(kLethal,2);
+    if(kLethal>1){ verdict.className='verdict bad';
+      verdict.innerHTML=`☠️ You are spaghettified <b>outside</b> the horizon — torn apart at ~${sci(kLethal,2)} × r<sub>s</sub>, before you could ever cross. Typical of <b>stellar-mass</b> black holes.`; }
+    else { verdict.className='verdict good';
+      verdict.innerHTML=`🧑‍🚀 You cross the horizon <b>intact</b> — lethal tides only begin deep inside (${sci(kLethal,2)} × r<sub>s</sub>). The hallmark of a <b>supermassive</b> black hole.`; }
+    const xs=[],ys=[]; for(let k=0.3;k<=1e5;k*=1.15){ xs.push(k); ys.push(tidalAt(k*rs)/9.81); }
+    Plotly.react('plot_sp',[
+      {x:xs,y:ys,mode:'lines',line:{color:'#ff6b9d',width:3},hovertemplate:'%{x:.1f} r_s → %{y:.1e} g<extra></extra>'}
+    ], baseLayout({
+      shapes:[
+        {type:'line',xref:'paper',x0:0,x1:1,y0:Math.log10(10),y1:Math.log10(10),line:{color:'#ffb24a',width:1.5,dash:'dash'}},
+        {type:'line',x0:1,x1:1,yref:'paper',y0:0,y1:1,line:{color:'#3fd0ff',width:1.5,dash:'dot'}}
+      ],
+      annotations:[
+        {x:Math.log10(3e4),y:Math.log10(10),text:'~10 g (lethal stretch)',showarrow:false,yshift:11,font:{color:'#ffb24a',size:11}},
+        {x:0,y:0.96,xref:'x',yref:'paper',text:'horizon (r_s)',showarrow:false,xshift:34,font:{color:'#3fd0ff',size:11}}
+      ],
+      xaxis:{title:'distance from singularity (in r_s)',type:'log'},
+      yaxis:{title:'tidal stretch on your body (g)',type:'log'}
+    }), PCFG);
+  }
+  mEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   6. KEPLER / SGR A*
+======================================================================= */
+(function(){
+  const aEl=document.getElementById('kp_a'), pEl=document.getElementById('kp_p'), eEl=document.getElementById('kp_e');
+  const al=document.getElementById('kp_albl'), pl=document.getElementById('kp_plbl'), el=document.getElementById('kp_elbl');
+  const massOut=document.getElementById('kp_mass'), periOut=document.getElementById('kp_peri'), rsOut=document.getElementById('kp_rs');
+  function draw(){
+    const a=+aEl.value, P=+pEl.value, e=+eEl.value;
+    al.textContent=a; pl.textContent=P.toFixed(1); el.textContent=e.toFixed(2);
+    const Msun = a*a*a/(P*P);                  // Kepler in AU, yr, M_sun
+    massOut.textContent=sci(Msun/1e6,2);
+    const peri=a*(1-e); periOut.textContent=commas(peri);
+    const rs=2*G*(Msun*MSUN)/C2; rsOut.textContent=(rs/AU).toPrecision(2);
+    // ellipse with focus (BH) at origin
+    const b=a*Math.sqrt(1-e*e); const cfoc=a*e;
+    const xs=[],ys=[]; for(let i=0;i<=240;i++){ const th=i/240*2*Math.PI;
+      xs.push(a*Math.cos(th)-cfoc); ys.push(b*Math.sin(th)); }
+    const lim=a*1.6;
+    Plotly.react('plot_kp',[
+      {x:xs,y:ys,mode:'lines',line:{color:'#3fd0ff',width:2.5},hoverinfo:'skip'},
+      {x:[0],y:[0],mode:'markers+text',text:['Sgr A*'],textposition:'bottom right',
+        textfont:{color:'#ffb24a'}, marker:{color:'#000',size:16,line:{color:'#ffb24a',width:2}},hoverinfo:'skip'},
+      {x:[a*(1-e)],y:[0],mode:'markers+text',text:['S2 pericentre'],textposition:'top center',
+        textfont:{color:'#fff',size:10}, marker:{color:'#fff',size:8},hoverinfo:'skip'}
+    ], baseLayout({
+      xaxis:{title:'AU',range:[-lim-cfoc,lim-cfoc],scaleanchor:'y',scaleratio:1},
+      yaxis:{title:'AU',range:[-lim,lim]}
+    }), PCFG);
+  }
+  [aEl,pEl,eEl].forEach(s=>s.addEventListener('input',draw)); draw();
+})();
+
+/* =======================================================================
+   7. HAWKING
+======================================================================= */
+(function(){
+  const mEl=document.getElementById('hw_mass'), mlbl=document.getElementById('hw_mlbl');
+  const tOut=document.getElementById('hw_t'), lifeOut=document.getElementById('hw_life'), cmp=document.getElementById('hw_cmp');
+  const AGE=1.38e10;
+  function temp(M){ return HBAR*Math.pow(C,3)/(8*Math.PI*G*M*KB); }
+  function life(M){ return 2.1e67*Math.pow(M/MSUN,3); } // years
+  function draw(){
+    const M=Math.pow(10,+mEl.value); mlbl.textContent=sci(M/MSUN,2)+' M☉';
+    const T=temp(M), L=life(M);
+    tOut.textContent=sci(T,2); lifeOut.textContent=sci(L,2);
+    cmp.textContent = L>AGE ? `${sci(L/AGE,2)}× longer` : `${sci(AGE/L,2)}× shorter (already gone)`;
+    cmp.style.color = L>AGE ? '#9aa3c7' : '#ff6b9d';
+    // two curves vs mass (kg): temperature and lifetime, log-log
+    const lx=[],lyT=[],lyL=[];
+    for(let e=8;e<=40;e+=0.25){ const m=Math.pow(10,e); lx.push(e); lyT.push(Math.log10(temp(m))); lyL.push(Math.log10(life(m))); }
+    const eAge = (function(){ // mass where life==age
+      const m=MSUN*Math.cbrt(AGE/2.1e67); return Math.log10(m); })();
+    Plotly.react('plot_hw',[
+      {x:lx,y:lyT,mode:'lines',name:'T',line:{color:'#ffb24a',width:2.5},yaxis:'y',hovertemplate:'10^%{x:.1f} kg<extra>T</extra>'},
+      {x:lx,y:lyL,mode:'lines',name:'life',line:{color:'#3fd0ff',width:2.5},yaxis:'y2',hovertemplate:'10^%{x:.1f} kg<extra>life</extra>'},
+      {x:[+mEl.value],y:[Math.log10(temp(M))],mode:'markers',marker:{color:'#ffb24a',size:12,line:{color:'#fff',width:1}},yaxis:'y',hoverinfo:'skip'}
+    ], baseLayout({
+      shapes:[
+        {type:'line',x0:eAge,x1:eAge,yref:'paper',y0:0,y1:1,line:{color:'#5ee6a8',width:1.5,dash:'dot'}}
+      ],
+      annotations:[{x:eAge,y:1.02,yref:'paper',text:'evaporates in ~age of Universe',showarrow:false,font:{color:'#5ee6a8',size:11}}],
+      xaxis:{title:'log₁₀ black hole mass (kg)'},
+      yaxis:{title:'log₁₀ temperature (K)',titlefont:{color:'#ffb24a'},tickfont:{color:'#ffb24a'}},
+      yaxis2:{title:'log₁₀ lifetime (yr)',titlefont:{color:'#3fd0ff'},tickfont:{color:'#3fd0ff'},overlaying:'y',side:'right',gridcolor:'rgba(0,0,0,0)'}
+    }), PCFG);
+  }
+  mEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   8. GRAVITATIONAL WAVES (schematic chirp)
+======================================================================= */
+(function(){
+  const m1El=document.getElementById('gw_m1'), m2El=document.getElementById('gw_m2');
+  const m1l=document.getElementById('gw_m1l'), m2l=document.getElementById('gw_m2l');
+  const mcOut=document.getElementById('gw_mc'), finalOut=document.getElementById('gw_final'), eradOut=document.getElementById('gw_erad');
+  function draw(){
+    const m1=+m1El.value, m2=+m2El.value; m1l.textContent=m1; m2l.textContent=m2;
+    const Mc=Math.pow(m1*m2,0.6)/Math.pow(m1+m2,0.2); mcOut.textContent=Mc.toFixed(1);
+    const erad=0.05*(m1+m2); finalOut.textContent=(m1+m2-erad).toFixed(0); eradOut.textContent=erad.toFixed(1);
+    const McKg=Mc*MSUN, k=G*McKg/Math.pow(C,3);
+    // sample tau from large to small; build phase by integrating f dt
+    const N=1400; const tauMax=0.25, tauMin=0.004;
+    const ts=[],hs=[]; let phase=0, prevT=null;
+    for(let i=0;i<N;i++){
+      const tau=tauMax*Math.pow(tauMin/tauMax, i/(N-1));
+      const f=(1/Math.PI)*Math.pow(5/(256*tau),0.375)*Math.pow(k,-0.625);
+      const t=tauMax-tau;
+      if(prevT!==null){ phase+=2*Math.PI*f*(t-prevT); }
+      prevT=t;
+      const amp=Math.pow(f,2/3);
+      ts.push(t); hs.push(amp*Math.cos(phase));
+    }
+    const amax=Math.max(...hs.map(Math.abs));
+    const hn=hs.map(v=>v/amax);
+    Plotly.react('plot_gw',[
+      {x:ts,y:hn,mode:'lines',line:{color:'#3fd0ff',width:1.6},hoverinfo:'skip'}
+    ], baseLayout({
+      xaxis:{title:'time → merger (s, schematic)'},
+      yaxis:{title:'strain (arbitrary)',range:[-1.15,1.15]}
+    }), PCFG);
+  }
+  m1El.addEventListener('input',draw); m2El.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   9. EHT RENDER (interactive black hole)
+======================================================================= */
+(function(){
+  const tEl=document.getElementById('eh_tilt'), dEl=document.getElementById('eh_dop'), gEl=document.getElementById('eh_glow');
+  const tl=document.getElementById('eh_tl'), dl=document.getElementById('eh_dl'), gl=document.getElementById('eh_gl');
+  const state=renderBlackHole('eht_canvas',{tilt:68,dop:0.8,glow:1.0});
+  function upd(){ state.tilt=+tEl.value; state.dop=+dEl.value; state.glow=+gEl.value;
+    tl.textContent=tEl.value; dl.textContent=(+dEl.value).toFixed(2); gl.textContent=(+gEl.value).toFixed(2); }
+  tEl.addEventListener('input',upd); dEl.addEventListener('input',upd); gEl.addEventListener('input',upd); upd();
+})();
+
+/* =======================================================================
+   Background starfield
+======================================================================= */
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280, (innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+
+<!-- =======================================================================
+     EXPANDED CHAPTERS — EM spectrum, spectral lines, H–R, zoo, neutron stars
+======================================================================= -->
+<script>
+(function(){
+  const planck=(nm,T)=>{ const l=nm*1e-9; return (2*H*C*C/Math.pow(l,5))/(Math.exp(H*C/(l*KB*T))-1); };
+  const bbCss=T=>{ const[r,g,b]=bbColor(T); return 'rgb('+r+','+g+','+b+')'; };
+  function wlRGB(wl){
+    let r,g,b; if(wl<380)wl=380; if(wl>750)wl=750;
+    if(wl<440){r=-(wl-440)/60;g=0;b=1;}
+    else if(wl<490){r=0;g=(wl-440)/50;b=1;}
+    else if(wl<510){r=0;g=1;b=-(wl-510)/20;}
+    else if(wl<580){r=(wl-510)/70;g=1;b=0;}
+    else if(wl<645){r=1;g=-(wl-645)/65;b=0;}
+    else {r=1;g=0;b=0;}
+    let f=1; if(wl<420)f=0.3+0.7*(wl-380)/40; else if(wl>700)f=0.3+0.7*(750-wl)/50;
+    return [255*r*f,255*g*f,255*b*f];
+  }
+
+  /* ---------- EM SPECTRUM ---------- */
+  (function(){
+    const sl=document.getElementById('em_slider'); if(!sl) return;
+    const wlEl=em('em_wl'),bandEl=em('em_band'),fEl=em('em_freq'),fuEl=em('em_fu'),
+      eEl=em('em_en'),euEl=em('em_eu'),atmEl=em('em_atm'),capEl=em('em_cap');
+    function em(id){return document.getElementById(id);}
+    const cv=document.getElementById('em_canvas'), cx=cv.getContext('2d');
+    const LV=Math.log10(3.8e-7), LV2=Math.log10(7.5e-7);
+    const bands=[
+      {n:'Gamma',lo:-13,hi:-11,c:'#b388ff',a:'the most violent events — black-hole jets and neutron-star mergers'},
+      {n:'X-ray',lo:-11,hi:-8,c:'#7aa7ff',a:'million-degree gas and accretion disks around black holes'},
+      {n:'UV',lo:-8,hi:LV,c:'#c08cff',a:'hot young stars and white dwarfs'},
+      {n:'Visible',lo:LV,hi:LV2,c:'#7CFC00',a:'the light our eyes and classic stellar spectra use'},
+      {n:'Infrared',lo:LV2,hi:-3,c:'#ff9d5c',a:'cool dust, forming stars, and the galactic centre seen through the murk'},
+      {n:'Microwave',lo:-3,hi:-1,c:'#ffd166',a:'the cosmic microwave background — the Big Bang’s afterglow'},
+      {n:'Radio',lo:-1,hi:4,c:'#ff6b9d',a:'pulsars and the Event Horizon Telescope’s black-hole images'}
+    ];
+    const xFor=logl=>(3-logl)/15*cv.width;
+    function bandFor(l){ for(const b of bands) if(l>=b.lo&&l<b.hi) return b; return l<bands[0].hi?bands[0]:bands[6]; }
+    function fmtFreq(f){const u=['Hz','kHz','MHz','GHz','THz','PHz','EHz'];let i=0;while(f>=1000&&i<6){f/=1000;i++;}return[f.toPrecision(3),u[i]];}
+    function fmtEn(eV){ if(eV<1){const s=['eV','meV','µeV','neV'];let j=0,w=eV;while(w<1&&j<3){w*=1000;j++;}return[w.toPrecision(3),s[j]];}
+      const u=['eV','keV','MeV','GeV','TeV'];let i=0,v=eV;while(v>=1000&&i<4){v/=1000;i++;}return[v.toPrecision(3),u[i]];}
+    function fmtWl(m){ if(m>=1e3)return(m/1e3).toPrecision(3)+' km'; if(m>=1)return m.toPrecision(3)+' m';
+      if(m>=1e-2)return(m*100).toPrecision(3)+' cm'; if(m>=1e-3)return(m*1e3).toPrecision(3)+' mm';
+      if(m>=1e-6)return(m*1e6).toPrecision(3)+' µm'; if(m>=1e-9)return(m*1e9).toPrecision(3)+' nm'; return(m*1e12).toPrecision(3)+' pm'; }
+    function ground(l){ if(l>=LV&&l<=LV2)return'yes'; if(l>=-2&&l<=1.3)return'yes (radio)'; if(l>LV2&&l<-3)return'partly'; return'no — needs space'; }
+    function bar(mark){
+      const W=cv.width,Hh=cv.height; cx.clearRect(0,0,W,Hh);
+      for(let px=0;px<W;px++){ const l=3-(px/W)*15; const b=bandFor(l);
+        if(b.n==='Visible'){ const nm=Math.pow(10,l)*1e9; const[r,g,bl]=wlRGB(nm); cx.fillStyle='rgb('+(r|0)+','+(g|0)+','+(bl|0)+')'; }
+        else cx.fillStyle=b.c;
+        cx.globalAlpha=0.9; cx.fillRect(px,30,1,62); }
+      cx.globalAlpha=1; cx.font='10px -apple-system,sans-serif'; cx.textAlign='center';
+      bands.forEach(b=>{ const x=xFor((Math.max(b.lo,-12)+Math.min(b.hi,3))/2); cx.fillStyle='rgba(5,6,13,0.85)'; cx.fillText(b.n,x,66); });
+      cx.fillStyle='#9aa3c7'; cx.textAlign='left'; cx.fillText('⟵ long λ (radio)',6,18); cx.textAlign='right'; cx.fillText('short λ (gamma) ⟶',W-6,18);
+      const mx=xFor(mark); cx.strokeStyle='#fff'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(mx,24); cx.lineTo(mx,100); cx.stroke();
+      cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(mx,24); cx.lineTo(mx-5,13); cx.lineTo(mx+5,13); cx.closePath(); cx.fill();
+    }
+    function upd(){ const l=+sl.value, lam=Math.pow(10,l), f=C/lam, E=H*f/1.602e-19;
+      wlEl.textContent=fmtWl(lam); const ff=fmtFreq(f); fEl.textContent=ff[0]; fuEl.textContent=ff[1];
+      const ee=fmtEn(E); eEl.textContent=ee[0]; euEl.textContent=ee[1];
+      const b=bandFor(l); bandEl.textContent=b.n; bandEl.style.color=b.c; atmEl.textContent=ground(l);
+      capEl.textContent='In astronomy: '+b.a+'.'; bar(l); }
+    sl.addEventListener('input',upd); upd();
+  })();
+
+  /* ---------- SPECTRAL LINES ---------- */
+  (function(){
+    const typeSel=document.getElementById('ln_type'), modeSel=document.getElementById('ln_mode'); if(!typeSel) return;
+    const cv=document.getElementById('ln_canvas'), cx=cv.getContext('2d');
+    const TEMP={O:35000,A:9500,G:5800,M:3300}, LO=380, HI=700;
+    const LINES=[{wl:393.4,el:'Ca K',g:'Ca'},{wl:396.8,el:'Ca H',g:'Ca'},{wl:410.2,el:'Hδ',g:'H'},
+      {wl:434.0,el:'Hγ',g:'H'},{wl:486.1,el:'Hβ',g:'H'},{wl:656.3,el:'Hα',g:'H'},
+      {wl:516.7,el:'Mg b',g:'Mg'},{wl:527.0,el:'Fe',g:'Fe'},{wl:589.3,el:'Na D',g:'Na'},{wl:587.6,el:'He I',g:'He'}];
+    const WT={O:{H:.35,He:1,Ca:0,Na:0,Mg:0,Fe:0},A:{H:1,He:.15,Ca:.3,Na:.1,Mg:.1,Fe:.12},
+      G:{H:.45,He:0,Ca:.95,Na:.8,Mg:.6,Fe:.65},M:{H:.2,He:0,Ca:.7,Na:.92,Mg:.85,Fe:.95}};
+    function strip(type,mode){
+      const W=cv.width,Hh=cv.height,wt=WT[type]; cx.clearRect(0,0,W,Hh);
+      for(let px=0;px<W;px++){ const wl=LO+(px/W)*(HI-LO); let[r,g,b]=wlRGB(wl); let d=0;
+        LINES.forEach(L=>{const s=wt[L.g]||0; if(s>0) d=Math.max(d,s*Math.exp(-Math.pow((wl-L.wl)/1.3,2)));});
+        if(mode==='abs'){const f=1-0.92*d; cx.fillStyle='rgb('+((r*f)|0)+','+((g*f)|0)+','+((b*f)|0)+')';}
+        else cx.fillStyle='rgb('+((r*d)|0)+','+((g*d)|0)+','+((b*d)|0)+')';
+        cx.fillRect(px,18,1,Hh-34); }
+      cx.font='10px -apple-system'; cx.textAlign='center';
+      LINES.forEach(L=>{const s=wt[L.g]||0; if(s>0.4){const x=(L.wl-LO)/(HI-LO)*W; cx.fillStyle='#e8ecff'; cx.fillText(L.el,x,12);}});
+    }
+    function plot(type,mode){
+      const T=TEMP[type],wt=WT[type],c0=planck(550,T),xs=[],ys=[];
+      for(let wl=LO;wl<=HI;wl+=0.5){ let cont=planck(wl,T)/c0,d=0;
+        LINES.forEach(L=>{const s=wt[L.g]||0; if(s>0) d=Math.max(d,s*Math.exp(-Math.pow((wl-L.wl)/1.4,2)));});
+        xs.push(wl); ys.push(mode==='abs'?Math.max(0,cont*(1-d)):d); }
+      const anns=LINES.filter(L=>(wt[L.g]||0)>0.4).map(L=>({x:L.wl,y:mode==='abs'?0:Math.min(1,wt[L.g]),text:L.el,showarrow:false,font:{color:'#cfd6f5',size:10},yshift:mode==='abs'?-9:10}));
+      Plotly.react('plot_ln',[{x:xs,y:ys,mode:'lines',line:{color:'#e8ecff',width:1.6},fill:'tozeroy',fillcolor:'rgba(120,140,230,0.10)',hovertemplate:'%{x:.0f} nm<extra></extra>'}],
+        baseLayout({annotations:anns,xaxis:{title:'wavelength (nm)',range:[LO,HI]},yaxis:{title:mode==='abs'?'intensity':'emission',range:[0,1.15]}}), PCFG);
+    }
+    function upd(){ strip(typeSel.value,modeSel.value); plot(typeSel.value,modeSel.value); }
+    typeSel.addEventListener('change',upd); modeSel.addEventListener('change',upd); upd();
+  })();
+
+  /* ---------- PRISM (static) ---------- */
+  (function(){ const cv=document.getElementById('prism_canvas'); if(!cv)return; const x=cv.getContext('2d'),W=cv.width,Hh=cv.height;
+    x.fillStyle='#000'; x.fillRect(0,0,W,Hh);
+    x.strokeStyle='rgba(255,255,255,0.9)'; x.lineWidth=4; x.beginPath(); x.moveTo(0,Hh*0.4); x.lineTo(W*0.44,Hh*0.54); x.stroke();
+    x.fillStyle='rgba(150,170,230,0.16)'; x.strokeStyle='rgba(180,200,255,0.6)'; x.lineWidth=2;
+    x.beginPath(); x.moveTo(W*0.47,Hh*0.26); x.lineTo(W*0.37,Hh*0.76); x.lineTo(W*0.6,Hh*0.7); x.closePath(); x.fill(); x.stroke();
+    ['#ff4d4d','#ff9d3a','#ffe24a','#5ee66a','#4ad7ff','#6b7bff','#b06bff'].forEach((c,i)=>{ x.strokeStyle=c; x.lineWidth=3;
+      x.beginPath(); x.moveTo(W*0.54,Hh*0.6); x.lineTo(W,Hh*0.46+(i-3)*22); x.stroke(); });
+    x.fillStyle='#9aa3c7'; x.font='12px -apple-system'; x.fillText('white light',8,Hh*0.32); x.textAlign='right'; x.fillText('spectrum',W-8,Hh*0.16); x.textAlign='left';
+  })();
+
+  /* ---------- H–R DIAGRAM ---------- */
+  (function(){
+    const mEl=document.getElementById('hr_mass'); if(!mEl)return;
+    const mlbl=document.getElementById('hr_mlbl'),typeEl=document.getElementById('hr_type'),
+      lumEl=document.getElementById('hr_lum'),lifeEl=document.getElementById('hr_life'),luEl=document.getElementById('hr_lu'),fateEl=document.getElementById('hr_fate');
+    const Tof=m=>5800*Math.pow(m,0.55), Lof=m=>Math.pow(m,3.5);
+    const typeOf=T=>T>=30000?'O':T>=10000?'B':T>=7500?'A':T>=6000?'F':T>=5200?'G':T>=3700?'K':'M';
+    const ms=[]; for(let lm=-1;lm<=1.6;lm+=0.05){const m=Math.pow(10,lm); ms.push({x:Tof(m),y:Math.log10(Lof(m))});}
+    function cloud(n,tl,th,ll,lh,seed){const a=[];let s=seed;for(let i=0;i<n;i++){s=(s*9301+49297)%233280;const r1=s/233280;s=(s*9301+49297)%233280;const r2=s/233280;a.push({x:tl+(th-tl)*r1,y:ll+(lh-ll)*r2});}return a;}
+    const giants=cloud(60,3200,5200,1.6,3.2,11),sgiants=cloud(40,3300,18000,4.4,5.8,7),wds=cloud(50,8000,40000,-4,-2,23);
+    function draw(){
+      const m=+mEl.value; mlbl.textContent=m.toFixed(1);
+      const T=Tof(m),L=Lof(m),logL=Math.log10(L);
+      typeEl.textContent=typeOf(T);
+      lumEl.textContent=L>=100?sci(L,2):(L>=1?L.toFixed(1):L.toPrecision(2));
+      const gyr=10*Math.pow(m,-2.5);
+      if(gyr>=1){lifeEl.textContent=sci(gyr,2);luEl.textContent='billion yr';} else {lifeEl.textContent=sci(gyr*1000,2);luEl.textContent='million yr';}
+      let fate,track;
+      if(m<8){fate='White dwarf'; track=[{x:T,y:logL},{x:3500,y:logL+2.2},{x:15000,y:-2.6}];}
+      else {fate='Supernova → '+(m<22?'neutron star':'black hole'); track=[{x:T,y:logL},{x:3600,y:5.2},{x:6000,y:m<22?-1:-3.2}];}
+      fateEl.textContent=fate;
+      Plotly.react('plot_hr',[
+        {x:wds.map(p=>p.x),y:wds.map(p=>p.y),mode:'markers',marker:{size:5,color:'rgba(159,216,255,0.5)'},hoverinfo:'skip'},
+        {x:giants.map(p=>p.x),y:giants.map(p=>p.y),mode:'markers',marker:{size:6,color:'rgba(255,160,90,0.5)'},hoverinfo:'skip'},
+        {x:sgiants.map(p=>p.x),y:sgiants.map(p=>p.y),mode:'markers',marker:{size:6,color:'rgba(255,107,157,0.5)'},hoverinfo:'skip'},
+        {x:ms.map(p=>p.x),y:ms.map(p=>p.y),mode:'lines',line:{color:'#cfd6f5',width:3},hoverinfo:'skip'},
+        {x:track.map(p=>p.x),y:track.map(p=>p.y),mode:'lines+markers',line:{color:'#ffb24a',width:1.6,dash:'dot'},marker:{size:5,color:'#ffb24a'},hoverinfo:'skip'},
+        {x:[T],y:[logL],mode:'markers',marker:{size:16,color:bbCss(T),line:{color:'#fff',width:1.5}},hoverinfo:'skip'}
+      ], baseLayout({
+        annotations:[
+          {x:Math.log10(4300),y:2.7,text:'giants',showarrow:false,font:{color:'#ffb24a',size:12}},
+          {x:Math.log10(9000),y:5.4,text:'supergiants',showarrow:false,font:{color:'#ff6b9d',size:12}},
+          {x:Math.log10(22000),y:-3,text:'white dwarfs',showarrow:false,font:{color:'#9fd8ff',size:12}},
+          {x:Math.log10(7200),y:0.4,text:'main sequence',showarrow:false,font:{color:'#cfd6f5',size:12},textangle:-24}
+        ],
+        xaxis:{title:'surface temperature (K) — hotter ←',type:'log',range:[Math.log10(48000),Math.log10(2400)]},
+        yaxis:{title:'log₁₀ luminosity (L☉)',range:[-4.5,6.2]}
+      }), PCFG);
+    }
+    mEl.addEventListener('input',draw); draw();
+  })();
+
+  /* ---------- STELLAR ZOO ---------- */
+  (function(){
+    const grid=document.getElementById('zooGrid'); if(!grid)return;
+    function glow(x,cx,cy,r,col){const g=x.createRadialGradient(cx,cy,0,cx,cy,r);g.addColorStop(0,col);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.beginPath();x.arc(cx,cy,r,0,7);x.fill();}
+    function disk(x,cx,cy,R,T){const[r,g,b]=bbColor(T);glow(x,cx,cy,R*2.1,'rgba('+r+','+g+','+b+',0.5)');
+      const gd=x.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.1,cx,cy,R);
+      gd.addColorStop(0,'rgb('+Math.min(255,r+50)+','+Math.min(255,g+50)+','+Math.min(255,b+50)+')');
+      gd.addColorStop(1,'rgb('+r+','+g+','+b+')');x.fillStyle=gd;x.beginPath();x.arc(cx,cy,R,0,7);x.fill();}
+    const D={
+      O:(x,W,Hh)=>disk(x,W/2,Hh/2,40,32000),
+      G:(x,W,Hh)=>disk(x,W/2,Hh/2,26,5800),
+      M:(x,W,Hh)=>disk(x,W/2,Hh/2,16,3200),
+      giant:(x,W,Hh)=>disk(x,W/2,Hh/2,52,3600),
+      sgiant:(x,W,Hh)=>disk(x,W/2,Hh/2,58,3500),
+      wd:(x,W,Hh)=>{glow(x,W/2,Hh/2,40,'rgba(180,210,255,0.5)');disk(x,W/2,Hh/2,7,16000);},
+      ns:(x,W,Hh)=>{glow(x,W/2,Hh/2,44,'rgba(150,180,255,0.55)');x.fillStyle='#dfe8ff';x.beginPath();x.arc(W/2,Hh/2,4,0,7);x.fill();},
+      pulsar:(x,W,Hh)=>{const cx=W/2,cy=Hh/2;x.save();x.translate(cx,cy);x.rotate(-0.5);
+        [-1,1].forEach(s=>{const g=x.createLinearGradient(0,0,0,s*70);g.addColorStop(0,'rgba(120,200,255,0.8)');g.addColorStop(1,'rgba(120,200,255,0)');x.fillStyle=g;x.beginPath();x.moveTo(-3,0);x.lineTo(3,0);x.lineTo(15,s*70);x.lineTo(-15,s*70);x.closePath();x.fill();});x.restore();
+        glow(x,cx,cy,28,'rgba(150,180,255,0.6)');x.fillStyle='#eaf0ff';x.beginPath();x.arc(cx,cy,4,0,7);x.fill();},
+      magnetar:(x,W,Hh)=>{const cx=W/2,cy=Hh/2;x.strokeStyle='rgba(190,130,255,0.7)';x.lineWidth=1.5;
+        for(let i=0;i<6;i++){x.beginPath();x.ellipse(cx,cy,36,12,i/6*Math.PI,0,7);x.stroke();}
+        glow(x,cx,cy,24,'rgba(200,140,255,0.6)');x.fillStyle='#f0e6ff';x.beginPath();x.arc(cx,cy,5,0,7);x.fill();},
+      bh:(x,W,Hh,big)=>{const cx=W/2,cy=Hh/2,R=big?17:11;
+        for(let i=0;i<120;i++){const a=i/120*7;const rr=R*1.6+R*1.8*((i*53)%120)/120;const px=cx+Math.cos(a)*rr,py=cy+Math.sin(a)*rr*0.4;const ap=Math.cos(a)<0?0.9:0.4;
+          x.fillStyle='rgba(255,'+Math.max(60,150-(rr-R)*4|0)+',80,'+(ap*0.5)+')';x.beginPath();x.arc(px,py,1.6,0,7);x.fill();}
+        x.strokeStyle='rgba(255,210,150,0.9)';x.lineWidth=2;x.beginPath();x.arc(cx,cy,R*1.15,0,7);x.stroke();
+        x.fillStyle='#000';x.beginPath();x.arc(cx,cy,R,0,7);x.fill();}
+    };
+    const ZOO=[
+      {dr:'O',k:'O-type',t:'Blue giant',d:'30,000–50,000 K. Rare, massive, blue-white; lives only a few million years before dying violently.'},
+      {dr:'G',k:'G-type',t:'Sun-like star',d:'~5,800 K yellow dwarf, fusing hydrogen steadily on the main sequence for ~10 billion years.'},
+      {dr:'M',k:'M dwarf',t:'Red dwarf',d:'~3,000 K and the commonest star in the galaxy; so frugal it can burn for trillions of years.'},
+      {dr:'giant',k:'Red giant',t:'Swollen elder',d:'A Sun-like star near the end, its core spent and its envelope puffed huge and cool.'},
+      {dr:'sgiant',k:'Red supergiant',t:'Betelgeuse-class',d:'A massive, dying star — vast, cool and luminous, fated to explode as a supernova.'},
+      {dr:'wd',k:'White dwarf',t:'Earth-sized ember',d:'The exposed carbon core a Sun-like star leaves behind, held up by electron degeneracy pressure.'},
+      {dr:'ns',k:'Neutron star',t:'City-sized, ultradense',d:'~1.4 M☉ crushed into ~24 km. A sugar-cube of it would weigh about a billion tonnes.'},
+      {dr:'pulsar',k:'Pulsar',t:'Cosmic lighthouse',d:'A spinning neutron star sweeping radio beams past Earth — among the most precise clocks known.'},
+      {dr:'magnetar',k:'Magnetar',t:'Magnetic monster',d:'A neutron star with the strongest magnetic field in the Universe — quadrillions of times Earth’s.'},
+      {dr:'bh',k:'Stellar BH',t:'Collapsed heavyweight',d:'The remnant of the heaviest stars — a few to dozens of solar masses inside an event horizon.',big:false},
+      {dr:'bh',k:'Supermassive BH',t:'Galactic heart',d:'Millions to billions of suns at a galaxy’s centre, like Sgr A* and M87*.',big:true}
+    ];
+    ZOO.forEach(z=>{ const card=document.createElement('div'); card.className='zoo-card';
+      const c=document.createElement('canvas'); c.width=200; c.height=140;
+      D[z.dr](c.getContext('2d'),c.width,c.height,z.big); card.appendChild(c);
+      const a=document.createElement('div'); a.className='zt'; a.textContent=z.t; card.appendChild(a);
+      const b=document.createElement('div'); b.className='zk'; b.textContent=z.k; card.appendChild(b);
+      const d=document.createElement('div'); d.className='zd'; d.textContent=z.d; card.appendChild(d);
+      grid.appendChild(card);
+    });
+  })();
+
+  /* ---------- NEUTRON STAR / PULSAR ---------- */
+  (function(){
+    const pEl=document.getElementById('ns_period'); if(!pEl)return;
+    const plbl=document.getElementById('ns_plbl'),rotEl=document.getElementById('ns_rot'),vEl=document.getElementById('ns_v'),typeEl=document.getElementById('ns_type');
+    const R=12000;
+    function compute(){ const P=Math.pow(10,+pEl.value);
+      plbl.textContent= P<1?(P*1000).toFixed(P<0.01?1:0)+' ms':P.toFixed(2)+' s';
+      rotEl.textContent=(1/P).toPrecision(3);
+      vEl.textContent=(2*Math.PI*R/P/C).toPrecision(2);
+      typeEl.textContent= P<0.03?'Millisecond pulsar':(P<3?'Normal pulsar':'Slow pulsar');
+      const win=7*P,xs=[],ys=[],N=600,K=Math.ceil(win/P)+1;
+      for(let i=0;i<N;i++){ const t=i/(N-1)*win; let v=0; for(let k=0;k<=K;k++){const tc=k*P+P*0.3; v+=Math.exp(-Math.pow((t-tc)/(P*0.04),2));} xs.push(t); ys.push(Math.min(1,v)); }
+      Plotly.react('plot_ns',[{x:xs,y:ys,mode:'lines',line:{color:'#7ad0ff',width:1.6},hoverinfo:'skip'}],
+        baseLayout({margin:{l:42,r:10,t:8,b:36},xaxis:{title:'time (s)'},yaxis:{title:'radio signal',range:[0,1.15]}}), PCFG);
+    }
+    pEl.addEventListener('input',compute); compute();
+    const cv=document.getElementById('ns_canvas'),x=cv.getContext('2d'),W=cv.width,Hh=cv.height; let th=0;
+    function frame(){ th+=0.03; x.fillStyle='#05060d'; x.fillRect(0,0,W,Hh); const cx=W/2,cy=Hh/2;
+      x.strokeStyle='rgba(140,160,230,0.4)'; x.setLineDash([5,5]); x.beginPath(); x.moveTo(cx,cy); x.lineTo(W-10,cy); x.stroke(); x.setLineDash([]);
+      x.fillStyle='#9aa3c7'; x.font='11px -apple-system'; x.textAlign='right'; x.fillText('to Earth',W-12,cy-8); x.textAlign='left';
+      const L=Math.max(W,Hh);
+      x.save(); x.translate(cx,cy); x.rotate(th);
+      [-1,1].forEach(s=>{const g=x.createLinearGradient(0,0,s*L,0);g.addColorStop(0,'rgba(120,200,255,0.85)');g.addColorStop(1,'rgba(120,200,255,0)');x.fillStyle=g;x.beginPath();x.moveTo(0,-4);x.lineTo(0,4);x.lineTo(s*L,28);x.lineTo(s*L,-28);x.closePath();x.fill();});
+      x.restore();
+      const near=Math.abs(Math.sin(th))<0.16;
+      const gl=x.createRadialGradient(cx,cy,0,cx,cy,40); gl.addColorStop(0,'rgba(180,210,255,'+(near?0.95:0.6)+')'); gl.addColorStop(1,'rgba(0,0,0,0)');
+      x.fillStyle=gl; x.beginPath(); x.arc(cx,cy,40,0,7); x.fill();
+      x.fillStyle='#eaf0ff'; x.beginPath(); x.arc(cx,cy,6,0,7); x.fill();
+      if(near){ x.fillStyle='rgba(120,220,255,0.95)'; x.beginPath(); x.arc(W-10,cy,5,0,7); x.fill(); }
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+})();
+</script>
+
+<!-- =======================================================================
+     MORE CHAPTERS — gravitational time dilation + accretion/Eddington
+======================================================================= -->
+<script>
+(function(){
+  const mp=1.673e-27, sigT=6.652e-29;
+
+  /* ---------- GRAVITATIONAL TIME DILATION ---------- */
+  (function(){
+    const sl=document.getElementById('td_r'); if(!sl)return;
+    const rlbl=document.getElementById('td_rlbl'),rate=document.getElementById('td_rate'),
+      far=document.getElementById('td_far'),z=document.getElementById('td_z'),vd=document.getElementById('td_verdict');
+    function fmtTime(h){ if(h<48)return h.toPrecision(3)+' h'; const d=h/24; if(d<730)return d.toPrecision(3)+' days'; return sci(h/8760,3)+' yr'; }
+    function upd(){ const x=1+Math.pow(10,+sl.value); rlbl.textContent= x>=100?sci(x,3):x.toPrecision(4);
+      const r=Math.sqrt(1-1/x), dil=1/r;
+      rate.textContent=r.toPrecision(3); far.textContent=fmtTime(dil);
+      z.textContent='×'+(dil>=100?sci(dil,3):dil.toPrecision(3));
+      if(dil>1e4){vd.className='verdict bad'; vd.innerHTML='🌀 <b>Interstellar territory.</b> Distant clocks race ahead ×'+sci(dil,2)+'. A little closer and a lifetime passes outside in a heartbeat.';}
+      else if(dil>2){vd.className='verdict'; vd.innerHTML='⏳ A real warp: time far away runs ×'+dil.toPrecision(3)+' faster than your clock.';}
+      else {vd.className='verdict good'; vd.innerHTML='🙂 Far from the horizon, time runs almost normally (×'+dil.toPrecision(3)+').';}
+      const xs=[],ys=[]; for(let k=1.0;k<=40;k+=0.1){ xs.push(k); ys.push(Math.sqrt(1-1/k)); }
+      Plotly.react('plot_td',[
+        {x:xs,y:ys,mode:'lines',line:{color:'#b08cff',width:3},hovertemplate:'%{x:.1f} r_s → %{y:.3f}<extra></extra>'},
+        {x:[Math.min(40,x)],y:[r],mode:'markers',marker:{color:'#ffb24a',size:13,line:{color:'#fff',width:1}},hoverinfo:'skip'}
+      ], baseLayout({
+        shapes:[{type:'line',x0:1,x1:1,yref:'paper',y0:0,y1:1,line:{color:'#ff6b9d',width:1.5,dash:'dot'}}],
+        annotations:[{x:1,y:0.9,yref:'paper',text:'horizon',showarrow:false,xshift:30,font:{color:'#ff6b9d',size:11}}],
+        xaxis:{title:'distance from black hole (r / r_s)',range:[1,40]},
+        yaxis:{title:'your clock rate dτ/dt (vs distant)',range:[0,1.05]}
+      }), PCFG);
+    }
+    sl.addEventListener('input',upd); upd();
+  })();
+
+  /* ---------- ACCRETION / EDDINGTON ---------- */
+  (function(){
+    const mEl=document.getElementById('ac_mass'),rEl=document.getElementById('ac_ratio'); if(!mEl)return;
+    const mlbl=document.getElementById('ac_mlbl'),rlbl=document.getElementById('ac_rlbl'),
+      leddEl=document.getElementById('ac_ledd'),lEl=document.getElementById('ac_l'),mdotEl=document.getElementById('ac_mdot'),tEl=document.getElementById('ac_temp');
+    function upd(){ const M=Math.pow(10,+mEl.value)*MSUN, ratio=Math.pow(10,+rEl.value);
+      mlbl.textContent=sci(M/MSUN,2)+' M☉'; rlbl.textContent= ratio>=0.1?ratio.toFixed(2):ratio.toPrecision(2);
+      const Ledd=4*Math.PI*G*M*mp*C/sigT, L=ratio*Ledd;
+      leddEl.textContent=sci(Ledd/LSUN,2); lEl.textContent=sci(L/LSUN,2);
+      const mdot=L/(0.1*C*C); mdotEl.textContent=sci(mdot*3.156e7/MSUN,2);
+      const Tin=1e5*Math.pow((M/MSUN)/1e8,-0.25)*Math.pow(ratio,0.25); tEl.textContent=sci(Tin,2);
+      const rin=3; const xs=[],ys=[];
+      for(let lr=Math.log10(rin);lr<=3;lr+=0.04){ const rr=Math.pow(10,lr); xs.push(Math.log10(rr)); ys.push(Math.log10(Tin*Math.pow(rr/rin,-0.75))); }
+      Plotly.react('plot_ac',[
+        {x:xs,y:ys,mode:'lines',line:{color:'#ffb24a',width:3},hovertemplate:'10^%{x:.1f} r_s → 10^%{y:.1f} K<extra></extra>'}
+      ], baseLayout({
+        shapes:[
+          {type:'rect',xref:'paper',x0:0,x1:1,y0:6,y1:8.5,fillcolor:'rgba(122,167,255,0.10)',line:{width:0}},
+          {type:'rect',xref:'paper',x0:0,x1:1,y0:4,y1:6,fillcolor:'rgba(192,140,255,0.10)',line:{width:0}},
+          {type:'rect',xref:'paper',x0:0,x1:1,y0:3,y1:4,fillcolor:'rgba(124,252,0,0.07)',line:{width:0}}
+        ],
+        annotations:[
+          {xref:'paper',x:0.97,y:7.1,text:'X-ray',showarrow:false,font:{color:'#7aa7ff',size:11}},
+          {xref:'paper',x:0.97,y:5,text:'ultraviolet',showarrow:false,font:{color:'#c08cff',size:11}},
+          {xref:'paper',x:0.97,y:3.5,text:'optical',showarrow:false,font:{color:'#9be86a',size:11}}
+        ],
+        xaxis:{title:'log₁₀ radius in disk (r / r_s)'},
+        yaxis:{title:'log₁₀ disk temperature (K)',range:[3,8.5]}
+      }), PCFG);
+    }
+    mEl.addEventListener('input',upd); rEl.addEventListener('input',upd); upd();
+  })();
+
+  /* quasar canvas (reuses the global black-hole renderer) */
+  if(typeof renderBlackHole==='function' && document.getElementById('quasar_canvas'))
+    renderBlackHole('quasar_canvas',{tilt:70,dop:0.7,glow:1.25});
+})();
+</script>
+
+<!-- =======================================================================
+     GLOSSARY ENGINE — inline hover terms + dynamic left rail
+======================================================================= -->
+<script>
+(function(){
+  const W='https://en.wikipedia.org/wiki/';
+  // slug -> {label, def, wiki, terms:[phrases to match, longest/most-specific first]}
+  const GLOSS={
+    'electron-degeneracy-pressure':{label:'Electron degeneracy pressure',wiki:W+'Electron_degeneracy_pressure',
+      def:'A quantum pressure: the Pauli exclusion principle forbids electrons from sharing the same state, so a squeezed electron gas pushes back hard — the force that holds up a white dwarf.',
+      terms:['electron degeneracy pressure','degeneracy pressure']},
+    'escape-velocity':{label:'Escape velocity',wiki:W+'Escape_velocity',
+      def:'The minimum speed needed to break free of a body’s gravity without further thrust. It grows with mass and shrinks with radius.',terms:['escape velocity']},
+    'event-horizon':{label:'Event horizon',wiki:W+'Event_horizon',
+      def:'The boundary around a black hole past which nothing — not even light — can ever escape.',terms:['event horizon']},
+    'schwarzschild-radius':{label:'Schwarzschild radius',wiki:W+'Schwarzschild_radius',
+      def:'The radius of the event horizon for a given mass, r_s = 2GM/c². Crush an object inside it and it becomes a black hole.',terms:['Schwarzschild radius']},
+    'blackbody':{label:'Black-body radiation',wiki:W+'Black-body_radiation',
+      def:'The smooth glow emitted by an idealised object that absorbs all light; its spectrum depends only on temperature.',terms:['blackbody spectrum','black-body','blackbody']},
+    'wien':{label:'Wien’s displacement law',wiki:W+'Wien%27s_displacement_law',
+      def:'The hotter a glowing body, the shorter (bluer) the wavelength at which it shines brightest: λ_peak ∝ 1/T.',terms:['Wien’s displacement law','Wien’s law','Wien peak','Wien']},
+    'planck-law':{label:'Planck’s law',wiki:W+'Planck%27s_law',
+      def:'The exact spectrum of black-body radiation. Explaining it forced Planck to quantise energy in 1900 — the birth of quantum theory.',terms:['Planck’s 1900 law','Planck blackbody spectrum','Planck’s law','Planck']},
+    'saha':{label:'Saha ionisation equation',wiki:W+'Saha_ionization_equation',
+      def:'Relates a gas’s temperature and density to how ionised it is — the key that let Cecilia Payne read true abundances from stellar spectra.',terms:['Saha’s ionisation equation','Saha ionisation equation','Saha equation','Saha']},
+    'spectral-line':{label:'Spectral lines',wiki:W+'Spectral_line',
+      def:'Narrow dark or bright features at wavelengths absorbed or emitted by a specific element — a chemical fingerprint in starlight (the Fraunhofer lines in the Sun).',terms:['spectral line','absorption line','dark lines','dark line']},
+    'general-relativity':{label:'General relativity',wiki:W+'General_relativity',
+      def:'Einstein’s 1915 theory recasting gravity as the curvature of spacetime by mass and energy.',terms:['general relativity']},
+    'spacetime':{label:'Spacetime',wiki:W+'Spacetime',
+      def:'The four-dimensional fabric of three space dimensions plus time; mass and energy bend it, and that bending is gravity.',terms:['curved spacetime','spacetime']},
+    'field-equations':{label:'Einstein field equations',wiki:W+'Einstein_field_equations',
+      def:'The set of nonlinear equations relating spacetime curvature to the matter and energy within it. Schwarzschild solved them for a single mass in 1916.',terms:['field equations']},
+    'neutron-star':{label:'Neutron star',wiki:W+'Neutron_star',
+      def:'The city-sized, almost unimaginably dense remnant of a massive star, held up by neutron degeneracy pressure — a sugar-cube’s worth weighs billions of tonnes.',terms:['neutron star']},
+    'white-dwarf':{label:'White dwarf',wiki:W+'White_dwarf',
+      def:'The Earth-sized, slowly cooling core left when a low-mass star dies, supported against gravity by electron degeneracy pressure.',terms:['white dwarf']},
+    'supernova':{label:'Supernova',wiki:W+'Supernova',
+      def:'The explosive death of a massive star — briefly outshining an entire galaxy and forging and scattering heavy elements.',terms:['supernova']},
+    'chandrasekhar-limit':{label:'Chandrasekhar limit',wiki:W+'Chandrasekhar_limit',
+      def:'The maximum mass (≈1.4 M☉) a white dwarf can support. Above it, electron degeneracy pressure fails and the core collapses.',terms:['Chandrasekhar limit']},
+    'tidal-force':{label:'Tidal force',wiki:W+'Tidal_force',
+      def:'The difference in gravity across an extended object. Near a black hole it stretches you head-to-toe and squeezes you sideways — “spaghettification”.',terms:['tidal stretching','tidal forces','tidal force']},
+    'adaptive-optics':{label:'Adaptive optics',wiki:W+'Adaptive_optics',
+      def:'A technique that flexes a telescope mirror hundreds of times a second to cancel the blurring of Earth’s atmosphere, sharpening images to near space-quality.',terms:['adaptive optics']},
+    'sgr-a':{label:'Sagittarius A*',wiki:W+'Sagittarius_A*',
+      def:'The ≈4-million-solar-mass supermassive black hole at the centre of the Milky Way, detected by the orbits of stars whipping around it.',terms:['Sagittarius A*','Sgr A*']},
+    'keplers-third-law':{label:'Kepler’s third law',wiki:W+'Kepler%27s_laws_of_planetary_motion',
+      def:'For any orbit, the square of the period is proportional to the cube of its size — so timing an orbit reveals the central mass.',terms:['Kepler’s third law','Kepler’s law']},
+    'semi-major-axis':{label:'Semi-major axis',wiki:W+'Semi-major_and_semi-minor_axes',
+      def:'Half of the long axis of an elliptical orbit — effectively the orbit’s average radius.',terms:['semi-major axis']},
+    'eccentricity':{label:'Eccentricity',wiki:W+'Orbital_eccentricity',
+      def:'How stretched an orbit is: 0 is a perfect circle; values approaching 1 are long, thin ellipses.',terms:['eccentricity']},
+    'hawking-radiation':{label:'Hawking radiation',wiki:W+'Hawking_radiation',
+      def:'Faint thermal radiation leaking from a black hole’s horizon through quantum effects, causing it to slowly evaporate. Smaller holes are hotter.',terms:['Hawking radiation']},
+    'entropy':{label:'Entropy / black-hole thermodynamics',wiki:W+'Black_hole_thermodynamics',
+      def:'A measure of disorder. A black hole’s entropy is proportional to its horizon area — a deep clue that information may live on the surface.',terms:['entropy']},
+    'gravitational-waves':{label:'Gravitational waves',wiki:W+'Gravitational_wave',
+      def:'Ripples in spacetime radiated by accelerating masses, such as two black holes spiralling together. First detected by LIGO in 2015.',terms:['gravitational waves','gravitational-wave','gravitational wave']},
+    'chirp':{label:'Chirp',wiki:W+'Chirp',
+      def:'The rising sweep in frequency and amplitude of a gravitational-wave signal as two bodies spiral inward to merger.',terms:['chirp']},
+    'doppler':{label:'Doppler beaming',wiki:W+'Relativistic_beaming',
+      def:'Relativistic Doppler boosting: matter racing toward us looks brighter and bluer, while matter moving away looks dimmer and redder — the asymmetry the EHT saw.',terms:['Doppler-brightened','Doppler-boosted','Doppler brightening','Doppler asymmetry','Doppler effect','relativistic beaming','Doppler']},
+    'photon-ring':{label:'Photon sphere / ring',wiki:W+'Photon_sphere',
+      def:'The radius where gravity bends light into orbit around a black hole; it forms the bright ring outlining the dark shadow.',terms:['photon ring','photon sphere']},
+    'accretion-disk':{label:'Accretion disk',wiki:W+'Accretion_disk',
+      def:'A swirling disk of gas spiralling toward a compact object, heated by friction until it blazes — how black holes betray themselves with light.',terms:['accretion disk','accretion disc']},
+    'eht':{label:'Event Horizon Telescope',wiki:W+'Event_Horizon_Telescope',
+      def:'A planet-sized network of radio dishes linked together to act as one Earth-wide telescope, sharp enough to image a black hole’s shadow.',terms:['Event Horizon Telescope']},
+    'singularity':{label:'Singularity',wiki:W+'Gravitational_singularity',
+      def:'The point of formally infinite density at a black hole’s centre, where the known laws of physics break down.',terms:['singularity']},
+    'quantum-field-theory':{label:'Quantum field theory',wiki:W+'Quantum_field_theory',
+      def:'The framework uniting quantum mechanics with special relativity, describing particles as ripples in underlying fields — and the vacuum as never truly empty.',terms:['quantum field theory']},
+    'm87':{label:'M87 / M87*',wiki:W+'Messier_87',
+      def:'Messier 87, a giant elliptical galaxy 55 million light-years away whose 6.5-billion-solar-mass black hole, M87*, was the first ever imaged (2019).',terms:['M87*','M87']},
+    'em-spectrum':{label:'Electromagnetic spectrum',wiki:W+'Electromagnetic_spectrum',
+      def:'The full range of light by wavelength — radio, microwave, infrared, visible, ultraviolet, X-ray and gamma — all the same phenomenon at different energies.',terms:['electromagnetic wave','electromagnetic spectrum']},
+    'wavelength':{label:'Wavelength',wiki:W+'Wavelength',
+      def:'The distance between successive crests of a wave; for light it sets the colour and, inversely, the photon’s energy.',terms:['wavelength']},
+    'frequency':{label:'Frequency',wiki:W+'Frequency',
+      def:'How many wave cycles pass per second (in hertz). For light, higher frequency means shorter wavelength and more energetic photons.',terms:['frequency']},
+    'photon':{label:'Photon',wiki:W+'Photon',
+      def:'A single quantum (particle) of light; its energy is E = hf, proportional to its frequency.',terms:['photon']},
+    'infrared':{label:'Infrared',wiki:W+'Infrared',
+      def:'Light just beyond red, radiated by warm objects — used to peer through dust to forming stars and the galactic centre.',terms:['infrared']},
+    'ultraviolet':{label:'Ultraviolet',wiki:W+'Ultraviolet',
+      def:'Light just beyond violet, more energetic than visible; emitted by hot young stars and white dwarfs.',terms:['ultraviolet']},
+    'xray':{label:'X-rays',wiki:W+'X-ray_astronomy',
+      def:'High-energy light from million-degree gas — the glow of accretion disks spiralling into black holes and neutron stars.',terms:['X-rays','X-ray']},
+    'gammaray':{label:'Gamma rays',wiki:W+'Gamma_ray',
+      def:'The most energetic light of all, born in the Universe’s most violent events — jets, bursts and mergers.',terms:['gamma rays','gamma-ray','gamma ray']},
+    'radio-waves':{label:'Radio waves',wiki:W+'Radio_astronomy',
+      def:'The longest-wavelength light; it pierces dust and reaches the ground, and it is how pulsars and the EHT’s black holes are observed.',terms:['radio waves','radio']},
+    'spectroscopy':{label:'Spectroscopy',wiki:W+'Astronomical_spectroscopy',
+      def:'Splitting light into its spectrum to read an object’s composition, temperature and motion — chemistry across light-years.',terms:['spectroscopy','spectrograph','spectra','spectrum']},
+    'emission-line':{label:'Emission line',wiki:W+'Emission_spectrum',
+      def:'A bright spike at a wavelength a hot, thin gas emits — a fingerprint of a specific element glowing on its own.',terms:['emission lines','emission line']},
+    'absorption-line':{label:'Absorption line',wiki:W+'Absorption_spectroscopy',
+      def:'A dark gap where cooler gas in front of a continuum has absorbed specific colours — the Fraunhofer lines in the Sun.',terms:['absorption lines','absorption line']},
+    'kirchhoff':{label:'Kirchhoff’s laws',wiki:W+'Kirchhoff%27s_laws_of_spectroscopy',
+      def:'Three rules linking continuum, emission and absorption spectra to whether a glowing gas is dense, thin, or lying in front of a hotter source.',terms:['Kirchhoff’s three laws','Kirchhoff’s laws','Kirchhoff']},
+    'balmer':{label:'Balmer series',wiki:W+'Balmer_series',
+      def:'Hydrogen’s set of visible spectral lines (Hα red, Hβ blue-green, …) produced by electrons jumping to the second energy level.',terms:['Balmer series','Balmer']},
+    'redshift':{label:'Redshift',wiki:W+'Redshift',
+      def:'The stretching of light to longer (redder) wavelengths when a source moves away — a cosmic speedometer and distance gauge.',terms:['redshift']},
+    'main-sequence':{label:'Main sequence',wiki:W+'Main_sequence',
+      def:'The long, stable phase where a star fuses hydrogen into helium in its core; where it sits depends almost entirely on its mass.',terms:['main sequence']},
+    'hr-diagram':{label:'Hertzsprung–Russell diagram',wiki:W+'Hertzsprung%E2%80%93Russell_diagram',
+      def:'A plot of stars’ luminosity against temperature; stellar lives trace paths across it from the main sequence to giants and remnants.',terms:['H–R diagram','H-R diagram','Hertzsprung–Russell diagram','HR diagram']},
+    'luminosity':{label:'Luminosity',wiki:W+'Luminosity',
+      def:'The total energy a star radiates each second — its intrinsic brightness, often measured in multiples of the Sun’s output.',terms:['luminosity']},
+    'red-giant':{label:'Red giant',wiki:W+'Red_giant',
+      def:'A dying Sun-like star that has exhausted core hydrogen and swollen enormous and cool, glowing red.',terms:['red giant']},
+    'supergiant':{label:'Supergiant',wiki:W+'Supergiant',
+      def:'An enormously luminous, massive star near the end of its life — the kind that ends in a supernova (e.g. Betelgeuse).',terms:['red supergiant','supergiant']},
+    'protostar':{label:'Protostar',wiki:W+'Protostar',
+      def:'A star still forming, contracting from a collapsing cloud of gas and dust before fusion ignites.',terms:['protostar','gas cloud']},
+    'planetary-nebula':{label:'Planetary nebula',wiki:W+'Planetary_nebula',
+      def:'The glowing shell of gas a dying Sun-like star gently puffs off, briefly lit by the hot white-dwarf core it exposes.',terms:['planetary nebula']},
+    'nuclear-fusion':{label:'Nuclear fusion',wiki:W+'Nuclear_fusion',
+      def:'The merging of light atomic nuclei (hydrogen into helium) that powers stars and releases the energy holding them up against gravity.',terms:['nuclear fusion','fuses hydrogen','fusion']},
+    'pulsar':{label:'Pulsar',wiki:W+'Pulsar',
+      def:'A rapidly spinning, magnetised neutron star whose beamed radiation sweeps past Earth as regular pulses — a cosmic lighthouse and ultra-precise clock.',terms:['pulsar']},
+    'magnetar':{label:'Magnetar',wiki:W+'Magnetar',
+      def:'A neutron star with the most intense magnetic field known — strong enough to disrupt atoms, and prone to violent flares.',terms:['magnetar']},
+    'angular-momentum':{label:'Angular momentum',wiki:W+'Angular_momentum',
+      def:'A conserved measure of spin; as a stellar core collapses it must spin faster, which is why neutron stars rotate so blisteringly fast.',terms:['angular momentum']},
+    'pauli-exclusion':{label:'Pauli exclusion principle',wiki:W+'Pauli_exclusion_principle',
+      def:'The quantum rule that no two identical fermions (e.g. electrons) can occupy the same state — the source of degeneracy pressure.',terms:['Pauli exclusion principle']},
+    'gravitational-time-dilation':{label:'Gravitational time dilation',wiki:W+'Gravitational_time_dilation',
+      def:'The slowing of clocks deeper in a gravity well, predicted by general relativity. Near a black hole it becomes extreme — time nearly stops at the horizon, seen from afar.',terms:['gravitational time dilation','time dilation']},
+    'quasar':{label:'Quasar',wiki:W+'Quasar',
+      def:'A supermassive black hole feeding so fiercely that its accretion disk outshines the entire surrounding galaxy — the brightest steady objects in the Universe.',terms:['quasars','quasar']},
+    'agn':{label:'Active galactic nucleus',wiki:W+'Active_galactic_nucleus',
+      def:'A galaxy’s core made luminous by gas accreting onto its central supermassive black hole; quasars are the most extreme examples.',terms:['active galactic nucleus','active galactic']},
+    'eddington-limit':{label:'Eddington luminosity',wiki:W+'Eddington_luminosity',
+      def:'The maximum steady luminosity an accreting object can have before its own radiation pressure blows the infalling gas away — a natural speed limit on black-hole growth.',terms:['Eddington luminosity','Eddington limit','Eddington ratio','Eddington']},
+    'radiation-pressure':{label:'Radiation pressure',wiki:W+'Radiation_pressure',
+      def:'The outward push exerted by light itself. In a bright accretion disk it can overpower gravity and halt the inflow of gas.',terms:['radiation pressure']}
+  };
+  // process longer phrases first so multiword terms win over their fragments
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+
+  // case-insensitive phrase find with non-letter boundaries (handles "Sgr A*")
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase();
+    let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z]/.test(b)&&/[^A-Za-z]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  // wrap first match of phrase inside container; skip math/links/already-wrapped
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+
+  /* ---- floating tooltip ---- */
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  /* ---- left rail ---- */
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    // track the most-visible section and repopulate the rail
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+
+  // run after MathJax finishes (so prose text nodes are clean), with a safe fallback
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>

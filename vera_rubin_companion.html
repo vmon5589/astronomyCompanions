@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vera Rubin &amp; the Rotation of Galaxies — An Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(40,90,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(80,40,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* concept beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  select,input[type=text]{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 6px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer}
+  button.act:hover{border-color:var(--cyan)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:340px}
+  .plot.tall{height:420px}
+
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#05060d}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* python code block */
+  pre.code{background:#080b18; border:1px solid var(--line); border-left:3px solid var(--cyan);
+    border-radius:11px; padding:14px 16px; overflow-x:auto; margin:14px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.7px; line-height:1.6; color:#d6dcff;
+    white-space:pre;}
+  pre.code .c{color:#69739c; font-style:italic}
+  pre.code .s{color:var(--green)}
+  pre.code .n{color:var(--amber)}
+  pre.code .k{color:var(--violet)}
+  pre.code .b{color:var(--cyan)}
+  .codecap{font-size:12px; color:var(--muted); margin:-6px 0 2px}
+  .fileref{font-family:ui-monospace,Menlo,monospace; font-size:12px; color:var(--amber);
+    background:rgba(255,178,74,0.08); border:1px solid rgba(255,178,74,0.25); border-radius:6px; padding:1px 6px}
+  code.inlinecode{font-family:ui-monospace,Menlo,monospace; font-size:12.5px; color:#cfe9ff;
+    background:rgba(63,208,255,0.08); border:1px solid var(--line); border-radius:5px; padding:0 5px}
+
+  /* derivation block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv h4 .ic{font-size:14px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  /* step list */
+  .steps{counter-reset:st; display:grid; gap:10px; margin:14px 0 2px}
+  .step{position:relative; padding:10px 12px 10px 44px; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; font-size:13.5px}
+  .step::before{counter-increment:st; content:counter(st); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:rgba(255,178,74,0.18); color:var(--amber); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center}
+  .step b{color:#fff}
+
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:780px}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+
+  /* historical quote */
+  .vquote{margin:18px 0 4px; padding:14px 18px; background:rgba(255,178,74,0.06); border:1px solid rgba(255,178,74,0.25); border-left:3px solid var(--amber); border-radius:12px}
+  .vquote p{margin:0; font-size:15px; line-height:1.6; color:var(--ink); font-style:italic}
+  .vquote .src{display:block; margin-top:8px; font-size:12.5px; color:var(--muted); font-style:normal}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* glossary rail + tooltips */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* Wide MathJax equations are the main mobile-overflow culprit: they force the
+       layout viewport wider than the phone, which shrink-zooms the whole page and
+       leaves interactive plots mis-scaled. Let wide math scroll inside its own box. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Vera Rubin &amp; Galaxy Rotation <small>Interactive companion · how spinning galaxies revealed the dark universe</small></div>
+    <div class="links">
+      <a href="#vera" class="hist">Rubin</a>
+      <a href="#orbits">Orbits</a>
+      <a href="#doppler">Doppler</a>
+      <a href="#tilt">Tilted disks</a>
+      <a href="#observer">Moving observer</a>
+      <a href="#differential">Differential rotation</a>
+      <a href="#flat" class="hist">Flat curves</a>
+      <a href="#darkmatter" class="hist">Dark matter</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>The stars at the edge<br>were moving <span class="grad">far too fast</span></h1>
+  <p class="sub">In the 1970s Vera Rubin pointed a spectrograph at the outskirts of spiral galaxies and asked a quiet question: how fast do the outer stars orbit? Newton said they should crawl, like Neptune crawls around the Sun. They didn't. Every galaxy she measured spun fast all the way to the edge of the light — and beyond. Either most of each galaxy's mass is invisible, or gravity itself is wrong. This companion retraces her path, and builds every tool she needed: orbits, Doppler shifts, tilted-disk geometry, the moving Earth, and differential rotation.</p>
+  <p class="byline">A sibling to the <a class="inline" href="spectroscopy_companion.html">spectroscopy companion</a> (how spectra are read). Move every slider — the plots recompute the real physics live.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every key term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. VERA RUBIN — THE PATH AND THE HYPOTHESIS -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="vera">
+  <span class="era">Chapter 1 · 1928 – 1965 · Choosing an unfashionable problem</span>
+  <h2>Vera Rubin and the question nobody was fighting over</h2>
+  <p class="who">Vassar '48 · Cornell '51 · Georgetown '54 (under George Gamow) · Carnegie DTM from 1965, with Kent Ford's image-tube spectrograph</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The path</div>
+      <p>Vera Rubin (1928–2016) was the only astronomy graduate in Vassar's class of 1948. Princeton never sent her the graduate catalogue she requested — its astronomy program would not admit women until 1975 — so she went to Cornell, and at 22 presented her master's work to the American Astronomical Society: tentative evidence that galaxies share extra, sideways bulk motions on top of the universal expansion. The reception was hostile. Her Georgetown PhD (1954, supervised by George Gamow) showed that galaxies are not scattered randomly but <i>clump</i> — also coolly received, and vindicated decades later as large-scale structure became a field of its own.</p></div>
+    <div class="beat idea"><div class="tag">The strategy</div>
+      <p>Twice burned by controversial topics, Rubin made a deliberate choice that turned out to be the most consequential of her career: she picked a problem so plain that, in her words, nobody would bother her about it — <i>how do spiral galaxies rotate?</i> Astronomers "knew" the answer in outline. Measuring it carefully, point by point along a galaxy's disk, was considered worthy, careful, and dull. It was perfect.</p></div>
+    <div class="beat test"><div class="tag">The instrument</div>
+      <p>In 1965 she joined the Carnegie Institution's Department of Terrestrial Magnetism (DTM), partnering with Kent Ford, who had built something rare: an <b>image-tube spectrograph</b>. A photocathode amplified the incoming light electronically before it reached the photographic plate, cutting exposure times roughly tenfold. Spectra of the faint outer reaches of a galaxy's disk — previously a multi-night ordeal — became a few hours' work. The same year, Rubin became the first woman authorized to observe at Palomar Observatory.</p></div>
+    <div class="beat found"><div class="tag">Her hypothesis</div>
+      <p>The working assumption was simple and almost universally shared: <b>light traces mass</b>. A spiral galaxy's light is concentrated in its central bulge, so its mass should be too — and then the outer stars should behave exactly like the outer planets of the Solar System: the farther out, the slower, falling off as $v \propto 1/\sqrt{r}$ (the <b>Keplerian decline</b> Chapter 2 derives). Andromeda would be the Solar System writ large. That is the hypothesis Rubin and Ford set out, methodically and without fanfare, to confirm.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The hypothesis, stated precisely</h4>
+    <p class="lead">"The outer stars should slow down" follows from two assumptions and one theorem — each of which the data could, in principle, break.</p>
+    <ol>
+      <li><b>Photograph the galaxy:</b> the surface brightness of a spiral falls off steeply from the centre; by a few disk scale-lengths out, the starlight has essentially run out. Most of the <i>light</i> is central.</li>
+      <li><b>Assume light traces mass:</b> if a solar-mass of stars emits roughly a solar luminosity everywhere (a constant <b>mass-to-light ratio</b>), the mass map is just the light map rescaled. Most of the <i>mass</i> is then central too.</li>
+      <li><b>Apply Newton:</b> a star orbiting outside almost all of the mass feels the galaxy as a single central point (the shell theorem, Chapter 2) — precisely a planet's situation. Its speed must follow $v=\sqrt{GM/r}$.</li>
+      <li><b>The prediction:</b> beyond the bright inner regions, measured orbital speed should <i>fall</i> with radius — Mercury fast, Neptune slow. Plotted as $v$ against $r$ — a <b>rotation curve</b> — the outer half should sag like a falling sigh.</li>
+    </ol>
+    <div class="concl"><b>What's at stake:</b> step 2 is the load-bearing assumption. If the measured curve refuses to fall, then either mass does not follow light — there is matter that doesn't shine — or step 3, Newtonian gravity itself, fails at galactic scales. Chapter 7 is the verdict; Chapters 2–6 build the tools needed to render it.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>What it actually takes to "just measure the rotation"</h4>
+    <p>Nothing in a telescope reads out velocity directly. To turn photons into a rotation curve you need the whole chain this companion builds: a physical yardstick connecting speed to mass (<b>orbits</b>, Chapter 2); a speedometer that works at two million light-years (<b>Doppler shifts</b>, Chapter 3); the geometry to undo the tilt of a disk seen at an angle (<b>projection</b>, Chapter 4); the bookkeeping to subtract your own spinning, orbiting observatory (<b>the moving observer</b>, Chapter 5); and the realisation that a galaxy does not turn like a wheel (<b>differential rotation</b>, Chapter 6). Every term in the final equation has its own chapter.</p>
+  </div>
+
+  <div class="vquote">
+    <p>"In a spiral galaxy, the ratio of dark-to-light matter is about a factor of ten. That's probably a good number for the ratio of our ignorance to knowledge."</p>
+    <span class="src">— Vera Rubin, looking back on what the quiet problem revealed</span>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Rubin's hypothesis was that mass follows light, so the outer stars should slow down. The Sun orbits the Milky Way at $v=220$ km/s at radius $r=8.2$ kpc. Treating the interior as a central mass, use the reverse reading $M(<r)=v^2 r/G$ to weigh everything inside the Sun's orbit. Use $1$ kpc $=3.086\times10^{19}$ m, $M_\odot=1.989\times10^{30}$ kg.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert to SI.</b> $v=2.20\times10^{5}$ m/s, $r=8.2\times3.086\times10^{19}=2.53\times10^{20}$ m.</li>
+          <li><b>Apply the scale.</b> $M=\dfrac{v^2 r}{G}=\dfrac{(2.20\times10^{5})^2(2.53\times10^{20})}{6.674\times10^{-11}}=1.835\times10^{41}$ kg.</li>
+          <li><b>Express in solar masses.</b> $M=\dfrac{1.835\times10^{41}}{1.989\times10^{30}}=9.2\times10^{10}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $9.2\times10^{10}\,M_\odot$ inside the Sun's orbit — a rotation curve is "a set of scales two million light-years long," exactly the tool Rubin would turn on every galaxy.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> If light traces mass and most of it is central, the outskirts should follow the Keplerian decline $v\propto1/\sqrt{r}$. A star at $5$ kpc and another at $20$ kpc orbit the same central hoard. By what factor is the outer star predicted to be slower?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{v(20)}{v(5)}=\sqrt{\dfrac{5}{20}}=\sqrt{\tfrac14}$.</li>
+          <li><b>Evaluate.</b> $\sqrt{0.25}=0.50$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the outer star should be half as fast — the "falling sigh" Rubin expected. The data instead stayed flat, which is the whole story.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The Solar System is the test case galaxies were expected to copy: all the mass is in the Sun, so $v\propto1/\sqrt{r}$. Earth orbits at $29.78$ km/s at $1$ AU. Predict Neptune's speed at $r=30.07$ AU.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Scale from Earth.</b> $v_{\text{Nep}}=\dfrac{v_\oplus}{\sqrt{r}}=\dfrac{29.78}{\sqrt{30.07}}$.</li>
+          <li><b>Evaluate.</b> $\sqrt{30.07}=5.48$, so $v_{\text{Nep}}=\dfrac{29.78}{5.48}=5.43$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $5.4$ km/s — Neptune crawls while Mercury races, the textbook Keplerian decline every spiral was assumed to imitate beyond its bulge.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. ORBITS — NEWTON'S CLOCKWORK -->
+<!-- ============================================================= -->
+<section class="chapter" id="orbits">
+  <span class="era">Chapter 2 · The physics · Newton's clockwork</span>
+  <h2>What gravity predicts: the farther out, the slower</h2>
+  <p class="who">Kepler's harmonies · Newton's inverse square · the Solar System as the test case every galaxy was expected to copy</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What Newton says</div>
+      <p>Since Newton, the speed of anything in a circular orbit has been a solved problem. Gravity pulls with force $F = GMm/r^2$ — doubling the distance quarters the pull — and a body moving in a circle requires a centre-pointing (<b>centripetal</b>) acceleration of $v^2/r$ to keep bending its path. Set the two equal and the orbital speed pops out: $v=\sqrt{GM/r}$.</p></div>
+    <div class="beat idea"><div class="tag">Read backwards, it's a scale</div>
+      <p>That square root is a <i>measurement device</i>. Read it backwards: if you can measure how fast something orbits at radius $r$, you can <b>weigh everything interior to its orbit</b>, $M(&lt;r) = v^2 r / G$ — without visiting, without waiting, without seeing the mass itself. A rotation curve is a set of scales two million light-years long.</p></div>
+    <div class="beat test"><div class="tag">The Solar System obeys</div>
+      <p>It does, beautifully. Essentially all the mass sits in the Sun, so $M(&lt;r)$ is the same for every planet and $v \propto 1/\sqrt{r}$: Mercury races at 47 km/s, Earth cruises at 29.8, Neptune crawls at 5.4. This falling shape — the <b>Keplerian decline</b> — is what the phrase "rotation curve of the Solar System" looks like, and what every spiral galaxy was expected to imitate outside its bright bulge.</p></div>
+    <div class="beat found"><div class="tag">What she expected of galaxies</div>
+      <p>Outside a spiral's bright bulge the starlight — and so, presumably, the mass — has mostly run out, leaving the outer stars in the planets' situation: orbiting a central hoard. Rubin's expectation was this chapter's curve transplanted to galactic scale: a Keplerian decline beyond the luminous core. Keep the reverse reading in your pocket, though — a flat measured curve would force $M(&lt;r) = v^2r/G$ to grow in lockstep with radius — because Chapter 7 will need it.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Deriving $v=\sqrt{GM/r}$ — and reading it backwards</h4>
+    <p class="lead">One balance of forces, then one algebraic flip.</p>
+    <ol>
+      <li><b>Circular motion needs a centre-pointing pull.</b> A body moving at constant speed $v$ on a circle of radius $r$ is constantly changing <i>direction</i>; turning the velocity vector at the right rate requires acceleration $a = v^2/r$ aimed at the centre. (Faster speed or tighter circle ⇒ harder turn — both appear in the formula.)</li>
+      <li><b>Gravity supplies it.</b> The only force available is $F = GMm/r^2$, so by Newton's second law: $\dfrac{GMm}{r^2} = \dfrac{m v^2}{r}$.</li>
+      <li><b>The star's own mass cancels</b> — $m$ divides out, which is why a pebble and a star at the same radius orbit at the same speed. Solve: $$v(r) = \sqrt{\frac{G\,M(&lt;r)}{r}}.$$</li>
+      <li><b>Flip it:</b> $M(&lt;r) = \dfrac{v^2\,r}{G}$. Speed and radius — two measurable numbers — weigh everything inside the orbit. If $M$ is all at the centre (Solar System), $v$ falls as $1/\sqrt{r}$. If $v$ stays <i>flat</i>, then $M(&lt;r)$ must grow $\propto r$. Hold that thought until Chapter 7.</li>
+    </ol>
+    <div class="concl"><b>Takeaway:</b> a rotation curve is not a picture of motion — it is a weighing of mass, radius by radius. The <i>shape</i> of $v(r)$ is a direct readout of how matter is distributed, visible or not.</div>
+  </div>
+
+  <p class="codecap">The whole chapter in NumPy — the Solar System curve, and the scales run backwards:</p>
+<pre class="code">import numpy as np
+
+G = 4.301e-6        # gravitational constant in astronomer units: kpc (km/s)^2 / Msun
+
+# --- Solar System: all mass central, so v falls as 1/sqrt(r) ---
+r_au  = np.linspace(0.3, 31, 400)
+v     = 29.78 / np.sqrt(r_au)          # km/s  (Earth: r=1 AU -> 29.78 km/s)
+
+# --- the scales, run backwards: weigh a galaxy from its curve ---
+v_meas, r_meas = 220.0, 8.2            # km/s at kpc  (the Sun, in the Milky Way)
+M_enc = v_meas**2 * r_meas / G         # -> 9.2e10 solar masses inside the Sun's orbit</pre>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The Solar System's rotation curve — Kepler's decline, live</h3>
+    <p class="hint">The curve is $v=\sqrt{GM/r}$ with every planet marked at its true speed. Drag the central mass: the whole curve scales as $\sqrt{M}$ — a heavier "Sun" speeds every orbit up, but the <i>shape</i> never changes, because all the mass stays at the centre. This falling shape is exactly what Rubin expected the outskirts of every spiral galaxy to show.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Central mass <b><span id="kp_mlbl">1.00</span> M☉</b></label>
+        <input id="kp_m" type="range" min="0.2" max="3" step="0.05" value="1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Earth-orbit speed</div><div class="v"><span id="kp_ve">29.8</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Length of "year" at 1 AU</div><div class="v"><span id="kp_yr">1.00</span> <small>yr</small></div></div>
+      <div class="stat"><div class="k">Speed ratio Mercury : Neptune</div><div class="v" id="kp_ratio">8.8×</div></div>
+    </div>
+    <div id="kp_plot" class="plot"></div>
+    <div class="verdict" id="kp_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why only the mass <i>inside</i> the orbit counts — the shell theorem</h4>
+    <p>Step 4 above quietly wrote $M(&lt;r)$, the <b>enclosed mass</b>, not the total. That is Newton's shell theorem: a spherically symmetric shell of matter pulls on anything <i>outside</i> it exactly as if the shell were a point at its centre — and pulls on anything <i>inside</i> it not at all (the near side's stronger tug is exactly cancelled by the far side's greater amount). So a star at radius $r$ feels only the matter interior to $r$, gathered to a point. That is what lets a rotation curve weigh a galaxy shell by shell, like an onion — and why mass <i>outside</i> the last measured point stays invisible to this method. (A flattened disk breaks the symmetry slightly; the correction is tens of percent, not factors — far too small to rescue the hypothesis in Chapter 7.)</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A spiral galaxy's rotation curve reads $v=200$ km/s at radius $r=10$ kpc. Read the orbit backwards with $M(<r)=v^2 r/G$ to weigh everything interior to that orbit. ($1$ kpc $=3.086\times10^{19}$ m, $M_\odot=1.989\times10^{30}$ kg.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $v=2.00\times10^{5}$ m/s; $r=10\times3.086\times10^{19}=3.086\times10^{20}$ m.</li>
+          <li><b>Enclosed mass.</b> $M=\dfrac{(2.00\times10^{5})^2(3.086\times10^{20})}{6.674\times10^{-11}}=1.850\times10^{41}$ kg.</li>
+          <li><b>In solar masses.</b> $M=\dfrac{1.850\times10^{41}}{1.989\times10^{30}}=9.3\times10^{10}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $9.3\times10^{10}\,M_\odot$ — no light required; speed and radius alone weigh the interior.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Suppose all of a galaxy's $M=1.0\times10^{11}\,M_\odot$ sat at its centre (the Keplerian expectation). Use $v=\sqrt{GM/r}$ to predict the orbital speed at $r=15$ kpc.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $M=1.0\times10^{11}\times1.989\times10^{30}=1.989\times10^{41}$ kg; $r=15\times3.086\times10^{19}=4.629\times10^{20}$ m.</li>
+          <li><b>Compute $GM/r$.</b> $\dfrac{(6.674\times10^{-11})(1.989\times10^{41})}{4.629\times10^{20}}=2.868\times10^{10}$ m²/s².</li>
+          <li><b>Square root.</b> $v=\sqrt{2.868\times10^{10}}=1.693\times10^{5}$ m/s $=169$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $169$ km/s — and farther out it would keep falling. The real curves don't, which is the dark-matter clue.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A measured rotation curve is <i>flat</i> at $v=220$ km/s. Using $M(<r)=v^2 r/G$, by what factor does the enclosed mass grow between $r=10$ kpc and $r=30$ kpc?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>$M\propto r$ when $v$ is fixed.</b> $\dfrac{M(30)}{M(10)}=\dfrac{v^2(30)/G}{v^2(10)/G}=\dfrac{30}{10}$.</li>
+          <li><b>Evaluate.</b> $\dfrac{30}{10}=3.0$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the enclosed mass triples — even though the starlight has all but vanished. A flat curve forces $M(<r)$ to grow without end, the arithmetic Chapter 7 turns into dark matter.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. DOPPLER — THE SPEEDOMETER -->
+<!-- ============================================================= -->
+<section class="chapter" id="doppler">
+  <span class="era">Chapter 3 · The tool · A speedometer made of light</span>
+  <h2>How you clock a star you will never visit</h2>
+  <p class="who">Doppler 1842 · Huggins 1868 · the Hα line at 656.28 nm — the workhorse of every Rubin &amp; Ford spectrum</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The ruler</div>
+      <p>Atoms emit and absorb light at exact, repeatable wavelengths — hydrogen's red <b>Hα</b> line sits at 656.28 nm, here, in Andromeda, everywhere (the fingerprint story is the heart of the <a class="inline" href="spectroscopy_companion.html">spectroscopy companion</a>). An exact, known wavelength is a ruler: if the line shows up <i>somewhere else</i> in the spectrum, something moved it.</p></div>
+    <div class="beat idea"><div class="tag">The speedometer</div>
+      <p>Motion along the line of sight stretches or squeezes the wave. A source receding at speed $v$ lengthens every wavelength by the fraction $\Delta\lambda/\lambda = v/c$ (<b>redshift</b>); an approaching source shortens it (<b>blueshift</b>). Invert it and light becomes a speedometer: $v = c\,\Delta\lambda/\lambda$. A shift you can measure on a photographic plate yields a velocity in km/s.</p></div>
+    <div class="beat test"><div class="tag">Her targets: HII regions</div>
+      <p>Rubin and Ford didn't target individual stars — too faint. They targeted <b>HII regions</b>: glowing knots of hydrogen gas lit up by hot young stars, strung along the spiral arms like streetlamps, each blazing in narrow emission lines (Hα and its neighbours). Put the spectrograph slit across the galaxy and each HII region stamps a sharp, easily-measured line onto the plate — at <i>its</i> Doppler shift.</p></div>
+    <div class="beat found"><div class="tag">Two readings in one spectrum</div>
+      <p>One spectrum, two readings. The galaxy's lines as a whole sit displaced by its <b>systemic velocity</b> — the motion of the entire galaxy toward or away from us (Andromeda: ≈300 km/s <i>toward</i>, one of the few blueshifted galaxies). On top of that, lines from one side of the disk sit slightly blue of systemic, the other side slightly red: that differential <i>is</i> the rotation. The rest of this companion is about reading it correctly.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why $\Delta\lambda/\lambda = v/c$ — crests left behind</h4>
+    <p class="lead">The Doppler formula is bookkeeping about where wave crests get emitted.</p>
+    <ol>
+      <li>A resting source emits one crest every period $T$, each from the same spot; crests travel out spaced $\lambda = cT$ apart.</li>
+      <li>A source <b>receding</b> at $v$ emits each crest from a point $vT$ farther away than the last. Successive crests are therefore born $vT$ farther apart: spacing $\lambda' = cT + vT$.</li>
+      <li>The fractional stretch is $\dfrac{\lambda'-\lambda}{\lambda} = \dfrac{vT}{cT} = \dfrac{v}{c}$. Approaching sources give the same with a minus sign — crests bunch up.</li>
+      <li>Invert for the speedometer: $v = c\,\dfrac{\Delta\lambda}{\lambda_0}$, valid for $v\ll c$ — comfortably true at galactic speeds (220 km/s is 0.07% of $c$).</li>
+    </ol>
+    <div class="concl"><b>Sensitivity check:</b> a typical rotation speed of 220 km/s shifts Hα by $\Delta\lambda = 656.28\,\text{nm}\times(220/299{,}793) \approx 0.48$ nm — about five hundred line-widths of a good spectrograph's precision. Easily measurable in the 1970s; the bottleneck was always <i>light</i>, which is what Ford's image tube fixed.</div>
+  </div>
+
+  <p class="codecap">The speedometer in three lines:</p>
+<pre class="code">c       = 299_792.458          # km/s
+lam0    = 656.28               # nm, hydrogen-alpha at rest
+
+lam_obs = lam0 * (1 + v/c)     # where the line lands for radial velocity v
+v       = c * (lam_obs - lam0) / lam0    # ...and the measurement, inverted
+
+# Andromeda's systemic velocity: lines land at 655.62 nm -> v = -300 km/s (approaching)</pre>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Slide a galaxy's velocity, watch the line move</h3>
+    <p class="hint">The spectrum shows hydrogen's Hα emission line; the dashed grey marker is its rest wavelength, 656.28 nm. Drag the radial velocity: receding (positive) slides the line redward, approaching (negative) slides it blueward. The shift is tiny compared to the wavelength itself — the readouts do the precision work, exactly as a measuring engine did on Rubin's plates.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Radial velocity <b><span id="dp_vlbl">+220</span> km/s</b></label>
+        <input id="dp_v" type="range" min="-600" max="600" step="10" value="220">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Observed λ</div><div class="v"><span id="dp_lam">656.76</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Shift Δλ</div><div class="v"><span id="dp_dlam">+0.48</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Reading</div><div class="v" id="dp_kind" style="font-size:15px">redshift</div></div>
+    </div>
+    <div id="dp_plot" class="plot"></div>
+    <div class="verdict" id="dp_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The fine print: only line-of-sight motion shifts the line</h4>
+    <p>A source moving <i>across</i> your line of sight — however fast — neither stretches nor squeezes the crests travelling toward you: to first order in $v/c$, <b>transverse motion produces no Doppler shift at all</b>. The spectrograph measures only the component of velocity pointed along the line from telescope to source, called the <b>radial velocity</b>. This is not a footnote; it is the whole reason Chapter 4 exists. A rotating galaxy presents different fractions of its rotation along your line of sight depending on its tilt and on where in the disk you look — and unless you undo that projection, you systematically under-read every speed.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> An HII region on the receding side of a galaxy moves away at $v=220$ km/s. Using the Doppler relation $\Delta\lambda/\lambda=v/c$, find the shift of the hydrogen Hα line (rest wavelength $656.28$ nm). Take $c=2.998\times10^{5}$ km/s.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Solve for the shift.</b> $\Delta\lambda=\lambda_0\,\dfrac{v}{c}$.</li>
+          <li><b>Substitute.</b> $\Delta\lambda=656.28\times\dfrac{220}{299{,}792}=656.28\times7.34\times10^{-4}$.</li>
+          <li><b>Evaluate.</b> $\Delta\lambda=0.482$ nm, so the line lands at $656.76$ nm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\Delta\lambda\approx+0.48$ nm (observed at $656.76$ nm) — tiny next to the wavelength itself, but hundreds of times a good spectrograph's precision. This single shift is the raw material of every rotation curve.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Andromeda's Hα line is observed at $655.62$ nm instead of $656.28$ nm. Invert the speedometer, $v=c\,\Delta\lambda/\lambda_0$, to find its systemic velocity and say whether it approaches or recedes.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Find the shift.</b> $\Delta\lambda=655.62-656.28=-0.66$ nm (blueward).</li>
+          <li><b>Apply the formula.</b> $v=2.998\times10^{5}\times\dfrac{-0.66}{656.28}$.</li>
+          <li><b>Evaluate.</b> $v=-301$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v\approx-301$ km/s — negative means approaching. Andromeda is one of the few blueshifted galaxies, falling toward the Milky Way.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Along a galaxy's major axis, one side's Hα sits $0.30$ nm to the red of the systemic wavelength $656.28$ nm. What line-of-sight rotation speed does that side show relative to the galaxy's centre?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Use the speedometer.</b> $v=c\,\dfrac{\Delta\lambda}{\lambda_0}=2.998\times10^{5}\times\dfrac{0.30}{656.28}$.</li>
+          <li><b>Evaluate.</b> $v=137$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $137$ km/s of recession relative to centre — the differential between the two sides of the disk <i>is</i> the rotation Rubin set out to chart (before correcting for tilt in Chapter 4).</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. TILTED DISKS — PROJECTION GEOMETRY -->
+<!-- ============================================================= -->
+<section class="chapter" id="tilt">
+  <span class="era">Chapter 4 · The geometry · Reading a spinning disk seen at an angle</span>
+  <h2>Inclination, projection, and the velocity field</h2>
+  <p class="who">Why a face-on galaxy hides its rotation completely — and how $v_{obs} = v_{sys} + v_c \sin i \cos\theta$ undoes the tilt</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">A disk seen at an angle</div>
+      <p>A spiral galaxy is a thin circular disk, but the sky almost never shows it face-on. Seen at an <b>inclination</b> $i$ (0° = face-on, 90° = edge-on), the circle projects into an ellipse: the axis along the tilt keeps its full length (the <b>major axis</b>), the perpendicular one shrinks by $\cos i$. The apparent shape is therefore a protractor: measure the axis ratio $b/a$ on a photograph and the tilt follows, $\cos i = b/a$.</p></div>
+    <div class="beat idea"><div class="tag">The double projection</div>
+      <p>Chapter 3's fine print now bites: the spectrograph reads only the line-of-sight component of motion. A star's circular velocity $v_c$ is a vector lying <i>in the disk plane</i>; project it twice — once for the disk's tilt, once for where the star sits around the disk — and what survives is $$v_{obs} = v_{sys} + v_c(R)\,\sin i\,\cos\theta,$$ with $\theta$ the star's angle around the disk measured from the major axis.</p></div>
+    <div class="beat test"><div class="tag">The spider pattern</div>
+      <p>That formula makes a sharp, checkable prediction about the <b>velocity field</b> — the map of $v_{obs}$ across the whole face of the galaxy. Maximum approach on one end of the major axis, maximum recession on the other, and <i>exactly systemic</i> everywhere along the minor axis ($\cos\theta = 0$: there the orbits run fully across the line of sight). The resulting butterfly pattern, the <b>spider diagram</b>, is the signature of a circularly rotating disk — and real galaxies wear it.</p></div>
+    <div class="beat found"><div class="tag">Her method at the telescope</div>
+      <p>Rubin's method drops out directly: lay the slit along the <b>major axis</b>, where $\cos\theta = \pm1$ and the rotation signal is largest, measure $v_{obs}(R)$, subtract $v_{sys}$, divide by $\sin i$ — and the true curve $v_c(R)$ is recovered. It also dictates target selection: face-on galaxies are useless ($\sin i \to 0$ kills the signal), edge-on ones hide their outskirts behind their own dust. The Sc spirals of her great 1970s campaigns were chosen at comfortable middle inclinations.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Projecting the rotation — where $\sin i \cos\theta$ comes from</h4>
+    <p class="lead">Two projections, applied one after the other, each a plain right-triangle cosine (the trig is built from scratch in the <a class="inline" href="spectroscopy_companion.html#trig">spectroscopy companion's trig supplement</a>).</p>
+    <ol>
+      <li><b>Set the stage.</b> Put the galaxy's centre at the origin; let the disk be tilted by $i$ about the major axis. A star at radius $R$, at azimuth $\theta$ around the disk (measured in the disk plane, from the major axis), moves on its circle at speed $v_c(R)$, its velocity tangent to the circle.</li>
+      <li><b>Resolve the velocity in the disk plane.</b> The tangential velocity splits into a component parallel to the major axis and one parallel to the minor axis. The component that will matter — the one parallel to the major axis — has size $v_c\cos\theta$ (at $\theta=0$, on the major axis, the orbit runs straight along it; a quarter-turn later, $\theta=90°$, it runs fully sideways).</li>
+      <li><b>Tip the disk toward you.</b> Tilting by $i$ leans that in-plane component partly into the line of sight: it acquires a line-of-sight projection $\sin i$. (Face-on, $i=0$: the whole orbit stays in the plane of the sky, $\sin i = 0$, nothing survives. Edge-on, $i=90°$: the major-axis component points squarely at you.) The minor-axis component, for its part, never gains a line-of-sight part — it stays in the sky plane at any tilt.</li>
+      <li><b>Add the galaxy's own motion.</b> The whole disk rides on the galaxy's systemic velocity $v_{sys}$ (Chapter 3). Total: $v_{obs} = v_{sys} + v_c(R)\sin i\cos\theta$.</li>
+    </ol>
+    <div class="concl"><b>Recovering the truth:</b> on the major axis $\cos\theta=\pm1$, so $v_c(R) = \dfrac{v_{obs}(R) - v_{sys}}{\sin i}$. One photograph (for $i$), one slit spectrum (for $v_{obs}$), and the genuine rotation curve falls out. Every velocity in Chapter 7's flat curves has been through this formula.</div>
+    </div>
+
+  <p class="codecap">The projection, and its inverse, in NumPy:</p>
+<pre class="code">import numpy as np
+
+# forward: what the spectrograph sees at disk position (R, theta)
+v_obs = v_sys + v_c(R) * np.sin(i) * np.cos(theta)
+
+# inclination from the photographed axis ratio b/a:
+i = np.arccos(b / a)                  # circle tilted by i -> ellipse, minor = D*cos(i)
+
+# inverse: Rubin's reduction, along the major axis (cos theta = +/-1)
+v_true = (v_obs - v_sys) / np.sin(i)</pre>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The tilted disk — velocity field and the long-slit curve</h3>
+    <p class="hint">The map is a model disk galaxy, every point coloured by its line-of-sight velocity: <b style="color:#7fb4ff">blue approaching</b>, <b style="color:#ff8d8d">red receding</b>, grey at systemic. Drag the inclination: face-on, the colour drains away entirely (no rotation reaches the line of sight); edge-on, the butterfly pattern is strongest. The lower panel is what a spectrograph slit laid along the major axis records — the raw S-shaped curve (solid) versus the true rotation curve it must be corrected back to by dividing by $\sin i$ (dashed).</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Inclination i <b><span id="tl_ilbl">60</span>°</b></label>
+        <input id="tl_i" type="range" min="3" max="88" step="1" value="60">
+      </div>
+      <div class="ctl">
+        <label>True rotation speed v<sub>c</sub> <b><span id="tl_vlbl">220</span> km/s</b></label>
+        <input id="tl_v" type="range" min="100" max="300" step="5" value="220">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Apparent axis ratio b/a</div><div class="v" id="tl_ba">0.50</div></div>
+      <div class="stat"><div class="k">sin i (signal kept)</div><div class="v" id="tl_sini">0.87</div></div>
+      <div class="stat"><div class="k">Peak observed velocity</div><div class="v"><span id="tl_peak">190</span> <small>km/s</small></div></div>
+    </div>
+    <figure><canvas id="tl_canvas" width="900" height="380"></canvas>
+      <figcaption>The velocity field ("spider diagram") of a circularly rotating disk at inclination i. The long horizontal line is the major axis (the slit position); the short one is the minor axis, where the observed velocity is exactly systemic no matter how fast the disk spins.</figcaption></figure>
+    <div id="tl_plot" class="plot" style="height:260px"></div>
+    <div class="verdict" id="tl_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Reading the tilt off a photograph — and its limits</h4>
+    <p>A circle of diameter $D$ tilted by $i$ projects to an ellipse with major axis $D$ and minor axis $D\cos i$ — the familiar foreshortening of a coin turned in your fingers. So one measurement on an image, $b/a$, hands you $i = \arccos(b/a)$ with no spectroscopy at all. Two caveats astronomers carry: real disks have thickness, so even a perfectly edge-on galaxy shows $b/a \approx 0.1$–0.2 rather than zero; and warped or non-circular disks can masquerade as a different tilt. Near face-on the method is also <i>treacherous for velocities</i>: at $i=10°$, $\sin i = 0.17$, so dividing by it multiplies every velocity error by six. Rotation-curve work lives at $i \approx 40°$–75°.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A disk galaxy rotates at a true speed $v_c=210$ km/s and is seen at inclination $i=65°$. Using the major-axis projection $v_{obs}=v_c\sin i$ (where $\cos\theta=1$), what peak velocity does the spectrograph record?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Project onto the line of sight.</b> $v_{obs}=v_c\sin i=210\sin 65°$.</li>
+          <li><b>Evaluate.</b> $\sin 65°=0.906$, so $v_{obs}=210\times0.906=190$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $190$ km/s — the tilt throws away $\sin 65°$ of the motion, so the raw reading under-reports the true speed until you divide it back out.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> On a photograph a spiral's image is an ellipse with axis ratio $b/a=0.45$. Using $\cos i=b/a$, find its inclination — no spectroscopy needed.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Invert the foreshortening relation.</b> $i=\arccos(b/a)=\arccos(0.45)$.</li>
+          <li><b>Evaluate.</b> $i=63.3°$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $i\approx63°$ — a comfortable middle inclination, exactly the regime Rubin chose for her Sc spirals (not too face-on to kill the signal, not too edge-on to hide behind dust).</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A slit laid along the major axis of a galaxy at $i=50°$ reads $v_{obs}=180$ km/s (systemic already subtracted). Recover the true rotation speed via $v_c=v_{obs}/\sin i$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Divide out the tilt.</b> $v_c=\dfrac{v_{obs}}{\sin i}=\dfrac{180}{\sin 50°}$.</li>
+          <li><b>Evaluate.</b> $\sin 50°=0.766$, so $v_c=\dfrac{180}{0.766}=235$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $235$ km/s — the de-projection that turns a raw plate reading into a point on the true rotation curve. Every velocity in Chapter 7's flat curves passed through this step.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. THE MOVING OBSERVER -->
+<!-- ============================================================= -->
+<section class="chapter" id="observer">
+  <span class="era">Chapter 5 · The observer · A spinning seat on an orbiting planet</span>
+  <h2>Subtracting ourselves: the moving observatory</h2>
+  <p class="who">Earth's spin (0.46 km/s) · Earth's orbit (29.8 km/s) · the Sun's galactic orbit (~220 km/s) — every spectrum is taken from a moving platform</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The spinning platform</div>
+      <p>The spectrograph never stands still. It rides a planet spinning at up to 0.46 km/s, which orbits the Sun at 29.8 km/s, while the Sun itself sails around the Galaxy at roughly 220 km/s. Radial velocities add along the line of sight, so the raw Doppler reading of any object is the object's motion <i>plus the projection of all of ours</i>. Astronomers since the 19th century have subtracted these terms as routinely as taring a balance.</p></div>
+    <div class="beat idea"><div class="tag">The budget</div>
+      <p>Each motion of ours is <i>known precisely</i> — orbital mechanics tells us Earth's velocity vector at any instant to high accuracy. So compute its component toward the target and subtract: the result is the velocity as seen from the Solar System's centre of mass, the <b>barycentric correction</b>. What cannot be computed away (the Sun's own galactic orbit) is handled differently — see the mathnote below, one of the slyest points in this whole subject.</p></div>
+    <div class="beat test"><div class="tag">January vs July</div>
+      <p>Observe the same galaxy in January and again in July: the raw velocity differs by up to ±29.8 km/s as Earth swings around its orbit — a pure annual sine wave stamped on every uncorrected measurement, scaled by how close the target lies to the plane of Earth's orbit. The daily spin adds a further ±0.46 km/s wobble. Against a 220 km/s rotation signal, an uncorrected 30 km/s is a 14% error — fatal to the science.</p></div>
+    <div class="beat found"><div class="tag">What survives the subtraction</div>
+      <p>Modern pipelines compute the barycentric correction to better than a metre per second — it is the enabling arithmetic of exoplanet hunting, where the signal <i>is</i> a few m/s. For Rubin's work the requirement was gentler but absolute: every plate reduced to the barycentre, every galaxy's systemic velocity then subtracted, leaving only the internal rotation. What survives that double subtraction is the curve.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The full velocity budget of one measured line</h4>
+    <p class="lead">Write down everything that moves between a hydrogen atom in Andromeda and your detector, largest first.</p>
+    <ol>
+      <li><b>The Sun's galactic orbit, ~220 km/s.</b> Carries the whole Solar System; constant on any human timescale. (Handled by absorption into $v_{sys}$ — see below.)</li>
+      <li><b>The galaxy's systemic velocity, tens to hundreds of km/s.</b> The target's own drift through space, $v_{sys}$ — measured, not assumed, as the mean of both sides of the disk (Chapter 4: it is the velocity on the minor axis).</li>
+      <li><b>Earth's orbital motion, ±29.8 km/s with a one-year period.</b> Its projection on the line of sight is $29.8\cos\beta\,\sin(2\pi t/\text{yr} + \varphi)$ for a target at angle $\beta$ out of Earth's orbital plane — computable to high precision for any date, and subtracted.</li>
+      <li><b>Earth's rotation, ±0.46 km/s with a one-day period</b> (scaled by the observatory's latitude and the target's position). Also computed and subtracted.</li>
+      <li><b>What remains:</b> $v_{rot}\sin i\cos\theta$ — the galaxy's internal rotation, projected per Chapter 4. The signal is what's left when every known motion has been pulled off the pile.</li>
+    </ol>
+    <div class="concl"><b>The discipline:</b> subtract what you can compute (Earth's spin and orbit), measure-and-subtract what you can't (systemic velocity), and the residual is the physics. Get any term wrong and it forges a phantom rotation.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The barycentric correction over a year</h3>
+    <p class="hint">The curve is the line-of-sight component of Earth's orbital velocity toward one target across a full year — the correction every spectrum of that target needs. Drag the target away from Earth's orbital plane (the ecliptic) and the amplitude shrinks by $\cos\beta$: a target straight above the orbit's pole ($\beta = 90°$) sees Earth moving only sideways, and the annual term vanishes. The marker is the date of your observation; the diurnal (daily spin) term is drawn magnified in the thin band below.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Target's ecliptic latitude β <b><span id="ob_blbl">15</span>°</b></label>
+        <input id="ob_b" type="range" min="0" max="90" step="1" value="15">
+      </div>
+      <div class="ctl">
+        <label>Observation date (day of year) <b><span id="ob_dlbl">120</span></b></label>
+        <input id="ob_d" type="range" min="0" max="364" step="1" value="120">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Correction today</div><div class="v"><span id="ob_now">—</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Annual swing</div><div class="v">±<span id="ob_amp">28.8</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Daily swing</div><div class="v">±0.46 <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Error if ignored (vs 220 km/s)</div><div class="v"><span id="ob_err">13</span><small>%</small></div></div>
+    </div>
+    <div id="ob_plot" class="plot"></div>
+    <div class="verdict" id="ob_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The sly point: why our 220 km/s galactic ride doesn't ruin the curve</h4>
+    <p>The Sun's orbit around the Milky Way is by far our largest motion — yet it never appears in the corrections above. Why doesn't it wreck the measurement? Because over the years of an observing campaign it is <b>constant</b>: it shifts every line of a given target by the same fixed amount, indistinguishable from the target's own drift. It therefore gets <i>absorbed into the measured systemic velocity</i> and subtracted along with it. A constant offset cannot forge a rotation signal — only motions that <b>change</b> during the campaign (Earth's day and year) can do that, and those are exactly the ones computed and removed. The same logic in reverse is Chapter 6's subject: for stars <i>inside our own Galaxy</i>, the Sun's orbital motion does <i>not</i> cancel, and its fingerprints across the sky are how the Milky Way's rotation was discovered from within.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Earth orbits the Sun at $29.79$ km/s. For a target at ecliptic latitude $\beta=20°$, the annual barycentric correction has amplitude $29.79\cos\beta$. Find the maximum line-of-sight contribution Earth's orbit adds to this target's measured velocity.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Project out of the ecliptic plane.</b> amplitude $=29.79\cos\beta=29.79\cos 20°$.</li>
+          <li><b>Evaluate.</b> $\cos 20°=0.940$, so amplitude $=29.79\times0.940=28.0$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\pm28.0$ km/s — a target near the ecliptic feels almost all of Earth's orbital motion; one near the ecliptic pole ($\beta=90°$) would feel none.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> An observer forgets the barycentric correction, leaving an uncorrected $25$ km/s of Earth's motion in the data. Against a galaxy rotation signal of $220$ km/s, what fractional error does that forge?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> error $=\dfrac{25}{220}\times100\%$.</li>
+          <li><b>Evaluate.</b> $=11.4\%$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $11\%$ — an enormous, science-killing error that a one-line computed subtraction removes. This is why every plate is reduced to the barycentre.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The annual correction follows $v=A\sin(2\pi t/\text{yr})$ with amplitude $A=28$ km/s. What is the correction at a phase of $45°$ through the orbital cycle?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Evaluate the sine at the phase.</b> $\sin 45°=0.707$.</li>
+          <li><b>Multiply by the amplitude.</b> $v=28\times0.707=19.8$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $19.8$ km/s — a sizeable offset on this date. Because it <i>changes</i> through the year (unlike the Sun's constant 220 km/s galactic ride), it must be computed and subtracted for each observation.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. DIFFERENTIAL ROTATION -->
+<!-- ============================================================= -->
+<section class="chapter" id="differential">
+  <span class="era">Chapter 6 · The motion · A galaxy is not a wheel</span>
+  <h2>Differential rotation — every radius keeps its own time</h2>
+  <p class="who">Solid bodies vs orbiting swarms · Oort's 1927 proof that the Milky Way shears · why spiral arms can't be made of the same stars for long</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Not a wheel</div>
+      <p>A wheel, a vinyl record, a dinner plate: <b>solid-body rotation</b>. Every part shares one angular speed $\Omega$ (degrees per minute), so the outer rim moves faster in km/s exactly in proportion to its radius, $v = \Omega R$, and the whole object turns as a piece. It is tempting to picture a galaxy this way — a hundred billion stars bolted to a turning disk. Nothing could be more wrong: there are no bolts. Nothing connects star to star.</p></div>
+    <div class="beat idea"><div class="tag">Every radius its own clock</div>
+      <p>Each star is its own independent satellite, on its own orbit, with its own period set only by the mass interior to it (Chapter 2). The angular speed becomes a function of radius, $\Omega(R) = v(R)/R$ — and unless $v$ rises strictly in proportion to $R$, inner stars complete their laps sooner and <b>overtake</b> the outer ones. That shearing motion is <b>differential rotation</b>. The Sun laps the Galaxy in about 230 million years; stars at half our radius lap it in roughly half the time.</p></div>
+    <div class="beat test"><div class="tag">Seen from the inside</div>
+      <p>How do you detect your own galaxy's rotation while riding it? Chapter 5's logic flips: for stars <i>inside</i> the Milky Way, the Sun's 220 km/s does <i>not</i> cancel out — nearby stars at different galactic longitudes $\ell$ share it to different degrees. Differential rotation leaves a precise fingerprint: a radial-velocity pattern $v_r = A\,d\,\sin 2\ell$ that runs through <i>two</i> full cycles around the sky. Jan Oort found exactly this double sine in 1927 — proof from the inside that the Milky Way rotates, and rotates differentially. A solid-body galaxy would show no pattern at all.</p></div>
+    <div class="beat found"><div class="tag">The winding problem</div>
+      <p>Differential rotation has a famous casualty: paint a straight line of stars from the centre to the edge and within a few rotations it winds into a tightening spiral — and after a few more, into an indistinct whorl. Real spiral arms survive for many rotations, so they <b>cannot be material structures</b>; they are density waves, patterns the stars drift through like cars through a traffic jam. And note the punchline for our story: even the <i>flat</i> rotation curves of Chapter 7 are strongly differential — $v$ constant still means $\Omega = v/R$ falling — so none of this rescues the Keplerian expectation.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Three ways a disk can spin — and how to tell them apart</h4>
+    <p class="lead">Define $\Omega(R) = v(R)/R$, the angular speed at radius $R$. The shape of $v(R)$ fixes everything.</p>
+    <ol>
+      <li><b>Solid body</b> ($v \propto R$): $\Omega$ is the same everywhere. No shear, no winding, no Oort pattern. Real galaxies do behave this way <i>near their centres</i>, where the rising part of the rotation curve is roughly linear.</li>
+      <li><b>Flat curve</b> ($v = $ const): $\Omega \propto 1/R$. A star at half your radius has twice your angular speed — strong shear, even though every star moves at the same km/s. This is the regime Rubin's galaxies turned out to live in.</li>
+      <li><b>Keplerian</b> ($v \propto 1/\sqrt{R}$): $\Omega \propto R^{-3/2}$ — the strongest shear of the three. The Solar System: Mercury laps Neptune hundreds of times per Neptune-year.</li>
+      <li><b>The discriminator:</b> the local shear is what Oort's coefficient measures, $A = \tfrac{1}{2}\!\left(\tfrac{v}{R} - \tfrac{dv}{dR}\right)$ evaluated at the Sun. Solid body gives $A = 0$ (the pattern vanishes); a flat curve gives $A = v/2R \approx 13.5$ km/s per kpc — close to what is actually measured in the solar neighbourhood.</li>
+    </ol>
+    <div class="concl"><b>Takeaway:</b> "the galaxy rotates" is not one statement but a whole function $v(R)$ — and the local sky, read carefully enough, betrays its derivative. Oort measured the Milky Way's shear from a few thousand nearby stars decades before anyone could see our galaxy from outside.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Watch a painted line wind up — and the sky pattern it stamps</h3>
+    <p class="hint">Left: a model disk with stars on rings; the amber line is "painted" straight at $t=0$ through one marked star per ring. Choose the rotation law and press play: under solid-body rotation the line turns rigidly forever, while flat and Keplerian laws shear it into a winding spiral within a couple of turns. Right readouts give each law's orbital periods. The lower panel shows Oort's all-sky fingerprint for nearby stars under that law — the $\sin 2\ell$ double wave whose amplitude is the shear (and which vanishes for solid-body rotation).</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Rotation law</label>
+        <select id="df_mode">
+          <option value="flat" selected>flat — v constant (what Rubin found)</option>
+          <option value="solid">solid body — Ω constant (a wheel)</option>
+          <option value="kepler">Keplerian — v ∝ 1/√R (the Solar System)</option>
+        </select>
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="act" id="df_play">⏸ pause</button>
+      <button class="act" id="df_reset">repaint the line</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Period at 4 kpc</div><div class="v"><span id="df_p4">—</span> <small>Myr</small></div></div>
+      <div class="stat"><div class="k">Period at 8 kpc (Sun)</div><div class="v"><span id="df_p8">—</span> <small>Myr</small></div></div>
+      <div class="stat"><div class="k">Period at 16 kpc</div><div class="v"><span id="df_p16">—</span> <small>Myr</small></div></div>
+      <div class="stat"><div class="k">Oort shear A</div><div class="v"><span id="df_a">—</span> <small>km/s/kpc</small></div></div>
+    </div>
+    <figure><canvas id="df_canvas" width="900" height="400"></canvas>
+      <figcaption>Stars on independent circular orbits. The amber polyline connects one marked star per ring — straight when painted, wound into a spiral by differential rotation. The faint dot at 8 kpc marks the Sun's ring.</figcaption></figure>
+    <div id="df_plot" class="plot" style="height:240px"></div>
+    <div class="verdict" id="df_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why <i>twice</i> the longitude — the sin 2ℓ pattern, unpacked</h4>
+    <p>Look from the Sun toward galactic longitude $\ell$ at a nearby star. Both of you orbit; what the spectrograph reads is the <i>difference</i> of the two velocities, projected on the line between you. Work through the geometry and two effects multiply: how much the star's orbital speed differs from yours (set by how much farther in or out it sits, $\propto\cos$-like in $\ell$) and how much of that difference points along your line of sight ($\propto\sin$-like in $\ell$). A product of a sine and a cosine is a sine of <i>twice</i> the angle — hence $v_r = A\,d\,\sin 2\ell$: zero toward the galactic centre ($\ell=0$), zero straight ahead along the orbit ($\ell=90°$), maximum approach and recession at the diagonals ($\ell = 45°, 135°, \dots$), the whole pattern repeating twice per circuit of the sky. Its amplitude grows with the star's distance $d$ — shear accumulates with separation — which is also why the effect hid until proper-motion and velocity surveys reached beyond the nearest stars.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The Milky Way's curve is flat at $v=220$ km/s. At the Sun's radius $R=8.2$ kpc, find the angular speed $\Omega=v/R$ and the orbital period $P=2\pi R/v$. (Use $1\text{ kpc}/(\text{km/s})=977.8$ Myr.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Angular speed.</b> $\Omega=\dfrac{v}{R}=\dfrac{220}{8.2}=26.8$ km/s per kpc.</li>
+          <li><b>Period.</b> $P=\dfrac{2\pi R}{v}=\dfrac{2\pi(8.2)}{220}=0.234$ kpc/(km/s).</li>
+          <li><b>Convert to Myr.</b> $P=0.234\times977.8=229$ Myr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\Omega\approx26.8$ km/s/kpc, $P\approx230$ Myr — the Sun's "galactic year." A flat curve still means $\Omega$ falls outward, so the Galaxy shears.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> For a flat rotation curve, the Oort shear constant is $A=\tfrac12\!\left(\dfrac{v}{R}-\dfrac{dv}{dR}\right)$ with $dv/dR=0$, i.e. $A=v/(2R)$. Compute $A$ at the Sun ($v=220$ km/s, $R=8.2$ kpc).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Flat curve sets $dv/dR=0$.</b> So $A=\dfrac{v}{2R}$.</li>
+          <li><b>Substitute.</b> $A=\dfrac{220}{2(8.2)}=\dfrac{220}{16.4}=13.4$ km/s per kpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $A\approx13.4$ km/s/kpc — comfortably close to the measured solar-neighbourhood value (~15), confirming the local curve is flat, not Keplerian (which would give a much larger $A$).</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Oort's all-sky fingerprint is $v_r=A\,d\,\sin 2\ell$. With $A=13.4$ km/s/kpc, what radial velocity does a star at distance $d=2$ kpc show toward galactic longitude $\ell=45°$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Evaluate the double-angle term.</b> $\sin(2\times45°)=\sin 90°=1$.</li>
+          <li><b>Multiply.</b> $v_r=13.4\times2\times1=26.8$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $26.8$ km/s — the maximum of the $\sin 2\ell$ double wave, occurring at the diagonals ($\ell=45°,135°,\dots$). It is exactly this pattern Oort found in 1927, proving the Milky Way rotates differentially from the inside.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="rule"></div>
+  <h3>The toolkit is complete. <span class="grad">Now the galaxies answer.</span></h3>
+  <p>Orbits to predict, Doppler to measure, geometry to de-project, corrections to clean, differential rotation to interpret. Everything from here is what the data actually said — and what it forced astronomy to conclude.</p>
+</div>
+
+<!-- ============================================================= -->
+<!-- 7. THE FLAT CURVES -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="flat">
+  <span class="era">Chapter 7 · 1970 – 1980 · The measurement</span>
+  <h2>The curves refused to fall</h2>
+  <p class="who">Rubin &amp; Ford 1970 (Andromeda, 67 HII regions) · Rubin, Ford &amp; Thonnard 1978–1980 (21 Sc spirals) · the radio astronomers who pushed even farther</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The expectation</div>
+      <p>Recall the stakes from Chapter 1: light traces mass, the bulge holds the light, so beyond the bright inner disk the curve must turn over and fall as $v \propto 1/\sqrt{r}$. Sketches of "expected galaxy rotation" in textbooks of the day show exactly that — a rise through the bulge, a peak, and a long Keplerian sigh. Nobody considered the measurement urgent, because nobody doubted the answer.</p></div>
+    <div class="beat idea"><div class="tag">1970: Andromeda</div>
+      <p>Rubin and Ford's first great target was M31, Andromeda — close enough to resolve individual HII regions. Sixty-seven of them, each yielding a Doppler velocity, traced the curve from the core out to roughly 24 kpc. It rose, flattened — <b>and stayed flat to the last measured point</b>. No turnover. The 1970 paper reported the curve without trumpeting an interpretation; the data simply ran out before the decline ever began.</p></div>
+    <div class="beat test"><div class="tag">1978–80: twenty-one galaxies</div>
+      <p>One galaxy might be a fluke. Through the late 1970s Rubin, Ford and Norbert Thonnard measured Sc spirals of every size — small, large, dim, luminous — and in 1980 published the systematic result: <b>every single one of the 21 rotation curves was flat</b> to the edge of the detectable light. Meanwhile radio astronomers (Morton Roberts on M31; Albert Bosma's 1978 thesis; later van Albada on NGC 3198) used the 21 cm line of cold hydrogen gas, which extends two to three times <i>beyond</i> the starlight — and the curves stayed flat out there too. The decline never came.</p></div>
+    <div class="beat found"><div class="tag">The arithmetic won't bend</div>
+      <p>Now run Chapter 2 backwards, as promised: $M(&lt;r) = v^2 r/G$ with $v$ constant means the enclosed mass grows <i>in direct proportion to radius</i> — steadily, indefinitely, in regions where the starlight has fallen to nothing. Each new shell of each galaxy weighs the same as the last and shines ever less. The mass-to-light ratio climbs without limit. Either galaxies are wrapped in enormous halos of matter that emits no light, or Newtonian gravity fails at galactic scales. There is no third reading of a flat line.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> From a flat line to missing mass, in four forced steps</h4>
+    <p class="lead">Nothing in this argument is subtle, which is precisely what made it so devastating.</p>
+    <ol>
+      <li><b>Measured:</b> beyond a few kpc, $v(r) \approx$ constant — across 21 optical curves and every extended 21 cm curve. (After the corrections of Chapters 3–5: Doppler velocities, de-projected by $\sin i$, referenced to the barycentre, systemic velocity removed.)</li>
+      <li><b>Newton:</b> $M(&lt;r) = v^2 r / G$. With $v$ fixed, $M(&lt;r) \propto r$. At 30 kpc a typical Sc galaxy encloses several hundred billion solar masses — and is still gaining.</li>
+      <li><b>The light:</b> a spiral's surface brightness falls roughly exponentially with radius; integrate it and the total luminosity <i>converges</i> — the starlight adds up to a finite, centrally concentrated total. Light stops; mass doesn't.</li>
+      <li><b>The collision:</b> divide step 2 by step 3. The mass-to-light ratio of each successive shell rises from a few (normal stars) to tens and beyond (nothing visible at all). Matter that gravitates but does not shine outweighs everything we see, roughly ten to one.</li>
+    </ol>
+    <div class="concl"><b>The fork:</b> accept the halo of unseen matter, or amend gravity itself (Chapter 8 weighs both). Note what is <i>not</i> in doubt: the measurement. Rubin's curves have been re-measured for fifty years by every technique invented since, and they are flat.</div>
+  </div>
+
+  <p class="codecap">The verdict, in NumPy — weigh a flat curve shell by shell:</p>
+<pre class="code">G = 4.301e-6                  # kpc (km/s)^2 / Msun
+
+r = np.linspace(1, 35, 200)   # kpc
+v = np.full_like(r, 220.0)    # the measured fact: flat at ~220 km/s
+
+M_enc = v**2 * r / G          # grows linearly: ~1.1e10 Msun *per kpc*, forever
+
+# the light converges instead (exponential disk, scale length 3.5 kpc):
+L_enc = 1 - (1 + r/3.5) * np.exp(-r/3.5)     # fraction of total starlight
+# -> by r = 35 kpc: 99.95% of the light, but nowhere near 99.95% of the mass</pre>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Try to fit a flat curve with stars alone</h3>
+    <p class="hint">The points are a synthetic Sc-galaxy rotation curve (flat at ~220 km/s, with realistic scatter). The model under your control: a bulge from the light profile, a stellar disk whose mass you may scale up, and a dark halo you can switch on. First leave the halo <b>off</b> and try to reach the outer points with the disk slider — push it as hard as you like, the declining shape can't hold the line up at 30 kpc without absurdly overshooting the inner points. Then switch the halo on. This is the fitting exercise the whole field performed, on every galaxy, through the 1980s.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Stellar disk mass <b><span id="rc_dlbl">5.0</span> ×10¹⁰ M☉</b></label>
+        <input id="rc_d" type="range" min="1" max="14" step="0.25" value="5">
+      </div>
+      <div class="ctl">
+        <label>Dark halo &nbsp;<span id="rc_hon" style="cursor:pointer;color:var(--muted)">○ off</span></label>
+        <input id="rc_h" type="range" min="120" max="260" step="5" value="200" disabled>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">RMS misfit</div><div class="v"><span id="rc_rms">—</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Dynamical mass (&lt;35 kpc)</div><div class="v"><span id="rc_mdyn">—</span> <small>×10¹⁰ M☉</small></div></div>
+      <div class="stat"><div class="k">Stars + bulge</div><div class="v"><span id="rc_mlum">—</span> <small>×10¹⁰ M☉</small></div></div>
+      <div class="stat"><div class="k">Dark fraction</div><div class="v"><span id="rc_dark">—</span></div></div>
+    </div>
+    <div id="rc_plot" class="plot tall"></div>
+    <div class="verdict" id="rc_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>What a flat curve says about the halo's density — ρ ∝ 1/r²</h4>
+    <p>The halo's run of density follows from the curve in two lines. Flat curve ⇒ $M(&lt;r) \propto r$ ⇒ each spherical shell adds the same mass: $\dfrac{dM}{dr} = $ constant. But a shell's mass is its area times thickness times density, $dM = 4\pi r^2 \rho(r)\,dr$. For $4\pi r^2 \rho$ to stay constant while $r^2$ grows, the density must fall as $\boldsymbol{\rho(r) \propto 1/r^2}$ — the profile of an "isothermal sphere", the same mathematics as a self-gravitating ball of gas with constant temperature. So the dark halo isn't shapeless: the flat curves <i>measure</i> its density law, even though no photon has ever come from it. (Modern simulations refine this to profiles like NFW — $1/r$ at the centre, steeper than $1/r^2$ far out — but $1/r^2$ rules in the flat-curve region.)</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> An Sc spiral's curve is flat at $v=220$ km/s and the 21 cm gas traces it to $r=30$ kpc. Compute the dynamical mass $M(<r)=v^2 r/G$ enclosed at that radius. ($1$ kpc $=3.086\times10^{19}$ m, $M_\odot=1.989\times10^{30}$ kg.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $v=2.20\times10^{5}$ m/s; $r=30\times3.086\times10^{19}=9.258\times10^{20}$ m.</li>
+          <li><b>Enclosed mass.</b> $M=\dfrac{(2.20\times10^{5})^2(9.258\times10^{20})}{6.674\times10^{-11}}=6.715\times10^{41}$ kg.</li>
+          <li><b>In solar masses.</b> $M=\dfrac{6.715\times10^{41}}{1.989\times10^{30}}=3.4\times10^{11}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3.4\times10^{11}\,M_\odot$ — several hundred billion solar masses, "and still gaining," in a region where the starlight has run out.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A flat curve means $M(<r)=v^2 r/G$ grows linearly: each kiloparsec of radius adds the same mass, $dM/dr=v^2/G$. For $v=220$ km/s, how many solar masses does each additional kpc of shell enclose?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Mass per unit radius.</b> $\dfrac{dM}{dr}=\dfrac{v^2}{G}$ (per metre); multiply by $1$ kpc to get mass per kpc.</li>
+          <li><b>Substitute.</b> $\dfrac{(2.20\times10^{5})^2}{6.674\times10^{-11}}\times3.086\times10^{19}=2.238\times10^{40}$ kg per kpc.</li>
+          <li><b>In solar masses.</b> $\dfrac{2.238\times10^{40}}{1.989\times10^{30}}=1.1\times10^{10}\,M_\odot$ per kpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1.1\times10^{10}\,M_\odot$ for every extra kpc — "each new shell weighs the same as the last and shines ever less." The mass-to-light ratio climbs without limit.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A flat curve implies an isothermal halo with density $\rho(r)=\dfrac{v^2}{4\pi G r^2}$. For $v=220$ km/s, find $\rho$ at $r=10$ kpc, in kg/m³.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $r=10\times3.086\times10^{19}=3.086\times10^{20}$ m, so $r^2=9.523\times10^{40}$ m².</li>
+          <li><b>Denominator.</b> $4\pi G r^2=4\pi(6.674\times10^{-11})(9.523\times10^{40})=7.987\times10^{31}$.</li>
+          <li><b>Divide.</b> $\rho=\dfrac{(2.20\times10^{5})^2}{7.987\times10^{31}}=\dfrac{4.84\times10^{10}}{7.987\times10^{31}}=6.1\times10^{-22}$ kg/m³.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $6\times10^{-22}$ kg/m³ — vanishingly thin, yet the integrated halo outweighs the stars. The flat curve <i>measures</i> the dark halo's density law even though no photon comes from it.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. DARK MATTER -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="darkmatter">
+  <span class="era">Chapter 8 · The verdict · Most of the universe doesn't shine</span>
+  <h2>Dark matter — from heresy to backbone of cosmology</h2>
+  <p class="who">Zwicky 1933 · Ostriker &amp; Peebles 1973 · Rubin's curves 1970–80 · lensing, clusters &amp; the CMB · the observatory that bears her name</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Zwicky's ghost</div>
+      <p>Rubin's result had a forgotten ancestor. In 1933 Fritz Zwicky timed galaxies whirling inside the Coma cluster and found them moving far too fast for the visible mass to hold the cluster together — by his (over-rough) estimate a factor of hundreds, in modern terms tens. He named the missing ingredient <i>dunkle Materie</i> — dark matter — and was ignored for forty years: one eccentric's anomaly in one cluster. What changed in the 1970s was not the idea but the evidence: Rubin's flat curves were clean, repeated, systematic, and in everyone's favourite objects — ordinary spiral galaxies.</p></div>
+    <div class="beat idea"><div class="tag">The halo</div>
+      <p>Theory had quietly arrived at the same place. In 1973 Ostriker and Peebles showed that a bare spinning disk of stars is violently unstable — left alone it buckles into a bar within a rotation or two. Embedding the disk in a massive, roughly spherical <b>halo</b> stabilizes it. Add Chapter 7's density law and the picture assembles itself: every spiral sits inside a dark halo with $\rho \propto 1/r^2$, holding the rotation curve flat and the disk intact, outweighing the stars roughly ten to one and extending several times beyond the visible edge. The luminous galaxy is froth on a dark sea.</p></div>
+    <div class="beat test"><div class="tag">The independent juries</div>
+      <p>Extraordinary claims got their independent trials, and dark matter kept winning. <b>Gravitational lensing</b>: the bending of background light weighs clusters with no orbital assumptions — same missing mass. <b>Hot X-ray gas</b>: its pressure-temperature balance weighs clusters a third way — same answer. The <b>Bullet Cluster</b> (2006): two clusters collided, the gas (most of the normal matter) slammed and stalled in the middle while the lensing mass sailed cleanly through with the galaxies — mass and ordinary matter visibly <i>in different places</i>. And the <b>cosmic microwave background</b>'s acoustic peaks independently price the cosmic recipe: about five times more dark matter than everything atomic.</p></div>
+    <div class="beat found"><div class="tag">Her legacy</div>
+      <p>The standard cosmology that emerged — ΛCDM — is roughly 5% atoms, 27% dark matter, 68% dark energy: Rubin's quiet measurement sits at the foundation of the claim that we have identified the ingredients of <i>one part in twenty</i> of the universe. She received the National Medal of Science in 1993 and died on 25 December 2016, famously without a Nobel Prize. The Vera C. Rubin Observatory in Chile — which saw first light in 2025 and will map billions of galaxies, in part through the weak lensing distortions dark matter imprints — is the first major US observatory named for a woman. Its core mission is, fittingly, a survey of the dark.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Process of elimination: what the dark matter is <i>not</i></h4>
+    <p class="lead">"Unseen" first suggested mundane answers. One by one, the mundane answers failed independent tests.</p>
+    <ol>
+      <li><b>Cold gas?</b> Hydrogen betrays itself — cold gas in the 21 cm line, warm gas in absorption against background quasars, hot gas in X-rays. Inventoried, all of it together falls far short of the halo masses.</li>
+      <li><b>Faint stars, dead stars, black holes (MACHOs)?</b> Compact halo objects passing in front of background stars cause tell-tale microlensing flickers. The MACHO/EROS/OGLE surveys of the 1990s–2000s watched millions of stars: far too few events. Halos are not made of dim star-stuff.</li>
+      <li><b>Any form of atoms at all?</b> Two completely independent meters agree on the total baryon budget of the universe: the yields of Big-Bang nucleosynthesis (deuterium especially) and the relative heights of the CMB acoustic peaks. Both cap atomic matter at about 5% of the cosmic total — a third of the matter that gravity demands. <b>Most matter is not made of atoms.</b></li>
+      <li><b>So: a new particle — or new gravity.</b> The particle option (WIMPs, axions, and a broad family besides) has motivated forty years of underground detectors and collider searches; as of the mid-2020s, no confirmed detection. The gravity option is the mathnote below.</li>
+    </ol>
+    <div class="concl"><b>Where it stands:</b> the gravitational evidence for dark matter is overwhelming and mutually corroborating across every scale from single galaxies to the whole observable universe; its identity remains entirely unknown. Rubin herself was at peace with either resolution — what she defended was the data.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Weigh a galaxy's dark side</h3>
+    <p class="hint">Chapter 2's scales, applied at full scale. Set the measured flat velocity and how far out the curve has been traced (21 cm measurements reach 40–50 kpc): the rising line is the dynamical mass $M(&lt;r) = v^2 r/G$ the orbits demand, the saturating curve is the mass the starlight can supply. The gap between them — the readouts keep score — is the dark halo. Notice the lever arms: the dark fraction grows with every kiloparsec the radio astronomers pushed outward.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Measured flat velocity <b><span id="dm_vlbl">220</span> km/s</b></label>
+        <input id="dm_v" type="range" min="150" max="300" step="5" value="220">
+      </div>
+      <div class="ctl">
+        <label>Outermost measured radius <b><span id="dm_rlbl">40</span> kpc</b></label>
+        <input id="dm_r" type="range" min="10" max="50" step="1" value="40">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Dynamical mass</div><div class="v"><span id="dm_mdyn">—</span> <small>×10¹⁰ M☉</small></div></div>
+      <div class="stat"><div class="k">Luminous mass</div><div class="v"><span id="dm_mlum">—</span> <small>×10¹⁰ M☉</small></div></div>
+      <div class="stat"><div class="k">Dark : luminous</div><div class="v" id="dm_ratio">—</div></div>
+    </div>
+    <div id="dm_plot" class="plot"></div>
+    <div class="verdict" id="dm_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The dissenting verdict: MOND</h4>
+    <p>Modified Newtonian Dynamics (Milgrom, 1983) takes the other fork: below a critical acceleration $a_0 \approx 1.2\times10^{-10}$ m/s² — and galaxy outskirts are exactly that regime — gravity is postulated to weaken more slowly than $1/r^2$. Tuned with that single constant, MOND reproduces flat rotation curves <i>automatically</i>, and even predicts the tight observed relation between a galaxy's luminosity and its flat velocity (Tully–Fisher) more naturally than halos do. Why isn't it the consensus? It struggles where dark matter shines: galaxy <i>clusters</i> still need unseen mass even under MOND, the Bullet Cluster shows mass displaced from matter (hard to fake with modified gravity), and the CMB acoustic structure fits a universe with real collisionless dark matter. Most cosmologists read MOND as an intriguing regularity any final theory must explain — and a minority defend it vigorously. The fork Rubin exposed is, formally, still open.</p>
+  </div>
+
+  <div class="vquote">
+    <p>"Fame is fleeting. My numbers mean more to me than my name. If astronomers are still using my data years from now, that's my greatest compliment."</p>
+    <span class="src">— Vera Rubin. They are: her 1970 Andromeda velocities remain in use, and an observatory surveying the dark universe now carries her name.</span>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A spiral's flat curve ($v=220$ km/s) is traced by 21 cm gas to $r=40$ kpc, giving $M_{dyn}=v^2 r/G$. The starlight accounts for only $M_{lum}=6.0\times10^{10}\,M_\odot$. Find the dark-to-luminous ratio. ($1$ kpc $=3.086\times10^{19}$ m, $M_\odot=1.989\times10^{30}$ kg.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Dynamical mass.</b> $r=40\times3.086\times10^{19}=1.234\times10^{21}$ m; $M_{dyn}=\dfrac{(2.20\times10^{5})^2(1.234\times10^{21})}{6.674\times10^{-11}}=8.953\times10^{41}$ kg $=4.5\times10^{11}\,M_\odot$.</li>
+          <li><b>Dark mass.</b> $M_{dark}=M_{dyn}-M_{lum}=45-6=39$ (×$10^{10}\,M_\odot$).</li>
+          <li><b>Ratio.</b> $\dfrac{M_{dark}}{M_{lum}}=\dfrac{39}{6.0}=6.5$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $6.5:1$ dark to luminous — squarely in the range of Rubin's "factor of ten," the ratio of our ignorance to our knowledge.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The ΛCDM cosmic recipe is roughly $27\%$ dark matter and $5\%$ atomic (baryonic) matter. By what factor does dark matter outweigh ordinary atoms across the universe?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{27\%}{5\%}$.</li>
+          <li><b>Evaluate.</b> $=5.4$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $5.4\times$ — independently confirmed by the CMB acoustic peaks and Big-Bang nucleosynthesis: most matter is not made of atoms.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> MOND modifies gravity below a critical acceleration $a_0\approx1.2\times10^{-10}$ m/s². For a galaxy with $v=200$ km/s at $r=20$ kpc, compute the centripetal acceleration $a=v^2/r$ and check whether it lies in the MOND regime.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $v=2.00\times10^{5}$ m/s; $r=20\times3.086\times10^{19}=6.172\times10^{20}$ m.</li>
+          <li><b>Acceleration.</b> $a=\dfrac{v^2}{r}=\dfrac{4.0\times10^{10}}{6.172\times10^{20}}=6.5\times10^{-11}$ m/s².</li>
+          <li><b>Compare.</b> $6.5\times10^{-11}<1.2\times10^{-10}=a_0$, so the orbit lies below $a_0$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $a\approx6.5\times10^{-11}$ m/s², below $a_0$ — galaxy outskirts sit exactly in the regime where MOND departs from Newton, which is why it can mimic flat curves without dark matter. The fork Rubin exposed remains formally open.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SELF-TEST QUIZ -->
+<!-- ============================================================= -->
+<section class="chapter" id="quiz">
+  <span class="era">Check yourself · Twenty questions</span>
+  <h2>Did the galaxies tell you what you think?</h2>
+  <p class="who">Twenty questions spanning the story, the orbital physics, the Doppler geometry, the moving observer, and the dark-matter verdict</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Self-test</h3>
+    <p class="hint">Pick an answer for each question. Correct choices turn green, mistakes turn red, and a short explanation appears either way. Your running score sits at the top; nothing is sent anywhere — refresh or hit Reset to try again.</p>
+    <div class="quiz-head">
+      <div class="quiz-score">Score <b><span id="qz_correct">0</span></b> / <span id="qz_total">20</span> &nbsp;·&nbsp; <span id="qz_answered">0</span> answered</div>
+      <div class="quiz-bar"><i id="qz_fill"></i></div>
+      <button class="quiz-reset" id="qz_reset" type="button">Reset</button>
+    </div>
+    <div id="qz_list"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> The story of Vera Rubin's galaxy-rotation measurements and the dark-matter conclusion they forced, told as a story arc with the working tools built along the way: circular orbits and the enclosed-mass scales, Doppler velocimetry, tilted-disk projection geometry, the moving observer's velocity budget, and differential rotation. Every plot computes the real physics live. A sibling to the <a class="inline" href="spectroscopy_companion.html">spectroscopy companion</a> (how spectra are read — including the trigonometry supplement this document leans on).</p>
+  <p style="margin-top:8px"><b>Key papers retraced:</b> Rubin &amp; Ford 1970, <i>ApJ</i> 159, 379 (Andromeda, 67 HII regions) · Rubin, Ford &amp; Thonnard 1978, <i>ApJ</i> 225, L107 and 1980, <i>ApJ</i> 238, 471 (21 Sc galaxies, all flat) · Zwicky 1933, <i>Helv. Phys. Acta</i> 6, 110 (Coma cluster, "dunkle Materie") · Ostriker &amp; Peebles 1973 (disk stability) · Bosma 1978 &amp; van Albada et al. 1985 (21 cm curves beyond the starlight).</p>
+  <p style="margin-top:8px"><b>Reference values used throughout:</b> $G = 4.301\times10^{-6}$ kpc (km/s)² M☉⁻¹; Hα rest wavelength 656.28 nm; Earth orbital speed 29.79 km/s, equatorial spin 0.465 km/s; the Sun at $R_0 \approx 8.2$ kpc orbiting at $v_0 \approx 220$ km/s (period ≈ 230 Myr); Andromeda systemic velocity ≈ −300 km/s. Some illustrations are deliberately schematic — accurate in scaling and spirit, simplified in detail.</p>
+</footer>
+
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:56,r:16,t:16,b:46},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7'};
+const GKPC=4.301e-6;   // G in kpc (km/s)^2 / Msun
+</script>
+
+<script>
+/* ---- Lab 2: Solar System rotation curve (Kepler) ---- */
+(function(){
+  const mEl=document.getElementById('kp_m'); if(!mEl) return;
+  const ml=document.getElementById('kp_mlbl'), ve=document.getElementById('kp_ve'),
+        yr=document.getElementById('kp_yr'), ratio=document.getElementById('kp_ratio'),
+        verdict=document.getElementById('kp_verdict');
+  const PLANETS=[['Mercury',0.387],['Venus',0.723],['Earth',1.0],['Mars',1.524],
+                 ['Jupiter',5.203],['Saturn',9.537],['Uranus',19.19],['Neptune',30.07]];
+  function draw(){
+    const M=+mEl.value; ml.textContent=M.toFixed(2);
+    const r=[], v=[];
+    for(let i=0;i<=400;i++){ const rr=0.25+i*(32-0.25)/400; r.push(rr); v.push(29.78*Math.sqrt(M/rr)); }
+    const px=PLANETS.map(p=>p[1]), py=PLANETS.map(p=>29.78*Math.sqrt(M/p[1])), pn=PLANETS.map(p=>p[0]);
+    ve.textContent=(29.78*Math.sqrt(M)).toFixed(1);
+    yr.textContent=(1/Math.sqrt(M)).toFixed(2);
+    ratio.textContent=Math.sqrt(30.07/0.387).toFixed(1)+'×';
+    Plotly.react('kp_plot',[
+      {x:r,y:v,mode:'lines',line:{color:COL.cyan,width:2.2},hovertemplate:'%{x:.2f} AU → %{y:.1f} km/s<extra></extra>'},
+      {x:px,y:py,mode:'markers+text',text:pn,textposition:'top center',
+       textfont:{size:11,color:COL.muted},marker:{color:COL.amber,size:8},
+       hovertemplate:'%{text}: %{y:.1f} km/s<extra></extra>'}
+    ], baseLayout({
+      xaxis:{title:'orbital radius (AU)', range:[0,32]},
+      yaxis:{title:'orbital speed (km/s)', range:[0,Math.max(80, 29.78*Math.sqrt(M/0.25)*1.05)]}
+    }), PCFG);
+    verdict.className='verdict good';
+    verdict.innerHTML='🟢 All the mass is central, so the shape is locked to v ∝ 1/√r — the <b>Keplerian decline</b>. Changing the central mass only rescales it by √M. This falling curve is precisely what every spiral galaxy was expected to show beyond its bulge.';
+  }
+  mEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<script>
+/* ---- Lab 3: Doppler-shifted H-alpha line ---- */
+(function(){
+  const vEl=document.getElementById('dp_v'); if(!vEl) return;
+  const vl=document.getElementById('dp_vlbl'), lamO=document.getElementById('dp_lam'),
+        dlamO=document.getElementById('dp_dlam'), kindO=document.getElementById('dp_kind'),
+        verdict=document.getElementById('dp_verdict');
+  const C=299792.458, LAM0=656.28;
+  function draw(){
+    const v=+vEl.value;
+    vl.textContent=(v>0?'+':'')+v;
+    const lam=LAM0*(1+v/C), dlam=lam-LAM0;
+    lamO.textContent=lam.toFixed(2);
+    dlamO.textContent=(dlam>=0?'+':'−')+Math.abs(dlam).toFixed(2);
+    kindO.textContent = v>5?'redshift':(v<-5?'blueshift':'at rest');
+    kindO.style.color = v>5?COL.rose:(v<-5?COL.cyan:COL.ink);
+    const x=[], y=[];
+    for(let i=0;i<=600;i++){ const L=648+i*(665-648)/600; x.push(L);
+      y.push(1 + 2.1*Math.exp(-((L-lam)*(L-lam))/(2*0.55*0.55))); }
+    Plotly.react('dp_plot',[
+      {x:x,y:y,mode:'lines',line:{color:COL.cyan,width:2},hovertemplate:'%{x:.2f} nm → %{y:.2f}<extra></extra>'},
+      {x:[LAM0,LAM0],y:[0,3.4],mode:'lines',line:{color:'rgba(170,180,210,0.6)',width:1.5,dash:'dash'},hoverinfo:'skip'}
+    ], baseLayout({
+      xaxis:{title:'wavelength (nm)   — dashed: Hα at rest, 656.28 nm', range:[648,665]},
+      yaxis:{title:'intensity', range:[0.5,3.5]}
+    }), PCFG);
+    if(Math.abs(v)<60){ verdict.className='verdict';
+      verdict.innerHTML='🟡 |v| = '+Math.abs(v)+' km/s shifts Hα by only '+Math.abs(dlam).toFixed(2)+' nm — invisible to the eye on this plot scale, but a comfortable measurement for a spectrograph reading line centres to ~0.01 nm.'; }
+    else { verdict.className='verdict good';
+      verdict.innerHTML='🟢 '+(v>0?'Receding':'Approaching')+' at '+Math.abs(v)+' km/s: Δλ = '+(dlam>=0?'+':'−')+Math.abs(dlam).toFixed(2)+' nm. A typical galaxy rotation of 220 km/s moves the line 0.48 nm — this is the entire observable that rotation curves are built from.'; }
+  }
+  vEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<script>
+/* ---- Lab 4: tilted disk velocity field + long-slit curve ---- */
+(function(){
+  const iEl=document.getElementById('tl_i'); if(!iEl) return;
+  const vEl=document.getElementById('tl_v'),
+        il=document.getElementById('tl_ilbl'), vlb=document.getElementById('tl_vlbl'),
+        baO=document.getElementById('tl_ba'), siO=document.getElementById('tl_sini'),
+        pkO=document.getElementById('tl_peak'), verdict=document.getElementById('tl_verdict'),
+        cv=document.getElementById('tl_canvas'), x=cv.getContext('2d');
+  function vc(R, vflat){ return vflat*(2/Math.PI)*Math.atan(R/0.15); }   // R normalized 0..1
+  function col(t){ // t in [-1,1]: blue -> white -> red
+    t=Math.max(-1,Math.min(1,t));
+    let r,g,b;
+    if(t<0){ const u=1+t; r=70+(240-70)*u; g=140+(240-140)*u; b=255-(255-245)*u; }
+    else   { const u=1-t; r=255-(255-240)*u; g=95+(240-95)*u; b=95+(245-95)*u; }
+    return 'rgb('+r.toFixed(0)+','+g.toFixed(0)+','+b.toFixed(0)+')';
+  }
+  function draw(){
+    const ideg=+iEl.value, i=ideg*Math.PI/180, vflat=+vEl.value;
+    il.textContent=ideg; vlb.textContent=vflat;
+    const sini=Math.sin(i), cosi=Math.cos(i);
+    baO.textContent=cosi.toFixed(2); siO.textContent=sini.toFixed(2);
+    const vpk=vc(1,vflat)*sini; pkO.textContent=vpk.toFixed(0);
+    // ---- canvas: the velocity field ----
+    const W=cv.width, H=cv.height, cx=W/2, cy=H/2, S=168;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    const vmax=vc(1,vflat)*Math.max(sini,0.05);
+    for(let kr=0;kr<30;kr++){
+      const R=(kr+0.5)/30;
+      const n=Math.max(18, Math.round(150*R));
+      for(let ka=0;ka<n;ka++){
+        const th=ka/n*2*Math.PI;
+        const vlos=vc(R,vflat)*sini*Math.cos(th);
+        const sx=cx+S*R*Math.cos(th), sy=cy-S*R*Math.sin(th)*cosi;
+        x.fillStyle=col(vlos/vmax);
+        x.fillRect(sx-2.2,sy-2.2,4.4,4.4);
+      }
+    }
+    // outline ellipse + axes
+    x.strokeStyle='rgba(200,210,240,0.45)'; x.lineWidth=1.3;
+    x.beginPath(); x.ellipse(cx,cy,S,Math.max(2,S*cosi),0,0,7); x.stroke();
+    x.strokeStyle='rgba(232,236,255,0.7)'; x.lineWidth=1.4;
+    x.beginPath(); x.moveTo(cx-S-22,cy); x.lineTo(cx+S+22,cy); x.stroke();   // major axis / slit
+    x.setLineDash([4,5]); x.strokeStyle='rgba(232,236,255,0.45)';
+    x.beginPath(); x.moveTo(cx,cy-S*cosi-16); x.lineTo(cx,cy+S*cosi+16); x.stroke(); x.setLineDash([]);
+    x.font='12px -apple-system'; x.textAlign='center'; x.fillStyle=COL.muted;
+    x.fillText('major axis — the slit', cx, cy+Math.max(2,S*cosi)+30);
+    x.fillStyle='#7fb4ff'; x.fillText('◀ approaching (blueshift)', cx-S*0.62, 24);
+    x.fillStyle='#ff8d8d'; x.fillText('receding (redshift) ▶', cx+S*0.62, 24);
+    // ---- plot: observed slit curve vs true curve ----
+    const xs=[], vobs=[], vtru=[];
+    for(let k=-100;k<=100;k++){ const u=k/100; xs.push(u);
+      const R=Math.abs(u)||1e-4;
+      vobs.push(Math.sign(u)*vc(R,vflat)*sini);
+      vtru.push(Math.sign(u)*vc(R,vflat)); }
+    Plotly.react('tl_plot',[
+      {x:xs,y:vtru,mode:'lines',line:{color:'rgba(160,170,210,0.55)',width:1.6,dash:'dash'},hovertemplate:'true ±%{y:.0f} km/s<extra></extra>'},
+      {x:xs,y:vobs,mode:'lines',line:{color:COL.amber,width:2.4},hovertemplate:'observed %{y:.0f} km/s<extra></extra>'}
+    ], baseLayout({
+      xaxis:{title:'position along the major axis (R / R_edge)', range:[-1,1]},
+      yaxis:{title:'velocity − v_sys (km/s)', range:[-320,320]}
+    }), PCFG);
+    if(ideg<15){ verdict.className='verdict bad';
+      verdict.innerHTML='🔴 Nearly face-on: sin i = '+sini.toFixed(2)+' keeps only '+(sini*100).toFixed(0)+'% of the rotation in the line of sight, and recovering v_c means dividing by it — every measurement error is amplified ×'+(1/sini).toFixed(0)+'. Rubin avoided these.'; }
+    else if(ideg>80){ verdict.className='verdict';
+      verdict.innerHTML='🟡 Nearly edge-on: geometrically ideal (sin i ≈ 1), but in a real galaxy your line of sight now runs <i>through</i> the dusty disk, hiding the far side. Practical work lives near 40–75°.'; }
+    else { verdict.className='verdict good';
+      verdict.innerHTML='🟢 A comfortable inclination: the slit reads '+vpk.toFixed(0)+' km/s at the edge, and dividing by sin i = '+sini.toFixed(2)+' recovers the true '+vc(1,vflat).toFixed(0)+' km/s with little error amplification.'; }
+  }
+  iEl.addEventListener('input',draw); vEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<script>
+/* ---- Lab 5: barycentric correction over a year ---- */
+(function(){
+  const bEl=document.getElementById('ob_b'); if(!bEl) return;
+  const dEl=document.getElementById('ob_d'),
+        bl=document.getElementById('ob_blbl'), dl=document.getElementById('ob_dlbl'),
+        nowO=document.getElementById('ob_now'), ampO=document.getElementById('ob_amp'),
+        errO=document.getElementById('ob_err'), verdict=document.getElementById('ob_verdict');
+  const VORB=29.79, D0=80;   // zero-crossing day (schematic)
+  function corr(d, cosb){ return VORB*cosb*Math.sin(2*Math.PI*(d-D0)/365.25); }
+  function draw(){
+    const beta=+bEl.value*Math.PI/180, day=+dEl.value, cosb=Math.cos(beta);
+    bl.textContent=+bEl.value; dl.textContent=day;
+    const xs=[], ys=[], yu=[], yd=[];
+    for(let d=0;d<=365;d++){ const c=corr(d,cosb); xs.push(d); ys.push(c); yu.push(c+0.465); yd.push(c-0.465); }
+    const now=corr(day,cosb), amp=VORB*cosb;
+    nowO.textContent=(now>=0?'+':'−')+Math.abs(now).toFixed(1);
+    ampO.textContent=amp.toFixed(1);
+    errO.textContent=(amp/220*100).toFixed(0);
+    Plotly.react('ob_plot',[
+      {x:xs,y:yu,mode:'lines',line:{color:'rgba(63,208,255,0)',width:0},hoverinfo:'skip'},
+      {x:xs,y:yd,mode:'lines',fill:'tonexty',fillcolor:'rgba(63,208,255,0.16)',
+       line:{color:'rgba(63,208,255,0)',width:0},hoverinfo:'skip'},
+      {x:xs,y:ys,mode:'lines',line:{color:COL.cyan,width:2.2},hovertemplate:'day %{x}: %{y:.1f} km/s<extra></extra>'},
+      {x:[day],y:[now],mode:'markers',marker:{color:COL.amber,size:11},hovertemplate:'your observation: %{y:.1f} km/s<extra></extra>'}
+    ], baseLayout({
+      xaxis:{title:'day of year', range:[0,365]},
+      yaxis:{title:'line-of-sight velocity of Earth (km/s)', range:[-32,32]}
+    }), PCFG);
+    const pct=Math.abs(now)/220*100;
+    if(Math.abs(now)>15){ verdict.className='verdict bad';
+      verdict.innerHTML='🔴 On this date Earth\'s own motion adds '+(now>=0?'+':'−')+Math.abs(now).toFixed(1)+' km/s to every line of this target — '+pct.toFixed(0)+'% of a typical 220 km/s rotation signal. Uncorrected, it would forge a phantom asymmetry in the curve.'; }
+    else if(Math.abs(now)>4){ verdict.className='verdict';
+      verdict.innerHTML='🟡 Today\'s correction is '+(now>=0?'+':'−')+Math.abs(now).toFixed(1)+' km/s ('+pct.toFixed(0)+'% of a 220 km/s signal) — modest, but rotation work demands few-km/s accuracy, so it is subtracted regardless. The shaded band is the extra ±0.46 km/s from Earth\'s daily spin.'; }
+    else { verdict.className='verdict good';
+      verdict.innerHTML='🟢 Near a node of the annual curve: Earth happens to be moving across the line of sight, not along it (Chapter 3: transverse motion doesn\'t shift lines). Two months from now that luck is gone — the correction is computed for every plate either way.'; }
+  }
+  bEl.addEventListener('input',draw); dEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<script>
+/* ---- Lab 6: differential rotation — winding line + Oort pattern ---- */
+(function(){
+  const mode=document.getElementById('df_mode'); if(!mode) return;
+  const playBtn=document.getElementById('df_play'), resetBtn=document.getElementById('df_reset'),
+        p4=document.getElementById('df_p4'), p8=document.getElementById('df_p8'), p16=document.getElementById('df_p16'),
+        aO=document.getElementById('df_a'), verdict=document.getElementById('df_verdict'),
+        cv=document.getElementById('df_canvas'), x=cv.getContext('2d');
+  const R0=8, V0=220;                      // Sun: 8 kpc, 220 km/s
+  const RINGS=[2,4,6,8,10,12,14,16];       // kpc
+  function vOf(R,m){
+    if(m==='solid')  return V0*R/R0;       // v ∝ R
+    if(m==='kepler') return V0*Math.sqrt(R0/R);
+    return V0;                              // flat
+  }
+  function omega(R,m){ return vOf(R,m)/R; }       // km/s per kpc  (~rad/unit-time)
+  // P = 2πR/v ; with R in kpc and v in km/s, 1 kpc/(km/s) = 977.8 Myr:
+  function pMyr(R,m){ return 2*Math.PI*R/vOf(R,m)*977.8; }
+  let running=true, t=0, last=null;
+  const NS=26;                              // faint stars per ring
+  function render(){
+    const m=mode.value;
+    const W=cv.width, H=cv.height, cx=W/2, cy=H/2, S=11.2;  // px per kpc
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // rings + stars
+    const spoke=[[cx,cy]];
+    RINGS.forEach(R=>{
+      const w=omega(R,m)/omega(R0,m);       // angular speed normalized to Sun's
+      x.strokeStyle='rgba(140,160,230,0.13)'; x.lineWidth=1;
+      x.beginPath(); x.arc(cx,cy,R*S,0,7); x.stroke();
+      for(let k=0;k<NS;k++){
+        const th=k/NS*2*Math.PI + w*t;
+        x.fillStyle = R===R0 ? 'rgba(120,180,255,0.5)' : 'rgba(190,200,235,0.35)';
+        x.beginPath(); x.arc(cx+R*S*Math.cos(th), cy-R*S*Math.sin(th), 1.4, 0, 7); x.fill();
+      }
+      const thM=w*t;                        // the marked (painted) star started at angle 0
+      const mx=cx+R*S*Math.cos(thM), my=cy-R*S*Math.sin(thM);
+      spoke.push([mx,my]);
+      x.fillStyle=COL.amber; x.beginPath(); x.arc(mx,my,3.4,0,7); x.fill();
+      if(R===R0){ x.fillStyle='rgba(120,180,255,0.9)'; x.font='11px -apple-system'; x.textAlign='left';
+        x.fillText('☉ 8 kpc', mx+7, my+3); }
+    });
+    // the painted line
+    x.strokeStyle='rgba(255,178,74,0.85)'; x.lineWidth=2;
+    x.beginPath(); spoke.forEach((p,i)=>{ if(i===0)x.moveTo(p[0],p[1]); else x.lineTo(p[0],p[1]); }); x.stroke();
+    // orbit counter for the Sun's ring
+    const orbits=omega(R0,m)*t/(2*Math.PI);
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='left';
+    x.fillText('Sun-ring orbits completed: '+orbits.toFixed(2)+'   ('+(orbits*pMyr(R0,m)).toFixed(0)+' Myr of galactic time)', 16, 24);
+  }
+  function readouts(){
+    const m=mode.value;
+    p4.textContent=pMyr(4,m).toFixed(0); p8.textContent=pMyr(8,m).toFixed(0); p16.textContent=pMyr(16,m).toFixed(0);
+    // Oort A = (1/2)(v/R - dv/dR) at R0, analytic per law:
+    const A = m==='solid' ? 0 : (m==='flat' ? V0/(2*R0) : 0.75*V0/R0);
+    aO.textContent=A.toFixed(1);
+    const ls=[], vr=[];
+    for(let l=0;l<=360;l++){ ls.push(l); vr.push(A*1.0*Math.sin(2*l*Math.PI/180)); }
+    Plotly.react('df_plot',[
+      {x:ls,y:vr,mode:'lines',line:{color:COL.cyan,width:2.2},hovertemplate:'ℓ=%{x}°: %{y:.1f} km/s<extra></extra>'}
+    ], baseLayout({
+      xaxis:{title:'galactic longitude ℓ (°) — radial velocity of stars 1 kpc away', range:[0,360]},
+      yaxis:{title:'v_r (km/s)', range:[-22,22]}
+    }), PCFG);
+    if(m==='solid'){ verdict.className='verdict';
+      verdict.innerHTML='🟡 Solid body: the painted line turns rigidly and the Oort pattern is dead flat — from inside, a solid-body galaxy betrays no rotation at all in nearby radial velocities. Real galaxy centres approximate this.'; }
+    else if(m==='flat'){ verdict.className='verdict good';
+      verdict.innerHTML='🟢 Flat curve: same km/s at every radius, yet Ω = v/R still falls outward — the line winds and the sky shows the sin 2ℓ double wave with A = '+A.toFixed(1)+' km/s/kpc, close to the measured solar-neighbourhood value (~15). Flat is still differential.'; }
+    else { verdict.className='verdict bad';
+      verdict.innerHTML='🔴 Keplerian: the strongest shear — the line winds fastest and the Oort amplitude is largest. If the Milky Way were Keplerian beyond the Sun, A would be ~'+A.toFixed(0)+' km/s/kpc; the measured value is smaller, consistent with a flat curve.'; }
+  }
+  function loop(ts){
+    if(!running) return;
+    if(last==null) last=ts;
+    t+=(ts-last)/1000*0.55; last=ts;
+    render(); requestAnimationFrame(loop);
+  }
+  playBtn.addEventListener('click',()=>{ running=!running; playBtn.textContent=running?'⏸ pause':'▶ play'; if(running){last=null; requestAnimationFrame(loop);} });
+  resetBtn.addEventListener('click',()=>{ t=0; render(); });
+  mode.addEventListener('change',()=>{ t=0; readouts(); render(); });
+  readouts(); render(); requestAnimationFrame(loop);
+})();
+</script>
+
+<script>
+/* ---- Lab 7: rotation-curve builder ---- */
+(function(){
+  const dEl=document.getElementById('rc_d'); if(!dEl) return;
+  const hEl=document.getElementById('rc_h'), hon=document.getElementById('rc_hon'),
+        dl=document.getElementById('rc_dlbl'),
+        rmsO=document.getElementById('rc_rms'), mdynO=document.getElementById('rc_mdyn'),
+        mlumO=document.getElementById('rc_mlum'), darkO=document.getElementById('rc_dark'),
+        verdict=document.getElementById('rc_verdict');
+  let haloOn=false;
+  const MB=1.2, AB=0.7, AD=3.5, RH=7;      // bulge 1.2e10 Msun, scale radii in kpc
+  function vPlummer(r, M10, a){ const M=M10*1e10; return Math.sqrt(GKPC*M*r*r/Math.pow(r*r+a*a,1.5)); }
+  function vHalo(r, vh){ return vh*r/Math.sqrt(r*r+RH*RH); }
+  // synthetic "observed" galaxy — deterministic noise
+  let seed=4242; function rnd(){ seed=(seed*1103515245+12345)&0x7fffffff; return seed/0x7fffffff; }
+  const OBS_R=[], OBS_V=[];
+  (function(){ seed=4242;
+    for(let r=2;r<=34;r+=1.6){
+      OBS_R.push(r);
+      OBS_V.push(220*(1-Math.exp(-r/1.9)) + (rnd()-0.5)*10);
+    }
+  })();
+  function draw(){
+    const Md=+dEl.value, vh=+hEl.value;
+    dl.textContent=Md.toFixed(1);
+    const r=[], vb=[], vd=[], vhl=[], vt=[];
+    for(let i=1;i<=350;i++){ const rr=i*35/350; r.push(rr);
+      const b=vPlummer(rr,MB,AB), d=vPlummer(rr,Md,AD), h=haloOn?vHalo(rr,vh):0;
+      vb.push(b); vd.push(d); vhl.push(h); vt.push(Math.sqrt(b*b+d*d+h*h)); }
+    // rms against observed points
+    let s=0; OBS_R.forEach((rr,k)=>{
+      const b=vPlummer(rr,MB,AB), d=vPlummer(rr,Md,AD), h=haloOn?vHalo(rr,vh):0;
+      const m=Math.sqrt(b*b+d*d+h*h); s+=(m-OBS_V[k])*(m-OBS_V[k]); });
+    const rms=Math.sqrt(s/OBS_R.length);
+    rmsO.textContent=rms.toFixed(1);
+    const vlast=vt[vt.length-1], Mdyn=vlast*vlast*35/GKPC/1e10, Mlum=MB+Md;
+    mdynO.textContent=Mdyn.toFixed(0); mlumO.textContent=Mlum.toFixed(1);
+    darkO.textContent=haloOn?((1-Mlum/Mdyn)*100).toFixed(0)+'%':'—';
+    const traces=[
+      {x:OBS_R,y:OBS_V,mode:'markers',marker:{color:COL.ink,size:7,symbol:'circle-open',line:{width:1.6,color:COL.ink}},hovertemplate:'observed %{y:.0f} km/s at %{x:.1f} kpc<extra></extra>'},
+      {x:r,y:vb,mode:'lines',line:{color:COL.violet,width:1.5,dash:'dot'},hovertemplate:'bulge %{y:.0f}<extra></extra>'},
+      {x:r,y:vd,mode:'lines',line:{color:COL.cyan,width:1.5,dash:'dot'},hovertemplate:'disk %{y:.0f}<extra></extra>'}];
+    if(haloOn) traces.push({x:r,y:vhl,mode:'lines',line:{color:COL.green,width:1.5,dash:'dot'},hovertemplate:'halo %{y:.0f}<extra></extra>'});
+    traces.push({x:r,y:vt,mode:'lines',line:{color:COL.amber,width:2.6},hovertemplate:'model %{y:.0f} km/s<extra></extra>'});
+    Plotly.react('rc_plot',traces, baseLayout({
+      xaxis:{title:'radius (kpc) — dotted: bulge (violet), disk (cyan)'+(haloOn?', halo (green)':'')+'; amber: total', range:[0,35]},
+      yaxis:{title:'circular velocity (km/s)', range:[0,300]}
+    }), PCFG);
+    if(!haloOn){
+      verdict.className='verdict bad';
+      verdict.innerHTML='🔴 RMS misfit '+rms.toFixed(1)+' km/s. A disk falls off beyond a few scale lengths, so no setting of the slider holds 220 km/s at 30 kpc without wildly overshooting the inner points. <b>Stars and gas alone cannot produce a flat curve.</b> Click the halo on.';
+    } else if(rms<12){
+      verdict.className='verdict good';
+      verdict.innerHTML='🟢 RMS misfit '+rms.toFixed(1)+' km/s — a good fit. The price: '+((1-Mlum/Mdyn)*100).toFixed(0)+'% of the mass inside 35 kpc is dark. This bulge+disk+halo decomposition is exactly how every rotation curve has been read since 1980.';
+    } else {
+      verdict.className='verdict';
+      verdict.innerHTML='🟡 RMS misfit '+rms.toFixed(1)+' km/s — adjust the disk and halo together: the disk shapes the inner rise, the halo sets the flat outer level. (Their interplay is the famous "disk–halo degeneracy".)';
+    }
+  }
+  hon.addEventListener('click',()=>{ haloOn=!haloOn;
+    hon.textContent=haloOn?'● on':'○ off'; hon.style.color=haloOn?COL.green:COL.muted;
+    hEl.disabled=!haloOn; draw(); });
+  hEl.addEventListener('input',draw); dEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<script>
+/* ---- Lab 8: dynamical vs luminous mass ---- */
+(function(){
+  const vEl=document.getElementById('dm_v'); if(!vEl) return;
+  const rEl=document.getElementById('dm_r'),
+        vl=document.getElementById('dm_vlbl'), rl=document.getElementById('dm_rlbl'),
+        mdO=document.getElementById('dm_mdyn'), mlO=document.getElementById('dm_mlum'),
+        ratO=document.getElementById('dm_ratio'), verdict=document.getElementById('dm_verdict');
+  const MLUM=6.0, RD=3.5;                 // 6e10 Msun of stars+gas, 3.5 kpc scale length
+  function mlum(r){ return MLUM*(1-(1+r/RD)*Math.exp(-r/RD)); }
+  function draw(){
+    const v=+vEl.value, rout=+rEl.value;
+    vl.textContent=v; rl.textContent=rout;
+    const r=[], md=[], ml=[];
+    for(let i=1;i<=300;i++){ const rr=i*rout/300; r.push(rr);
+      md.push(v*v*rr/GKPC/1e10); ml.push(mlum(rr)); }
+    const Mdyn=v*v*rout/GKPC/1e10, Ml=mlum(rout), ratio=(Mdyn-Ml)/Ml;
+    mdO.textContent=Mdyn.toFixed(0); mlO.textContent=Ml.toFixed(1);
+    ratO.textContent=ratio.toFixed(1)+' : 1';
+    Plotly.react('dm_plot',[
+      {x:r,y:md,mode:'lines',line:{color:COL.amber,width:2.4},hovertemplate:'orbits demand %{y:.0f}×10¹⁰ M☉ inside %{x:.0f} kpc<extra></extra>'},
+      {x:r,y:ml,mode:'lines',line:{color:COL.cyan,width:2},hovertemplate:'starlight supplies %{y:.1f}×10¹⁰ M☉<extra></extra>'}
+    ], baseLayout({
+      xaxis:{title:'radius (kpc) — amber: M(<r) = v²r/G demanded by orbits; cyan: mass the light can supply', range:[0,rout]},
+      yaxis:{title:'enclosed mass (10¹⁰ M☉)'}
+    }), PCFG);
+    verdict.className='verdict '+(ratio>6?'bad':'');
+    verdict.innerHTML=(ratio>6?'🔴':'🟡')+' Inside '+rout+' kpc the orbits demand '+Mdyn.toFixed(0)+'×10¹⁰ M☉; the light accounts for '+Ml.toFixed(1)+'×10¹⁰. Dark-to-luminous ratio: <b>'+ratio.toFixed(1)+' : 1</b>'+(ratio>6&&ratio<14?' — Rubin\'s "factor of ten", her ratio of ignorance to knowledge.':'.');
+  }
+  vEl.addEventListener('input',draw); rEl.addEventListener('input',draw); draw();
+})();
+</script>
+
+<!-- =======================================================================
+   GLOSSARY DATA  (consumed by the glossary engine)
+======================================================================= -->
+<script>
+const W='https://en.wikipedia.org/wiki/';
+window.RUBIN_GLOSS={
+  'rotation-curve':{label:'Rotation curve',wiki:W+'Galaxy_rotation_curve',
+    def:'A galaxy’s orbital speed plotted against radius, v(r). Its shape is a direct readout of how mass is distributed — Rubin’s flat curves are the classic evidence for dark matter.',terms:['rotation curve','rotation curves']},
+  'keplerian':{label:'Keplerian decline',wiki:W+'Kepler%27s_laws_of_planetary_motion',
+    def:'The falling v ∝ 1/√r of orbits around a central mass — the Solar System’s pattern, and what galaxies were expected to show beyond their bulges. They don’t.',terms:['Keplerian decline','Keplerian','Kepler']},
+  'enclosed-mass':{label:'Enclosed mass M(<r)',wiki:W+'Shell_theorem',
+    def:'The mass interior to an orbit, weighable from the orbit itself: M(<r) = v²r/G. A flat curve makes it grow linearly with radius — without end.',terms:['enclosed mass','dynamical mass']},
+  'shell-theorem':{label:'Shell theorem',wiki:W+'Shell_theorem',
+    def:'Newton: a spherical shell pulls on outside bodies as a central point, and not at all on inside ones. Hence only the mass inside an orbit sets its speed.',terms:['shell theorem']},
+  'centripetal':{label:'Centripetal acceleration',wiki:W+'Centripetal_force',
+    def:'The centre-pointing acceleration v²/r needed to bend a path into a circle. In an orbit, gravity supplies exactly this — setting v = √(GM/r).',terms:['centripetal']},
+  'mass-to-light':{label:'Mass-to-light ratio',wiki:W+'Mass-to-light_ratio',
+    def:'M/L: how many solar masses accompany each solar luminosity. Stars give a few; Rubin’s outer shells demanded tens and rising — the mismatch is the dark matter.',terms:['mass-to-light ratio','M/L']},
+  'surface-brightness':{label:'Surface brightness',wiki:W+'Surface_brightness',
+    def:'A galaxy’s light per unit area on the sky. It falls roughly exponentially with radius, so total starlight converges — while dynamical mass keeps climbing.',terms:['surface brightness']},
+  'doppler':{label:'Doppler shift',wiki:W+'Doppler_effect',
+    def:'Motion along the line of sight stretches (recession) or compresses (approach) wavelengths: Δλ/λ = v/c. Inverted, it turns a spectrograph into a speedometer.',terms:['Doppler shift','Doppler']},
+  'radial-velocity':{label:'Radial velocity',wiki:W+'Radial_velocity',
+    def:'The component of velocity along the line of sight — the only part the Doppler shift records. Transverse motion produces no first-order shift.',terms:['radial velocity','radial-velocity']},
+  'redshift':{label:'Redshift / blueshift',wiki:W+'Redshift',
+    def:'Lines displaced to longer wavelengths (receding) or shorter (approaching). One side of a rotating disk shows each, straddling the systemic velocity.',terms:['redshift','blueshift','blueshifted','redshifted']},
+  'halpha':{label:'Hα line',wiki:W+'H-alpha',
+    def:'Hydrogen’s strong red emission line at 656.28 nm — bright, narrow, and everywhere there is glowing gas. The workhorse line of Rubin & Ford’s velocity measurements.',terms:['Hα','H-alpha']},
+  'hii-region':{label:'HII region',wiki:W+'H_II_region',
+    def:'A knot of hydrogen gas ionized by hot young stars, blazing in emission lines along spiral arms — a bright, sharp velocity marker exactly where a rotation curve needs one.',terms:['HII regions','HII region']},
+  'systemic-velocity':{label:'Systemic velocity',wiki:W+'Radial_velocity',
+    def:'The motion of a galaxy as a whole toward or away from us — the mean shift of the entire disk, read on the minor axis and subtracted before rotation is measured.',terms:['systemic velocity']},
+  'inclination':{label:'Inclination',wiki:W+'Galactic_inclination',
+    def:'The tilt of a disk to the sky plane: 0° face-on, 90° edge-on. Found from the apparent axis ratio (cos i = b/a); only sin i of the rotation reaches the line of sight.',terms:['inclination','face-on','edge-on']},
+  'major-axis':{label:'Major / minor axis',wiki:W+'Ellipse',
+    def:'The long and short axes of a tilted disk’s elliptical image. Rotation projects fully along the major axis and not at all along the minor — which reads pure systemic velocity.',terms:['major axis','minor axis']},
+  'velocity-field':{label:'Velocity field (spider diagram)',wiki:W+'Velocity_field',
+    def:'The map of line-of-sight velocity across a galaxy’s face. Circular rotation in a tilted disk produces the butterfly "spider" pattern: v = v_sys + v_c sin i cos θ.',terms:['velocity field','spider diagram']},
+  'line-of-sight':{label:'Line of sight',wiki:W+'Line-of-sight_propagation',
+    def:'The straight line from telescope to target. Doppler measurements record only velocity components along it — every other component must be reconstructed by geometry.',terms:['line of sight','line-of-sight']},
+  'barycentric':{label:'Barycentric correction',wiki:W+'Barycentric_celestial_reference_system',
+    def:'Removing the observer’s computed motion (Earth’s spin, ±0.46 km/s; orbit, ±29.8 km/s) to refer a measured velocity to the Solar System’s centre of mass.',terms:['barycentric correction','barycentre']},
+  'ecliptic':{label:'Ecliptic',wiki:W+'Ecliptic',
+    def:'The plane of Earth’s orbit. A target far from this plane (high ecliptic latitude β) sees little of Earth’s orbital velocity: the annual correction scales as cos β.',terms:['ecliptic latitude','ecliptic']},
+  'differential-rotation':{label:'Differential rotation',wiki:W+'Differential_rotation',
+    def:'Rotation in which angular speed varies with radius, so inner orbits overtake outer ones. Any v(R) other than v ∝ R shears — even a perfectly flat curve.',terms:['differential rotation','differentially']},
+  'solid-body':{label:'Solid-body rotation',wiki:W+'Rotation_around_a_fixed_axis',
+    def:'Everything sharing one angular speed Ω, like a wheel: v = ΩR. No shear, no winding, no Oort pattern. Galaxies approximate it only near their centres.',terms:['solid-body rotation','solid body']},
+  'oort':{label:'Oort constant A',wiki:W+'Oort_constants',
+    def:'The local shear of the Milky Way’s rotation, A = ½(v/R − dv/dR) at the Sun, measured from the sin 2ℓ pattern of nearby stellar velocities. Oort detected it in 1927.',terms:['Oort','sin 2ℓ']},
+  'winding-problem':{label:'Winding problem',wiki:W+'Density_wave_theory',
+    def:'Differential rotation wraps any material line into a tight spiral within a few rotations — so long-lived spiral arms must be density waves (patterns), not fixed sets of stars.',terms:['winding problem','density waves']},
+  'h21cm':{label:'21 cm line',wiki:W+'Hydrogen_line',
+    def:'Radio emission of cold neutral hydrogen. Gas disks extend far beyond the starlight, letting radio astronomers trace rotation curves 2–3× farther out — still flat.',terms:['21 cm line','21 cm']},
+  'image-tube':{label:'Image-tube spectrograph',wiki:W+'Image_intensifier',
+    def:'Kent Ford’s electronically intensified spectrograph: a photocathode amplified faint light before the photographic plate, cutting exposures ~10×, making faint galaxy outskirts reachable.',terms:['image-tube spectrograph','image tube']},
+  'dark-matter':{label:'Dark matter',wiki:W+'Dark_matter',
+    def:'Matter that gravitates but emits no detectable light, outweighing atoms ~5:1 in the cosmic budget. Flat rotation curves are its classic galaxy-scale evidence; its identity is unknown.',terms:['dark matter','dunkle Materie']},
+  'dark-halo':{label:'Dark halo',wiki:W+'Dark_matter_halo',
+    def:'The roughly spherical envelope of dark matter around a galaxy, with ρ ∝ 1/r² in the flat-curve region — holding the curve up and stabilizing the stellar disk.',terms:['dark halo','halo']},
+  'virial':{label:'Virial mass (Zwicky)',wiki:W+'Virial_theorem',
+    def:'Weighing a cluster from its galaxies’ speeds: too-fast motion means more binding mass. Zwicky’s 1933 Coma measurement found a huge excess — the first dark-matter hint.',terms:['Coma cluster','virial']},
+  'lensing':{label:'Gravitational lensing',wiki:W+'Gravitational_lens',
+    def:'Mass bends background light, so distortions of distant galaxies weigh foreground mass with no orbital assumptions. It confirms the missing mass — and maps it.',terms:['gravitational lensing','lensing','weak lensing']},
+  'bullet':{label:'Bullet Cluster',wiki:W+'Bullet_Cluster',
+    def:'Two collided clusters (2006 analysis): the hot gas slammed and stalled centrally while the lensing mass passed through with the galaxies — mass visibly separated from ordinary matter.',terms:['Bullet Cluster']},
+  'cmb':{label:'CMB acoustic peaks',wiki:W+'Cosmic_microwave_background',
+    def:'Ripples in the relic radiation of the early universe. Their relative heights independently fix the cosmic recipe: ~5× more dark matter than atomic matter.',terms:['cosmic microwave background','CMB']},
+  'mond':{label:'MOND',wiki:W+'Modified_Newtonian_dynamics',
+    def:'Milgrom’s alternative: below a tiny acceleration a₀, gravity weakens more slowly than 1/r². Reproduces flat curves without dark matter, but struggles with clusters and the CMB.',terms:['MOND','Modified Newtonian Dynamics']},
+  'tully-fisher':{label:'Tully–Fisher relation',wiki:W+'Tully%E2%80%93Fisher_relation',
+    def:'The tight empirical link between a spiral’s luminosity and its flat rotation speed — a benchmark any theory, halo or MOND, must reproduce.',terms:['Tully–Fisher','Tully-Fisher']}
+};
+
+/* =======================================================================
+   QUIZ DATA
+======================================================================= */
+window.RUBIN_QUIZ=[
+  {q:"Why did Rubin choose galaxy rotation as her research problem in the 1960s?",
+    opts:["It was the most prestigious topic available","It seemed uncontroversial — a careful measurement nobody would fight over","It required no telescope time","NASA commissioned it"],a:1,
+    exp:"After hostile receptions to her master's and PhD work, she deliberately picked a quiet, 'unfashionable' problem. It turned out to upend cosmology."},
+  {q:"What did Kent Ford's image-tube spectrograph actually change?",
+    opts:["It magnified the image 10×","It amplified faint light, cutting exposure times ~10× so galaxy outskirts became measurable","It corrected for the atmosphere","It measured infrared light"],a:1,
+    exp:"A photocathode intensified the light before the photographic plate. Spectra of the faint outer disk went from multi-night ordeals to a few hours."},
+  {q:"The pre-1970 expectation: beyond a spiral's bright bulge, orbital speeds should…",
+    opts:["Stay constant","Fall as v ∝ 1/√r, like the planets","Rise steadily","Oscillate"],a:1,
+    exp:"Light traces mass + most light is central + Newton ⇒ a Keplerian decline. That is the hypothesis the flat curves destroyed."},
+  {q:"In v = √(GM/r), doubling the orbital radius around a fixed central mass makes the speed…",
+    opts:["Half as large","Smaller by a factor of √2","Twice as large","Unchanged"],a:1,
+    exp:"v ∝ 1/√r: Mercury at 47 km/s vs Neptune at 5.4 km/s. The square root is why the expected decline is gentle but unmistakable."},
+  {q:"Which mass determines a star's orbital speed at radius r (for a spherical galaxy)?",
+    opts:["The galaxy's total mass","Only the mass enclosed within r","Only the central black hole","The mass outside r"],a:1,
+    exp:"Newton's shell theorem: interior mass acts as a central point; exterior spherical shells exert no net pull. Rotation curves weigh galaxies shell by shell."},
+  {q:"A galaxy's Hα line is observed at a longer wavelength than 656.28 nm. The gas is…",
+    opts:["Approaching us","Receding from us","Hotter than normal","Denser than normal"],a:1,
+    exp:"Receding sources stretch wavelengths — redshift. Δλ/λ = v/c turns the displacement into km/s."},
+  {q:"Why did Rubin and Ford target HII regions rather than individual stars?",
+    opts:["They are closer","They are bright knots with sharp emission lines — easy, precise velocity markers","They don't rotate","They emit radio waves only"],a:1,
+    exp:"Ionized-gas knots along the spiral arms blaze in narrow emission lines (Hα), stamping easily measured velocities exactly where the curve needs them."},
+  {q:"A source moving rapidly ACROSS the line of sight shows a Doppler shift that is…",
+    opts:["Maximal","Zero (to first order)","Always a blueshift","Equal to v/c"],a:1,
+    exp:"Only the radial (line-of-sight) component shifts the lines. This is why the projection geometry of inclination matters so much."},
+  {q:"For a disk at inclination i, the rotation signal reaching the spectrograph is scaled by…",
+    opts:["cos i","sin i","tan i","1/i"],a:1,
+    exp:"v_obs = v_sys + v_c sin i cos θ. Face-on (i=0) hides rotation completely; edge-on (i=90°) delivers all of it."},
+  {q:"Where in a tilted rotating disk does the spectrograph read pure systemic velocity?",
+    opts:["On the major axis","Along the minor axis","At the very centre only","Nowhere"],a:1,
+    exp:"On the minor axis the orbits run fully across the line of sight (cos θ = 0), so rotation contributes nothing — only the galaxy's bulk motion remains."},
+  {q:"How is a galaxy's inclination usually estimated?",
+    opts:["From its colour","From the apparent axis ratio of its image: cos i = b/a","From its redshift","From its brightness"],a:1,
+    exp:"A tilted circle projects to an ellipse whose minor axis shrinks by cos i. One photograph yields the tilt — no spectroscopy needed."},
+  {q:"The same galaxy measured in January and July gives raw velocities differing by up to ~60 km/s because…",
+    opts:["The galaxy accelerated","Earth's 29.8 km/s orbital velocity projects differently onto the line of sight","The atmosphere changed","Its distance changed"],a:1,
+    exp:"The barycentric correction: Earth's orbital motion adds an annual sine of amplitude up to ±29.8 km/s to every uncorrected spectrum."},
+  {q:"Why doesn't the Sun's ~220 km/s galactic orbit corrupt rotation curves of OTHER galaxies?",
+    opts:["It is too small to matter","It is constant during a campaign, so it is absorbed into the measured systemic velocity","It points away from all galaxies","It is exactly cancelled by Earth's orbit"],a:1,
+    exp:"A constant offset can't forge a rotation signal — it shifts every line equally and is subtracted with v_sys. Only time-varying motions (Earth's day and year) need computing."},
+  {q:"Differential rotation means…",
+    opts:["Galaxies rotate backwards","Different radii have different angular speeds, so inner stars overtake outer ones","Only the arms rotate","Rotation that changes direction"],a:1,
+    exp:"Each star is an independent satellite with its own period. Unless v ∝ R exactly, the disk shears — and any painted line winds up."},
+  {q:"A galaxy with a perfectly FLAT rotation curve (v constant) rotates…",
+    opts:["Like a solid wheel","Differentially — Ω = v/R still falls with radius","Not at all","Keplerian"],a:1,
+    exp:"Same km/s at every radius still means inner stars complete their smaller circles sooner. Flat is still strongly differential."},
+  {q:"Oort's 1927 sin 2ℓ pattern in nearby stellar velocities proved that…",
+    opts:["The Sun is at the galactic centre","The Milky Way rotates differentially — measured from inside it","Stars are receding from us","The galaxy is solid"],a:1,
+    exp:"Shear between our orbit and our neighbours' stamps a double sine across the sky. Solid-body rotation would give no pattern at all."},
+  {q:"What did Rubin, Ford & Thonnard's 1978–1980 survey of 21 Sc galaxies find?",
+    opts:["Half the curves fell as expected","Every single rotation curve stayed flat to the last measured point","Only giant galaxies were flat","The curves rose without limit"],a:1,
+    exp:"Twenty-one out of twenty-one, across all sizes and luminosities — and 21 cm radio curves stayed flat 2–3× beyond the starlight."},
+  {q:"A flat rotation curve forces the enclosed mass M(<r) to…",
+    opts:["Converge to a total","Grow in direct proportion to radius","Fall as 1/r","Equal the luminous mass"],a:1,
+    exp:"M(<r) = v²r/G with v constant is linear in r: each new shell weighs as much as the last, long after the starlight has run out."},
+  {q:"The dark halo density implied by a flat curve falls off as…",
+    opts:["ρ ∝ 1/r","ρ ∝ 1/r²","ρ ∝ e^(−r)","ρ constant"],a:1,
+    exp:"M ∝ r means dM/dr = 4πr²ρ is constant, so ρ ∝ 1/r² — the isothermal-sphere profile. The curve measures the invisible halo's density law."},
+  {q:"Why is the Bullet Cluster hard for modified-gravity explanations of flat curves?",
+    opts:["It doesn't rotate","Its lensing mass is displaced from its ordinary matter — gravity sourced where almost nothing shines","It contains no gas","It is too far away"],a:1,
+    exp:"The colliding gas stalled centrally; the weak-lensing mass sailed through with the galaxies. Mass and baryons are visibly in different places — natural for collisionless dark matter."}
+];
+</script>
+
+<!-- =======================================================================
+     PYTHON SYNTAX HIGHLIGHTER (runs over every <pre class="code">)
+======================================================================= -->
+<script>
+(function(){
+  const KW=new Set("import from as def return for in while if elif else with lambda class and or not is None True False print yield break continue global pass assert raise try except finally del".split(" "));
+  const B=new Set("np plt scipy signal abs angle exp sin cos arccos arctan pi sqrt sign mean std arange linspace zeros ones array full_like real imag where sum max min".split(" "));
+  document.querySelectorAll('pre.code').forEach(pre=>{
+    let out=pre.textContent.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    out=out.replace(/(#[^\n]*)|('[^']*'|"[^"]*")|(0x[0-9A-Fa-f]+|\b\d[\d_]*\.?\d*(?:[eE][+-]?\d+)?\b)|([A-Za-z_]\w*)/g,
+      (m,c,s,n,w)=>{
+        if(c) return '<span class="c">'+c+'</span>';
+        if(s) return '<span class="s">'+s+'</span>';
+        if(n) return '<span class="n">'+n+'</span>';
+        if(w){ if(KW.has(w)) return '<span class="k">'+w+'</span>';
+               if(B.has(w)) return '<span class="b">'+w+'</span>';
+               return w; }
+        return m;
+      });
+    pre.innerHTML=out;
+  });
+})();
+</script>
+
+<!-- =======================================================================
+     BACKGROUND STARFIELD
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    const n=Math.min(220, Math.floor(innerWidth*innerHeight/9000));
+    stars=Array.from({length:n},()=>({x:Math.random()*cv.width, y:Math.random()*cv.height,
+      r:Math.random()*1.3+0.2, a:Math.random()*0.6+0.2, tw:Math.random()*0.02+0.004, ph:Math.random()*7}));
+  }
+  function frame(t){
+    x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const al=s.a+0.35*Math.sin(s.ph+t*s.tw);
+      x.fillStyle='rgba(180,200,255,'+Math.max(0,al)+')';
+      x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize',resize); resize(); requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- =======================================================================
+     QUIZ ENGINE
+======================================================================= -->
+<script>
+(function(){
+  const list=document.getElementById('qz_list'); if(!list) return;
+  const QS=window.RUBIN_QUIZ||[];
+  document.getElementById('qz_total').textContent=QS.length;
+  const cEl=document.getElementById('qz_correct'), aEl=document.getElementById('qz_answered'), fill=document.getElementById('qz_fill');
+  let answered=0, correct=0;
+  function update(){ cEl.textContent=correct; aEl.textContent=answered; fill.style.width=(QS.length?answered/QS.length*100:0)+'%'; }
+  function render(){
+    list.innerHTML=''; answered=0; correct=0;
+    QS.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const qt=document.createElement('p'); qt.className='q-text';
+      qt.innerHTML='<span class="q-num">'+(qi+1)+'.</span> '+item.q;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      const exp=document.createElement('div'); exp.className='q-exp';
+      exp.innerHTML='<b>Answer: '+String.fromCharCode(65+item.a)+' — '+item.opts[item.a]+'.</b> '+item.exp;
+      item.opts.forEach((text,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt'; b.type='button';
+        b.innerHTML='<span class="q-mark">'+String.fromCharCode(65+oi)+'</span>'+text;
+        b.addEventListener('click',()=>{
+          if(b.disabled) return;
+          answered++;
+          opts.children[item.a].classList.add('correct');
+          if(oi===item.a) correct++; else b.classList.add('wrong');
+          Array.from(opts.children).forEach(c=>c.disabled=true);
+          exp.classList.add('show'); update();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(qt); card.appendChild(opts); card.appendChild(exp);
+      list.appendChild(card);
+    });
+    update();
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<!-- =======================================================================
+     GLOSSARY ENGINE — inline hover terms + dynamic left rail
+======================================================================= -->
+<script>
+(function(){
+  const GLOSS=window.RUBIN_GLOSS||{};
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase(); let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z0-9]/.test(b)&&/[^A-Za-z0-9]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm==='pre'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .step, .leadin, .mathnote p');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>
