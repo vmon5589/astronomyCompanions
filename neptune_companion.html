@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Discovery of Neptune (1846) — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* section divider banner */
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 6px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer}
+  button.act:hover{border-color:var(--cyan)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+  .plot.tall{height:460px}
+
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation / "the reasoning" explainer block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+  .fileref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--amber); background:rgba(255,178,74,0.08); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
+
+  /* data table */
+  .tablewrap{overflow-x:auto; margin-top:14px}
+  table.data{width:100%; border-collapse:collapse; font-size:13.5px; font-variant-numeric:tabular-nums}
+  table.data th, table.data td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line)}
+  table.data th:first-child, table.data td:first-child{text-align:left}
+  table.data thead th{color:var(--cyan); font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; border-bottom:1px solid var(--line)}
+  table.data tr.flag td{background:rgba(255,107,157,0.10); color:#fff}
+  table.data tr.flag td:first-child{color:var(--rose); font-weight:700}
+
+  /* math supplement — numbered concept headings + annotated notes */
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+  .mathnote.astro{background:rgba(94,230,168,0.06); border-left-color:var(--green)}
+  .mathnote.astro h4{color:var(--green)}
+
+  /* self-test quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+
+  /* ---------- Phone tier ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    .eq{ max-width:100%; overflow-x:auto; }
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{ margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px; width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px; scrollbar-width:none; }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    main{ padding:6px 14px 60px; }
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:320px; }
+    .plot.tall{ height:380px; }
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">The Discovery of Neptune <small>Interactive companion · a planet found with pencil and paper</small></div>
+    <div class="links">
+      <a href="#bode" class="hist">Bode's law</a>
+      <a href="#clue">The clue</a>
+      <a href="#residual">O−C residual</a>
+      <a href="#path">Predicted path</a>
+      <a href="#perihelion" class="hist">The accident</a>
+      <a href="#summary">Summary</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>A planet found with<br><span class="grad">pencil and paper</span></h1>
+  <p class="sub">On the night of 23–24 September 1846, Johann Galle pointed the Berlin Observatory's telescope at a patch of sky Urbain Le Verrier had calculated from his desk — and found an 8th-magnitude "star" less than <b>1°</b> from the predicted spot. Neptune was discovered <b>by mathematics before it was ever seen</b>. This companion rebuilds the logic of that prediction step by step, with a real 3-body integration running live in your browser. The twist: the predicted orbit was badly <i>wrong</i>, and a geometric accident is the reason it worked anyway.</p>
+  <p class="byline">A sibling to the <a class="inline" href="kepler_companion.html">Kepler companion</a>, whose laws of planetary motion are the ellipse this story perturbs. Every plot below recomputes Newton's equations from the sliders — the static figures live in <span class="fileref">Neptune_Discovery_1846.ipynb</span>.</p>
+</header>
+
+<main>
+
+<!-- ===================== SECTION 1 — BODE ===================== -->
+<section class="chapter hist" id="bode">
+  <span class="era">1766 · the expectation</span>
+  <h2>The Titius–Bode "law": why everyone expected ~38 AU</h2>
+  <p class="who">An empirical rule that fit six worlds — and set a trap for the seventh</p>
+
+  <p>In 1766 Johann Titius noticed, and Johann Bode popularized, that the planets' distances from the Sun follow a simple geometric pattern. Write a sequence</p>
+  <div class="eq">$$a_n = 0.4 + 0.3 \times 2^{\,n}, \qquad n = -\infty,\,0,\,1,\,2,\,3,\,\dots$$</div>
+  <p>with $a$ in <b>astronomical units (AU)</b>. The rule was a sensation: it nailed the known planets out to Saturn, predicted the "missing" planet at $n=3$ (<b>2.8&nbsp;AU</b>, vindicated by Ceres in 1801), and when <b>Uranus</b> turned up in 1781 at 19.2&nbsp;AU it landed almost exactly on the $n=6$ slot (<b>19.6&nbsp;AU</b>). So when Uranus misbehaved, it was <i>natural</i> to assume the next planet sat at the next slot, $n=7 \Rightarrow$ <b>~38.8&nbsp;AU</b>. Adams and Le Verrier both started there.</p>
+
+  <div class="subhead"><span class="n">1.1</span>The pattern is pure doubling — and it has a give-away signature</div>
+  <p>The constant <b>0.4</b> is just a baseline; all the structure lives in <b>0.3&nbsp;×&nbsp;2ⁿ</b>, where each step <i>doubles</i> the one before. A geometric sequence has a tell: <b>take its logarithm and it becomes a straight line.</b> Since $a_n - 0.4 = 0.3\cdot 2^{\,n}$,</p>
+  <div class="eq">$$\log_{10}(a_n - 0.4) = \log_{10}(0.3) + n\,\log_{10} 2,$$</div>
+  <p>a line of slope $\log_{10}2 \approx 0.301$. So the real test of the "law" is: subtract the 0.4 baseline from each planet's <i>actual</i> distance and plot it on a log axis. If the pattern is real, the planets land on a straight line.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Bode's law vs. the real solar system</h3>
+    <p class="hint">Left: each planet's measured distance against the Bode prediction (log axis). Right: the "is it geometric?" test — measured $a-0.4$ against the straight doubling line. Drag the slider to read off any slot; watch Neptune sit stubbornly <b>below</b> the line the predictors trusted.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Highlight slot <b>n = <span id="bd_nlbl">7</span></b></label>
+        <input id="bd_n" type="range" min="0" max="7" step="1" value="7">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Bode predicts</div><div class="v"><span id="bd_pred">38.8</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Actual distance</div><div class="v"><span id="bd_act">30.07</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Error</div><div class="v"><span id="bd_err">+29.0</span><small>%</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="bd_plot1" class="plot"></div><figcaption>Bode prediction (orange) vs. measured semi-major axis (navy). Excellent everywhere — until Neptune.</figcaption></figure>
+      <figure><div id="bd_plot2" class="plot"></div><figcaption>The geometric test. Venus→Uranus hug the doubling line; Neptune falls well below it.</figcaption></figure>
+    </div>
+    <div id="bd_verdict" class="verdict"></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="data" id="bd_table">
+      <thead><tr><th>Planet</th><th>n</th><th>Bode (AU)</th><th>Actual (AU)</th><th>Error</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="mathnote">
+    <h4>The seed of the whole story</h4>
+    <p>There was never a physical reason for the rule. From Venus to Uranus the fitted slope comes out near $0.30 \approx \log_{10}2$ — the pattern is genuinely there for six worlds, which is exactly why 18th-century astronomers <b>bet a telescope on it</b>. Then Neptune drops below the line: Bode predicts 38.8&nbsp;AU for a planet that actually sits at <b>30.07&nbsp;AU</b>, a <b>+29% error</b>. Everyone <i>expected</i> Neptune up on the line, so that 38-AU error is where the predictions began — and it drives the punchline in Section&nbsp;5.</p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>From a numerology that worked to a <span class="grad">force that had to be there</span></h3>
+  <p>Bode's law set the <i>expectation</i>. The actual evidence was hiding in Uranus's own motion.</p>
+</div>
+
+<!-- ===================== SECTION 2 — THE CLUE ===================== -->
+<section class="chapter" id="clue">
+  <span class="era">1820s–1840s · the evidence</span>
+  <h2>Uranus would not stay on its predicted orbit</h2>
+  <p class="who">A real 3-body integration of Sun + Uranus + Neptune, running in your browser</p>
+
+  <p>Uranus (discovered 1781) should trace a fixed Keplerian ellipse. But by the 1820s–40s its observed positions drifted by <b>a couple of arcminutes</b> away from the best-fit orbit — first running <i>ahead</i> of schedule, then <i>behind</i>. The boldest explanation: an <b>unseen outer planet</b> tugging on it. Let's not hand-wave — let's integrate the gravity. We build a genuine planar <b>3-body model</b> and integrate Newton's equations. Working units keep it clean:</p>
+  <div class="eq">$$\text{length}=\text{AU},\quad \text{time}=\text{yr},\quad \text{mass}=M_\odot \;\;\Rightarrow\;\; G M_\odot = 4\pi^2.$$</div>
+  <p>Then we run a <b>second</b> integration with Neptune deleted (Sun + Uranus only, a fixed ellipse). The <i>difference</i> between the two Uranus orbits is exactly "the perturbation an astronomer of 1840 could not explain."</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Live 3-body integration (Sun + Uranus + Neptune)</h3>
+    <p class="hint">We start in 1740 and integrate 120 years to 1860 with RK4. Uranus and Neptune reach conjunction (same side of the Sun) once in this window — history puts it at 1821–22. Left: the orbits. Right: Uranus's heliocentric longitude relative to the unperturbed ellipse. <b>Set Neptune's mass to zero</b> and the wobble vanishes — no perturber, no clue.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Neptune mass <b><span id="sm_mlbl">5.15</span> ×10⁻⁵ M<sub>☉</sub></b></label>
+        <input id="sm_m" type="range" min="0" max="10" step="0.25" value="5.15">
+      </div>
+      <div class="ctl">
+        <label>Conjunction year <b><span id="sm_clbl">1822</span></b></label>
+        <input id="sm_c" type="range" min="1795" max="1850" step="1" value="1822">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Model conjunction</div><div class="v"><span id="sm_conj">1822</span></div></div>
+      <div class="stat"><div class="k">Peak |O−C|</div><div class="v"><span id="sm_peak">—</span> <small>arcsec</small></div></div>
+      <div class="stat"><div class="k">Uranus period</div><div class="v">84.0 <small>yr</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="sm_orbit" class="plot tall"></div><figcaption>The integrated orbits, 1740→1860. Gold = Sun, cyan = Uranus, violet = Neptune.</figcaption></figure>
+      <figure><div id="sm_omc" class="plot tall"></div><figcaption>O−C: observed (with Neptune) minus computed (Neptune-free) Uranus longitude.</figcaption></figure>
+    </div>
+    <div id="sm_verdict" class="verdict"></div>
+  </div>
+</section>
+
+<!-- ===================== SECTION 3 — O−C RESIDUAL ===================== -->
+<section class="chapter" id="residual">
+  <span class="era">the fingerprint</span>
+  <h2>The O−C residual: rise, peak, reverse</h2>
+  <p class="who">Why this one curve shape "screams outer planet"</p>
+
+  <p>The quantity an 1840s astronomer plotted was <b>O−C</b>: <i>Observed</i> longitude (reality, with Neptune) minus <i>Computed</i> longitude (the Neptune-free ellipse they had fit). The O−C plot in the lab above is the actual shape of the clue. Here is how to read it:</p>
+
+  <div class="deriv">
+    <h4>Why the curve rises, peaks, then reverses sign</h4>
+    <ol>
+      <li><b>Before conjunction</b> — Neptune is ahead of Uranus on the track, so its gravity pulls Uranus <i>forward</i>. Uranus arrives <b>early</b> → O−C is positive.</li>
+      <li><b>At conjunction (~1822)</b> — the pull is purely radial (toward/away from the Sun), not along-track, so the longitude residual swings through its <b>steepest change</b>.</li>
+      <li><b>After conjunction</b> — Neptune is now behind, dragging Uranus <i>back</i>. Uranus runs <b>late</b> → O−C goes negative.</li>
+    </ol>
+    <div class="concl"><b>The payoff:</b> this <b>rise–peak–reverse</b> signature is what no error in Uranus's <i>own</i> orbit could fake. It demands a body <i>farther out</i>, and the sign-flip even says roughly <i>where</i> along its orbit the perturber sits. That is the information Adams and Le Verrier <b>inverted</b>: from the residual, solve for the unseen planet's mass and position.</p></div>
+  </div>
+
+  <div class="mathnote astro">
+    <h4>What "inverting the residual" means</h4>
+    <p>Forward, the problem is: given Neptune's mass and orbit, predict Uranus's wobble — that's the integration in the lab above. Adams and Le Verrier ran it <b>backwards</b>: given the <i>measured</i> wobble, search the space of possible perturbers for the mass and orbital elements that reproduce it. It was months of hand computation. The output that mattered was a single number an observer could use: a <b>heliocentric longitude</b> — a direction in the sky to point the telescope.</p>
+  </div>
+</section>
+
+<!-- ===================== SECTION 4 — PREDICTED PATH ===================== -->
+<section class="chapter" id="path">
+  <span class="era">in physical space</span>
+  <h2>Predicted path vs. observed path</h2>
+  <p class="who">The same perturbation, drawn as a deflection you can see</p>
+
+  <p>"O−C in longitude" is abstract. Let's make it spatial: draw Uranus's <b>predicted</b> (Neptune-free) ellipse, then mark where Uranus <i>actually</i> is at several epochs. The offset is real but tiny on the scale of the orbit, so we <b>magnify it</b>. The arrows point from the predicted position to the (exaggerated) observed one — i.e. the direction Neptune tugs Uranus.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The deflection, magnified</h3>
+    <p class="hint">Ahead of conjunction the tug leads Uranus along its orbit; afterward it drags. Crank the exaggeration to make the swing obvious — the true on-sky offset peaks at only a couple of arcminutes, which is why it took decades of precise positions to trust it. (Uses the same integration; adjust Neptune's mass in the lab above to change the strength.)</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Exaggeration factor <b>×<span id="pp_mlbl">400</span></b></label>
+        <input id="pp_m" type="range" min="50" max="1200" step="50" value="400">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">True peak offset</div><div class="v"><span id="pp_true">—</span> <small>arcsec</small></div></div>
+      <div class="stat"><div class="k">Shown at</div><div class="v">×<span id="pp_fac">400</span></div></div>
+    </div>
+    <figure><div id="pp_plot" class="plot tall"></div><figcaption>Predicted Kepler ellipse (dashed) vs. magnified observed positions (crimson) with tug arrows, sampled 1740→1860.</figcaption></figure>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>The subtle, beautiful part: <span class="grad">the right answer from the wrong orbit</span></h3>
+  <p>The predictors never knew Neptune's distance. They <i>assumed</i> 38 AU from Bode's law. The real planet is at 30. Here is why the telescope still landed on it.</p>
+</div>
+
+<!-- ===================== SECTION 5 — PERIHELION ACCIDENT ===================== -->
+<section class="chapter hist" id="perihelion">
+  <span class="era">1846 · the lucky geometry</span>
+  <h2>The perihelion accident</h2>
+  <p class="who">Why a 38-AU prediction still pointed at a 30-AU planet</p>
+
+  <p>The residual constrains mainly the perturber's <b>direction</b> and the <b>timing of its tug</b> — not cleanly its distance. To fit the same 1840s wobble with a planet placed too far out (38&nbsp;AU), the math had to compensate: it pulled the hypothetical planet <i>inward at that epoch</i> by putting it near <b>perihelion</b> (closest approach) and giving the orbit extra eccentricity. The upshot:</p>
+
+  <div class="mathnote">
+    <h4>The coincidence, stated plainly</h4>
+    <p>In the 1840s, the <i>predicted</i> 38-AU planet near its perihelion and the <i>real</i> 30-AU planet sat at almost the <b>same heliocentric longitude</b> — the same direction in the sky. Le Verrier's predicted longitude was within ~1° of truth, <b>even though his orbit was wrong</b>. A telescope reads <i>direction</i>, not distance — so getting the longitude right to ~1° is all you need to <i>see</i> the planet.</p>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The 1846 sightline</h3>
+    <p class="hint">Both planets are placed at Neptune's real Sep-1846 direction (ecliptic longitude ≈ 327°). The real planet is near-circular at 30&nbsp;AU. Push the predicted orbit's semi-major axis out and its eccentricity up — and watch how the <b>perihelion distance</b> $a_\text{pred}(1-e_\text{pred})$ has to drop back toward 30&nbsp;AU to keep the predicted planet sitting on the same line of sight as the real one.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Predicted $a_\text{pred}$ <b><span id="ph_albl">37.0</span> AU</b></label>
+        <input id="ph_a" type="range" min="30" max="42" step="0.5" value="37">
+      </div>
+      <div class="ctl">
+        <label>Predicted eccentricity $e_\text{pred}$ <b><span id="ph_elbl">0.18</span></b></label>
+        <input id="ph_e" type="range" min="0" max="0.35" step="0.01" value="0.18">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Predicted dist. now</div><div class="v"><span id="ph_rnow">30.3</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Real Neptune</div><div class="v">30.07 <small>AU</small></div></div>
+      <div class="stat"><div class="k">Distance gap</div><div class="v"><span id="ph_gap">0.3</span> <small>AU</small></div></div>
+    </div>
+    <figure><div id="ph_plot" class="plot tall"></div><figcaption>Real Neptune orbit (navy), predicted eccentric orbit (orange), Uranus orbit (grey), and the 1846 line of sight (red).</figcaption></figure>
+    <div id="ph_verdict" class="verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4>So how much was genius and how much was luck?</h4>
+    <ol>
+      <li><b>Genuine triumph.</b> Inverting the gravitational residual to recover the perturber's <i>direction</i> was a real, hard, correct calculation — Newtonian gravity run backwards.</li>
+      <li><b>Lucky break.</b> The bad 38-AU Bode distance <i>forced</i> a perihelion placement that happened to drop the predicted planet's current distance to ~30&nbsp;AU and onto the real planet's sightline. A telescope only needs the direction.</li>
+    </ol>
+    <div class="concl"><b>Aftermath:</b> within months astronomers tracked Neptune's real motion and found $a\approx 30$&nbsp;AU, nearly circular. Bode's law was quietly abandoned as the numerology it always was. But the prediction stood as the great 19th-century vindication of Newtonian gravity — <b>a planet found because the equations said it had to be there.</b></div>
+  </div>
+</section>
+
+<!-- ===================== SUMMARY ===================== -->
+<section class="chapter" id="summary">
+  <span class="era">recap</span>
+  <h2>The five moving parts</h2>
+  <div class="beats">
+    <div class="beat known"><div class="tag">Expectation</div><p><b>Bode's law</b> fit six planets, so everyone expected the next at ~38&nbsp;AU. For Neptune it fails by +29%.</p></div>
+    <div class="beat idea"><div class="tag">Hypothesis</div><p>Uranus's motion carries the <b>gravitational fingerprint</b> of an outer planet — shown by a live 3-body integration.</p></div>
+    <div class="beat test"><div class="tag">Evidence</div><p>The <b>O−C residual</b> rises, peaks at conjunction (~1822), and reverses sign — the actual clue Adams &amp; Le Verrier inverted.</p></div>
+    <div class="beat test"><div class="tag">In space</div><p>Neptune <b>tugs Uranus</b> ahead, then behind — a deflection of only tens of arcseconds, magnified to be visible.</p></div>
+    <div class="beat found"><div class="tag">The accident</div><p>The bad 38-AU assumption forced a <b>perihelion</b> placement that put predicted and real planet on the same 1846 sightline. Right direction, wrong distance.</p></div>
+  </div>
+  <div class="mathnote astro">
+    <h4>Try it yourself</h4>
+    <p>Set <b>Neptune mass = 0</b> in Section 2 and confirm the O−C residual flattens to nothing. Slide the <b>conjunction year</b> and watch the whole curve shift with it. In Section 5, raise $a_\text{pred}$ and see how the eccentricity must climb to keep the predicted planet on the 1846 line of sight.</p>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="chapter" id="quiz">
+  <span class="era">check yourself</span>
+  <h2>Test yourself</h2>
+  <div class="quiz-head">
+    <div class="quiz-score">Score <b><span id="qz_score">0</span></b> / <span id="qz_total">0</span></div>
+    <div class="quiz-bar"><i id="qz_fill"></i></div>
+    <button class="quiz-reset" id="qz_reset">Reset</button>
+  </div>
+  <div id="qz_root"></div>
+
+  <h3 class="subhead"><span class="n">§</span>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The Titius–Bode slot for Neptune is $n=7$. Compute the predicted distance $a_7 = 0.4 + 0.3\times 2^{7}$ and its percentage error against Neptune's true 30.07 AU.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Power of two.</b> $2^{7}=128$.</li>
+          <li><b>Apply the rule.</b> $a_7 = 0.4 + 0.3\times128 = 0.4 + 38.4 = 38.8$ AU.</li>
+          <li><b>Error.</b> $100\times(38.8-30.07)/30.07 = +29.0\%$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> 38.8 AU, a +29% overshoot — the single outlier that started the prediction off at the wrong distance.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Using Kepler's third law in solar units ($P=a^{3/2}$ yr), find the orbital periods of Uranus ($a=19.19$) and Neptune ($a=30.07$), then their synodic period $S$ from $\tfrac1S=\tfrac1{P_U}-\tfrac1{P_N}$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Periods.</b> $P_U=19.19^{1.5}\approx84.1$ yr, $P_N=30.07^{1.5}\approx164.9$ yr.</li>
+          <li><b>Rates.</b> $\tfrac1{84.1}-\tfrac1{164.9}=0.01189-0.00606=0.00583$ per yr.</li>
+          <li><b>Invert.</b> $S=1/0.00583\approx 171$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $S\approx171$ yr — so only one conjunction (~1822) falls in the 1740–1860 window, which is why the O−C curve shows a single rise-and-reverse.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A predicted orbit has $a_\text{pred}=37$ AU and $e_\text{pred}=0.18$. What is its perihelion distance, and why does that explain how a 37-AU prediction pointed at a 30-AU planet?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Perihelion formula.</b> $r_\text{peri}=a(1-e)=37\times(1-0.18)=37\times0.82$.</li>
+          <li><b>Evaluate.</b> $r_\text{peri}=30.3$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> 30.3 AU — essentially Neptune's real 30.07 AU. With perihelion aimed at the 1846 direction, the predicted planet sat at nearly the real distance <i>and</i> the real longitude, so the sightline matched.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><b>The Discovery of Neptune (1846)</b> — an interactive companion. The labs run a genuine planar 3-body integration (Sun + Uranus + Neptune) with a fixed-step RK4 integrator in units where $GM_\odot=4\pi^2$; the O−C residual, the magnified deflection, and the perihelion geometry are all computed live from the same model. Magnitudes use idealized near-circular starting orbits, so the residual's <i>amplitude</i> is illustrative while its <i>shape</i> is the real one the historical data showed.</p>
+  <p style="margin-top:8px"><b>Key numbers:</b> Bode slot $n=7\Rightarrow38.8$ AU vs. true 30.07 AU (+29%); Uranus/Neptune masses $4.37\times10^{-5}$ / $5.15\times10^{-5}\,M_\odot$; periods 84 / 165 yr; synodic 171 yr; conjunction ~1821–22; Sep-1846 ecliptic longitude ≈ 327°. Built from <span class="fileref">Neptune_Discovery_1846.ipynb</span>. Sources: Le Verrier (1846); Adams's independent prediction; Galle &amp; d'Arrest's confirming observation, 23–24 Sep 1846.</p>
+</footer>
+
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7', navy:'#5b7cff', gold:'#ffd24a', grey:'#9aa3c7'};
+const PCFG={responsive:true, displayModeBar:false};
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:54,r:14,t:14,b:44},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const DEG=180/Math.PI;
+</script>
+
+<!-- =======================================================================
+     SECTION 1 — TITIUS–BODE
+======================================================================= -->
+<script>
+(function(){
+  const names=['Mercury','Venus','Earth','Mars','Ceres','Jupiter','Saturn','Uranus','Neptune'];
+  const nidx =[-Infinity,0,1,2,3,4,5,6,7];
+  const actual=[0.387,0.723,1.000,1.524,2.77,5.203,9.537,19.19,30.07];
+  const bode = nidx.map(n=> isFinite(n) ? 0.4+0.3*Math.pow(2,n) : 0.4);
+
+  // table
+  const tb=document.querySelector('#bd_table tbody');
+  names.forEach((nm,i)=>{
+    const err=100*(bode[i]-actual[i])/actual[i];
+    const tr=document.createElement('tr');
+    if(nm==='Neptune') tr.className='flag';
+    tr.innerHTML=`<td>${nm}</td><td>${isFinite(nidx[i])?nidx[i]:'−∞'}</td><td>${bode[i].toFixed(2)}</td><td>${actual[i].toFixed(2)}</td><td>${err>=0?'+':''}${err.toFixed(1)}%</td>`;
+    tb.appendChild(tr);
+  });
+
+  // plot 1 — log of actual vs bode across planets
+  function drawP1(hi){
+    const x=names.map((_,i)=>i);
+    const traces=[
+      {x, y:actual, mode:'lines+markers', line:{color:COL.navy,width:1.6}, marker:{color:COL.navy,size:9}, name:'Actual'},
+      {x, y:bode,   mode:'lines+markers', line:{color:COL.amber,width:1.6,dash:'dash'}, marker:{color:COL.amber,size:8,symbol:'square'}, name:'Bode'}
+    ];
+    // neptune error connector
+    const ni=names.indexOf('Neptune');
+    traces.push({x:[ni,ni], y:[bode[ni],actual[ni]], mode:'lines', line:{color:COL.rose,width:2}, hoverinfo:'skip'});
+    if(hi>=0){ const hx=hi; traces.push({x:[hx], y:[bode[hx]], mode:'markers', marker:{color:'rgba(0,0,0,0)',size:20,line:{color:COL.cyan,width:2.5}}, hoverinfo:'skip'}); }
+    Plotly.react('bd_plot1', traces, baseLayout({
+      yaxis:{type:'log', title:'semi-major axis (AU)', gridcolor:'rgba(140,160,230,0.12)', linecolor:'rgba(140,160,230,0.3)'},
+      xaxis:{tickmode:'array', tickvals:x, ticktext:names, tickangle:-40, gridcolor:'rgba(140,160,230,0.07)'}
+    }), PCFG);
+  }
+  // plot 2 — geometric test (Venus..Neptune), a-0.4 vs the doubling line
+  function drawP2(hi){
+    const nB=[0,1,2,3,4,5,6,7];
+    const nmB=['Venus','Earth','Mars','Ceres','Jupiter','Saturn','Uranus','Neptune'];
+    const aB=[0.723,1.000,1.524,2.77,5.203,9.537,19.19,30.07];
+    const resid=aB.map(a=>a-0.4);
+    const line=nB.map(n=>0.3*Math.pow(2,n));
+    const traces=[
+      {x:nB, y:line, mode:'lines', line:{color:COL.amber,width:1.8,dash:'dash'}, name:'0.3·2ⁿ'},
+      {x:nB, y:resid, mode:'markers+text', marker:{color:COL.navy,size:10}, text:nmB, textposition:'top center', textfont:{size:9,color:COL.muted}, name:'a−0.4'}
+    ];
+    traces.push({x:[7],y:[resid[7]],mode:'markers',marker:{color:'rgba(0,0,0,0)',size:20,line:{color:COL.rose,width:2.5}},hoverinfo:'skip'});
+    // highlight slot from slider (nB index == n)
+    if(hi>=0){ traces.push({x:[hi], y:[resid[hi]], mode:'markers', marker:{color:'rgba(0,0,0,0)',size:24,line:{color:COL.cyan,width:2.5}}, hoverinfo:'skip'}); }
+    Plotly.react('bd_plot2', traces, baseLayout({
+      yaxis:{type:'log', title:'a − 0.4 (AU)'},
+      xaxis:{title:'slot n', dtick:1, gridcolor:'rgba(140,160,230,0.07)'}
+    }), PCFG);
+  }
+
+  const slN=document.getElementById('bd_n');
+  function update(){
+    const n=+slN.value;
+    document.getElementById('bd_nlbl').textContent=n;
+    // slot n maps to planet index: n=0->Venus(idx1) ... n=7->Neptune(idx8)
+    const pi=n+1;
+    const pred=0.4+0.3*Math.pow(2,n), act=actual[pi];
+    const err=100*(pred-act)/act;
+    document.getElementById('bd_pred').textContent=pred.toFixed(pred<10?2:1);
+    document.getElementById('bd_act').textContent=act.toFixed(2);
+    document.getElementById('bd_err').textContent=(err>=0?'+':'')+err.toFixed(1);
+    const v=document.getElementById('bd_verdict');
+    if(n===7){ v.className='verdict bad'; v.innerHTML='<b>Neptune (n=7).</b> The rule that held for six worlds finally breaks: 38.8 AU predicted, 30.07 AU real — a +29% overshoot. This is the wrong distance Le Verrier inherited.'; }
+    else { v.className='verdict good'; v.innerHTML=`<b>${names[pi]} (n=${n}).</b> Bode predicts ${pred.toFixed(2)} AU vs. ${act.toFixed(2)} AU actual — within ${Math.abs(err).toFixed(1)}%. The rule fits beautifully here, which is exactly why it was trusted out to the next slot.`; }
+    drawP1(pi); drawP2(n);
+  }
+  slN.addEventListener('input',update);
+  update();
+})();
+</script>
+
+<!-- =======================================================================
+     3-BODY INTEGRATION (shared by Sections 2, 3, 4)
+======================================================================= -->
+<script>
+const NeptuneSim=(function(){
+  const G=4*Math.PI*Math.PI, MSUN=1.0;
+  const M_URA=4.366e-5;            // Uranus mass / Msun
+  const A_URA=19.19, A_NEP=30.07;
+  const P_URA=Math.pow(A_URA,1.5), P_NEP=Math.pow(A_NEP,1.5);
+  const REL_RATE=360/P_URA-360/P_NEP;   // deg/yr Uranus gains on Neptune
+  const YEAR0=1740, NYRS=120, NSAMP=NYRS+1, K=120; // K sub-steps/yr
+
+  function circState(a,thetaDeg,mc){
+    const th=thetaDeg*Math.PI/180, s=Math.sqrt(G*mc/a);
+    return {pos:[a*Math.cos(th),a*Math.sin(th)], vel:[-s*Math.sin(th), s*Math.cos(th)]};
+  }
+  function deriv(y,m){
+    const n=m.length, dy=new Array(4*n);
+    for(let i=0;i<n;i++){ dy[2*i]=y[2*n+2*i]; dy[2*i+1]=y[2*n+2*i+1]; }
+    for(let i=0;i<n;i++){
+      let ax=0,ay=0, xi=y[2*i], yi=y[2*i+1];
+      for(let j=0;j<n;j++){ if(i===j)continue;
+        const dx=y[2*j]-xi, dyy=y[2*j+1]-yi;
+        const r=Math.sqrt(dx*dx+dyy*dyy), f=G*m[j]/(r*r*r);
+        ax+=f*dx; ay+=f*dyy;
+      }
+      dy[2*n+2*i]=ax; dy[2*n+2*i+1]=ay;
+    }
+    return dy;
+  }
+  function rk4(y,h,m){
+    const k1=deriv(y,m);
+    const y2=y.map((v,i)=>v+0.5*h*k1[i]), k2=deriv(y2,m);
+    const y3=y.map((v,i)=>v+0.5*h*k2[i]), k3=deriv(y3,m);
+    const y4=y.map((v,i)=>v+h*k3[i]),     k4=deriv(y4,m);
+    return y.map((v,i)=>v+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]));
+  }
+  function run(m,P,V){
+    const n=m.length, M=m.reduce((a,b)=>a+b,0);
+    let cx=0,cy=0,vx=0,vy=0;
+    for(let i=0;i<n;i++){cx+=m[i]*P[i][0];cy+=m[i]*P[i][1];vx+=m[i]*V[i][0];vy+=m[i]*V[i][1];}
+    cx/=M;cy/=M;vx/=M;vy/=M;
+    let y=new Array(4*n);
+    for(let i=0;i<n;i++){y[2*i]=P[i][0]-cx;y[2*i+1]=P[i][1]-cy;y[2*n+2*i]=V[i][0]-vx;y[2*n+2*i+1]=V[i][1]-vy;}
+    const samp=[];
+    const rec=()=>{const p=[];for(let i=0;i<n;i++)p.push([y[2*i],y[2*i+1]]);samp.push(p);};
+    rec();
+    const h=1/K;
+    for(let yr=0;yr<NYRS;yr++){ for(let s=0;s<K;s++) y=rk4(y,h,m); rec(); }
+    return samp; // [t][body]=[x,y]
+  }
+  function helioLon(samp,bi){
+    const out=[]; let prev=0,off=0;
+    for(let t=0;t<samp.length;t++){
+      const dx=samp[t][bi][0]-samp[t][0][0], dy=samp[t][bi][1]-samp[t][0][1];
+      let a=Math.atan2(dy,dx);
+      if(t>0){ while(a+off-prev> Math.PI)off-=2*Math.PI; while(a+off-prev<-Math.PI)off+=2*Math.PI; }
+      const u=a+off; out.push(u); prev=u;
+    }
+    return out;
+  }
+  // compute everything for given (m_nep, conjunctionYear)
+  function compute(mNep, conjYear){
+    const theta_nep0=0.0;
+    const theta_ura0=theta_nep0 - REL_RATE*(conjYear-YEAR0);
+    const U=circState(A_URA,theta_ura0,MSUN), N=circState(A_NEP,theta_nep0,MSUN);
+    const samp3=run([MSUN,M_URA,mNep],[[0,0],U.pos,N.pos],[[0,0],U.vel,N.vel]);
+    const samp2=run([MSUN,M_URA],     [[0,0],U.pos],      [[0,0],U.vel]);
+    const lonObs=helioLon(samp3,1), lonComp=helioLon(samp2,1);
+    const omc=lonObs.map((v,t)=>(v-lonComp[t])*DEG*3600); // arcsec
+    // conjunction = min separation Uranus/Neptune
+    const lonNep=helioLon(samp3,2);
+    let best=1e9,tc=0;
+    for(let t=0;t<samp3.length;t++){
+      let d=Math.abs(((lonObs[t]-lonNep[t])*DEG+180)%360-180);
+      if(d<best){best=d;tc=YEAR0+t;}
+    }
+    const year=[]; for(let t=0;t<NSAMP;t++)year.push(YEAR0+t);
+    const peak=Math.max(...omc.map(Math.abs));
+    return {samp3,samp2,year,omc,tconj:tc,peak,A_URA};
+  }
+  return {compute, YEAR0, NSAMP, A_URA};
+})();
+</script>
+
+<!-- =======================================================================
+     SECTIONS 2 & 3 — orbit + O−C, and SECTION 4 — deflection
+======================================================================= -->
+<script>
+(function(){
+  let SIM=null;
+  const slM=document.getElementById('sm_m'), slC=document.getElementById('sm_c');
+  const slPP=document.getElementById('pp_m');
+
+  function drawOrbit(){
+    const s3=SIM.samp3;
+    const ux=s3.map(p=>p[1][0]), uy=s3.map(p=>p[1][1]);
+    const nx=s3.map(p=>p[2]?p[2][0]:null), ny=s3.map(p=>p[2]?p[2][1]:null);
+    const traces=[
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.gold,size:16,line:{color:'#ff9a3a',width:1}},hoverinfo:'skip'},
+      {x:ux,y:uy,mode:'lines',line:{color:COL.cyan,width:2},name:'Uranus'},
+      {x:nx,y:ny,mode:'lines',line:{color:COL.violet,width:2},name:'Neptune'}
+    ];
+    const lim=A=>A*1.15;
+    Plotly.react('sm_orbit',traces,baseLayout({
+      xaxis:{title:'AU',scaleanchor:'y',range:[-lim(30.07),lim(30.07)],gridcolor:'rgba(140,160,230,0.08)'},
+      yaxis:{title:'AU',range:[-lim(30.07),lim(30.07)],gridcolor:'rgba(140,160,230,0.08)'}
+    }),PCFG);
+  }
+  function drawOmC(){
+    const y=SIM.year, o=SIM.omc;
+    const pos=o.map(v=>v>=0?v:null), neg=o.map(v=>v<0?v:null);
+    const traces=[
+      {x:y,y:o,mode:'lines',line:{color:COL.rose,width:2.5},fill:'tozeroy',fillcolor:'rgba(255,107,157,0.10)'},
+      {x:[SIM.tconj,SIM.tconj],y:[Math.min(...o,-1),Math.max(...o,1)],mode:'lines',line:{color:COL.muted,width:1.4,dash:'dot'},hoverinfo:'skip'}
+    ];
+    Plotly.react('sm_omc',traces,baseLayout({
+      xaxis:{title:'year'},
+      yaxis:{title:'O − C  (arcsec)'},
+      annotations:[
+        {x:SIM.tconj,y:Math.max(...o,1)*0.9,text:'conjunction',showarrow:false,font:{size:10,color:COL.muted},xanchor:'left'}
+      ]
+    }),PCFG);
+  }
+  function drawDeflect(){
+    const MAG=+slPP.value;
+    const s3=SIM.samp3, s2=SIM.samp2, year=SIM.year;
+    const Uobs=s3.map(p=>[p[1][0]-p[0][0], p[1][1]-p[0][1]]);
+    const Upr =s2.map(p=>[p[1][0]-p[0][0], p[1][1]-p[0][1]]);
+    const off =Uobs.map((o,t)=>[o[0]-Upr[t][0], o[1]-Upr[t][1]]);
+    const traces=[
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.gold,size:16,line:{color:'#ff9a3a',width:1}},hoverinfo:'skip'},
+      {x:Upr.map(p=>p[0]),y:Upr.map(p=>p[1]),mode:'lines',line:{color:COL.muted,width:1.4,dash:'dash'},name:'predicted'}
+    ];
+    const tipsx=[],tipsy=[],labx=[],laby=[],labt=[];
+    for(let k=5;k<year.length;k+=18){
+      const p=Upr[k], o=[p[0]+MAG*off[k][0], p[1]+MAG*off[k][1]];
+      traces.push({x:[p[0],o[0]],y:[p[1],o[1]],mode:'lines',line:{color:COL.rose,width:1.8},hoverinfo:'skip'});
+      tipsx.push(o[0]); tipsy.push(o[1]);
+      labx.push(o[0]); laby.push(o[1]); labt.push(''+Math.round(year[k]));
+    }
+    traces.push({x:tipsx,y:tipsy,mode:'markers',marker:{color:COL.rose,size:6},hoverinfo:'skip'});
+    traces.push({x:labx,y:laby,mode:'text',text:labt,textposition:'top center',textfont:{size:9,color:COL.rose},hoverinfo:'skip'});
+    const lim=SIM.A_URA*1.3;
+    Plotly.react('pp_plot',traces,baseLayout({
+      xaxis:{title:'AU',scaleanchor:'y',range:[-lim,lim],gridcolor:'rgba(140,160,230,0.08)'},
+      yaxis:{title:'AU',range:[-lim,lim],gridcolor:'rgba(140,160,230,0.08)'}
+    }),PCFG);
+    // true peak on-sky offset (arcsec): |offset|/a_ura in rad
+    let truePeak=0;
+    off.forEach(o=>{const m=Math.hypot(o[0],o[1])/SIM.A_URA; if(m>truePeak)truePeak=m;});
+    document.getElementById('pp_true').textContent=(truePeak*DEG*3600).toFixed(1);
+    document.getElementById('pp_fac').textContent=MAG;
+    document.getElementById('pp_mlbl').textContent=MAG;
+  }
+
+  function recompute(){
+    const mNep=(+slM.value)*1e-5;
+    const conj=+slC.value;
+    document.getElementById('sm_mlbl').textContent=(+slM.value).toFixed(2);
+    document.getElementById('sm_clbl').textContent=conj;
+    SIM=NeptuneSim.compute(mNep,conj);
+    document.getElementById('sm_conj').textContent=Math.round(SIM.tconj);
+    document.getElementById('sm_peak').textContent=SIM.peak.toFixed(1);
+    const v=document.getElementById('sm_verdict');
+    if(+slM.value<0.01){ v.className='verdict bad'; v.innerHTML='<b>Neptune deleted.</b> With no perturber, the "observed" and "computed" orbits are identical — O−C is flat. No wobble, no clue, no discovery. This is the null case Adams &amp; Le Verrier ruled out.'; }
+    else { v.className='verdict good'; v.innerHTML=`<b>Peak |O−C| ≈ ${SIM.peak.toFixed(1)}″.</b> The residual rises, peaks near conjunction (~${Math.round(SIM.tconj)}), then reverses sign — the unmistakable fingerprint of an outer planet. Heavier Neptune ⇒ bigger swing.`; }
+    drawOrbit(); drawOmC(); drawDeflect();
+  }
+
+  // light debounce so dragging stays smooth
+  let raf=null;
+  function schedule(){ if(raf)cancelAnimationFrame(raf); raf=requestAnimationFrame(recompute); }
+  slM.addEventListener('input',schedule);
+  slC.addEventListener('input',schedule);
+  slPP.addEventListener('input',()=>{ if(SIM) drawDeflect(); });
+  recompute();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 5 — PERIHELION ACCIDENT
+======================================================================= -->
+<script>
+(function(){
+  const LON=327*Math.PI/180;          // Sep 1846 ecliptic longitude
+  const A_TRUE=30.07, E_TRUE=0.009;
+  const A_URA=19.19;
+  function ellipse(a,e,peri){
+    const xs=[],ys=[];
+    for(let i=0;i<=400;i++){
+      const nu=2*Math.PI*i/400;
+      const r=a*(1-e*e)/(1+e*Math.cos(nu));
+      const th=nu+peri;
+      xs.push(r*Math.cos(th)); ys.push(r*Math.sin(th));
+    }
+    return {xs,ys};
+  }
+  const slA=document.getElementById('ph_a'), slE=document.getElementById('ph_e');
+  function update(){
+    const aP=+slA.value, eP=+slE.value;
+    document.getElementById('ph_albl').textContent=aP.toFixed(1);
+    document.getElementById('ph_elbl').textContent=eP.toFixed(2);
+    const rNow=aP*(1-eP);                 // predicted planet at perihelion, aimed at LON
+    const gap=Math.abs(rNow-A_TRUE);
+    document.getElementById('ph_rnow').textContent=rNow.toFixed(1);
+    document.getElementById('ph_gap').textContent=gap.toFixed(1);
+
+    const et=ellipse(A_TRUE,E_TRUE,LON), ep=ellipse(aP,eP,LON);
+    // Uranus circle for context
+    const ux=[],uy=[]; for(let i=0;i<=200;i++){const t=2*Math.PI*i/200;ux.push(A_URA*Math.cos(t));uy.push(A_URA*Math.sin(t));}
+    const Ptrue=[A_TRUE*Math.cos(LON),A_TRUE*Math.sin(LON)];
+    const Ppred=[rNow*Math.cos(LON), rNow*Math.sin(LON)];
+    const Lmax=aP*1.12;
+    const traces=[
+      {x:ux,y:uy,mode:'lines',line:{color:COL.grey,width:1.2,dash:'dot'},name:'Uranus'},
+      {x:et.xs,y:et.ys,mode:'lines',line:{color:COL.navy,width:2},name:'real Neptune'},
+      {x:ep.xs,y:ep.ys,mode:'lines',line:{color:COL.amber,width:2,dash:'dash'},name:'predicted'},
+      {x:[0,Lmax*Math.cos(LON)],y:[0,Lmax*Math.sin(LON)],mode:'lines',line:{color:COL.rose,width:1.4},hoverinfo:'skip'},
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.gold,size:16,line:{color:'#ff9a3a',width:1}},hoverinfo:'skip'},
+      {x:[Ptrue[0]],y:[Ptrue[1]],mode:'markers+text',marker:{color:COL.navy,size:14},text:['real Neptune'],textposition:'bottom center',textfont:{size:10,color:COL.navy},hoverinfo:'skip'},
+      {x:[Ppred[0]],y:[Ppred[1]],mode:'markers+text',marker:{color:COL.amber,size:18,symbol:'star'},text:['predicted (perihelion)'],textposition:'top center',textfont:{size:10,color:COL.amber},hoverinfo:'skip'}
+    ];
+    const lim=aP*1.25;
+    Plotly.react('ph_plot',traces,baseLayout({
+      xaxis:{title:'AU',scaleanchor:'y',range:[-lim,lim],gridcolor:'rgba(140,160,230,0.08)'},
+      yaxis:{title:'AU',range:[-lim,lim],gridcolor:'rgba(140,160,230,0.08)'}
+    }),PCFG);
+
+    const v=document.getElementById('ph_verdict');
+    if(gap<2){ v.className='verdict good'; v.innerHTML=`<b>Same sightline.</b> Predicted distance ${rNow.toFixed(1)} AU ≈ real 30.07 AU, both at longitude 327°. A telescope reads direction, not distance — so sweeping the predicted longitude lands on the real planet. <i>This is the accident.</i>`; }
+    else { v.className='verdict bad'; v.innerHTML=`<b>Off by ${gap.toFixed(1)} AU.</b> At this $a$ and $e$ the perihelion distance is ${rNow.toFixed(1)} AU, not near 30. Raise $e$ (or lower $a$) so $a(1-e)$ drops back toward 30 — that perihelion placement is what the residual <i>forced</i> on the wrong Bode distance.`; }
+  }
+  slA.addEventListener('input',update);
+  slE.addEventListener('input',update);
+  update();
+})();
+</script>
+
+<!-- =======================================================================
+     QUIZ
+======================================================================= -->
+<script>
+(function(){
+  const QUIZ=[
+    {q:'Why did Adams and Le Verrier start their search assuming the new planet was near 38 AU?',
+     opts:['They had already seen a faint object there','The Titius–Bode "law" put the next slot (n=7) at ~38.8 AU','Newton\'s laws require it','Uranus\'s moons implied it'],
+     a:1, e:'Bode\'s law fit every planet out to Uranus, so the natural guess for the next world was the next slot, n=7 ⇒ 38.8 AU. Neptune is really at 30.07 AU — a +29% error baked in from the start.'},
+    {q:'What is the O−C residual that gave away Neptune\'s existence?',
+     opts:['Observed minus Computed brightness of Uranus','Observed minus Computed position of Uranus (Neptune-free ellipse)','The orbital eccentricity of Uranus','Neptune\'s parallax'],
+     a:1, e:'O−C is Observed longitude (reality, with Neptune\'s pull) minus Computed longitude (the best-fit Neptune-free ellipse). Its rise–peak–reverse shape is the fingerprint of an outer perturber.'},
+    {q:'In the model, what happens to the O−C residual if Neptune\'s mass is set to zero?',
+     opts:['It doubles','It flattens to zero — no perturber, no clue','It shifts later in time','It becomes a straight rising line'],
+     a:1, e:'With no perturber the "observed" and "computed" Uranus orbits are identical, so O−C is flat. The wobble exists only because a real outer mass pulls on Uranus.'},
+    {q:'How did a predicted orbit at ~38 AU still point the telescope at a planet really at 30 AU?',
+     opts:['The prediction was actually 30 AU all along','Pure luck with no math involved','The eccentric predicted orbit had its perihelion aimed at the 1846 direction, dropping its current distance to ~30 AU on the same sightline','Neptune moved closer that year'],
+     a:2, e:'To fit the wobble with a too-distant planet, the math forced high eccentricity and a perihelion pointed at the 1846 direction. That put the predicted planet near 30 AU AND at the real longitude — same sightline. A telescope only needs the direction.'},
+    {q:'Roughly how often do Uranus and Neptune reach conjunction, and why does that matter here?',
+     opts:['Every 84 years; it sets Uranus\'s period','Every ~171 years (synodic); only one falls in the 1740–1860 window, giving a single O−C swing','Every year; it averages out','Every 12 years; like Jupiter'],
+     a:1, e:'Their synodic period is ~171 yr, so just one conjunction (~1822) occurs in the modeled window — which is why the residual shows a single rise-and-reverse rather than a repeating wave.'}
+  ];
+  const root=document.getElementById('qz_root');
+  let total=0, score=0;
+  document.getElementById('qz_total').textContent=QUIZ.length;
+  function render(){
+    root.innerHTML=''; total=0; score=0; updateBar();
+    QUIZ.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const marks='ABCD';
+      card.innerHTML=`<p class="q-text"><span class="q-num">${qi+1}.</span>${item.q}</p>`;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      item.opts.forEach((o,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt';
+        b.innerHTML=`<span class="q-mark">${marks[oi]}</span>${o}`;
+        b.addEventListener('click',()=>{
+          if(card.dataset.done)return; card.dataset.done='1';
+          total++;
+          const all=opts.querySelectorAll('.q-opt'); all.forEach(x=>x.disabled=true);
+          all[item.a].classList.add('correct');
+          if(oi===item.a){ score++; } else { b.classList.add('wrong'); }
+          exp.classList.add('show');
+          updateBar();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      const exp=document.createElement('div'); exp.className='q-exp'; exp.innerHTML='<b>Why:</b> '+item.e;
+      card.appendChild(exp);
+      root.appendChild(card);
+    });
+  }
+  function updateBar(){
+    document.getElementById('qz_score').textContent=score;
+    document.getElementById('qz_fill').style.width=(total?score/QUIZ.length*100:0)+'%';
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<!-- =======================================================================
+     Background starfield
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280, (innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+</body>
+</html>

@@ -88,6 +88,39 @@
   footer{max-width:var(--maxw); margin:0 auto; padding:0 22px 60px; text-align:center; color:var(--muted); font-size:13px}
   footer a{color:var(--cyan); text-decoration:none}
   footer a:hover{text-decoration:underline}
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px; scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+    header.hero{ padding:46px 16px 14px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+    main{ padding:16px 16px 60px; }
+    /* tiles relax from rigid squares so long titles never clip on a narrow screen */
+    .grid{ grid-template-columns:1fr; gap:14px; }
+    a.card{ aspect-ratio:auto; min-height:150px; padding:18px 16px; }
+    .card h2{ font-size:20px; }
+  }
+  /* fine-pointer hover grow is wrong on touch: give a tap-press instead, no stuck :hover */
+  @media(hover:none){
+    a.card:hover{ transform:none; box-shadow:0 20px 60px rgba(0,0,0,0.35); }
+    a.card:active{ transform:scale(0.98); border-color:var(--accent,var(--cyan)); }
+  }
+  @media(min-width:421px) and (max-width:640px){
+    .grid{ grid-template-columns:repeat(2,1fr); }
+    a.card{ aspect-ratio:1/1; }
+  }
 </style>
 </head>
 <body>
@@ -133,6 +166,14 @@
       <h2>Kepler &amp; the Orbit of Mars</h2>
       <p class="who">How an ellipse replaced the perfect circle</p>
       <p>Follow Kepler wrestling Tycho's Mars data into the laws of planetary motion — and steer the orbit yourself to see why nothing but an ellipse fits.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="neptune_companion.html" style="--accent:var(--amber)">
+      <span class="era">Discovery</span>
+      <h2>The Discovery of Neptune (1846)</h2>
+      <p class="who">A planet found with pencil and paper</p>
+      <p>Le Verrier predicted a planet from Uranus's wobble before anyone saw it. Run the live 3-body integration, read the O−C residual, and see why a wrong orbit still found the right planet.</p>
       <span class="go">Open companion <span class="arrow">→</span></span>
     </a>
 
