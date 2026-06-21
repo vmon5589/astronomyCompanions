@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radio Astronomy &amp; Spectroscopy — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.amateur{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:700px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.amateur{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.amateur .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* section divider banner */
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.amateur .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.amateur input[type=range]{accent-color:var(--amber)}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+  .imgslot{position:relative; min-height:200px; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:repeating-linear-gradient(45deg,rgba(120,140,230,0.05),rgba(120,140,230,0.05) 12px,transparent 12px,transparent 24px);
+    border:1px dashed rgba(140,160,230,0.35); border-radius:14px; color:var(--muted); padding:24px; font-size:13px}
+  .imgslot b{color:var(--ink)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation / "the reasoning" explainer block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv h4 .ic{font-size:14px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  /* step list for the tutorial */
+  .steps{counter-reset:st; display:grid; gap:10px; margin:14px 0 2px}
+  .step{position:relative; padding:10px 12px 10px 44px; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; font-size:13.5px}
+  .step::before{counter-increment:st; content:counter(st); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:rgba(255,178,74,0.18); color:var(--amber); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center}
+  .step b{color:#fff}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* spectral-type gallery grid */
+  .zoo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:6px}
+  .zoo-card{background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center}
+  .zoo-card canvas{width:100%; height:auto; background:#05060d; border-radius:10px; display:block}
+  .zoo-card .zt{font-weight:700; font-size:13.5px; margin-top:9px; color:#fff}
+  .zoo-card .zk{font-size:11px; color:var(--cyan); letter-spacing:.4px; text-transform:uppercase; margin-top:1px}
+  .zoo-card .zd{font-size:11.6px; color:var(--muted); line-height:1.5; margin-top:6px}
+
+  /* glossary layout + left rail */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* Wide MathJax equations are the main mobile-overflow culprit: they force the
+       layout viewport wider than the phone, which shrink-zooms the whole page and
+       leaves interactive plots mis-scaled. Let wide math scroll inside its own box. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* math supplement — numbered concept headings + annotated notes */
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:760px}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+
+  /* self-test quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+
+<style>
+  code{background:rgba(120,140,230,0.12); border:1px solid var(--line); border-radius:6px;
+       padding:1px 6px; font-size:0.92em; color:#bcd4ff; font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .figrow figure img{background:#fff}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<nav>
+  <div class="wrap">
+    <div class="brand">Radio Astronomy &amp; Spectroscopy <small>Interactive companion · listening to the invisible sky</small></div>
+    <div class="links">
+      <a href="#window">Radio window</a>
+      <a href="#sources">Where it comes from</a>
+      <a href="#hi21">21-cm line</a>
+      <a href="#galaxy" class="amateur">Reading the Galaxy</a>
+      <a href="#absorption">Anti-aligned gas</a>
+      <a href="#cosmic">Galaxies &amp; time</a>
+      <a href="#moon">The Moon</a>
+      <a href="#jove" class="amateur">Radio Jove</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>How we learned to hear the Universe<br>in its <span class="grad">radio voice</span></h1>
+  <p class="sub">Most of the sky never reaches your eyes. Cold hydrogen, exploding magnetic fields, the leftover heat of the Big Bang and even Jupiter's storms all broadcast in radio — wavelengths from centimetres to tens of metres that sail straight through cloud, dust and daylight. This companion retraces how radio astronomy reads that hidden sky, and ends at two things you can do yourself: map our Galaxy's hydrogen, and catch Jupiter on a backyard antenna.</p>
+  <p class="byline">An interactive companion to <b>radio astronomy and spectroscopy</b> — the radio twin of the optical-spectroscopy companion. The plots compute the real physics live; the "Reading the Galaxy" chapter uses <b>real HI4PI survey data</b> reduced in an accompanying Python notebook.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every radio-astronomy term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. THE RADIO WINDOW -->
+<!-- ============================================================= -->
+<section class="chapter" id="window">
+  <span class="era">The foundation · The longest light</span>
+  <h2>Radio waves are light — just stretched a billionfold</h2>
+  <p class="who">Karl Jansky · Grote Reber · the opening of the radio window</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Visible light is a sliver of the electromagnetic spectrum. Stretch the wavelength past red and you pass through infrared into the <b>radio</b> band — the same self-propagating wave Maxwell described, only with wavelengths from about a millimetre to tens of metres rather than a fraction of a micron.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>In 1932 Karl Jansky, hunting static for Bell Labs, found a hiss that rose and set with the stars, not the Sun — radio waves from the centre of the Milky Way. Grote Reber built a dish in his backyard and mapped the radio sky through the 1930s. The cosmos was broadcasting all along; we simply had no ears.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Why radio at all? Earth's atmosphere is opaque to most of the spectrum but holds two clear <b>windows</b>: the optical, and a broad <b>radio window</b> from roughly 10 MHz to 300 GHz. Below ~10 MHz the ionosphere reflects waves back to space; above ~300 GHz water vapour absorbs them. In between, radio pours straight through cloud and daylight alike.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Radio reaches what light cannot: cold gas that never glows visibly, electrons spiralling in magnetic fields, the cosmic microwave background, and dense regions hidden behind dust. A whole parallel astronomy — much of it <b>spectroscopy</b>, reading single sharp frequencies like the 21-cm line — grew out of opening that window.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Slide across the radio window</h3>
+    <p class="hint">Drag from the 30-metre waves the ionosphere bounces, up through the metre and centimetre bands where most radio astronomy lives, to the millimetre edge where the atmosphere closes again. Read off wavelength, photon energy, what each band observes, and whether it reaches the ground.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Frequency <b><span id="rw_fl">1420 MHz</span></b></label>
+        <input id="rw_slider" type="range" min="7" max="11.7" step="0.01" value="9.152">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ frequency in Hz (7 = 10 MHz, 11.7 ≈ 500 GHz)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Wavelength</div><div class="v"><span id="rw_wl">21</span> <small id="rw_wu">cm</small></div></div>
+      <div class="stat"><div class="k">Band</div><div class="v" id="rw_band" style="font-size:15px">21-cm / L-band</div></div>
+      <div class="stat"><div class="k">Photon energy</div><div class="v"><span id="rw_en">5.9</span> <small>µeV</small></div></div>
+      <div class="stat"><div class="k">Reaches the ground?</div><div class="v" id="rw_atm" style="font-size:14px">yes</div></div>
+    </div>
+    <figure><canvas id="rw_canvas" width="900" height="160"></canvas>
+      <figcaption id="rw_cap">The 21-cm hydrogen line sits in the clear heart of the radio window.</figcaption></figure>
+    <div class="eq">$$ c=\lambda f,\qquad E=hf $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why radio photons are so faint, yet so useful</h4>
+      <p class="lead">A 1420 MHz photon carries about a millionth of an electron-volt — a hundred-millionth of a visible photon's energy.</p>
+      <ol>
+        <li>Photon energy is $E=hf$. At $f=1.42\times10^{9}$ Hz, $E=(6.63\times10^{-34})(1.42\times10^{9})=9.4\times10^{-25}$ J $\approx 5.9\ \mu\text{eV}$.</li>
+        <li>So radio carries almost no energy per photon — a single source must pour out an enormous <b>number</b> of photons to be detectable. Radio telescopes are large because they must gather a vast, faint flood.</li>
+        <li>But low energy is exactly why radio shines for cold matter: a cloud at 100 K, far too cold to glow in visible light, still radiates freely at radio wavelengths and can imprint sharp <b>spectral lines</b>.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> radio trades energy-per-photon for access to the cold, the magnetic and the hidden — the parts of the Universe optical astronomy is blind to.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The 21-cm hydrogen line has frequency $f=1420.4$ MHz. Using $c=\lambda f$ with $c=2.998\times10^{8}$ m/s, confirm its wavelength really is about 21 cm.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rearrange.</b> $\lambda=c/f=\dfrac{2.998\times10^{8}}{1.4204\times10^{9}}$.</li>
+          <li><b>Evaluate.</b> $\lambda=0.2111$ m $=21.1$ cm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx21.1$ cm — the famous "21-cm line," the workhorse frequency of neutral-hydrogen astronomy.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Radio Jove listens at $f=20.1$ MHz. What wavelength is that, and why does an antenna for it have to be several metres across?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Wavelength.</b> $\lambda=c/f=\dfrac{2.998\times10^{8}}{2.01\times10^{7}}=14.9$ m.</li>
+          <li><b>Antenna scale.</b> A simple dipole is about $\lambda/2\approx7.5$ m long — antennas are sized to the wavelength, and decametre waves are long.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx14.9$ m; a half-wave dipole is ~7.5 m — which is why Jupiter observers string wire dipoles across the backyard.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. WHERE RADIO WAVES COME FROM -->
+<!-- ============================================================= -->
+<section class="chapter" id="sources">
+  <span class="era">The physics · How nature makes radio</span>
+  <h2>Where do cosmic radio waves come from?</h2>
+  <p class="who">One rule — accelerate a charge — and the cosmic machines that obey it</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A radio wave is electromagnetic radiation with the <b>longest wavelengths</b> in the spectrum — frequencies of about 300 GHz and below. Like all light it is a self-propagating ripple of electric and magnetic fields. The question is what sets those fields rippling in the first place.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>There is a single rule behind <i>every</i> radio source in the Universe: <b>an electric charge that accelerates radiates</b>. A charge sitting still, or coasting at constant velocity, makes no wave. But a charge that speeds up, slows down or changes direction shakes its electric field, and that disturbance races outward as light. A <b>time-varying electric current</b> — charges sloshing back and forth — is exactly a crowd of accelerating charges, which is how a radio antenna transmits and how nature broadcasts too.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Nature accelerates charges in several ways. The random thermal jostling inside any <b>warm object</b> makes <b>black-body</b> radio glow; electrons whipped around <b>magnetic field</b> lines make <b>synchrotron</b> emission; the sudden surge of a <b>lightning</b> stroke crackles across the band; and violent <b>bursts</b> erupt from stellar atmospheres and planets. Each is just charges being accelerated.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>And the spectrum's <i>shape</i> betrays which machine is running: smooth <b>continuum</b> from thermal and synchrotron sources, sharp <b>spectral lines</b> from atomic and molecular transitions, some amplified into cosmic <b>masers</b>. Reading the shape is how radio astronomy diagnoses temperatures, magnetic fields and explosions across the cosmos.</p></div>
+  </div>
+
+  <h3 class="subhead"><span class="n">A.</span> The one rule: an accelerating charge radiates</h3>
+  <p class="leadin">Every transmitter on Earth and every radio source in the sky comes down to this single picture. Watch it happen two ways — a charge driven straight back and forth (a current), and a charge bent around a magnetic field.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Watch a radio wave leave an accelerating charge</h3>
+    <p class="hint">On the left, a charge is driven up and down — a <b>time-varying electric current</b>. Each time it reverses, it accelerates, and flings out an electromagnetic ripple; the wavefronts march away at the speed of light. On the right, a charge bent around a <b>magnetic field</b> line is <i>always</i> accelerating (its direction keeps changing), so it beams radiation outward — the seed of synchrotron emission. Drag the sliders and watch the radiation speed up and strengthen.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Current oscillation rate <b><span id="acc_fl">medium</span></b></label>
+        <input id="acc_freq" type="range" min="0.4" max="2.6" step="0.01" value="1.3">
+      </div>
+      <div class="ctl">
+        <label>Magnetic field strength <b><span id="bf_fl">medium</span></b></label>
+        <input id="bf_field" type="range" min="0.4" max="2.6" step="0.01" value="1.3">
+      </div>
+    </div>
+    <div class="figrow two">
+      <figure><canvas id="acc_canvas" width="440" height="300"></canvas>
+        <figcaption><b>A time-varying current.</b> The charge oscillates; at each turning point its acceleration (amber arrow) peaks and a fresh wavefront is launched. This is exactly how an antenna radiates — and how electrons oscillating in space emit radio.</figcaption></figure>
+      <figure><canvas id="bf_canvas" width="440" height="300"></canvas>
+        <figcaption><b>A charge in a magnetic field.</b> Circular motion is constant acceleration toward the centre, so the charge radiates continuously, beamed along its direction of travel. Speed it up to near light-speed and this becomes <b>synchrotron</b> emission — the dominant non-thermal radio source.</figcaption></figure>
+    </div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why <i>acceleration</i>, not motion, is the key</h4>
+      <p class="lead">A static or steadily moving charge cannot radiate — only a changing motion can.</p>
+      <ol>
+        <li>A charge carries an electric field reaching out around it. If the charge does not move, the field is static — no wave.</li>
+        <li>If it moves at constant velocity, the field simply travels along rigidly — still no radiation (an observer moving with it sees nothing happening).</li>
+        <li>But if the charge <b>accelerates</b>, the field lines must "kink" to catch up, and that kink propagates outward at $c$ — a pulse of light. Keep accelerating it back and forth at frequency $f$ and you launch a continuous wave of frequency $f$.</li>
+        <li>The radiated power climbs steeply with acceleration (Larmor's law, $P\propto a^2$): shake harder, or bend tighter in a stronger field, and the radio glow brightens.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> every cosmic radio source is a way of accelerating charges — by heat, by magnetic fields, by lightning or by explosive bursts. The differences are only in <i>how</i> the charges are shaken.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="n">B.</span> The cosmic accelerators</h3>
+  <p class="leadin">Naturally occurring radio waves are emitted by lightning and by astronomical objects, and are part of the black-body radiation emitted by all warm objects. Here are the four main ways the Universe shakes its charges.</p>
+
+  <div class="mathnote">
+    <h4>① Warm objects — thermal &amp; black-body radio</h4>
+    <p>Inside anything warm, charged particles jostle randomly; every tiny acceleration radiates. The summed glow is <b>black-body radiation</b>, which every warm object emits — including a faint radio tail. In hot <i>ionised</i> gas the same idea sharpens into <b>free-free</b> (bremsstrahlung) emission as free electrons swerve past ions. Thermal radio brightens toward higher frequency.</p>
+  </div>
+  <div class="mathnote">
+    <h4>② Magnetic fields — cyclotron &amp; synchrotron</h4>
+    <p>An astronomical object with a <b>changing magnetic field</b>, or one that traps electrons in a strong field, accelerates those electrons by bending their paths. Spiralling slowly gives <b>cyclotron</b> emission; spiralling near light-speed gives <b>synchrotron</b> emission — the bright, non-thermal radio of pulsars, radio galaxies and supernova remnants, with a steep falling spectrum.</p>
+  </div>
+  <div class="mathnote">
+    <h4>③ Lightning — natural radio static</h4>
+    <p>A <b>lightning</b> stroke is a colossal, sudden surge of current — accelerating charge on a grand scale — that snaps out a broadband crackle of radio (the "sferics" you hear as static on an AM radio in a storm). Lightning happens on other worlds too: Jupiter and Saturn both flash.</p>
+  </div>
+  <div class="mathnote">
+    <h4>④ Bursts — the Sun and the planets</h4>
+    <p>Stellar atmospheres and planetary magnetospheres erupt in <b>bursts</b>. The <b>WAVES</b> radio instrument on NASA's <b>WIND</b> spacecraft, for instance, has recorded days filled with bursts of radio waves from the <b>Sun's corona</b> and from the planets of our own Solar System — the same decametric storms a backyard Radio Jove antenna catches from Jupiter (see the last chapter).</p>
+  </div>
+
+  <h3 class="subhead"><span class="n">C.</span> Reading which machine is running</h3>
+  <p class="leadin">Because thermal and synchrotron emission carry opposite spectral slopes, the shape of a source's spectrum reveals the mechanism — without ever resolving it.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Read a radio spectrum's slope</h3>
+    <p class="hint">Mix a synchrotron component (steep, falling) with a thermal free-free component (flat-to-rising) and watch the combined spectrum on log-log axes. Tune the synchrotron spectral index and the thermal fraction; find where the two cross and the spectrum bends — exactly how radio astronomers separate magnetic fireworks from hot gas.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Synchrotron spectral index α <b><span id="sd_al">-0.70</span></b></label>
+        <input id="sd_alpha" type="range" min="-1.4" max="-0.1" step="0.01" value="-0.7">
+      </div>
+      <div class="ctl">
+        <label>Thermal (free-free) fraction at 1 GHz <b><span id="sd_fl">25%</span></b></label>
+        <input id="sd_frac" type="range" min="0" max="100" step="1" value="25">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Low-freq character</div><div class="v" id="sd_lo" style="font-size:14px">synchrotron</div></div>
+      <div class="stat"><div class="k">High-freq character</div><div class="v" id="sd_hi" style="font-size:14px">thermal</div></div>
+      <div class="stat"><div class="k">Spectrum turns up near</div><div class="v"><span id="sd_turn">8</span> <small>GHz</small></div></div>
+    </div>
+    <div id="sd_plot" class="plot"></div>
+    <div class="eq">$$ S_\nu \;=\; S_{\rm sync}\Big(\tfrac{\nu}{\nu_0}\Big)^{\alpha} \;+\; S_{\rm ff}\Big(\tfrac{\nu}{\nu_0}\Big)^{-0.1} $$</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. THE 21-CM LINE -->
+<!-- ============================================================= -->
+<section class="chapter" id="hi21">
+  <span class="era">1944 – 1951 · The line that maps galaxies</span>
+  <h2>The 21-centimetre hydrogen line</h2>
+  <p class="who">Hendrik van de Hulst predicted it · Ewen &amp; Purcell first heard it (1951)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Hydrogen is by far the most abundant atom in the Universe, and most of it drifts between the stars as cold, <b>neutral hydrogen</b> — HI — too cold to emit any visible light. For a long time it seemed invisible. Could the most common stuff in the cosmos really be undetectable?</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>In 1944 van de Hulst saw a way. A hydrogen atom is a proton and an electron, each like a tiny magnet (spin). When their spins flip from <b>parallel</b> (aligned) to <b>anti-parallel</b> (anti-aligned) the atom sheds a sliver of energy as a single photon — the <b>hyperfine</b> or <b>spin-flip</b> transition — at 1420.405751768 MHz, a wavelength of 21 cm.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The transition is fiercely <b>forbidden</b>: a given atom waits about 10 million years to flip on its own. But interstellar space holds so much hydrogen that, summed over a whole sightline, the faint glow is easy to hear. In 1951 Ewen and Purcell detected it from a horn antenna on a Harvard windowsill; within months it was confirmed worldwide.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Because the line is so narrow and at a precisely known rest frequency, its <b>Doppler shift</b> reads out gas velocity to a few km/s. Tracking 21-cm velocities across the sky revealed the Milky Way's spiral arms and its flat <b>rotation curve</b> — the first strong evidence for dark matter — and mapped neutral hydrogen in galaxies far beyond our own.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Turn a frequency shift into a velocity</h3>
+    <p class="hint">Push a hydrogen cloud toward you or away and watch its 21-cm line slide off the rest frequency. This is the whole engine of HI astronomy: the line's rest frequency is known to nine digits, so every shift is a clean radial-velocity measurement. The radio (Doppler) convention is shown live.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Cloud radial velocity <b><span id="hi_vl">-45 km/s</span></b></label>
+        <input id="hi_v" type="range" min="-300" max="300" step="1" value="-45">
+        <label style="margin-top:2px"><span style="font-size:11px">negative = approaching (blueshift, higher frequency)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Rest frequency</div><div class="v" style="font-size:15px">1420.4058 <small>MHz</small></div></div>
+      <div class="stat"><div class="k">Observed frequency</div><div class="v"><span id="hi_fobs">1420.619</span> <small>MHz</small></div></div>
+      <div class="stat"><div class="k">Shift</div><div class="v"><span id="hi_df">+213</span> <small>kHz</small></div></div>
+      <div class="stat"><div class="k">Direction</div><div class="v" id="hi_dir" style="font-size:14px">approaching</div></div>
+    </div>
+    <div id="hi_plot" class="plot"></div>
+    <div class="eq">$$ \frac{\Delta f}{f_0} = -\frac{v}{c}\qquad\Longrightarrow\qquad v = c\,\frac{f_0-f_{\rm obs}}{f_0} $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why a known rest frequency is everything</h4>
+      <p class="lead">An optical line of unknown wavelength gives an ambiguous shift. A line whose rest frequency is fixed to nine digits gives an unambiguous velocity.</p>
+      <ol>
+        <li>The spin-flip energy gap is set by atomic constants, identical for every hydrogen atom anywhere — so $f_0=1420.405751768$ MHz is a universal ruler.</li>
+        <li>Motion along the line of sight Doppler-shifts the received frequency by $\Delta f/f_0=-v/c$ (radio convention). Approaching gas shifts <i>up</i> in frequency (blueshift); receding gas shifts <i>down</i>.</li>
+        <li>Invert it: $v=c\,(f_0-f_{\rm obs})/f_0$. A 1 km/s motion shifts the line by only 4.7 kHz out of 1.42 GHz — a part in 300,000 — yet modern receivers resolve it easily.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> every 21-cm spectrum is simultaneously a map of <i>how much</i> hydrogen lies along the sightline (line strength) and <i>how fast each parcel moves</i> (line position) — density and kinematics in one shot.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="rule"></div>
+  <h3>Do it yourself · <span class="grad">real data, real sky</span></h3>
+  <p>The next chapter works a real neutral-hydrogen dataset end to end — the same survey amateurs cross-check their own 21-cm horns against — using the accompanying Python notebook. Later, Radio Jove puts a planet in your headphones.</p>
+</div>
+
+<!-- ============================================================= -->
+<!-- 4. READING THE GALAXY (real notebook example) -->
+<!-- ============================================================= -->
+<section class="chapter amateur" id="galaxy">
+  <span class="era">Worked example · The Milky Way in hydrogen</span>
+  <h2>Reading the Galaxy: spiral arms in a 21-cm profile</h2>
+  <p class="who">A real reduction of HI4PI survey data, in the companion notebook <code>radio_line_identification.ipynb</code></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Point a radio telescope at the galactic plane toward Cygnus (galactic longitude $\ell=90°$) and the 21-cm line is not a single spike. It is a blend of several components at different velocities — one for each <b>spiral arm</b> the sightline crosses, each moving at its own speed in galactic rotation.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Treat the HI profile exactly like a stellar spectrum: find the components, fit each one, read off its velocity. The companion notebook does this on a real reference cube from the <b>HI4PI</b> all-sky survey — the modern successor to the Leiden/Argentine/Bonn survey — which records brightness temperature against velocity for every direction on the sky.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The notebook loads the survey cube, extracts the profile toward a chosen $(\ell,b)$, converts the velocity axis to the Local Standard of Rest, and fits a sum of Gaussians. Toward Cygnus it cleanly separates the Local arm near 0 km/s, the <b>Perseus arm</b> near $-45$ km/s, and the Outer arm beyond $-80$ km/s.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>This is the radio analog of identifying Balmer lines in a Star Analyser spectrum — and the exact workflow an amateur with a 21-cm horn uses, comparing their own captured profile against the HI4PI reference to confirm their velocity scale.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The notebook, step by step</h3>
+    <p class="hint">The accompanying <code>radio_line_identification.ipynb</code> mirrors the optical line-ID notebook, section for section. Here are its real outputs on the Cygnus sightline.</p>
+
+    <div class="steps">
+      <div class="step"><b>Reference template.</b> Load an HI4PI 20°×20° subcube toward $\ell=90°,\,b=0°$ and pull the brightness-temperature profile $T_b(V_{\rm LSR})$ — the radio equivalent of loading an ELODIE/Pickles stellar template.</div>
+      <div class="step"><b>Decompose.</b> Auto-detect peaks and fit a sum of Gaussians; each component is one spiral arm along the sightline, with its own velocity, peak temperature and width.</div>
+      <div class="step"><b>Identify &amp; generalise.</b> Convert velocities to observed frequencies and overlay a rest-frequency line list (HI, OH, recombination lines) — turning the single-line tool into a general radio line identifier.</div>
+    </div>
+
+    <div class="figrow">
+      <figure>
+        <img src="radio_figs/fig_cell10.png" alt="HI4PI reference brightness-temperature profile toward Cygnus" loading="lazy" style="width:100%;display:block;background:#fff" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+        <div class="imgslot" data-slot="ref" style="display:none;border:0;border-radius:0"><div><b>Notebook figure.</b><br>HI4PI reference profile toward Cygnus.</div></div>
+        <figcaption><b>§4 — Reference profile.</b> Brightness temperature $T_b$ vs $V_{\rm LSR}$ toward $\ell=90°$, straight from the HI4PI survey cube. The dashed line marks the 21-cm rest velocity (0 km/s). Emission stretches to negative velocities — gas in the outer Galaxy, receding into the spiral arms.</figcaption>
+      </figure>
+      <figure>
+        <img src="radio_figs/fig_cell14.png" alt="Multi-Gaussian decomposition of the HI profile into spiral-arm components" loading="lazy" style="width:100%;display:block;background:#fff" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+        <div class="imgslot" data-slot="decomp" style="display:none;border:0;border-radius:0"><div><b>Notebook figure.</b><br>Multi-Gaussian arm decomposition.</div></div>
+        <figcaption><b>§6 — Component fit.</b> A sum of Gaussians (red) fits the blend; each dashed curve is one component. The fit recovers the Local arm near 0 km/s and the <b>Perseus arm at −45 km/s</b> — the textbook Cygnus result — plus weaker outer-arm gas.</figcaption>
+      </figure>
+    </div>
+    <div class="figrow">
+      <figure>
+        <img src="radio_figs/fig_cell18.png" alt="Radio line identification on a frequency axis" loading="lazy" style="width:100%;display:block;background:#fff" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+        <div class="imgslot" data-slot="ident" style="display:none;border:0;border-radius:0"><div><b>Notebook figure.</b><br>Line identification on a frequency axis.</div></div>
+        <figcaption><b>§8 — Generalised identifier.</b> The same profile on a frequency axis, with catalogued rest lines overlaid for an assumed source velocity. Swap in any rest frequency — OH at 1665/1667 MHz, recombination lines, CO at 115 GHz — and the tool labels whatever falls in the band.</figcaption>
+      </figure>
+    </div>
+
+    <div class="mathnote">
+      <h4>From the notebook's own output</h4>
+      <p>The decomposition prints the recovered components directly. Toward Cygnus the strongest sit near $V_{\rm LSR}=+5,\,-6,\,-24,\,-45$ and $-79$ km/s — the $-45$ km/s feature is the Perseus arm. Each velocity converts to an observed frequency through $f_{\rm obs}=f_0\,(1-v/c)$, so the $-45$ km/s arm appears at 1420.62 MHz, shifted $+213$ kHz above rest.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. EMISSION, ABSORPTION & ANTI-ALIGNED GAS -->
+<!-- ============================================================= -->
+<section class="chapter" id="absorption">
+  <span class="era">Application · The same line, two ways</span>
+  <h2>Emission, absorption &amp; the anti-aligned gas</h2>
+  <p class="who">Spin temperature · HI seen against a bright background</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>The 21-cm line works in both directions. Warm hydrogen against cold sky <b>emits</b> at 1420 MHz — the glow we mapped in the last chapters. But the same atoms lying in front of a brighter background <b>absorb</b> at exactly that frequency, carving a dip in the continuum behind them.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Absorption happens from the lower energy state — the one where the proton and electron spins are <b>anti-aligned</b> (anti-parallel). An atom in that state can swallow a passing 1420 MHz photon and flip its spin to parallel. Point a telescope at a bright radio galaxy or quasar and any cold HI cloud drifting across the sightline stamps a sharp absorption notch into its spectrum.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Emission and absorption weight the gas differently. Emission strength scales with how much hydrogen there is; absorption depth scales with the column <i>divided by</i> the <b>spin temperature</b> $T_s$. Cold clouds (low $T_s$) absorb strongly but emit feebly — so comparing the two reveals the gas temperature, not just its amount. Cold, dense, star-forming clouds show up best in absorption.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Detecting "absorbing neutral sources of anti-aligned gas" is how radio astronomers find the cold neutral medium — the reservoir that collapses into new stars — even when it is too cold to glow. The same trick at high redshift (damped Lyman-α and 21-cm absorbers) probes neutral gas in galaxies seen only as silhouettes against distant quasars.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Flip a cloud between emission and absorption</h3>
+    <p class="hint">Place a cold HI cloud against backgrounds of different brightness. Against cold sky it glows (emission line up); in front of a bright radio source it absorbs (line dips down). The crossover is set by the contrast between the cloud's spin temperature and the background — drag both and watch the same line invert.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Cloud spin temperature $T_s$ <b><span id="ab_tsl">80 K</span></b></label>
+        <input id="ab_ts" type="range" min="20" max="300" step="1" value="80">
+      </div>
+      <div class="ctl">
+        <label>Background brightness temperature <b><span id="ab_bgl">200 K</span></b></label>
+        <input id="ab_bg" type="range" min="0" max="600" step="5" value="200">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Line appears as</div><div class="v" id="ab_mode" style="font-size:15px">absorption</div></div>
+      <div class="stat"><div class="k">Contrast (T_s − T_bg)</div><div class="v"><span id="ab_dt">-120</span> <small>K</small></div></div>
+      <div class="stat"><div class="k">Best probe of</div><div class="v" id="ab_use" style="font-size:13px">cold neutral medium</div></div>
+    </div>
+    <div id="ab_plot" class="plot"></div>
+    <div class="eq">$$ T_{\rm obs}(\nu) \;=\; T_{\rm bg}\,e^{-\tau(\nu)} \;+\; T_s\big(1-e^{-\tau(\nu)}\big) $$</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. GALAXIES THROUGH TIME -->
+<!-- ============================================================= -->
+<section class="chapter" id="cosmic">
+  <span class="era">Application · Deep time</span>
+  <h2>How star clusters and galaxies formed and evolved</h2>
+  <p class="who">Neutral hydrogen as the fuel gauge of cosmic history</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Stars form from cold gas, and the rawest reservoir of that gas is neutral hydrogen. So the amount and motion of HI in a galaxy is a direct readout of its capacity to keep forming stars — and of how it has been disturbed, fed or stripped over time.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Map HI across many galaxies and across cosmic distance — which, through redshift, means across cosmic <i>time</i> — and you watch galaxies assemble. Surveys like <b>ALFALFA</b> weigh the hydrogen in tens of thousands of nearby galaxies; resolved 21-cm maps show gas-rich disks, tidal tails between merging galaxies, and clouds being stripped as galaxies fall into clusters.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The 21-cm line redshifts just like any other: a galaxy receding at high speed has its line dragged to lower frequency. Catching HI at high redshift needs enormous collecting area, so a key strategy is <b>intensity mapping</b> — measuring the blended 21-cm glow of many galaxies at once to trace the large-scale cosmic web rather than resolving each source.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Push far enough and the 21-cm line becomes a probe of the <b>Epoch of Reionization</b> — the era when the first stars and galaxies lit up and burned away the neutral fog filling the young Universe. The redshifted hydrogen signal from that time, near 50–200 MHz today, is the target of arrays like LOFAR and the SKA: a direct view of how the very first structures formed.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Redshift the hydrogen line through cosmic time</h3>
+    <p class="hint">Slide a galaxy's redshift and watch its rest-frame 21-cm line drag down to lower observed frequency. The same physics that measures a few km/s in the Milky Way, taken to cosmological redshift, turns into a clock reading back toward the first galaxies and the Epoch of Reionization.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Redshift z <b><span id="cz_zl">0.10</span></b></label>
+        <input id="cz_z" type="range" min="0" max="12" step="0.01" value="0.1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Observed frequency</div><div class="v"><span id="cz_fobs">1291</span> <small>MHz</small></div></div>
+      <div class="stat"><div class="k">Lookback era</div><div class="v" id="cz_era" style="font-size:13px">recent Universe</div></div>
+      <div class="stat"><div class="k">Recession speed</div><div class="v"><span id="cz_v">0.10</span> <small>c</small></div></div>
+    </div>
+    <div id="cz_plot" class="plot"></div>
+    <div class="eq">$$ f_{\rm obs}=\frac{f_0}{1+z}=\frac{1420.4\ \text{MHz}}{1+z} $$</div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="rule"></div>
+  <h3>Closer to home · <span class="grad">the Solar System in radio</span></h3>
+  <p>Radio doesn't only reach across the cosmos. It read the surface of our own Moon before any astronaut touched it — and it lets a backyard antenna hear Jupiter.</p>
+</div>
+
+<!-- ============================================================= -->
+<!-- 6b. THE MOON BEFORE APOLLO -->
+<!-- ============================================================= -->
+<section class="chapter" id="moon">
+  <span class="era">Application · Before Apollo</span>
+  <h2>How radio read the Moon's surface before we landed</h2>
+  <p class="who">Thermal radio emission and radar — from Dicke's 1946 measurement to the Apollo site surveys</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Before 1969 no one had touched the Moon, and a real worry hung over the missions: was the surface firm, or a deep ocean of fine dust that would swallow a lander whole? Optical telescopes showed craters and shading, but could not say what the surface was made of or whether it would bear weight.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Radio could. Two radio techniques read the surface from a quarter-million miles away. First, the Moon's <i>own</i> thermal emission: every warm object glows in radio (<b>black-body</b> radiation), and — crucially — longer wavelengths emerge from <i>deeper</i> below the surface. Second, <b>radar</b>: bounce a radio pulse off the Moon and read the echo.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In the infrared, which senses only the topmost skin, the lunar surface temperature swings wildly between the two-week day and night. But at radio wavelengths the measured temperature swing is far <i>smaller</i> and lags behind the Sun — the unmistakable signature of a surface blanketed in fine, porous <b>regolith</b> (dust) with very low <b>thermal inertia</b>, an excellent insulator. The longer the wavelength, the deeper and steadier the layer it sampled.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Meanwhile <b>radar</b> maps at 3.8-cm, 70-cm and 7.5-m wavelengths (the delay-Doppler technique) charted surface roughness and rock "blockiness," and the echo strength showed a firm, load-bearing surface — not a bottomless dust trap. By the time Apollo 11 set down, radio astronomers had already characterised the lunar surface: its temperature, its insulating dust layer, and its roughness.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Probe the Moon at different wavelengths</h3>
+    <p class="hint">Watch the Moon's surface temperature over one lunar month. The infrared curve (the bare skin) swings enormously. Tune the radio observing wavelength: longer waves emerge from deeper in the insulating dust, so their temperature curve is <b>damped</b> and <b>lagged</b> — and the amount of damping reveals how good an insulator the regolith is. This is the very measurement that proved the Moon wears a dust blanket.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Radio observing wavelength <b><span id="moon_wll">8 cm</span></b></label>
+        <input id="moon_wl" type="range" min="-0.5" max="1.875" step="0.01" value="0.903">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ wavelength in cm (−0.5 ≈ 3 mm, 1.875 ≈ 75 cm)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Probes depth</div><div class="v"><span id="moon_depth">8</span> <small>cm</small></div></div>
+      <div class="stat"><div class="k">Day–night swing</div><div class="v"><span id="moon_swing">95</span> <small>K</small></div></div>
+      <div class="stat"><div class="k">Lags the Sun by</div><div class="v"><span id="moon_lag">4.7</span> <small>days</small></div></div>
+      <div class="stat"><div class="k">Surface is</div><div class="v" id="moon_verdict" style="font-size:13px">insulating dust</div></div>
+    </div>
+    <div id="moon_plot" class="plot"></div>
+    <div class="eq">$$ T_{\rm radio}(t)=T_0+A\,\Delta T\cos\!\big(\phi(t)-\varphi\big),\qquad A=e^{-d/\delta},\ \ \varphi=\frac{d}{\delta} $$</div>
+
+    <div class="mathnote">
+      <h4>Why longer waves see deeper — and steadier</h4>
+      <p>A heat wave from the lunar day soaks into the regolith but fades with depth over a thermal skin depth $\delta$ of only a few centimetres, so deep layers barely feel the day–night cycle. Radio emission at wavelength $\lambda$ escapes from a depth roughly proportional to $\lambda$: short waves report the swinging surface, long waves report the calm interior. The steep damping with depth could only happen if the surface material conducts heat very poorly — i.e. a fluffy, porous dust. Robert <b>Dicke</b> first measured the Moon's microwave emission in 1946; two decades of such work, plus the radar surveys, retired the "deep dust" fear well before Apollo.</p>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">References: T. W. Thompson, <a class="inline" href="https://ntrs.nasa.gov/citations/19790050928" target="_blank" rel="noopener">“A review of earth-based radar mapping of the Moon”</a> (NASA, 1979); and the radio-astronomy overview at <a class="inline" href="https://www.britannica.com/science/radio-astronomy" target="_blank" rel="noopener">Encyclopædia Britannica</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. RADIO JOVE -->
+<!-- ============================================================= -->
+<section class="chapter amateur" id="jove">
+  <span class="era">Do it yourself · A planet in your headphones</span>
+  <h2>Radio Jove: Jupiter and the Sun on a backyard antenna</h2>
+  <p class="who">NASA's Radio Jove project · decametric storms at 20.1 MHz</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>In 1955 Burke and Franklin found that Jupiter blasts out bursts of radio at decametre wavelengths — tens of metres, around 15–25 MHz. The emission comes from electrons spiralling along Jupiter's colossal magnetic field, beamed in narrow searchlight cones by the <b>cyclotron maser</b> mechanism.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Crucially, the moon <b>Io</b> controls much of it. As Io ploughs through Jupiter's magnetosphere it sets up a current that triggers the strongest, most predictable storms. Whether you hear Jupiter depends on two angles: Io's position in its orbit, and Jupiter's <b>central meridian longitude</b> (which face is turned toward Earth). The "Io-B" storm window is the amateur's reliable target.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The bursts come in two flavours. <b>L-bursts</b> last seconds and swell like ocean surf; <b>S-bursts</b> are millisecond crackles that drift downward in frequency, a rapid "chuff-chuff." NASA's <b>Radio Jove</b> kit — now a wideband <b>SDR</b> receiver and a dual-dipole antenna covering 16–24 MHz — lets a hobbyist record both, plus solar radio bursts and the steady galactic background Jansky first found.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Radio Jove turned planetary radio astronomy into citizen science: observers worldwide submit recordings to a shared archive, building long baselines of Jupiter and solar activity. It is the radio counterpart to backyard optical spectroscopy — simple gear, real physics, genuine data.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The two voices of Jupiter: S-bursts and L-bursts</h3>
+    <p class="hint">Jupiter's decametric storms arrive in two characteristic forms, both read off a frequency-versus-time <b>dynamic spectrum</b> — the very display the Radio-Sky Spectrograph software draws. L-bursts are slow, swelling, seconds-long surf; S-bursts are rapid millisecond crackles that streak downward in frequency.</p>
+    <div class="figrow two">
+      <figure><canvas id="lb_canvas" width="440" height="300"></canvas>
+        <figcaption><b>L-bursts (long).</b> Broad emission lasting 0.5–5 s or more, its faint modulation lanes drifting only about ±100 kHz/s. They sound like swishing "waves crashing on a beach." The strip underneath is the intensity envelope over ~5 seconds.</figcaption></figure>
+      <figure><canvas id="sb_canvas" width="440" height="300"></canvas>
+        <figcaption><b>S-bursts (short).</b> Millisecond pulses (1–10 ms) that begin high and drift <i>down</i> in frequency at about −20 MHz/s, recurring 10–40 times a second — a rapid "chuff-chuff-chuff." Each oblique streak is one burst; the strip shows the staccato envelope over ~0.4 s.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Predict a Jupiter storm window</h3>
+    <p class="hint">A Jupiter storm needs two geometry conditions to line up at once: Io near the right orbital phase, and Jupiter's central meridian longitude (System III) in the favourable range. Drag both and see whether the famous "Io-B" window opens. This is exactly the calculation Radio Jove's prediction software automates.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Io orbital phase <b><span id="jv_iol">90°</span></b></label>
+        <input id="jv_io" type="range" min="0" max="360" step="1" value="90">
+      </div>
+      <div class="ctl">
+        <label>Central meridian longitude (CML, System III) <b><span id="jv_cmll">145°</span></b></label>
+        <input id="jv_cml" type="range" min="0" max="360" step="1" value="145">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Active source</div><div class="v" id="jv_src" style="font-size:15px">Io-B</div></div>
+      <div class="stat"><div class="k">Storm likely?</div><div class="v" id="jv_prob" style="font-size:14px">yes — listen!</div></div>
+      <div class="stat"><div class="k">Tune to</div><div class="v" style="font-size:15px">20.1 <small>MHz</small></div></div>
+    </div>
+    <figure><canvas id="jv_canvas" width="900" height="200"></canvas>
+      <figcaption id="jv_cap">Green zones are favourable storm windows in the Io-phase / CML plane.</figcaption></figure>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The amateur's kit — from antenna to spectrogram</h3>
+    <p class="hint">A Radio Jove station is a short signal chain: a <b>dipole</b> antenna a few metres up catches the decametre waves, a <b>balun</b> matches it to coaxial cable, and a software-defined radio digitises the band for a laptop to display and record. Follow the path below.</p>
+    <figure><canvas id="kit_canvas" width="900" height="330"></canvas>
+      <figcaption>Signal path: dual-dipole antenna (¼–⅜ wavelength above ground, ~5 m at 20 MHz) → 4:1 balun / power combiner matching 300 Ω to 75 Ω coax → SDRplay RSP1B software-defined radio → laptop running Radio-Sky Spectrograph.</figcaption></figure>
+    <div class="mathnote">
+      <h4>From wire to data (the modern RJ2.1 kit)</h4>
+      <p>Each dipole is a half-wave of wire (~7.5 m at 20 MHz), <b>folded</b> to widen its bandwidth and mounted east–west, ¼ to ⅜ of a wavelength above the ground. A <b>4:1 balun</b> transforms the dipole's ~300 Ω down to the 75 Ω coaxial feed (a <b>dual-dipole</b> array adds a power combiner and a phasing cable to steer the beam north–south). The signal now reaches a <b>SDRplay RSP1B</b> software-defined radio — a 14-bit receiver covering 1 kHz–2 GHz — tuned to an 8 MHz band centred on 20 MHz (16–24 MHz), the sweet spot for Jupiter, the Sun, and the galactic background. <b>Radio-Sky Spectrograph</b> software plots signal strength as the frequency-versus-time charts you saw above, and observers upload them to NASA's shared archive. This SDR design has replaced the older direct-conversion receiver fixed at 20.1 MHz; the full build is in NASA's <a class="inline" href="https://radiojove.gsfc.nasa.gov/radio_telescope/manuals/RJ2.1_SDR_Receiver_Manual_with_RSP1B.pdf" target="_blank" rel="noopener">RJ2.1 SDR receiver manual</a>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. QUIZ -->
+<!-- ============================================================= -->
+<section class="chapter" id="quiz">
+  <span class="era">Check yourself · Eighteen questions</span>
+  <h2>What did the radio sky tell you?</h2>
+  <p class="who">Eighteen questions across the radio window, the 21-cm line, its applications, the Moon and Radio Jove</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Self-test</h3>
+    <p class="hint">Pick an answer for each question. Correct choices turn green, mistakes turn red, and a short explanation appears either way. Your running score sits at the top; nothing is sent anywhere — refresh the page or hit Reset to try again.</p>
+    <div class="quiz-head">
+      <div class="quiz-score">Score <b><span id="qz_correct">0</span></b> / <span id="qz_total">16</span> &nbsp;·&nbsp; <span id="qz_answered">0</span> answered</div>
+      <div class="quiz-bar"><i id="qz_fill"></i></div>
+      <button class="quiz-reset" id="qz_reset" type="button">Reset</button>
+    </div>
+    <div id="qz_list"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A hobby project tracing how <b>radio astronomy</b> opened a second window on the sky — from Jansky's hiss and the predicted 21-cm line of neutral hydrogen to the surveys that weigh galaxies' gas across cosmic time, and the backyard antennas that catch Jupiter. The plots compute real formulae live (the radio Doppler relation, synchrotron and free-free spectral indices, the radiative-transfer line equation, cosmological redshift). The "Reading the Galaxy" chapter uses real <b>HI4PI</b> survey data reduced in the companion notebook <code>radio_line_identification.ipynb</code>; its figures are that notebook's own output.</p>
+  <p style="margin-top:8px">Selected reference values: HI rest frequency $f_0=1420.405751768$ MHz ($\lambda=21.1$ cm); $c=2.998\times10^{5}$ km/s; 1 km/s ⇄ 4.74 kHz at the HI line; Radio Jove receiver ≈ 20.1 MHz; OH lines 1612 / 1665 / 1667 / 1720 MHz; CO J=1–0 at 115.27 GHz; radio window ≈ 10 MHz – 300 GHz. Some illustrations are deliberately schematic — accurate in scaling and spirit, simplified in detail.</p>
+</footer>
+
+<script>
+/* =======================================================================
+   Shared helpers (radio companion)
+======================================================================= */
+const C=2.998e8, H=6.626e-34;
+const C_KMS=299792.458;
+const F0=1420.405751768;          // HI rest frequency, MHz
+const gid=id=>document.getElementById(id);
+
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:62,r:18,t:18,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+function gauss(x,A,mu,sig){ return A*Math.exp(-0.5*Math.pow((x-mu)/sig,2)); }
+
+/* =======================================================================
+   1. THE RADIO WINDOW  (canvas)
+======================================================================= */
+(function(){
+  const sl=gid('rw_slider'); if(!sl) return;
+  const flEl=gid('rw_fl'), wlEl=gid('rw_wl'), wuEl=gid('rw_wu'), bandEl=gid('rw_band'),
+        enEl=gid('rw_en'), atmEl=gid('rw_atm'), capEl=gid('rw_cap'), cv=gid('rw_canvas');
+  const LOG_LO=7, LOG_HI=11.7;   // 10 MHz .. 500 GHz
+
+  function fmtFreq(f){ // f in Hz
+    if(f>=1e9) return (f/1e9).toFixed(f<1e10?2:0)+' GHz';
+    if(f>=1e6) return (f/1e6).toFixed(f<1e8?0:0)+' MHz';
+    return (f/1e3).toFixed(0)+' kHz';
+  }
+  function band(f){ // f Hz -> [name, caption]
+    const M=f/1e6;
+    if(M<30)   return ['HF · decametric', 'Long waves the ionosphere bounces — where Jupiter and solar bursts (Radio Jove, ~20 MHz) live; hard to use from the ground.'];
+    if(M<300)  return ['VHF · metre', 'Metre waves: pulsars, the low-frequency galactic background, and the redshifted 21-cm signal from the early Universe (50–200 MHz).'];
+    if(M<1000) return ['UHF · decimetre', 'Decimetre band: pulsar timing, OH lines (~1.6 GHz), and the low edge of HI work.'];
+    if(M<2000) return ['L-band · 21 cm', 'Home of the 1420 MHz neutral-hydrogen line — galactic rotation, spiral arms, HI in other galaxies.'];
+    if(M<12000)return ['S/C/X · centimetre', 'Centimetre band: radio recombination lines, masers, synchrotron jets from active galaxies, the CMB.'];
+    if(M<40000)return ['Ku/K/Ka · sub-cm', 'Water and ammonia lines, dust continuum, cm/mm transition — atmosphere starts to bite.'];
+    return ['mm · millimetre', 'Millimetre band: CO and cold molecular gas (CO J=1–0 at 115 GHz), star-forming clouds — only from high, dry sites before the window closes.'];
+  }
+  function reaches(f){ const M=f/1e6; return (M>=10 && M<=300000); }
+
+  function draw(){
+    const f=Math.pow(10,+sl.value);          // Hz
+    const lam=C/f;                            // m
+    flEl.textContent=fmtFreq(f);
+    if(lam>=1){ wlEl.textContent=lam.toFixed(lam<10?2:1); wuEl.textContent='m'; }
+    else if(lam>=0.01){ wlEl.textContent=(lam*100).toFixed(lam<0.1?1:0); wuEl.textContent='cm'; }
+    else { wlEl.textContent=(lam*1000).toFixed(2); wuEl.textContent='mm'; }
+    const E_ueV=H*f/1.602e-19*1e6;
+    enEl.textContent=E_ueV<10?E_ueV.toFixed(2):E_ueV.toFixed(0);
+    const [bn,cap]=band(f); bandEl.textContent=bn; capEl.textContent=cap;
+    const ok=reaches(f);
+    atmEl.textContent=ok?'yes — clear window':'no — blocked';
+    atmEl.style.color=ok?'#5ee6a8':'#ff6b9d';
+    paint(+sl.value, f);
+  }
+  function paint(logf, f){
+    const x=cv.getContext('2d'), W=cv.width, Hh=cv.height;
+    x.clearRect(0,0,W,Hh);
+    const m=40, y0=24, y1=96;                 // band strip
+    const X=lf=>m+(lf-LOG_LO)/(LOG_HI-LOG_LO)*(W-2*m);
+    // atmospheric transparency shading: blocked below 10MHz (=LOG_LO edge) and above 300GHz
+    x.fillStyle='rgba(255,107,157,0.10)';
+    x.fillRect(X(LOG_LO), y0, X(Math.log10(3e11))-X(LOG_LO),0); // (no low block region inside range)
+    const xBlockHi0=X(Math.log10(3e11)), xBlockHi1=X(LOG_HI);
+    x.fillStyle='rgba(255,107,157,0.13)'; x.fillRect(xBlockHi0,y0,xBlockHi1-xBlockHi0,y1-y0);
+    // clear window band
+    x.fillStyle='rgba(63,208,255,0.10)'; x.fillRect(X(LOG_LO),y0,xBlockHi0-X(LOG_LO),y1-y0);
+    // band dividers + labels
+    const marks=[[7,'10M'],[7.477,'30M'],[8.477,'300M'],[9,'1G'],[9.155,'21cm'],[10.079,'12G'],[10.6,'40G'],[11.477,'300G']];
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.lineWidth=1; x.font='10px -apple-system'; x.textAlign='center';
+    marks.forEach(([lf,lab])=>{ if(lf<LOG_LO||lf>LOG_HI) return; const px=X(lf);
+      x.beginPath(); x.moveTo(px,y0); x.lineTo(px,y1); x.stroke();
+      x.fillStyle='#6f78a0'; x.fillText(lab,px,y1+14); });
+    // 300 GHz "atmosphere closes" tag
+    x.fillStyle='#ff8fb0'; x.font='10px -apple-system'; x.textAlign='left';
+    x.fillText('atmosphere closes →', Math.min(xBlockHi0+4,W-150), y0+12);
+    x.textAlign='right'; x.fillStyle='#7fd8ff'; x.fillText('← clear radio window', xBlockHi0-4, y0+12);
+    // marker
+    const px=X(logf);
+    x.strokeStyle='#ffb24a'; x.lineWidth=2.5; x.beginPath(); x.moveTo(px,y0-6); x.lineTo(px,y1+6); x.stroke();
+    x.fillStyle='#ffb24a'; x.beginPath(); x.moveTo(px,y0-6); x.lineTo(px-5,y0-14); x.lineTo(px+5,y0-14); x.closePath(); x.fill();
+    // illustrative wave whose period grows with wavelength (log-scaled)
+    const wy=132, amp=16;
+    const periodPx = 20 + (logf-LOG_LO)/(LOG_HI-LOG_LO)*120; // long wavelength -> wide period inverse? lower f = longer lambda
+    const per = 18 + (LOG_HI-logf)/(LOG_HI-LOG_LO)*150;
+    x.strokeStyle='rgba(94,230,168,0.8)'; x.lineWidth=2; x.beginPath();
+    for(let xx=m; xx<=W-m; xx++){ const yy=wy-amp*Math.sin((xx-m)/per*2*Math.PI); if(xx===m)x.moveTo(xx,yy); else x.lineTo(xx,yy); }
+    x.stroke();
+    x.fillStyle='#9aa3c7'; x.font='11px -apple-system'; x.textAlign='left';
+    x.fillText('one wave: lower frequency ⇒ longer wavelength', m, 156);
+  }
+  sl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   2. RADIO SED — synchrotron + free-free  (Plotly)
+======================================================================= */
+(function(){
+  const aEl=gid('sd_alpha'); if(!aEl) return;
+  const fEl=gid('sd_frac'), alO=gid('sd_al'), flO=gid('sd_fl'),
+        loO=gid('sd_lo'), hiO=gid('sd_hi'), turnO=gid('sd_turn');
+  const NU=[]; for(let l=Math.log10(0.05); l<=Math.log10(100); l+=0.04) NU.push(Math.pow(10,l)); // GHz
+  function draw(){
+    const al=+aEl.value, frac=+fEl.value/100;
+    alO.textContent=al.toFixed(2); flO.textContent=Math.round(frac*100)+'%';
+    const Ssync=1-frac, Sff=frac;
+    const sync=NU.map(n=>Ssync*Math.pow(n,al));
+    const ff  =NU.map(n=>Sff*Math.pow(n,-0.1));
+    const tot =NU.map((n,i)=>sync[i]+ff[i]);
+    loO.textContent = frac<0.5?'synchrotron':'mixed';
+    hiO.textContent = frac>0 ? 'thermal (free-free)' : 'synchrotron';
+    // crossover frequency sync==ff
+    let turn='—';
+    if(frac>0 && frac<1 && (al+0.1)!==0){
+      const nu=Math.pow(frac/(1-frac), 1/(al+0.1));
+      if(isFinite(nu)&&nu>0.05&&nu<100) turn=nu<1?nu.toFixed(2):nu.toFixed(1);
+    }
+    turnO.textContent=turn;
+    const line=(y,c,w)=>({x:NU,y,mode:'lines',line:{color:c,width:w}});
+    Plotly.react('sd_plot',[
+      line(sync,'rgba(176,140,255,0.7)',1.6),
+      line(ff,'rgba(255,178,74,0.7)',1.6),
+      line(tot,'#3fd0ff',3)
+    ], baseLayout({
+      xaxis:{title:'frequency (GHz)', type:'log', gridcolor:'rgba(140,160,230,0.12)', linecolor:'rgba(140,160,230,0.3)'},
+      yaxis:{title:'flux density Sν (relative)', type:'log', gridcolor:'rgba(140,160,230,0.12)', linecolor:'rgba(140,160,230,0.3)'},
+      annotations:[
+        {x:Math.log10(0.1),y:Math.log10((1-frac)*Math.pow(0.1,al))||0,text:'synchrotron',showarrow:false,font:{color:'#b08cff',size:11},xanchor:'left'},
+        {x:Math.log10(40),y:Math.log10((frac||0.001)*Math.pow(40,-0.1)),text:'free-free',showarrow:false,font:{color:'#ffb24a',size:11},xanchor:'right'}
+      ]
+    }), PCFG);
+  }
+  aEl.addEventListener('input',draw); fEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   2b. HOW A RADIO WAVE IS BORN — accelerating charge (canvas, animated)
+======================================================================= */
+(function(){
+  const fEl=gid('acc_freq'); if(!fEl) return;
+  const flO=gid('acc_fl'), cv=gid('acc_canvas'), x=cv.getContext('2d');
+  const cx=110, cy=150, A=48;
+  let phase=0, t=0, lastHalf=0, rings=[];
+  function lbl(v){ return v<1.1?'slow':(v>1.9?'fast':'medium'); }
+  function frame(){
+    const f=+fEl.value; flO.textContent=lbl(f);
+    phase += 0.05*f; t += 1;
+    const half=Math.floor(phase/Math.PI);
+    if(half!==lastHalf){ lastHalf=half; rings.push({birth:t}); }       // launch a wavefront each turning point
+    const W=cv.width, Hh=cv.height;
+    x.clearRect(0,0,W,Hh);
+    // expanding circular wavefronts (the radio wave)
+    const maxR=Math.hypot(W,Hh);
+    rings=rings.filter(r=>(t-r.birth)*1.7<maxR);
+    rings.forEach(r=>{ const rad=(t-r.birth)*1.7; const op=Math.max(0,0.55*(1-rad/200));
+      if(op<=0) return;
+      x.strokeStyle='rgba(63,208,255,'+op+')'; x.lineWidth=2; x.beginPath(); x.arc(cx,cy,rad,0,7); x.stroke(); });
+    // antenna track
+    x.strokeStyle='rgba(140,160,230,0.35)'; x.lineWidth=2; x.beginPath(); x.moveTo(cx,cy-A-14); x.lineTo(cx,cy+A+14); x.stroke();
+    // charge
+    const yq=cy+A*Math.sin(phase);
+    // acceleration arrow (a = -sin(phase), toward equilibrium); length grows with f
+    const a=-Math.sin(phase), aLen=34*Math.abs(a)*(0.5+0.5*f/2.6);
+    if(aLen>2){ const dir=Math.sign(a)||1; x.strokeStyle='#ffb24a'; x.fillStyle='#ffb24a'; x.lineWidth=3;
+      x.beginPath(); x.moveTo(cx,yq); x.lineTo(cx,yq+dir*aLen); x.stroke();
+      x.beginPath(); x.moveTo(cx,yq+dir*aLen); x.lineTo(cx-4,yq+dir*(aLen-7)); x.lineTo(cx+4,yq+dir*(aLen-7)); x.closePath(); x.fill(); }
+    x.fillStyle='#ff6b9d'; x.beginPath(); x.arc(cx,yq,8,0,7); x.fill();
+    x.strokeStyle='#fff'; x.lineWidth=1.5; x.beginPath(); x.arc(cx,yq,8,0,7); x.stroke();
+    x.fillStyle='#fff'; x.font='bold 9px -apple-system'; x.textAlign='center'; x.fillText('+',cx,yq+3);
+    // labels
+    x.fillStyle='#9aa3c7'; x.font='11px -apple-system'; x.textAlign='left';
+    x.fillText('charge driven up/down', 8, 18);
+    x.fillStyle='#ffb24a'; x.fillText('acceleration', cx+10, cy-A-2);
+    x.fillStyle='#3fd0ff'; x.textAlign='right'; x.fillText('radio wave →', W-8, 18);
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* =======================================================================
+   2c. CHARGE IN A MAGNETIC FIELD — synchrotron beam (canvas, animated)
+======================================================================= */
+(function(){
+  const bEl=gid('bf_field'); if(!bEl) return;
+  const flO=gid('bf_fl'), cv=gid('bf_canvas'), x=cv.getContext('2d');
+  const cx=235, cy=150, R=66;
+  let theta=0, t=0, beams=[];
+  function lbl(v){ return v<1.1?'weak':(v>1.9?'strong':'medium'); }
+  function frame(){
+    const b=+bEl.value; flO.textContent=lbl(b);
+    theta += 0.03*b; t += 1;
+    const W=cv.width, Hh=cv.height;
+    x.clearRect(0,0,W,Hh);
+    // magnetic field lines
+    x.strokeStyle='rgba(94,230,168,0.30)'; x.lineWidth=1.4;
+    for(let gy=40; gy<=Hh-20; gy+=34){
+      x.beginPath(); x.moveTo(20,gy); x.lineTo(W-20,gy); x.stroke();
+      x.fillStyle='rgba(94,230,168,0.45)'; x.beginPath();
+      x.moveTo(W-20,gy); x.lineTo(W-28,gy-3); x.lineTo(W-28,gy+3); x.closePath(); x.fill();
+    }
+    x.fillStyle='#5ee6a8'; x.font='11px -apple-system'; x.textAlign='left'; x.fillText('magnetic field  B →', 20, 24);
+    // orbit path
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.lineWidth=1; x.beginPath(); x.arc(cx,cy,R,0,7); x.stroke();
+    // charge position + tangent (velocity) direction
+    const qx=cx+R*Math.cos(theta), qy=cy+R*Math.sin(theta);
+    const vx=-Math.sin(theta), vy=Math.cos(theta);     // tangent
+    // launch a beam packet each frame in the velocity direction
+    beams.push({x:qx,y:qy,dx:vx,dy:vy,birth:t});
+    beams=beams.filter(p=>t-p.birth<26);
+    beams.forEach(p=>{ const age=t-p.birth, d=age*5, op=0.5*(1-age/26)*(0.4+0.6*b/2.6);
+      const ex=p.x+p.dx*d, ey=p.y+p.dy*d;
+      x.strokeStyle='rgba(255,178,74,'+Math.max(0,op)+')'; x.lineWidth=3;
+      x.beginPath(); x.moveTo(p.x+p.dx*age*5*0.6,p.y+p.dy*age*5*0.6); x.lineTo(ex,ey); x.stroke(); });
+    // centripetal acceleration arrow (toward centre)
+    const ax=(cx-qx), ay=(cy-qy), an=Math.hypot(ax,ay), uax=ax/an, uay=ay/an, aL=22;
+    x.strokeStyle='#3fd0ff'; x.fillStyle='#3fd0ff'; x.lineWidth=2.5;
+    x.beginPath(); x.moveTo(qx,qy); x.lineTo(qx+uax*aL,qy+uay*aL); x.stroke();
+    // charge
+    x.fillStyle='#ff6b9d'; x.beginPath(); x.arc(qx,qy,8,0,7); x.fill();
+    x.strokeStyle='#fff'; x.lineWidth=1.5; x.beginPath(); x.arc(qx,qy,8,0,7); x.stroke();
+    x.fillStyle='#fff'; x.font='bold 9px -apple-system'; x.textAlign='center'; x.fillText('e',qx,qy+3);
+    // labels
+    x.fillStyle='#3fd0ff'; x.font='11px -apple-system'; x.textAlign='left'; x.fillText('acceleration (toward centre)', 20, Hh-12);
+    x.fillStyle='#ffb24a'; x.textAlign='right'; x.fillText('beamed radio →', W-20, Hh-12);
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* =======================================================================
+   3. 21-CM DOPPLER  (Plotly)
+======================================================================= */
+(function(){
+  const vEl=gid('hi_v'); if(!vEl) return;
+  const vlO=gid('hi_vl'), fO=gid('hi_fobs'), dfO=gid('hi_df'), dirO=gid('hi_dir');
+  const F=[]; for(let f=F0-2.2; f<=F0+2.2; f+=0.01) F.push(f);
+  function draw(){
+    const v=+vEl.value;
+    vlO.textContent=(v>0?'+':'')+v+' km/s';
+    const fobs=F0*(1-v/C_KMS);
+    fO.textContent=fobs.toFixed(3);
+    const df=(fobs-F0)*1000;
+    dfO.textContent=(df>0?'+':'')+df.toFixed(0);
+    dirO.textContent = v<0?'approaching':(v>0?'receding':'at rest');
+    dirO.style.color = v<0?'#3fd0ff':(v>0?'#ff6b9d':'var(--muted)');
+    const yobs=F.map(f=>gauss(f,1,fobs,0.13));
+    const yrest=F.map(f=>gauss(f,1,F0,0.13));
+    Plotly.react('hi_plot',[
+      {x:F,y:yrest,mode:'lines',line:{color:'rgba(255,107,157,0.45)',width:1.5,dash:'dot'}},
+      {x:F,y:yobs,mode:'lines',fill:'tozeroy',fillcolor:'rgba(63,208,255,0.12)',line:{color:'#3fd0ff',width:2.6}}
+    ], baseLayout({
+      xaxis:{title:'observed frequency (MHz)', range:[F0-2.2,F0+2.2]},
+      yaxis:{title:'brightness (relative)', range:[0,1.18]},
+      annotations:[
+        {x:F0,y:1.1,text:'rest 1420.4058',showarrow:false,font:{color:'#ff6b9d',size:10}},
+        {x:fobs,y:0.55,ax:(fobs>F0?-40:40),ay:0,text:(v>0?'+':'')+v+' km/s',showarrow:true,arrowcolor:'#3fd0ff',font:{color:'#3fd0ff',size:11}}
+      ]
+    }), PCFG);
+  }
+  vEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   5. EMISSION vs ABSORPTION  (Plotly)
+======================================================================= */
+(function(){
+  const tsEl=gid('ab_ts'); if(!tsEl) return;
+  const bgEl=gid('ab_bg'), tsO=gid('ab_tsl'), bgO=gid('ab_bgl'),
+        modeO=gid('ab_mode'), dtO=gid('ab_dt'), useO=gid('ab_use');
+  const V=[]; for(let v=-120; v<=120; v+=1) V.push(v);
+  const TAU0=1.2;
+  function draw(){
+    const Ts=+tsEl.value, Tbg=+bgEl.value;
+    tsO.textContent=Ts+' K'; bgO.textContent=Tbg+' K';
+    const tau=V.map(v=>TAU0*Math.exp(-0.5*Math.pow((v+40)/14,2)));
+    const Tobs=V.map((v,i)=>Tbg*Math.exp(-tau[i])+Ts*(1-Math.exp(-tau[i])));
+    const emission = Ts>Tbg;
+    modeO.textContent=emission?'emission':'absorption';
+    modeO.style.color=emission?'#5ee6a8':'#ff6b9d';
+    const dt=Ts-Tbg; dtO.textContent=(dt>0?'+':'')+dt;
+    useO.textContent = emission ? 'warm diffuse HI' : 'cold neutral medium';
+    Plotly.react('ab_plot',[
+      {x:V,y:V.map(()=>Tbg),mode:'lines',line:{color:'rgba(154,163,199,0.5)',width:1.3,dash:'dot'}},
+      {x:V,y:Tobs,mode:'lines',fill:'tonexty',
+        fillcolor:emission?'rgba(94,230,168,0.13)':'rgba(255,107,157,0.13)',
+        line:{color:emission?'#5ee6a8':'#ff6b9d',width:2.6}}
+    ], baseLayout({
+      xaxis:{title:'velocity (km/s)', range:[-120,120]},
+      yaxis:{title:'observed brightness temperature (K)'},
+      annotations:[
+        {x:110,y:Tbg,text:'background '+Tbg+' K',showarrow:false,font:{color:'#9aa3c7',size:10},xanchor:'right',yanchor:'bottom'},
+        {x:-40,y:emission?Math.max(...Tobs):Math.min(...Tobs),text:emission?'emission line':'absorption line',
+         showarrow:true,arrowcolor:emission?'#5ee6a8':'#ff6b9d',ax:40,ay:emission?-26:26,
+         font:{color:emission?'#5ee6a8':'#ff6b9d',size:11}}
+      ]
+    }), PCFG);
+  }
+  tsEl.addEventListener('input',draw); bgEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   6. COSMOLOGICAL REDSHIFT OF THE 21-CM LINE  (Plotly)
+======================================================================= */
+(function(){
+  const zEl=gid('cz_z'); if(!zEl) return;
+  const zO=gid('cz_zl'), fO=gid('cz_fobs'), eraO=gid('cz_era'), vO=gid('cz_v');
+  function draw(){
+    const z=+zEl.value;
+    zO.textContent=z.toFixed(2);
+    const fobs=F0/(1+z);
+    fO.textContent=fobs.toFixed(fobs<100?1:0);
+    const beta=((1+z)*(1+z)-1)/((1+z)*(1+z)+1);
+    vO.textContent=beta.toFixed(3);
+    let era='recent Universe';
+    if(z>6) era='first galaxies / reionization';
+    else if(z>2) era='early galaxy assembly';
+    else if(z>0.5) era='cosmic noon';
+    eraO.textContent=era;
+    // line position on a 40-1500 MHz axis
+    const yline=[0,1];
+    const reion=[50,200];
+    Plotly.react('cz_plot',[
+      // reionization band shading via filled rect trace
+      {x:[reion[0],reion[1],reion[1],reion[0]],y:[0,0,1.1,1.1],fill:'toself',mode:'lines',
+        line:{width:0},fillcolor:'rgba(176,140,255,0.12)',hoverinfo:'skip'},
+      {x:[1420.4,1420.4],y:yline,mode:'lines',line:{color:'rgba(255,107,157,0.4)',width:1.5,dash:'dot'}},
+      {x:[fobs,fobs],y:yline,mode:'lines',line:{color:'#3fd0ff',width:3}}
+    ], baseLayout({
+      xaxis:{title:'observed frequency (MHz)', range:[40,1500]},
+      yaxis:{range:[0,1.15], showticklabels:false, title:''},
+      annotations:[
+        {x:1420.4,y:1.07,text:'z = 0 (rest)',showarrow:false,font:{color:'#ff6b9d',size:10}},
+        {x:fobs,y:0.5,text:'z = '+z.toFixed(2),showarrow:true,arrowcolor:'#3fd0ff',ax:0,ay:-30,font:{color:'#3fd0ff',size:11}},
+        {x:125,y:1.0,text:'reionization band',showarrow:false,font:{color:'#b08cff',size:10}}
+      ]
+    }), PCFG);
+  }
+  zEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   7. RADIO JOVE — Io/CML storm window  (canvas)
+======================================================================= */
+(function(){
+  const ioEl=gid('jv_io'); if(!ioEl) return;
+  const cmlEl=gid('jv_cml'), ioO=gid('jv_iol'), cmlO=gid('jv_cmll'),
+        srcO=gid('jv_src'), probO=gid('jv_prob'), capO=gid('jv_cap'), cv=gid('jv_canvas');
+  // storm zones: [cml_lo,cml_hi, io_lo,io_hi, name, color]
+  const ZONES=[
+    [90,200, 60,110, 'Io-B', '#5ee6a8'],
+    [200,290, 195,265, 'Io-A', '#3fd0ff'],
+    [290,360, 225,260, 'Io-C', '#ffb24a'],
+    [0,30, 225,260, 'Io-C', '#ffb24a']
+  ];
+  function inZone(cml,io){
+    for(const z of ZONES){ if(cml>=z[0]&&cml<=z[1]&&io>=z[2]&&io<=z[3]) return z; }
+    return null;
+  }
+  function draw(){
+    const io=+ioEl.value, cml=+cmlEl.value;
+    ioO.textContent=io+'°'; cmlO.textContent=cml+'°';
+    const z=inZone(cml,io);
+    srcO.textContent = z?z[4]:'—';
+    srcO.style.color = z?z[5]:'var(--muted)';
+    probO.textContent = z?'yes — listen!':'unlikely now';
+    probO.style.color = z?'#5ee6a8':'#ff6b9d';
+    capO.textContent = z? (z[4]+' storm window is open — Io phase and CML both favourable.')
+                        : 'Outside the storm windows — drag Io phase and CML into a green zone.';
+    paint(io,cml,z);
+  }
+  function paint(io,cml,zone){
+    const x=cv.getContext('2d'), W=cv.width, Hh=cv.height;
+    x.clearRect(0,0,W,Hh);
+    const m=46, pw=W-m-16, ph=Hh-m-14, ox=m, oy=10;
+    const X=v=>ox+v/360*pw, Y=v=>oy+v/360*ph;   // x = Io phase, y = CML
+    // background
+    x.fillStyle='rgba(8,10,22,0.6)'; x.fillRect(ox,oy,pw,ph);
+    // zones
+    ZONES.forEach(z=>{ x.fillStyle=z[5].replace(')',',0.20)').replace('#','rgba(')==z[5]?z[5]:hexA(z[5],0.18);
+      x.fillStyle=hexA(z[5],0.18);
+      x.fillRect(X(z[2]),Y(z[0]), X(z[3])-X(z[2]), Y(z[1])-Y(z[0]));
+      x.strokeStyle=hexA(z[5],0.6); x.lineWidth=1; x.strokeRect(X(z[2]),Y(z[0]), X(z[3])-X(z[2]), Y(z[1])-Y(z[0]));
+      x.fillStyle=z[5]; x.font='11px -apple-system'; x.textAlign='left';
+      if(!(z[4]==='Io-C'&&z[0]===0)) x.fillText(z[4], X(z[2])+4, Y(z[0])+14);
+    });
+    // axes
+    x.strokeStyle='rgba(140,160,230,0.3)'; x.lineWidth=1; x.strokeRect(ox,oy,pw,ph);
+    x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.textAlign='center';
+    for(let v=0; v<=360; v+=90){ x.fillText(v+'°', X(v), oy+ph+13);
+      x.beginPath(); x.moveTo(X(v),oy); x.lineTo(X(v),oy+ph); x.strokeStyle='rgba(140,160,230,0.08)'; x.stroke(); }
+    x.save(); x.translate(12, oy+ph/2); x.rotate(-Math.PI/2); x.textAlign='center';
+    x.fillStyle='#9aa3c7'; x.fillText('CML (System III)',0,0); x.restore();
+    x.textAlign='center'; x.fillStyle='#9aa3c7'; x.fillText('Io orbital phase', ox+pw/2, oy+ph+13+0);
+    for(let v=0; v<=360; v+=90){ x.textAlign='right'; x.fillStyle='#9aa3c7'; x.fillText(v+'°', ox-4, Y(v)+3); }
+    // marker
+    const mx=X(io), my=Y(cml);
+    x.strokeStyle=zone?zone[5]:'#ff6b9d'; x.lineWidth=1; x.setLineDash([3,3]);
+    x.beginPath(); x.moveTo(ox,my); x.lineTo(ox+pw,my); x.moveTo(mx,oy); x.lineTo(mx,oy+ph); x.stroke(); x.setLineDash([]);
+    x.fillStyle=zone?zone[5]:'#ff6b9d'; x.beginPath(); x.arc(mx,my,6,0,7); x.fill();
+    x.strokeStyle='#fff'; x.lineWidth=1.5; x.beginPath(); x.arc(mx,my,6,0,7); x.stroke();
+  }
+  function hexA(hex,a){ const n=parseInt(hex.slice(1),16); const r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+    return 'rgba('+r+','+g+','+b+','+a+')'; }
+  ioEl.addEventListener('input',draw); cmlEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   6b. THE MOON — temperature vs depth/wavelength  (Plotly)
+======================================================================= */
+(function(){
+  const wlEl=gid('moon_wl'); if(!wlEl) return;
+  const wllO=gid('moon_wll'), dO=gid('moon_depth'), swO=gid('moon_swing'),
+        lagO=gid('moon_lag'), vO=gid('moon_verdict');
+  const T0=220, dT=130, DELTA=8, MONTH=29.5;         // K, K, cm skin depth, days
+  const PH=[]; for(let d=0; d<=MONTH; d+=0.3) PH.push(d);
+  function curve(A,lagDays){
+    return PH.map(d=>{ const ph=(d/MONTH)*2*Math.PI, lag=(lagDays/MONTH)*2*Math.PI;
+      return T0 + A*dT*Math.cos(ph - Math.PI - lag); });   // noon (hot) near mid-month
+  }
+  function draw(){
+    const lam=Math.pow(10,+wlEl.value);                 // cm
+    wllO.textContent = lam<1 ? (lam*10).toFixed(0)+' mm' : lam.toFixed(lam<10?1:0)+' cm';
+    const depth=lam;                                    // illustrative: probe depth ~ wavelength
+    const A=Math.exp(-depth/DELTA), lagDays=(depth/DELTA)/(2*Math.PI)*MONTH;
+    dO.textContent = depth.toFixed(depth<1?2:(depth<10?1:0));
+    swO.textContent = Math.round(2*A*dT);
+    lagO.textContent = lagDays.toFixed(1);
+    vO.textContent = A>0.6?'thin / bare':(A>0.15?'insulating dust':'deep, steady regolith');
+    Plotly.react('moon_plot',[
+      {x:PH,y:curve(1,0),mode:'lines',line:{color:'rgba(255,107,157,0.85)',width:2},name:'infrared (surface)'},
+      {x:PH,y:curve(A,lagDays),mode:'lines',line:{color:'#3fd0ff',width:3},name:'radio'}
+    ], baseLayout({
+      xaxis:{title:'days through the lunar month', range:[0,MONTH]},
+      yaxis:{title:'brightness temperature (K)', range:[60,400]},
+      annotations:[
+        {x:MONTH*0.5,y:curve(1,0)[Math.round(PH.length*0.5)],text:'infrared: bare surface swings ~290 K',
+         showarrow:false,font:{color:'#ff6b9d',size:10},yanchor:'bottom'},
+        {x:MONTH*0.78,y:T0,text:'radio: damped & lagged',showarrow:false,font:{color:'#3fd0ff',size:10}}
+      ]
+    }), PCFG);
+  }
+  wlEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   7b. JUPITER BURSTS — S-burst & L-burst dynamic spectra (canvas, static)
+======================================================================= */
+function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
+  x.strokeStyle='rgba(140,160,230,0.3)'; x.lineWidth=1; x.strokeRect(ox,oy,pw,ph);
+  x.fillStyle='#9aa3c7'; x.font='10px -apple-system';
+  x.textAlign='right';
+  for(let f=fLo; f<=fHi+0.01; f+=2){ const py=oy+ph*(fHi-f)/(fHi-fLo); x.fillText(f.toFixed(0), ox-4, py+3); }
+  x.save(); x.translate(11, oy+ph/2); x.rotate(-Math.PI/2); x.textAlign='center';
+  x.fillStyle='#9aa3c7'; x.fillText('frequency (MHz)',0,0); x.restore();
+  x.textAlign='center'; x.fillStyle='#9aa3c7'; x.fillText(tLabel, ox+pw/2, oy+ph+30);
+}
+(function(){
+  const cv=gid('lb_canvas'); if(!cv) return; const x=cv.getContext('2d');
+  const W=cv.width,Hh=cv.height, ox=42,oy=14,pw=W-ox-14,ph=170, fLo=16,fHi=24,T=5;
+  function env(t){ // t in seconds 0..5 -> intensity envelope (surf swells)
+    return 0.45*Math.exp(-Math.pow((t-1.4)/0.6,2))+0.95*Math.exp(-Math.pow((t-3.0)/0.8,2))+0.6*Math.exp(-Math.pow((t-4.2)/0.45,2)); }
+  x.fillStyle='#05060d'; x.fillRect(0,0,W,Hh);
+  x.fillStyle='#070a18'; x.fillRect(ox,oy,pw,ph);
+  const NX=170,NY=64, cw=pw/NX, chh=ph/NY;
+  for(let i=0;i<NX;i++){ const t=i/NX*T, e=env(t);
+    for(let j=0;j<NY;j++){ const fn=j/NY; // 0 top(high f)
+      const band=0.62+0.38*Math.exp(-Math.pow((fn-0.5)/0.5,2));
+      const mod=0.82+0.18*Math.sin(2*Math.PI*(fn*5 - t*1.2));   // slow ±100 kHz/s lanes
+      let I=e*band*mod; I=Math.max(0,Math.min(1,I));
+      if(I<0.04) continue;
+      const r=Math.round(40+215*I),g=Math.round(30+150*Math.pow(I,1.3)),b=Math.round(60+25*I);
+      x.fillStyle='rgba('+r+','+g+','+b+','+(0.12+0.88*I)+')';
+      x.fillRect(ox+i*cw, oy+j*chh, cw+1, chh+1);
+    } }
+  _specFrame(x,ox,oy,pw,ph,fLo,fHi,T,'time  (0 – 5 s)');
+  // intensity envelope strip
+  const sy=oy+ph+44, sh=42;
+  x.strokeStyle='rgba(140,160,230,0.2)'; x.strokeRect(ox,sy,pw,sh);
+  x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.textAlign='left'; x.fillText('intensity', ox+3, sy-3);
+  x.beginPath();
+  for(let i=0;i<=pw;i++){ const t=i/pw*T, v=Math.min(1,env(t)); const yy=sy+sh-2-v*(sh-4); if(i===0)x.moveTo(ox+i,yy); else x.lineTo(ox+i,yy); }
+  x.lineTo(ox+pw,sy+sh); x.lineTo(ox,sy+sh); x.closePath();
+  x.fillStyle='rgba(255,178,74,0.25)'; x.fill();
+  x.strokeStyle='#ffb24a'; x.lineWidth=1.6; x.beginPath();
+  for(let i=0;i<=pw;i++){ const t=i/pw*T, v=Math.min(1,env(t)); const yy=sy+sh-2-v*(sh-4); if(i===0)x.moveTo(ox+i,yy); else x.lineTo(ox+i,yy); }
+  x.stroke();
+})();
+(function(){
+  const cv=gid('sb_canvas'); if(!cv) return; const x=cv.getContext('2d');
+  const W=cv.width,Hh=cv.height, ox=42,oy=14,pw=W-ox-14,ph=170, fLo=16,fHi=24,T=0.4;
+  x.fillStyle='#05060d'; x.fillRect(0,0,W,Hh);
+  x.fillStyle='#070a18'; x.fillRect(ox,oy,pw,ph);
+  // faint background speckle
+  for(let k=0;k<260;k++){ const px=ox+((k*73)%pw), py=oy+((k*149)%ph);
+    x.fillStyle='rgba(120,140,230,0.05)'; x.fillRect(px,py,1,1); }
+  const Xt=t=>ox+pw*t/T, Yf=f=>oy+ph*(fHi-f)/(fHi-fLo);
+  const bursts=[]; const groups=[0.03,0.16,0.27]; let s=1;
+  groups.forEach(g0=>{ for(let k=0;k<7;k++){ s=(s*1103515245+12345)&0x7fffffff;
+    const jit=((s%1000)/1000-0.5)*0.006;
+    const t0=g0+k*0.016+jit; if(t0>T-0.02) continue;
+    s=(s*1103515245+12345)&0x7fffffff; const fHiStart=21.5+ (s%1000)/1000*2.2;
+    bursts.push([t0,fHiStart]); } });
+  bursts.forEach(([t0,f0])=>{ const dt=0.05; const f1=f0-2.0;          // ~ -20 MHz/s, drifting down
+    const grad=x.createLinearGradient(Xt(t0),Yf(f0),Xt(t0+dt),Yf(f1));
+    grad.addColorStop(0,'rgba(255,210,150,0.95)'); grad.addColorStop(1,'rgba(255,140,40,0.15)');
+    x.strokeStyle=grad; x.lineWidth=3; x.lineCap='round';
+    x.beginPath(); x.moveTo(Xt(t0),Yf(f0)); x.lineTo(Xt(t0+dt),Yf(Math.max(fLo,f1))); x.stroke(); });
+  _specFrame(x,ox,oy,pw,ph,fLo,fHi,T,'time  (0 – 0.4 s)');
+  // staccato envelope strip
+  const sy=oy+ph+44, sh=42;
+  x.strokeStyle='rgba(140,160,230,0.2)'; x.strokeRect(ox,sy,pw,sh);
+  x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.textAlign='left'; x.fillText('intensity', ox+3, sy-3);
+  x.strokeStyle='#ffb24a'; x.lineWidth=1.4;
+  bursts.forEach(([t0])=>{ const px=Xt(t0); x.beginPath(); x.moveTo(px,sy+sh-2); x.lineTo(px,sy+4); x.stroke(); });
+})();
+
+/* =======================================================================
+   7c. RADIO JOVE KIT — signal-chain schematic (canvas, static)
+======================================================================= */
+(function(){
+  const cv=gid('kit_canvas'); if(!cv) return; const x=cv.getContext('2d');
+  const W=cv.width,Hh=cv.height;
+  x.clearRect(0,0,W,Hh);
+  function box(bx,by,bw,bh,title,sub,col){
+    x.fillStyle='rgba(8,10,22,0.85)'; x.strokeStyle=col; x.lineWidth=2;
+    x.beginPath(); x.roundRect(bx,by,bw,bh,10); x.fill(); x.stroke();
+    x.fillStyle='#fff'; x.font='bold 13px -apple-system'; x.textAlign='center';
+    x.fillText(title, bx+bw/2, by+22);
+    x.fillStyle='#9aa3c7'; x.font='11px -apple-system';
+    (sub||'').split('\n').forEach((s,i)=>x.fillText(s, bx+bw/2, by+40+i*15));
+  }
+  function arrow(x0,y0,x1,y1,col,label){
+    x.strokeStyle=col; x.fillStyle=col; x.lineWidth=2.5;
+    x.beginPath(); x.moveTo(x0,y0); x.lineTo(x1,y1); x.stroke();
+    const a=Math.atan2(y1-y0,x1-x0);
+    x.beginPath(); x.moveTo(x1,y1); x.lineTo(x1-10*Math.cos(a-0.4),y1-10*Math.sin(a-0.4));
+    x.lineTo(x1-10*Math.cos(a+0.4),y1-10*Math.sin(a+0.4)); x.closePath(); x.fill();
+    if(label){ x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.textAlign='center';
+      x.fillText(label,(x0+x1)/2,(y0+y1)/2-6); }
+  }
+  // ground
+  x.strokeStyle='rgba(94,230,168,0.5)'; x.lineWidth=2; x.beginPath(); x.moveTo(20,300); x.lineTo(W-20,300); x.stroke();
+  for(let gx=24; gx<300; gx+=22){ x.strokeStyle='rgba(94,230,168,0.3)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(gx,300); x.lineTo(gx-8,310); x.stroke(); }
+  // incoming waves from Jupiter/Sun
+  x.strokeStyle='rgba(255,178,74,0.55)'; x.lineWidth=1.6;
+  for(let k=0;k<4;k++){ const oxx=40+k*16; x.beginPath();
+    for(let yy=18; yy<80; yy+=2){ const xx=oxx+8*Math.sin(yy/7); if(yy===18)x.moveTo(xx,yy); else x.lineTo(xx,yy); } x.stroke(); }
+  x.fillStyle='#ffb24a'; x.font='11px -apple-system'; x.textAlign='left'; x.fillText('Jupiter / Sun  ~20 MHz', 24, 14);
+  // dual dipole (two folded wires)
+  const ay=92, axl=70, axr=300;
+  x.strokeStyle='#3fd0ff'; x.lineWidth=2.4;
+  x.beginPath(); x.moveTo(axl,ay); x.lineTo(axr,ay); x.stroke();
+  x.beginPath(); x.moveTo(axl,ay-9); x.lineTo(axr,ay-9); x.stroke();           // folded (second conductor)
+  x.beginPath(); x.moveTo(axl,ay); x.lineTo(axl,ay-9); x.moveTo(axr,ay); x.lineTo(axr,ay-9); x.stroke();
+  x.beginPath(); x.moveTo(axl,ay+9); x.lineTo(axr,ay+9); x.stroke();           // 2nd dipole of the pair
+  x.strokeStyle='rgba(63,208,255,0.5)'; x.beginPath(); x.moveTo(axl,ay); x.lineTo(axl,ay+9); x.moveTo(axr,ay); x.lineTo(axr,ay+9); x.stroke();
+  x.fillStyle='#3fd0ff'; x.font='bold 12px -apple-system'; x.textAlign='center'; x.fillText('dual-dipole antenna  (folded, E–W)', (axl+axr)/2, ay-18);
+  // masts
+  x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=2; x.beginPath(); x.moveTo(axl,ay+9); x.lineTo(axl,300); x.moveTo(axr,ay+9); x.lineTo(axr,300); x.stroke();
+  // height marker
+  x.strokeStyle='rgba(154,163,199,0.6)'; x.lineWidth=1; x.setLineDash([3,3]);
+  x.beginPath(); x.moveTo(axr+14,ay); x.lineTo(axr+14,300); x.stroke(); x.setLineDash([]);
+  x.fillStyle='#9aa3c7'; x.save(); x.translate(axr+26, (ay+300)/2); x.rotate(-Math.PI/2); x.textAlign='center'; x.fillText('¼–⅜ λ  (~5 m)',0,0); x.restore();
+  // feed -> balun
+  const fx=(axl+axr)/2;
+  arrow(fx,ay+9,fx,150,'#5ee6a8','');
+  box(fx-95,150,190,52,'4:1 balun / combiner','300 Ω  →  75 Ω', '#5ee6a8');
+  // balun -> SDR
+  arrow(fx+95,176,480,176,'#9aa3c7','75 Ω coax');
+  box(480,150,200,58,'SDRplay RSP1B','software-defined radio\n16 – 24 MHz', '#ffb24a');
+  // SDR -> laptop
+  arrow(680,179,740,179,'#9aa3c7','USB');
+  box(740,150,150,58,'laptop','Radio-Sky\nSpectrograph', '#b08cff');
+  // freq-time mini icon in laptop
+  x.strokeStyle='rgba(176,140,255,0.8)'; x.lineWidth=1; x.strokeRect(815,206,60,2);
+})();
+
+/* =======================================================================
+   Background starfield
+======================================================================= */
+(function(){
+  const cv=document.getElementById('starfield'); if(!cv) return; const x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280,(innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle='rgba(220,228,255,'+(a*0.7)+')'; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+
+</script>
+<script>
+(function(){
+  const list=document.getElementById('qz_list'); if(!list)return;
+  const QS=[
+    {q:"Roughly what frequency range can reach a ground-based radio telescope (the radio window)?",
+      opts:["3 kHz – 1 MHz","10 MHz – 300 GHz","300 GHz – 30 THz","Only exactly 1420 MHz"],a:1,
+      exp:"Below ~10 MHz the ionosphere reflects waves away; above ~300 GHz atmospheric water vapour absorbs them. In between, the radio window is open."},
+    {q:"Compared with a visible photon, a 1420 MHz radio photon carries…",
+      opts:["Far more energy","About the same energy","Far less energy (≈ a millionth of an eV)","No energy and no momentum"],a:2,
+      exp:"E = hf, and radio frequencies are tiny compared with optical, so each radio photon carries minuscule energy — which is why radio telescopes must gather huge numbers of them."},
+    {q:"On a log-log radio spectrum, a steep falling slope (negative spectral index, α ≈ −0.7) is the signature of…",
+      opts:["Thermal free-free gas","Synchrotron emission from relativistic electrons in magnetic fields","The 21-cm line","Atmospheric absorption"],a:1,
+      exp:"Synchrotron emission falls with frequency (steep negative α); thermal free-free is flat-to-rising. The slope sorts magnetic fireworks from hot gas."},
+    {q:"The 21-cm line is produced when a hydrogen atom…",
+      opts:["Is ionised","Flips the relative spin of its proton and electron (hyperfine transition)","Drops an electron to the n = 2 level","Collides with a second atom"],a:1,
+      exp:"The spin-flip (hyperfine) transition between parallel and anti-parallel spins emits a 1420.405751768 MHz photon — a wavelength of 21 cm."},
+    {q:"Why is the 21-cm line useful even though a single atom flips only once in ~10 million years?",
+      opts:["Each flip is extremely energetic","Interstellar space holds so much hydrogen that the summed signal is easy to detect","The line is at visible wavelengths","Atoms flip faster near stars"],a:1,
+      exp:"The transition is strongly forbidden, but the sheer quantity of neutral hydrogen along any galactic sightline makes the integrated emission readily detectable."},
+    {q:"A hydrogen cloud's 21-cm line is observed ABOVE the rest frequency (1420.62 vs 1420.41 MHz). The cloud is…",
+      opts:["Receding (redshifted)","Approaching (blueshifted)","Stationary","Ionised"],a:1,
+      exp:"In the radio convention an increase in observed frequency means blueshift — the gas is approaching. v = c (f₀ − f_obs)/f₀ comes out negative."},
+    {q:"Toward Cygnus (ℓ = 90°), the 21-cm profile splits into several velocity components because the sightline crosses…",
+      opts:["Several different spiral arms, each at its own velocity","Several different elements","Multiple telescopes","The Sun repeatedly"],a:0,
+      exp:"Each spiral arm along the line of sight moves at a different speed in galactic rotation, so each appears as a separate Doppler-shifted component — e.g. the Perseus arm near −45 km/s."},
+    {q:"In the companion notebook, what does the HI4PI survey cube play the role of?",
+      opts:["A random-noise generator","A reference template (like a stellar ELODIE/Pickles spectrum) of the expected profile for any direction","The telescope hardware","A list of star names"],a:1,
+      exp:"HI4PI gives the expected brightness-temperature profile for any (ℓ,b), so it serves as the reference template to identify features and check an observer's velocity scale."},
+    {q:"21-cm ABSORPTION (rather than emission) occurs when cold hydrogen lies…",
+      opts:["In front of a brighter radio background source","In a complete vacuum","Only at the galactic centre","Above 300 GHz"],a:0,
+      exp:"Atoms in the lower (anti-aligned spin) state absorb 1420 MHz photons from a bright background continuum, carving an absorption notch — how the cold neutral medium is found."},
+    {q:"Why do cold HI clouds show up better in absorption than in emission?",
+      opts:["They are hotter","Absorption depth scales with column density divided by spin temperature, favouring cold (low-T_s) gas","Emission is illegal","Cold gas emits X-rays instead"],a:1,
+      exp:"Emission strength tracks how much gas there is; absorption depth tracks column / T_s. Cold clouds (low spin temperature) absorb strongly while emitting feebly."},
+    {q:"As a galaxy's redshift z increases, its 21-cm line is observed at…",
+      opts:["Higher frequency","Lower frequency, f_obs = 1420.4/(1+z) MHz","Exactly 1420 MHz always","Visible wavelengths"],a:1,
+      exp:"Cosmological redshift stretches the line to lower frequency by the factor 1+z, turning observed frequency into a measure of cosmic distance and time."},
+    {q:"'21-cm intensity mapping' refers to…",
+      opts:["Imaging one galaxy in fine detail","Measuring the blended 21-cm glow of many unresolved galaxies to trace large-scale structure","Mapping the Moon","A type of optical survey"],a:1,
+      exp:"Rather than resolving individual high-redshift galaxies (which needs huge collecting area), intensity mapping measures their combined signal to trace the cosmic web."},
+    {q:"The redshifted 21-cm signal near 50–200 MHz today is a key probe of…",
+      opts:["The Sun's surface","The Epoch of Reionization, when the first stars and galaxies lit up","Jupiter's storms","The Earth's core"],a:1,
+      exp:"Neutral hydrogen from the early Universe radiates 21-cm light that is redshifted to low frequencies today — a direct window onto how the first structures formed."},
+    {q:"Jupiter's intense decametric radio bursts (~15–25 MHz) are strongly controlled by…",
+      opts:["The Earth's Moon","Its moon Io moving through Jupiter's magnetosphere","Sunspots only","The rings of Saturn"],a:1,
+      exp:"Io sets up a current in Jupiter's magnetosphere that triggers the strongest, most predictable storms; the Io-B window is the amateur's reliable target."},
+    {q:"The NASA Radio Jove receiver is tuned to about…",
+      opts:["1420 MHz","20.1 MHz","115 GHz","550 nm"],a:1,
+      exp:"Radio Jove uses a simple direct-conversion receiver near 20.1 MHz with a dual-dipole antenna to catch Jupiter's decametric bursts, solar bursts and the galactic background."},
+    {q:"Whether a Jupiter storm is audible depends on two geometry conditions lining up:",
+      opts:["Io's orbital phase AND Jupiter's central meridian longitude","The Moon's phase AND the tide","Sunrise AND sunset","Wavelength AND colour"],a:0,
+      exp:"A storm window opens only when Io is near the right orbital phase and Jupiter's central meridian longitude (System III) is in the favourable range — exactly what Radio Jove's prediction software computes."},
+    {q:"Before Apollo, radio observations of the Moon's thermal emission showed that its temperature swing is much SMALLER at radio than infrared wavelengths. This revealed that the surface is…",
+      opts:["Solid bare rock","Covered by fine, porous insulating dust (regolith)","Made of water ice","Extremely hot everywhere"],a:1,
+      exp:"Longer radio waves emerge from deeper, steadier layers; the strongly damped, lagged temperature swing means the surface conducts heat very poorly — a fluffy dust blanket with low thermal inertia."},
+    {q:"Earth-based RADAR mapping of the Moon (e.g. at 3.8 cm, 70 cm, 7.5 m) helped Apollo planning mainly by measuring…",
+      opts:["The Moon's chemical age","Surface roughness, rock 'blockiness' and firmness","The Moon's exact mass","Lunar magnetic storms"],a:1,
+      exp:"Delay-Doppler radar charted surface roughness and rock abundance and showed a firm, load-bearing surface — retiring the fear that a lander might sink into deep dust."}
+  ];
+
+document.getElementById('qz_total').textContent=QS.length;
+  const cEl=document.getElementById('qz_correct'), aEl=document.getElementById('qz_answered'), fill=document.getElementById('qz_fill');
+  let answered=0, correct=0;
+  function update(){ cEl.textContent=correct; aEl.textContent=answered; fill.style.width=(answered/QS.length*100)+'%'; }
+  function render(){
+    list.innerHTML=''; answered=0; correct=0;
+    QS.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const qt=document.createElement('p'); qt.className='q-text';
+      qt.innerHTML='<span class="q-num">'+(qi+1)+'.</span> '+item.q;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      const exp=document.createElement('div'); exp.className='q-exp';
+      exp.innerHTML='<b>Answer: '+String.fromCharCode(65+item.a)+' — '+item.opts[item.a]+'.</b> '+item.exp;
+      item.opts.forEach((text,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt'; b.type='button';
+        b.innerHTML='<span class="q-mark">'+String.fromCharCode(65+oi)+'</span>'+text;
+        b.addEventListener('click',()=>{
+          if(b.disabled) return;
+          answered++;
+          opts.children[item.a].classList.add('correct');
+          if(oi===item.a) correct++; else b.classList.add('wrong');
+          Array.from(opts.children).forEach(c=>c.disabled=true);
+          exp.classList.add('show');
+          update();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(qt); card.appendChild(opts); card.appendChild(exp);
+      list.appendChild(card);
+    });
+    update();
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+<script>
+(function(){
+  const W='https://en.wikipedia.org/wiki/';
+  const GLOSS={
+    'radio-window':{label:'Radio window',wiki:W+'Radio_window',
+      def:'The band of radio frequencies (~10 MHz to ~300 GHz) the atmosphere lets through. Below it the ionosphere reflects waves away; above it water vapour absorbs them.',terms:['radio window','radio band']},
+    'em-spectrum':{label:'Electromagnetic spectrum',wiki:W+'Electromagnetic_spectrum',
+      def:'The full range of light by wavelength — radio, microwave, infrared, visible, ultraviolet, X-ray, gamma — all the same wave, differing only in wavelength and photon energy.',terms:['electromagnetic spectrum','electromagnetic wave']},
+    'ionosphere':{label:'Ionosphere',wiki:W+'Ionosphere',
+      def:'The ionised upper atmosphere. It reflects radio waves below ~10 MHz back to space (and back to the ground), setting the low-frequency edge of the radio window.',terms:['ionosphere']},
+    'spectroscopy':{label:'Spectroscopy',wiki:W+'Astronomical_spectroscopy',
+      def:'Reading the brightness of light frequency by frequency to measure composition, temperature and motion. At radio wavelengths, single sharp lines like 21 cm are the fingerprints.',terms:['spectroscopy']},
+    'spectral-line':{label:'Spectral line',wiki:W+'Spectral_line',
+      def:'A narrow feature at a single frequency emitted or absorbed by a specific transition — a chemical and kinematic fingerprint. The 21-cm line is the radio classic.',terms:['spectral lines','spectral line']},
+    'continuum':{label:'Continuum',wiki:W+'Continuum_(spectrum)',
+      def:'Smooth broadband emission spanning all frequencies, as opposed to a sharp line. Thermal and synchrotron emission both make radio continuum.',terms:['continuum']},
+    'neutral-hydrogen':{label:'Neutral hydrogen (HI)',wiki:W+'H_I_region',
+      def:'Cold atomic hydrogen drifting between the stars — the most abundant material in the Universe, traced almost entirely by its 21-cm radio line.',terms:['neutral hydrogen']},
+    'hyperfine':{label:'Hyperfine / spin-flip transition',wiki:W+'Hydrogen_line',
+      def:'The tiny energy split in hydrogen between proton–electron spins parallel and anti-parallel. The flip releases a 1420 MHz (21-cm) photon.',terms:['hyperfine','spin-flip','spin-flip transition']},
+    'forbidden-line':{label:'Forbidden transition',wiki:W+'Forbidden_mechanism',
+      def:'A transition so unlikely an atom waits ~10 million years to make it. Forbidden on Earth, but easy to see in space because the gas is so vast.',terms:['forbidden']},
+    'doppler':{label:'Doppler shift',wiki:W+'Doppler_effect',
+      def:'Motion along the line of sight shifts a wave’s observed frequency. For the fixed 21-cm rest frequency, the shift reads out velocity directly.',terms:['Doppler shift','Doppler-shift','Doppler']},
+    'radial-velocity':{label:'Radial velocity',wiki:W+'Radial_velocity',
+      def:'The speed of gas straight toward or away from us, read from the Doppler shift of its line. 1 km/s shifts the 21-cm line by 4.7 kHz.',terms:['radial velocity','radial-velocity']},
+    'brightness-temperature':{label:'Brightness temperature',wiki:W+'Brightness_temperature',
+      def:'A way of stating radio brightness as the temperature of a black body that would glow that brightly at that frequency — the natural unit for 21-cm surveys.',terms:['brightness temperature']},
+    'lsr':{label:'Local Standard of Rest',wiki:W+'Local_standard_of_rest',
+      def:'A reference frame moving with the average local stars, removing Earth’s and the Sun’s motion so gas velocities can be compared across the sky.',terms:['Local Standard of Rest']},
+    'rotation-curve':{label:'Galactic rotation curve',wiki:W+'Galaxy_rotation_curve',
+      def:'How orbital speed varies with radius in a galaxy. 21-cm velocities revealed the Milky Way’s flat curve — the first strong evidence for dark matter.',terms:['rotation curve']},
+    'spiral-arm':{label:'Spiral arm',wiki:W+'Spiral_galaxy',
+      def:'A dense lane of gas and young stars winding through a disk galaxy. Along one sightline, each arm appears as a separate velocity component in the 21-cm profile.',terms:['spiral arms','spiral arm']},
+    'dark-matter':{label:'Dark matter',wiki:W+'Dark_matter',
+      def:'Unseen mass inferred from gravity — first signalled by flat galaxy rotation curves measured in the 21-cm line.',terms:['dark matter']},
+    'synchrotron':{label:'Synchrotron emission',wiki:W+'Synchrotron_radiation',
+      def:'Radio light from electrons spiralling near light-speed in magnetic fields. Non-thermal, with a falling (steep, negative-index) spectrum.',terms:['synchrotron']},
+    'free-free':{label:'Free-free (bremsstrahlung)',wiki:W+'Bremsstrahlung',
+      def:'Radio emission from free electrons deflecting past ions in hot ionised gas. Thermal, with a nearly flat or rising spectrum.',terms:['free-free','bremsstrahlung']},
+    'thermal-emission':{label:'Thermal emission',wiki:W+'Thermal_radiation',
+      def:'Radiation whose spectrum is set by the temperature of matter in equilibrium — black-body and free-free emission. Brightens toward higher frequency.',terms:['thermal','black-body glow']},
+    'black-body':{label:'Black-body radiation',wiki:W+'Black-body_radiation',
+      def:'The thermal glow every warm object emits as its charged particles jostle. It spans the whole spectrum, including a faint radio tail — the simplest cosmic radio source.',terms:['black-body','black body']},
+    'lightning':{label:'Lightning radio (sferics)',wiki:W+'Radio_atmospheric_signal',
+      def:'A lightning stroke is a huge sudden current — accelerating charge on a grand scale — that emits a broadband radio crackle. Jupiter and Saturn have lightning too.',terms:['lightning']},
+    'spectral-index':{label:'Spectral index',wiki:W+'Spectral_index',
+      def:'The slope α of a radio spectrum, Sν ∝ ν^α. Steep negative α means synchrotron; flat or positive means thermal gas.',terms:['spectral index']},
+    'maser':{label:'Astrophysical maser',wiki:W+'Astrophysical_maser',
+      def:'A naturally occurring microwave laser — gas (OH, water, methanol) amplifying a spectral line to enormous brightness. Common in star-forming and evolved-star regions.',terms:['masers','maser']},
+    'recombination-line':{label:'Radio recombination line',wiki:W+'Radio_recombination_line',
+      def:'A line emitted when an electron recombines into a very high atomic orbit and cascades down — e.g. the Hnα series near 1.4 GHz. Traces ionised gas.',terms:['recombination lines','recombination line']},
+    'oh-line':{label:'OH 18-cm lines',wiki:W+'Hydroxyl_radical',
+      def:'The hydroxyl radical’s four lines near 1.6–1.7 GHz (1612/1665/1667/1720 MHz), often seen as masers in molecular clouds and around evolved stars.',terms:['OH']},
+    'spin-temperature':{label:'Spin temperature',wiki:W+'Spin_temperature',
+      def:'The effective temperature describing how hydrogen atoms are split between the spin-up and spin-down states. It sets how strongly cold HI absorbs versus emits.',terms:['spin temperature']},
+    'optical-depth':{label:'Optical depth',wiki:W+'Optical_depth',
+      def:'A measure of how opaque gas is along the sightline. The radiative-transfer equation blends background and gas brightness through e^(−τ).',terms:['optical depth']},
+    'column-density':{label:'Column density',wiki:W+'Column_(density)',
+      def:'The amount of gas integrated along the line of sight. 21-cm emission strength is proportional to the hydrogen column density.',terms:['column density','column']},
+    'redshift':{label:'Redshift',wiki:W+'Redshift',
+      def:'The stretching of light to lower frequency as a source recedes or as space expands. The 21-cm line redshifts just like any other, turning frequency into cosmic time.',terms:['redshift','redshifted']},
+    'intensity-mapping':{label:'21-cm intensity mapping',wiki:W+'21_centimeter_radiation',
+      def:'Measuring the blended 21-cm glow of many unresolved galaxies at once to trace the large-scale cosmic web, rather than detecting each galaxy individually.',terms:['intensity mapping']},
+    'reionization':{label:'Epoch of Reionization',wiki:W+'Reionization',
+      def:'The era when the first stars and galaxies ionised the neutral hydrogen filling the young Universe. Its redshifted 21-cm signal (today ~50–200 MHz) is a key probe of first structures.',terms:['Epoch of Reionization','reionization']},
+    'alfalfa':{label:'ALFALFA HI survey',wiki:W+'Arecibo_Legacy_Fast_ALFA_Survey',
+      def:'A blind 21-cm survey that weighed the neutral hydrogen in tens of thousands of nearby galaxies — a census of galaxies’ star-forming fuel.',terms:['ALFALFA']},
+    'cmb':{label:'Cosmic microwave background',wiki:W+'Cosmic_microwave_background',
+      def:'The leftover thermal glow of the hot early Universe, now redshifted into the microwave band — discovered as excess radio noise in 1965.',terms:['cosmic microwave background','CMB']},
+    'regolith':{label:'Regolith',wiki:W+'Regolith',
+      def:'The layer of loose, fine, porous dust and broken rock covering the Moon. Its very low heat conductivity was inferred from radio observations before any landing.',terms:['regolith']},
+    'thermal-inertia':{label:'Thermal inertia',wiki:W+'Thermal_inertia',
+      def:'How strongly a material resists temperature change. The Moon’s low thermal inertia — revealed by the small, lagged radio temperature swing — betrays an insulating dust surface.',terms:['thermal inertia']},
+    'radar-astronomy':{label:'Radar astronomy',wiki:W+'Radar_astronomy',
+      def:'Bouncing a radio pulse off a Solar-System body and reading the echo (delay-Doppler) to map surface roughness, composition and distance — it charted the Moon’s firmness before Apollo.',terms:['radar']},
+    'cyclotron-maser':{label:'Cyclotron maser',wiki:W+'Electron_cyclotron_maser',
+      def:'The mechanism beaming Jupiter’s (and the Sun’s) intense decametric bursts: electrons gyrating in a magnetic field amplify radio waves into narrow searchlight cones.',terms:['cyclotron maser']},
+    'decametric':{label:'Decametric emission',wiki:W+'Jupiter#Radio_emissions',
+      def:'Jupiter’s radio bursts at decametre wavelengths (tens of metres, ~15–25 MHz), driven by its magnetosphere and strongly controlled by the moon Io.',terms:['decametric','decametre']},
+    'central-meridian':{label:'Central meridian longitude',wiki:W+'Central_meridian',
+      def:'Which face of rotating Jupiter is turned toward Earth, in the System III longitude frame. It must fall in a favourable range — together with Io’s phase — for a storm to be heard.',terms:['central meridian longitude','central meridian']},
+    'io':{label:'Io',wiki:W+'Io_(moon)',
+      def:'Jupiter’s innermost large moon. Ploughing through Jupiter’s magnetosphere, it triggers the strongest, most predictable decametric radio storms (the Io-A/B/C sources).',terms:['Io']},
+    'jansky':{label:'Karl Jansky',wiki:W+'Karl_Guthe_Jansky',
+      def:'The Bell Labs engineer who in 1932 traced a persistent radio hiss to the centre of the Milky Way — the accidental birth of radio astronomy. The flux unit, the jansky, is named for him.',terms:['Jansky','jansky']}
+  };
+
+const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase();
+    let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z]/.test(b)&&/[^A-Za-z]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd, .step');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>

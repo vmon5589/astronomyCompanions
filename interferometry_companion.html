@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interferometry — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.amateur{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:700px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.amateur{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.amateur .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* section divider banner */
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.amateur .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.amateur input[type=range]{accent-color:var(--amber)}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+  .imgslot{position:relative; min-height:200px; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:repeating-linear-gradient(45deg,rgba(120,140,230,0.05),rgba(120,140,230,0.05) 12px,transparent 12px,transparent 24px);
+    border:1px dashed rgba(140,160,230,0.35); border-radius:14px; color:var(--muted); padding:24px; font-size:13px}
+  .imgslot b{color:var(--ink)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation / "the reasoning" explainer block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv h4 .ic{font-size:14px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  /* step list for the tutorial */
+  .steps{counter-reset:st; display:grid; gap:10px; margin:14px 0 2px}
+  .step{position:relative; padding:10px 12px 10px 44px; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; font-size:13.5px}
+  .step::before{counter-increment:st; content:counter(st); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:rgba(255,178,74,0.18); color:var(--amber); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center}
+  .step b{color:#fff}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* spectral-type gallery grid */
+  .zoo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:6px}
+  .zoo-card{background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center}
+  .zoo-card canvas{width:100%; height:auto; background:#05060d; border-radius:10px; display:block}
+  .zoo-card .zt{font-weight:700; font-size:13.5px; margin-top:9px; color:#fff}
+  .zoo-card .zk{font-size:11px; color:var(--cyan); letter-spacing:.4px; text-transform:uppercase; margin-top:1px}
+  .zoo-card .zd{font-size:11.6px; color:var(--muted); line-height:1.5; margin-top:6px}
+
+  /* glossary layout + left rail */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* math supplement — numbered concept headings + annotated notes */
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:760px}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+
+  /* self-test quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+
+<style>
+  code{background:rgba(120,140,230,0.12); border:1px solid var(--line); border-radius:6px;
+       padding:1px 6px; font-size:0.92em; color:#bcd4ff; font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .figrow figure img{background:#fff}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<nav>
+  <div class="wrap">
+    <div class="brand">Interferometry <small>Interactive companion · combining light to see the finest detail</small></div>
+    <div class="links">
+      <a href="#interference">Interference</a>
+      <a href="#resolution">Resolution</a>
+      <a href="#phasing">The phasing puzzle</a>
+      <a href="#radio">Radio · VLBI &amp; EHT</a>
+      <a href="#optical">Optical · VLTI</a>
+      <a href="#adaptive">Adaptive optics</a>
+      <a href="#fizeau">Fizeau vs Michelson</a>
+      <a href="#nulling" class="amateur">Erasing a star</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>How telescopes <span class="grad">combine light</span><br>to see the impossibly small</h1>
+  <p class="sub">A single mirror already works by interference — countless light rays adding up in step at one focus. Interferometry takes that idea outdoors: link separate telescopes, even continents apart, and make their light add up too. The reward is resolution no single dish could ever reach — sharp enough to photograph a black hole's shadow or pull a planet out of its star's glare. This companion builds the idea from one wave, to two telescopes, to an Earth-sized array.</p>
+  <p class="byline">An interactive companion to <b>optical and radio interferometry</b>. Every plot computes the real physics live — the two-beam sum, the resolution law $\theta\approx\lambda/B$, fringe correlation, coherence length, the Strehl ratio and the nulling transmission. Background and further reading: <a class="inline" href="https://www.eso.org/public/teles-instr/technology/interferometry/" target="_blank" rel="noopener">ESO · Interferometry</a>.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every interferometry term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. INTERFERENCE -->
+<!-- ============================================================= -->
+<section class="chapter" id="interference">
+  <span class="era">The foundation · Two waves add</span>
+  <h2>It all starts with interference</h2>
+  <p class="who">Thomas Young's two slits · why even an ordinary mirror is an interferometer</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Light is a wave — an electric field rising and falling in time. Where two light waves overlap they do not simply brighten; they <b>interfere</b>. Crest meeting crest adds up (<b>constructive interference</b>); crest meeting trough cancels (<b>destructive interference</b>). Thomas Young showed this in 1801: two pinholes throw a pattern of bright and dark <b>fringes</b> on a screen.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>An ordinary telescope mirror already exploits this. Light striking every part of the mirror is bounced to a single focus; only because all those rays arrive <b>in phase</b> do they add constructively into one sharp point. A mirror is, quietly, a perfect interferometer — millions of rays summed in step. So why not pull the pieces apart and combine the light from <i>separate</i> telescopes?</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Treat two telescopes like Young's two slits. The light from a distant star reaches each one, and when their beams are combined the result is a fringe pattern whose spacing depends on the separation — the <b>baseline</b> — between them. The crucial quantity is the <b>phase</b> difference: how far one wave is shifted relative to the other when they meet.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>This single fact — that two coherent waves add according to their phase — is the seed of all <b>interferometry</b>. Everything that follows (Earth-sized radio arrays, optical delay lines, nulling out a star) is just clever ways of controlling that phase so the waves add the way we want.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Add two light waves</h3>
+    <p class="hint">Here are two identical waves arriving at a combiner. Slide the <b>phase</b> difference between them and watch the sum. In step (0°) they reinforce — a bright fringe; half a wave out (180°) they cancel completely — a dark fringe. This is the entire engine of interferometry: the combined brightness encodes the phase difference between the beams.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Phase difference between the two beams <b><span id="if_pl">0°</span></b></label>
+        <input id="if_phase" type="range" min="0" max="360" step="1" value="0">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Combined amplitude</div><div class="v"><span id="if_amp">2.00</span> <small>× one beam</small></div></div>
+      <div class="stat"><div class="k">Combined power</div><div class="v"><span id="if_pow">100</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Fringe state</div><div class="v" id="if_state" style="font-size:14px">bright (constructive)</div></div>
+    </div>
+    <div id="if_plot" class="plot"></div>
+    <div class="eq">$$ E_1+E_2 = A\sin\omega t + A\sin(\omega t+\phi) = \underbrace{2A\cos\tfrac{\phi}{2}}_{\text{amplitude}}\;\sin\!\Big(\omega t+\tfrac{\phi}{2}\Big) $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why brightness reads out phase</h4>
+      <p class="lead">Two equal waves combine into one wave whose amplitude depends only on their phase difference $\phi$.</p>
+      <ol>
+        <li>Add the fields: $A\sin\omega t + A\sin(\omega t+\phi)$. The trigonometric sum gives a single wave of amplitude $2A\cos(\phi/2)$.</li>
+        <li>At $\phi=0$ the amplitude is $2A$ — twice as tall, so <b>four times</b> the power. At $\phi=180°$ it is zero: the beams annihilate. This is constructive and destructive interference.</li>
+        <li>What a detector measures is power $\propto\cos^2(\phi/2)$. So measuring brightness is measuring the phase difference — the central trick that lets an interferometer recover information no single beam carries.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> the combined intensity is a coded message about the <i>relative phase</i> of the two beams. Control or read that phase and you control the instrument.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Two equal beams combine with a phase difference of $\phi=90°$. By what factor is the combined power reduced compared with the in-phase case?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Power law.</b> Combined power $\propto\cos^2(\phi/2)$. At $\phi=0$, $\cos^2 0=1$.</li>
+          <li><b>At 90°.</b> $\cos^2(45°)=(0.707)^2=0.5$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the power is halved — at quarter-wave offset the fringe is exactly midway between bright and dark.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A path-length difference of half a wavelength between the two beams produces what phase difference, and what does the detector see?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Path to phase.</b> One full wavelength of extra path = $360°$ of phase. So $\lambda/2$ of path = $180°$.</li>
+          <li><b>Result.</b> $\cos^2(90°)=0$ — complete cancellation.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $180°$, a dark fringe. This is exactly why path lengths must be controlled to a fraction of a wavelength.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. RESOLUTION -->
+<!-- ============================================================= -->
+<section class="chapter" id="resolution">
+  <span class="era">The payoff · Why we bother</span>
+  <h2>Resolution: the bigger the baseline, the finer the detail</h2>
+  <p class="who">From a single dish to an Earth-sized array — the law $\theta\approx\lambda/B$</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Every telescope is blurred by diffraction. A single aperture of diameter $D$ can resolve two points no closer than about $\theta\approx1.22\,\lambda/D$ — the <b>diffraction limit</b>. Longer wavelengths blur more; bigger apertures sharpen. This is why radio dishes, working at metre to millimetre waves, are huge yet still see a coarse sky.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Interferometry replaces the single diameter $D$ with the <b>baseline</b> $B$ — the separation between two telescopes. The pair resolves detail as fine as $\theta\approx\lambda/B$, <i>as if</i> it were a telescope as wide as the gap between them, even though almost all the glass in between is missing. Spread telescopes across a continent and $B$ becomes thousands of kilometres.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The numbers are startling. The <b>Event Horizon Telescope</b> links radio dishes worldwide into a baseline nearly the size of the Earth and observes at 1.3 mm; that gives $\theta\sim20$ microarcseconds — sharp enough to resolve the glowing ring around a black hole's <b>event horizon</b>. The <b>VLTI</b> reaches a few milliarcseconds in the near-infrared with 100-metre baselines.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Resolution is the whole reason to combine light. A single 8-metre mirror resolves about 15 milliarcseconds in visible light; an array of the same mirrors 130 metres apart resolves a hundred times finer — measuring stellar diameters, imaging dust around young stars, and tracking stars orbiting our Galaxy's central black hole.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Stretch the baseline, sharpen the view</h3>
+    <p class="hint">Pick an observing wavelength, then drag the baseline from a backyard scope up to the size of the Earth. Read off the angular resolution — and watch the simulated double star below snap from a single smear into two clean points the moment the baseline is long enough to split them.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Observing wavelength <b><span id="res_wll">visible · 500 nm</span></b></label>
+        <select id="res_wl">
+          <option value="5e-7">Visible · 500 nm</option>
+          <option value="2.2e-6">Near-infrared · 2.2 µm (VLTI)</option>
+          <option value="1.3e-3" selected>Radio · 1.3 mm (EHT)</option>
+          <option value="0.21">Radio · 21 cm</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Baseline B <b><span id="res_bl">10000 km</span></b></label>
+        <input id="res_b" type="range" min="-2" max="7.11" step="0.01" value="7">
+        <label style="margin-top:2px"><span style="font-size:11px">log₁₀ baseline in metres (−2 = 1 cm, 7.11 ≈ Earth's diameter)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Angular resolution θ ≈ λ/B</div><div class="v"><span id="res_th">21</span> <small id="res_thu">µas</small></div></div>
+      <div class="stat"><div class="k">Matches</div><div class="v" id="res_inst" style="font-size:13px">Event Horizon Telescope</div></div>
+      <div class="stat"><div class="k">Double star (1 mas apart)</div><div class="v" id="res_split" style="font-size:14px">resolved</div></div>
+    </div>
+    <figure><canvas id="res_canvas" width="900" height="200"></canvas>
+      <figcaption id="res_cap">A close double star: blurred into one blob when the baseline is too short, split into two when θ beats their separation.</figcaption></figure>
+    <div class="eq">$$ \theta_{\rm single\;dish}\approx 1.22\,\frac{\lambda}{D},\qquad \theta_{\rm interferometer}\approx \frac{\lambda}{B} $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why separation can replace a solid mirror</h4>
+      <p class="lead">Resolution comes from the <i>edges</i> of the aperture, not the glass in the middle.</p>
+      <ol>
+        <li>Diffraction sets the finest angle a telescope can split: $\theta\approx\lambda/D$, fixed by how far apart its widest points are.</li>
+        <li>Two small telescopes a distance $B$ apart sample the wave at two points $B$ across — exactly the widest points of an imaginary aperture of size $B$. For each detail at scale $\theta\sim\lambda/B$, they record one fringe.</li>
+        <li>The price: a single baseline measures only <i>one</i> spatial scale and direction at a time. To build a real image you need many baselines — many telescope pairs, and the Earth's rotation to sweep them (next chapters).</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> an interferometer trades a filled mirror for empty space plus cleverness — it gets the resolution of a giant aperture from just its rim.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. THE PHASING PUZZLE -->
+<!-- ============================================================= -->
+<section class="chapter" id="phasing">
+  <span class="era">The core skill · Sliding waves into step</span>
+  <h2>The phasing puzzle: a wave, a delay, and a slide</h2>
+  <p class="who">Why interferometry is, at heart, lining up two records of the same wave</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A wavefront from a distant star is tilted relative to two telescopes on the ground, so the light reaches one before the other. That head-start is the <b>geometric delay</b> — extra path the far telescope's signal must cover. Until it is removed, the two beams are out of step and will not interfere cleanly.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Picture each telescope's output as a <b>signal versus time</b> — a wave whose amplitude wobbles. The two records look almost identical, but one is shifted in time relative to the other. The job is to slide one back and forth until it lines up with the other. That sliding is <b>phasing</b> (or delay compensation), and the right amount of slide <i>is</i> the geometric delay.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>How do you know when they line up? You <b>correlate</b> them — multiply the two signals together and add up the result. When they are aligned, crests sit on crests and the correlation peaks; the interference <b>fringes</b> appear. Misaligned, the product averages to noise. The peak of the correlation curve tells you the exact delay.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>This is the universal puzzle of interferometry, whether you slide the signal inside a computer (radio) or slide the actual light beam (optical). Solve it for every pair of telescopes, every moment, and you have measured the wave's phase across a huge aperture — the raw material of a high-resolution image.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Solve the puzzle: slide until the fringes appear</h3>
+    <p class="hint">The two telescopes recorded the same starlight, but the second arrived with a built-in <b>geometric delay</b>. Drag the compensating delay to slide the second signal back into step. The <b>correlation</b> meter peaks — and the fringes lock in — only when your delay matches the true geometric delay. That single number is what every interferometer must find, for every baseline, all the time.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Compensating delay you apply <b><span id="ph_dl">0.0</span></b></label>
+        <input id="ph_delay" type="range" min="-6" max="6" step="0.02" value="0">
+        <label style="margin-top:2px"><span style="font-size:11px">slide the second telescope's signal in time (arbitrary units)</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Correlation (fringe strength)</div><div class="v"><span id="ph_corr">12</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Residual delay</div><div class="v"><span id="ph_res">3.40</span></div></div>
+      <div class="stat"><div class="k">Status</div><div class="v" id="ph_stat" style="font-size:14px">searching…</div></div>
+    </div>
+    <div id="ph_plot" class="plot"></div>
+    <div class="eq">$$ R(\tau)=\int s_1(t)\,s_2(t+\tau)\,dt \quad\text{peaks when } \tau=\tau_{\rm geometric} $$</div>
+
+    <div class="mathnote">
+      <h4>Why this is the same job for radio and optical</h4>
+      <p>The puzzle never changes: two records of one wave, offset in time, to be slid into register. What differs is <b>how</b> you slide. In <b>radio</b> the signal is digitized, so the slide is arithmetic — shift the numbers in a computer. In <b>optical</b> the wave oscillates far too fast to digitize, so the slide is physical — lengthen or shorten the actual light path with a moving mirror (a "trombone" <b>delay line</b>). Same puzzle, different hands. Both also depend on knowing the <b>time</b> at each telescope extremely precisely, because a delay <i>is</i> a difference of arrival times.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="rule"></div>
+  <h3>Two ways to combine the light · <span class="grad">numbers vs. photons</span></h3>
+  <p>Radio waves are slow enough to capture as a stream of numbers and combine inside a computer. Optical waves are a hundred-thousand times faster — too fast for any electronics — so the light itself must be physically brought together. Same puzzle, two utterly different machines.</p>
+</div>
+
+<!-- ============================================================= -->
+<!-- 4. RADIO -->
+<!-- ============================================================= -->
+<section class="chapter" id="radio">
+  <span class="era">Radio · Record the field, correlate in a computer</span>
+  <h2>VLBI and the Event Horizon Telescope</h2>
+  <p class="who">Atomic clocks, hard drives, and the Earth's own rotation building an image</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Radio frequencies — megahertz to a few hundred gigahertz — are slow enough that electronics can sample the <b>electric field</b> directly. Each radio telescope becomes a faithful record of the field going up and down over time, stamped with the exact moment of each sample by a <b>hydrogen-maser</b> atomic clock.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>If every dish records its field with a precise timestamp, the telescopes need never be physically connected. Ship the recordings to one place — a <b>correlator</b> — and let a computer do the phasing: shift each station's data by its geometric delay so the phases align, then correlate every pair. This is <b>Very Long Baseline Interferometry (VLBI)</b>, and it lets the baseline span the whole planet.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The <b>Event Horizon Telescope</b> did exactly this at 1.3 mm, linking dishes from Hawaii to Spain to the South Pole. Each station's atmosphere is different — different altitude, water vapour, and distance to the source — so the <b>propagation time</b> to each is different and must be modelled and corrected. The computer slides each field record until they all line up.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>One baseline gives one measurement. But as the <b>Earth rotates</b>, each pair of telescopes views the source from a continuously changing angle, sweeping out new baselines and filling in the missing aperture — <b>aperture synthesis</b>. Combine a night's worth and you reconstruct an image: the glowing ring around M87's and our own Galaxy's central black hole.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Build a picture from the Earth's spin</h3>
+    <p class="hint">Add telescopes and let the night run. Each pair of dishes traces a curved track across the <b>uv-plane</b> — the map of which baselines (which spatial scales and directions) you've measured — as the Earth rotates. The more dishes and the longer you observe, the more completely the plane fills, and the sharper and more faithful the reconstructed image becomes. This is <b>aperture synthesis</b>: trading a filled mirror for time and geometry.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Number of telescopes <b><span id="uv_nl">6</span></b></label>
+        <input id="uv_n" type="range" min="2" max="9" step="1" value="6">
+      </div>
+      <div class="ctl">
+        <label>Hours observed (Earth rotation) <b><span id="uv_hl">6 h</span></b></label>
+        <input id="uv_h" type="range" min="0" max="12" step="0.25" value="6">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Baselines (pairs)</div><div class="v" id="uv_pairs">15</div></div>
+      <div class="stat"><div class="k">uv-plane coverage</div><div class="v"><span id="uv_cov">42</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Image quality</div><div class="v" id="uv_qual" style="font-size:14px">good</div></div>
+    </div>
+    <div class="figrow two">
+      <figure><canvas id="uv_canvas" width="440" height="360"></canvas>
+        <figcaption><b>The uv-plane.</b> Each dot is one baseline at one instant; the Earth's rotation drags each pair along an elliptical track. Empty regions are spatial scales you never measured.</figcaption></figure>
+      <figure><canvas id="uv_img" width="440" height="360"></canvas>
+        <figcaption><b>The reconstructed source.</b> A ring (a black-hole shadow) rebuilt from whatever the uv-plane sampled. Sparse coverage leaves streaks and artefacts; dense coverage cleans them away.</figcaption></figure>
+    </div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why rotation is free aperture</h4>
+      <p class="lead">A static pair of dishes measures one baseline. A rotating Earth carries them through a whole family of baselines for nothing.</p>
+      <ol>
+        <li>Resolution needs many baselines — many separations and orientations — to sample every detail of the source. Building that many fixed dishes is impossible.</li>
+        <li>But as the Earth turns, each pair's <b>projected</b> separation (as seen from the source) continuously changes, tracing a curve through the uv-plane. Hours of observing convert two dishes into hundreds of effective baselines.</li>
+        <li>A Fourier transform of the filled uv-plane is the image. Gaps in coverage become artefacts; that's why the EHT needs many stations <i>and</i> a long track, plus careful modelling of each site's atmospheric <b>propagation time</b>.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> VLBI turns precise timekeeping and the planet's own rotation into an aperture the size of the Earth — no glass required between the dishes.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. OPTICAL -->
+<!-- ============================================================= -->
+<section class="chapter" id="optical">
+  <span class="era">Optical · The light is too fast to record</span>
+  <h2>Optical interferometry and the trombone delay line</h2>
+  <p class="who">The VLTI · bringing real beams together to within a wavelength</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Visible light oscillates at roughly $5\times10^{14}$ cycles a second — a hundred thousand times faster than radio. No electronics can sample a field that quick, so the radio trick of recording the wave and shifting it in a computer is simply impossible at optical wavelengths.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>If you cannot record the wave, you must combine the actual light. Pipe the beams from separate telescopes through tunnels to a central <b>beam combiner</b> and let the photons interfere directly — an <b>analogue</b> combination, done with mirrors and air, not arithmetic. The European Southern Observatory's <b>VLTI</b> does this with its 8.2-metre and 1.8-metre telescopes.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>But the beams still arrive out of step by the <b>geometric delay</b>, and that delay changes second by second as the Earth turns. The fix is a moving mirror on a track — a <b>delay line</b>, like a <b>trombone slide</b> — that lengthens or shortens one beam's path by exactly the right amount to re-equalise the two paths in real time.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>The paths must match to within the <b>coherence length</b> — for broadband light, only a few wavelengths — or the fringes wash out. Holding that match to a fraction of a micron, against a moving Earth and a churning atmosphere, is what lets optical interferometers measure stellar diameters and watch stars whip around the Galactic centre's black hole.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Tune the trombone until the fringe packet lights up</h3>
+    <p class="hint">The two optical beams interfere only where their path lengths match to within the <b>coherence length</b>. Slide the <b>delay line</b> (the trombone) and a burst of fringes — the <b>fringe packet</b> — appears right at zero path difference, then fades. Narrow-band light has a long coherence length and a fat, forgiving packet; broadband "white" light gives a razor-thin one you must hit precisely.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Delay-line (trombone) position <b><span id="od_pl">+0.0 µm</span></b></label>
+        <input id="od_pos" type="range" min="-40" max="40" step="0.1" value="14">
+      </div>
+      <div class="ctl">
+        <label>Light bandwidth <b><span id="od_bl">moderate</span></b></label>
+        <input id="od_bw" type="range" min="0.5" max="12" step="0.1" value="4">
+        <label style="margin-top:2px"><span style="font-size:11px">narrow (left) = long coherence length · white light (right) = short</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Residual path difference</div><div class="v"><span id="od_opd">14.0</span> <small>µm</small></div></div>
+      <div class="stat"><div class="k">Coherence length</div><div class="v"><span id="od_lc">15</span> <small>µm</small></div></div>
+      <div class="stat"><div class="k">Fringe visibility</div><div class="v"><span id="od_vis">35</span> <small>%</small></div></div>
+    </div>
+    <div id="od_plot" class="plot"></div>
+    <div class="eq">$$ V(\Delta x)=\exp\!\Big[-\Big(\tfrac{\Delta x}{L_c}\Big)^{2}\Big]\cos\!\Big(\tfrac{2\pi\,\Delta x}{\lambda}\Big),\qquad L_c=\frac{\lambda^{2}}{\Delta\lambda} $$</div>
+
+    <div class="mathnote">
+      <h4>Why optical interferometry is so much harder than radio</h4>
+      <p>In radio the wave is recorded, so the delay can be searched at leisure in software, and the tolerance is a comfortable fraction of a long wavelength. In optical the wave is gone the instant it is combined: you must put the <b>delay line</b> in the right place <i>physically</i>, <i>now</i>, to within a fraction of a micron — and keep adjusting as the Earth rotates and the atmosphere shoves the fringes around. That is why optical arrays use long vacuum tunnels of moving mirrors and fast fringe-tracking, while radio arrays use disks and a computer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. ADAPTIVE OPTICS -->
+<!-- ============================================================= -->
+<section class="chapter" id="adaptive">
+  <span class="era">Fighting the sky · Phasing on the fly</span>
+  <h2>Adaptive optics and phasing a giant mirror</h2>
+  <p class="who">A deformable mirror reshaping the wavefront — and the ELT's 798 segments</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>The atmosphere is not still. Turbulent cells of warm and cool air bend starlight by slightly different amounts across the aperture, so the once-flat <b>wavefront</b> arrives crumpled. The light no longer adds in phase at the focus, and the star image boils into a blur of speckles — this is astronomical <b>seeing</b>.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>If the wavefront is crumpled, un-crumple it. Measure its distortion many hundreds of times a second and bounce the light off a <b>deformable mirror</b> whose surface is pushed and pulled by thousands of tiny actuators to apply the opposite shape. The errors cancel, the wavefront flattens, and the light snaps back into phase. This is <b>adaptive optics</b>.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Each beam carries its own atmospheric path, so correction must be done per telescope and continuously — essentially a fast, local version of the same phasing puzzle. The quality of the fix is measured by the <b>Strehl ratio</b>: how much of the light has been gathered back into a sharp diffraction-limited core versus left in a fuzzy halo.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>The same logic scales up to the mirror itself. The <b>Extremely Large Telescope</b> is not one mirror but 798 hexagonal <b>segments</b> that must be co-phased to a common surface within nanometres — and its built-in deformable mirror corrects the atmosphere in real time. Giant segmented telescopes are, in effect, interferometers that must continually phase their own pieces.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Flatten the wavefront, sharpen the star</h3>
+    <p class="hint">Turbulence crumples the incoming <b>wavefront</b> (left). Add correction modes — more actuators on the <b>deformable mirror</b> — and watch the wavefront flatten and the star image (right) collapse from a boiling speckle cloud into a sharp diffraction-limited core. The <b>Strehl ratio</b> tracks your progress toward a perfect image.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Turbulence strength <b><span id="ao_tl">moderate</span></b></label>
+        <input id="ao_turb" type="range" min="0.3" max="3" step="0.05" value="1.6">
+      </div>
+      <div class="ctl">
+        <label>Correction modes (actuators) <b><span id="ao_ml">8</span></b></label>
+        <input id="ao_modes" type="range" min="0" max="40" step="1" value="8">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Residual wavefront error</div><div class="v"><span id="ao_rms">0.42</span> <small>λ rms</small></div></div>
+      <div class="stat"><div class="k">Strehl ratio</div><div class="v"><span id="ao_strehl">18</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Image is</div><div class="v" id="ao_verdict" style="font-size:13px">seeing-limited</div></div>
+    </div>
+    <div class="figrow two">
+      <figure><canvas id="ao_wf" width="440" height="300"></canvas>
+        <figcaption><b>Wavefront across the aperture.</b> Hot/cool turbulence (warm colours = ahead, cool = behind). Correction subtracts the smooth shape the mirror can reproduce; what's left is the residual error.</figcaption></figure>
+      <figure><canvas id="ao_psf" width="440" height="300"></canvas>
+        <figcaption><b>The star image (PSF).</b> Low Strehl: a broad speckle halo. High Strehl: a tight, bright Airy core — diffraction-limited, the goal of adaptive optics and segment phasing alike.</figcaption></figure>
+    </div>
+    <div class="eq">$$ S=\exp\!\big[-(2\pi\,\sigma)^{2}\big]\quad(\text{Mar\'echal}),\qquad \sigma=\text{residual wavefront error in waves} $$</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. FIZEAU vs MICHELSON -->
+<!-- ============================================================= -->
+<section class="chapter" id="fizeau">
+  <span class="era">Two combiner designs · Where the light meets</span>
+  <h2>Fizeau vs Michelson combination</h2>
+  <p class="who">Combine in the image plane, or in the pupil — ELT &amp; Colossus vs VLTI &amp; the EHT</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Once you have several beams, there are two fundamentally different places to make them interfere. You can let them come to a common focus and overlap in the <b>image plane</b> — the way an ordinary camera forms a picture — or you can overlap them in the <b>pupil plane</b>, mixing the beams themselves before any image forms.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>The first is the <b>Fizeau</b> scheme: the sub-apertures keep their true geometric layout and share one focus, so the result is a real, wide-field image — exactly how a single giant mirror works. A multi-mirror or segmented telescope like the <b>ELT</b>, exoplanet imagers like the <b>ExoLife Finder (ELF)</b> and its pathfinder <b>SELF</b>, or a proposed array like <b>Colossus</b>, are Fizeau interferometers: they add the electric fields right in the detector.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The second is the <b>Michelson</b> scheme (pupil-plane combination), used by the <b>VLTI</b>: separate telescopes pipe their beams to a combiner that mixes pairs and records the fringe for each baseline. It handles very long, sparse baselines that no common focus could, at the cost of a tiny field of view. The radio <b>correlator</b> of VLBI is the digital version of the same idea.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Either way the physics is the one we started with: add the fields and, in software or with mirrors, <b>slide</b> the records until they align. Fizeau gives you an image directly; Michelson and the correlator give you per-baseline fringe measurements you later assemble — through aperture synthesis — into an image.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Two ways to make beams interfere</h3>
+    <p class="hint">On the left, a <b>Fizeau</b> combiner: the sub-apertures share one focus and form a true image — the design of segmented giants like the ELT and of exoplanet imagers like the ExoLife Finder (ELF) and its pathfinder SELF. On the right, a <b>Michelson</b> combiner: beams are carried to a mixer that records the fringe for each pair — the design of the VLTI, and (digitally) of the VLBI correlator.</p>
+    <div class="figrow two">
+      <figure><canvas id="fz_canvas" width="440" height="320"></canvas>
+        <figcaption><b>Fizeau (image-plane).</b> Sub-apertures keep their true spacing and share a single focus; the electric fields add directly in the detector to form a wide-field image. ELT, Colossus, the old multi-mirror telescopes.</figcaption></figure>
+      <figure><canvas id="mi_canvas" width="440" height="320"></canvas>
+        <figcaption><b>Michelson (pupil-plane).</b> Each telescope's beam is piped to a central combiner, mixed pair by pair, and the fringe recorded per baseline. VLTI in light; the VLBI correlator does the identical job with numbers.</figcaption></figure>
+    </div>
+    <div class="mathnote">
+      <h4>The common thread, one more time</h4>
+      <p>Fizeau and Michelson differ only in <i>where</i> the beams overlap, not in <i>what</i> happens: coherent fields are summed, and a delay is tuned so they add in phase. The Fizeau image plane sums them optically and instantly across a field; the Michelson combiner — and the digital correlator — sums them baseline by baseline. The choice is a trade between field of view and how long and sparse a baseline you can reach.</p>
+    </div>
+
+    <div class="mathnote">
+      <h4>A Fizeau telescope built to image life: SELF &amp; ELF</h4>
+      <p>The clearest modern Fizeau design is Jeff Kuhn's <b>ExoLife Finder (ELF)</b> — a ~50-metre-scale telescope made not of one mirror but of many independent thin mirrors arranged in a sparse ring and combined at a common focus. Its 3.5-metre pathfinder, <b>SELF</b> (Small-ELF), with 15 sub-apertures of 0.5 m each, is under construction at the Teide Observatory in Tenerife (first light targeted for 2026). The mirrors are made extraordinarily light by <b>curvature polishing</b> — laser-stressing float glass into shape, as thin as 15 mm — and held in <b>tensegrity</b> frames of compression "bones" and tension "tendons," driving the mass-per-area down from ~24 t/m² (the 1949 Hale telescope) toward under 3 t/m². Crucially, each sub-aperture is co-phased <i>point by point</i>: a small adaptive secondary mirror tweaks its piston, tip and tilt, while machine-learning wavefront sensing and <b>photonic lanterns</b> read the alignment from the focal-plane speckle. Hold the phasing to ~0.01 radian (~60 nm) and a high-order coronagraph can dig a <b>dark hole</b> in the star's glare down to ~10⁻⁸ contrast — deep enough to image a planet like ε Eridani b and search its infrared light for biosignatures. See Kuhn et&nbsp;al., <a class="inline" href="https://www.light-am.com/article/doi/10.37188/lam.2025.033" target="_blank" rel="noopener">“Creating ground-based telescopes for imaging interferometry: SELF and ELF,” <i>Light: Advanced Manufacturing</i> (2025)</a>.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider">
+  <div class="rule"></div>
+  <h3>The payoff · <span class="grad">erasing a star to see its planet</span></h3>
+  <p>Phasing doesn't only let you add light up. Run it backwards and you can make light <i>cancel</i> exactly where you choose — switching off a blinding star so the faint world beside it can finally be seen.</p>
+</div>
+
+<!-- ============================================================= -->
+<!-- 8. NULLING / CORONAGRAPHY -->
+<!-- ============================================================= -->
+<section class="chapter amateur" id="nulling">
+  <span class="era">Do something impossible · Subtract a star</span>
+  <h2>Nulling interferometry: hiding a star to reveal a planet</h2>
+  <p class="who">The coronagraph idea · Bracewell nulling · using polarization to pull a planet out of the glare</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A star can outshine its planet by a billion to one. Even with perfect resolution, the planet drowns in the star's glare. But interferometry gives a new handle: because we control the <b>phase</b> of the combined beams, we can choose to make the starlight interfere <i>destructively</i> — to cancel it.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Add an exact half-wave (180°) <b>phase</b> shift to one arm of the interferometer. Light arriving straight on-axis — from the star — now meets its twin perfectly out of step and vanishes: a deep central <b>null</b>. This is <b>nulling interferometry</b> (Bracewell's idea), the interferometric cousin of the <b>coronagraph</b> that blocks a star to expose what's beside it.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>A planet sits at a slightly different <b>angle</b> on the sky, so its light enters with a slightly different geometric path — a different phase. It does <i>not</i> fall in the null. Tune the baseline so the planet's angle lands on a bright fringe while the star sits in the dark, and the planet's photons survive the cancellation that erased the star.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>There's a second handle too: a planet shines by <i>reflected</i> starlight, which is partly <b>polarized</b>, while the star's own light is not. Filtering for that polarized signal isolates the planet's photons still further. Together, nulling and polarimetry are how interferometry hunts for worlds — and, one day, the chemical fingerprints of life in their light.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Null the star, keep the planet</h3>
+    <p class="hint">A 180° phase shift puts a deep <b>null</b> on-axis, where the star sits — its <b>transmission</b> drops toward zero. The planet, at a small <b>angle</b> off-axis, lands somewhere on the fringe pattern. Tune the baseline so the planet falls on a bright fringe while the star stays buried in the null, and watch the planet's throughput climb even as the star is erased.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Baseline B (sets fringe spacing) <b><span id="nl_bl">20 m</span></b></label>
+        <input id="nl_b" type="range" min="2" max="120" step="0.5" value="20">
+      </div>
+      <div class="ctl">
+        <label>Planet angular separation <b><span id="nl_pl">12 mas</span></b></label>
+        <input id="nl_p" type="range" min="1" max="60" step="0.5" value="12">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Star transmission (on-axis)</div><div class="v"><span id="nl_star">0.01</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Planet transmission</div><div class="v"><span id="nl_planet">88</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Verdict</div><div class="v" id="nl_verdict" style="font-size:13px">planet revealed</div></div>
+    </div>
+    <div id="nl_plot" class="plot"></div>
+    <div class="eq">$$ T(\theta)=\sin^{2}\!\Big(\frac{\pi B \theta}{\lambda}\Big)\quad\Rightarrow\quad T(0)=0\ \text{(star nulled)},\ \ T(\theta_{\rm planet})\ \text{can be} \approx 1 $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why a planet escapes the null</h4>
+      <p class="lead">The null is exactly on-axis; everything off-axis sees a different phase.</p>
+      <ol>
+        <li>With a 180° shift applied, two beams cancel for light arriving straight on (zero path difference) — the star, at the centre, is suppressed to a deep null.</li>
+        <li>Light from an <b>angle</b> $\theta$ arrives with an extra geometric path $B\theta$, i.e. an extra phase $2\pi B\theta/\lambda$. That phase pulls it <i>out</i> of the null and onto the fringe pattern $T(\theta)=\sin^2(\pi B\theta/\lambda)$.</li>
+        <li>Choose $B$ so the planet's $\theta$ lands on a transmission peak ($B\theta\approx\lambda/2$) while the star stays at $T=0$. The star is gone; the planet comes through. Its <b>polarized</b> reflected light gives a further way to confirm it.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> the same phase control that <i>builds</i> a fringe can be aimed to <i>destroy</i> one exactly on a star — turning interferometry into a planet-finder.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 9. QUIZ -->
+<!-- ============================================================= -->
+<section class="chapter" id="quiz">
+  <span class="era">Check yourself · Seventeen questions</span>
+  <h2>What did combining light teach you?</h2>
+  <p class="who">Seventeen questions across interference, resolution, phasing, radio and optical arrays, adaptive optics, the SELF/ELF imaging interferometers, and nulling</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Self-test</h3>
+    <p class="hint">Pick an answer for each question. Correct choices turn green, mistakes turn red, and a short explanation appears either way. Your running score sits at the top; nothing is sent anywhere — refresh the page or hit Reset to try again.</p>
+    <div class="quiz-head">
+      <div class="quiz-score">Score <b><span id="qz_correct">0</span></b> / <span id="qz_total">17</span> &nbsp;·&nbsp; <span id="qz_answered">0</span> answered</div>
+      <div class="quiz-bar"><i id="qz_fill"></i></div>
+      <button class="quiz-reset" id="qz_reset" type="button">Reset</button>
+    </div>
+    <div id="qz_list"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A hobby project tracing how telescopes <b>combine light</b> to beat the diffraction limit — from Young's two slits and the fact that a single mirror is already an interferometer, through Earth-spanning radio <b>VLBI</b> and the Event Horizon Telescope, optical beam combination at the <b>VLTI</b>, adaptive optics and the phasing of the ELT's segmented mirror, and finally nulling interferometry that erases a star to reveal its planet. Every plot computes a real formula live: the two-beam sum $2A\cos(\phi/2)$, the resolution law $\theta\approx\lambda/B$, fringe correlation, the coherence length $L_c=\lambda^2/\Delta\lambda$, the Maréchal Strehl ratio, and the nulling transmission $\sin^2(\pi B\theta/\lambda)$.</p>
+  <p style="margin-top:8px">Selected reference values: visible light $\lambda\approx0.5$ µm at $\sim6\times10^{14}$ Hz; VLTI near-IR baselines up to ~130 m → a few milliarcseconds; EHT at 1.3 mm with an Earth-sized baseline → ~20 microarcseconds; ELT primary mirror 39 m, 798 hexagonal segments; 1 milliarcsecond ≈ $4.85\times10^{-9}$ rad. Background and figures of the real instruments: <a class="inline" href="https://www.eso.org/public/teles-instr/technology/interferometry/" target="_blank" rel="noopener">ESO · Interferometry</a>; and on Fizeau imaging interferometers built to image exoplanets, J. Kuhn et al., <a class="inline" href="https://www.light-am.com/article/doi/10.37188/lam.2025.033" target="_blank" rel="noopener">“Creating ground-based telescopes for imaging interferometry: SELF and ELF,” <i>Light: Advanced Manufacturing</i> (2025)</a>. Some illustrations are deliberately schematic — accurate in scaling and spirit, simplified in detail.</p>
+</footer>
+
+<script>
+/* =======================================================================
+   Shared helpers (interferometry companion)
+======================================================================= */
+const C=2.998e8;
+const RAD2MAS=206264806.0;        // radians -> milli-arcsec  (206264.806 arcsec/rad * 1000)
+const gid=id=>document.getElementById(id);
+
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:62,r:18,t:18,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+
+/* =======================================================================
+   1. ADD TWO WAVES  (Plotly)
+======================================================================= */
+(function(){
+  const pEl=gid('if_phase'); if(!pEl) return;
+  const plO=gid('if_pl'), ampO=gid('if_amp'), powO=gid('if_pow'), stO=gid('if_state');
+  const X=[]; for(let t=0; t<=4*Math.PI; t+=0.04) X.push(t);
+  function draw(){
+    const deg=+pEl.value, phi=deg*Math.PI/180;
+    plO.textContent=deg+'°';
+    const y1=X.map(t=>Math.sin(t));
+    const y2=X.map(t=>Math.sin(t+phi));
+    const ys=X.map(t=>Math.sin(t)+Math.sin(t+phi));
+    const amp=2*Math.abs(Math.cos(phi/2));
+    ampO.textContent=amp.toFixed(2);
+    powO.textContent=Math.round(amp*amp/4*100);
+    let st='partial';
+    if(deg<20||deg>340) st='bright (constructive)';
+    else if(deg>160&&deg<200) st='dark (destructive)';
+    stO.textContent=st;
+    stO.style.color = (deg<20||deg>340)?'#5ee6a8':((deg>160&&deg<200)?'#ff6b9d':'var(--amber)');
+    Plotly.react('if_plot',[
+      {x:X,y:y1,mode:'lines',line:{color:'rgba(63,208,255,0.55)',width:1.6},name:'beam 1'},
+      {x:X,y:y2,mode:'lines',line:{color:'rgba(255,178,74,0.55)',width:1.6},name:'beam 2'},
+      {x:X,y:ys,mode:'lines',line:{color:'#5ee6a8',width:3},name:'sum'}
+    ], baseLayout({
+      xaxis:{title:'time', range:[0,4*Math.PI], showticklabels:false},
+      yaxis:{title:'electric field', range:[-2.3,2.3]},
+      annotations:[
+        {x:0.4,y:2.05,text:'beam 1',showarrow:false,font:{color:'#3fd0ff',size:11},xanchor:'left'},
+        {x:0.4,y:1.7,text:'beam 2',showarrow:false,font:{color:'#ffb24a',size:11},xanchor:'left'},
+        {x:4*Math.PI-0.2,y:2.05,text:'sum',showarrow:false,font:{color:'#5ee6a8',size:12},xanchor:'right'}
+      ]
+    }), PCFG);
+  }
+  pEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   2. RESOLUTION vs BASELINE  (canvas + readouts)
+======================================================================= */
+(function(){
+  const bEl=gid('res_b'); if(!bEl) return;
+  const wlEl=gid('res_wl'), wllO=gid('res_wll'), blO=gid('res_bl'),
+        thO=gid('res_th'), thuO=gid('res_thu'), instO=gid('res_inst'),
+        splitO=gid('res_split'), cv=gid('res_canvas'), capO=gid('res_cap');
+  const BINARY_MAS=1.0;     // the test double star separation
+  function fmtB(m){ if(m>=1e6) return (m/1e6).toFixed(m<1e7?1:0)+'000 km'.slice(0,0)+' '+(m/1000).toFixed(0)+' km';
+    if(m>=1000) return (m/1000).toFixed(m<1e4?1:0)+' km';
+    if(m>=1) return m.toFixed(m<10?2:0)+' m';
+    return (m*100).toFixed(0)+' cm'; }
+  function fmtBshort(m){ if(m>=1000) return (m/1000).toFixed(m<1e4?0:0)+' km';
+    if(m>=1) return m.toFixed(m<10?1:0)+' m'; return (m*100).toFixed(0)+' cm'; }
+  function draw(){
+    const lam=+wlEl.value;
+    wllO.textContent=wlEl.options[wlEl.selectedIndex].text;
+    const B=Math.pow(10,+bEl.value);
+    blO.textContent=fmtBshort(B);
+    const th_rad=lam/B;                 // theta ~ lambda / B
+    const th_mas=th_rad*RAD2MAS;
+    // pretty-print resolution
+    if(th_mas<1e-3){ thO.textContent=(th_mas*1e6).toFixed(th_mas*1e6<10?1:0); thuO.textContent='nas'; }
+    else if(th_mas<1){ thO.textContent=(th_mas*1000).toFixed(th_mas*1000<10?1:0); thuO.textContent='µas'; }
+    else if(th_mas<1000){ thO.textContent=th_mas.toFixed(th_mas<10?2:0); thuO.textContent='mas'; }
+    else { thO.textContent=(th_mas/1000).toFixed(2); thuO.textContent='arcsec'; }
+    // what instrument
+    let inst='—';
+    if(B<0.05) inst='the unaided eye';
+    else if(B<1) inst='a backyard telescope';
+    else if(B<20) inst='a single 8 m mirror (VLT)';
+    else if(B<300) inst='the VLTI (beam-combined)';
+    else if(B<5e5) inst='a connected radio array (VLA-class)';
+    else if(B<1.1e7) inst='global VLBI';
+    else inst='the Event Horizon Telescope';
+    instO.textContent=inst;
+    const resolved = th_mas < BINARY_MAS;
+    splitO.textContent = resolved? 'resolved (split)':'unresolved (one blob)';
+    splitO.style.color = resolved?'#5ee6a8':'#ff6b9d';
+    capO.textContent = resolved
+      ? 'θ beats the 1 mas separation — the double star splits cleanly into two points.'
+      : 'θ is larger than the 1 mas separation — the two stars blur into a single smear.';
+    paint(th_mas, resolved);
+  }
+  function paint(th_mas, resolved){
+    const x=cv.getContext('2d'), W=cv.width, Hh=cv.height;
+    x.clearRect(0,0,W,Hh);
+    x.fillStyle='#04050b'; x.fillRect(0,0,W,Hh);
+    const cy=Hh/2, sep=70;             // pixel separation of the two stars on screen
+    const c1=W/2-sep/2, c2=W/2+sep/2;
+    // blur radius grows with theta/separation (clamped)
+    const ratio=Math.min(6, th_mas/BINARY_MAS);
+    const blur=10 + ratio*42;          // px
+    function star(cx){
+      const g=x.createRadialGradient(cx,cy,0,cx,cy,blur);
+      g.addColorStop(0,'rgba(200,225,255,0.95)');
+      g.addColorStop(0.4,'rgba(120,170,255,0.5)');
+      g.addColorStop(1,'rgba(60,90,180,0)');
+      x.fillStyle=g; x.beginPath(); x.arc(cx,cy,blur,0,7); x.fill();
+    }
+    star(c1); star(c2);
+    x.fillStyle='#9aa3c7'; x.font='12px -apple-system'; x.textAlign='center';
+    x.fillText('a double star 1 mas apart', W/2, Hh-14);
+    x.fillStyle=resolved?'#5ee6a8':'#ff6b9d'; x.font='bold 13px -apple-system';
+    x.fillText(resolved?'RESOLVED':'BLURRED TOGETHER', W/2, 24);
+  }
+  bEl.addEventListener('input',draw); wlEl.addEventListener('change',draw); draw();
+})();
+
+/* =======================================================================
+   3. THE PHASING PUZZLE — slide to correlate  (Plotly)
+======================================================================= */
+(function(){
+  const dEl=gid('ph_delay'); if(!dEl) return;
+  const dlO=gid('ph_dl'), corrO=gid('ph_corr'), resO=gid('ph_res'), statO=gid('ph_stat');
+  const TAU0=3.4;                                // hidden true geometric delay
+  const T=[]; for(let t=0; t<=20; t+=0.08) T.push(t);
+  // a quasi-random amplitude-modulated wave (deterministic)
+  function sig(t){
+    const env=0.7+0.5*Math.sin(0.41*t+0.6)+0.35*Math.sin(0.91*t+2.0);
+    return env*Math.sin(2.4*t);
+  }
+  // precompute reference correlation peak for normalisation
+  let R0=0; for(const t of T){ const a=sig(t); R0+=a*a; }
+  function draw(){
+    const d=+dEl.value;
+    dlO.textContent=(d>=0?'+':'')+d.toFixed(2);
+    const s1=T.map(t=>sig(t));
+    // second telescope received with geometric delay TAU0; we slide it back by d
+    const s2=T.map(t=>sig(t - TAU0 + d));
+    let R=0; for(let i=0;i<T.length;i++) R+=s1[i]*s2[i];
+    const corr=Math.max(0, R/R0);
+    corrO.textContent=Math.round(corr*100);
+    const res=TAU0-d;
+    resO.textContent=(res>=0?'+':'')+res.toFixed(2);
+    let st='searching…', col='var(--amber)';
+    if(Math.abs(res)<0.15){ st='fringes locked!'; col='#5ee6a8'; }
+    else if(Math.abs(res)<0.8){ st='almost — keep sliding'; col='var(--amber)'; }
+    else { st='out of step'; col='#ff6b9d'; }
+    statO.textContent=st; statO.style.color=col;
+    Plotly.react('ph_plot',[
+      {x:T,y:s1,mode:'lines',line:{color:'#3fd0ff',width:2},name:'telescope 1'},
+      {x:T,y:s2,mode:'lines',line:{color:'#ffb24a',width:2},name:'telescope 2 (slid)'}
+    ], baseLayout({
+      xaxis:{title:'time', range:[0,20], showticklabels:false},
+      yaxis:{title:'recorded signal', range:[-2.4,2.4]},
+      annotations:[
+        {x:0.4,y:2.15,text:'telescope 1',showarrow:false,font:{color:'#3fd0ff',size:11},xanchor:'left'},
+        {x:0.4,y:1.75,text:'telescope 2 (you are sliding it)',showarrow:false,font:{color:'#ffb24a',size:11},xanchor:'left'}
+      ]
+    }), PCFG);
+  }
+  dEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   4. APERTURE SYNTHESIS — uv-plane + reconstructed ring  (canvas)
+======================================================================= */
+(function(){
+  const nEl=gid('uv_n'); if(!nEl) return;
+  const hEl=gid('uv_h'), nlO=gid('uv_nl'), hlO=gid('uv_hl'),
+        pairsO=gid('uv_pairs'), covO=gid('uv_cov'), qualO=gid('uv_qual'),
+        cuv=gid('uv_canvas'), cim=gid('uv_img');
+  // fixed antenna layout (unit positions), deterministic
+  const ANT=[[0.9,0.2],[-0.6,0.8],[0.3,-0.9],[-0.95,-0.3],[0.65,0.7],
+             [-0.2,0.4],[0.1,-0.4],[0.85,-0.45],[-0.7,-0.85]];
+  const DEC=0.6;                                  // source declination factor for ellipse squash
+  function draw(){
+    const N=+nEl.value, hours=+hEl.value;
+    nlO.textContent=N; hlO.textContent=hours.toFixed(hours%1?2:0)+' h';
+    const ants=ANT.slice(0,N);
+    const pairs=N*(N-1)/2; pairsO.textContent=pairs;
+    // build uv samples
+    const samples=[];
+    const steps=Math.max(1,Math.round(hours*6));
+    for(let i=0;i<ants.length;i++) for(let j=i+1;j<ants.length;j++){
+      const bx=ants[i][0]-ants[j][0], by=ants[i][1]-ants[j][1];
+      for(let k=0;k<=steps;k++){
+        const H=(k/Math.max(1,steps))*(hours/12)*Math.PI;   // hour angle sweep
+        const u= bx*Math.cos(H) - by*Math.sin(H);
+        const v=(bx*Math.sin(H) + by*Math.cos(H))*DEC;
+        samples.push([u,v]); samples.push([-u,-v]);
+      }
+    }
+    // coverage: fraction of polar grid cells hit
+    const GR=16, hit=new Set();
+    samples.forEach(([u,v])=>{ const r=Math.min(0.999,Math.hypot(u,v)/2.1);
+      const a=(Math.atan2(v,u)+Math.PI)/(2*Math.PI);
+      hit.add(Math.floor(r*GR)+'_'+Math.floor(a*GR)); });
+    const cov=Math.min(100, Math.round(hit.size/(GR*GR)*100*1.4));
+    covO.textContent=cov;
+    qualO.textContent = cov>70?'excellent':(cov>45?'good':(cov>22?'streaky':'sparse / artefacts'));
+    qualO.style.color = cov>45?'#5ee6a8':(cov>22?'var(--amber)':'#ff6b9d');
+    paintUV(samples); paintImg(cov);
+  }
+  function paintUV(samples){
+    const x=cuv.getContext('2d'), W=cuv.width, Hh=cuv.height;
+    x.clearRect(0,0,W,Hh); x.fillStyle='#04050b'; x.fillRect(0,0,W,Hh);
+    const cx=W/2, cy=Hh/2, sc=Math.min(W,Hh)/2/2.3;
+    // axes
+    x.strokeStyle='rgba(140,160,230,0.15)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(cx,10); x.lineTo(cx,Hh-10); x.moveTo(10,cy); x.lineTo(W-10,cy); x.stroke();
+    x.fillStyle='#5ee6a8';
+    samples.forEach(([u,v])=>{ x.fillRect(cx+u*sc-1.1, cy-v*sc-1.1, 2.2,2.2); });
+    x.fillStyle='#9aa3c7'; x.font='11px -apple-system'; x.textAlign='left'; x.fillText('u →', W-30, cy-6);
+    x.save(); x.translate(cx+8,18); x.textAlign='left'; x.fillText('v', 0,0); x.restore();
+  }
+  function paintImg(cov){
+    const x=cim.getContext('2d'), W=cim.width, Hh=cim.height;
+    x.clearRect(0,0,W,Hh); x.fillStyle='#04050b'; x.fillRect(0,0,W,Hh);
+    const cx=W/2, cy=Hh/2, R=Math.min(W,Hh)*0.27;
+    const q=cov/100;                       // 0..1 quality
+    const Nart=Math.round((1-q)*26);       // streak artefacts when sparse
+    // draw the ring as a ring of soft blobs
+    for(let a=0;a<360;a+=4){
+      const th=a*Math.PI/180; const rx=cx+R*Math.cos(th), ry=cy+R*Math.sin(th);
+      const br=0.55+0.45*q;
+      const g=x.createRadialGradient(rx,ry,0,rx,ry,10);
+      g.addColorStop(0,'rgba(255,200,120,'+br+')'); g.addColorStop(1,'rgba(255,120,30,0)');
+      x.fillStyle=g; x.beginPath(); x.arc(rx,ry,10,0,7); x.fill();
+    }
+    // streak artefacts (deterministic pseudo-random)
+    let s=12345;
+    for(let k=0;k<Nart;k++){ s=(s*1103515245+12345)&0x7fffffff; const ax=(s%W);
+      s=(s*1103515245+12345)&0x7fffffff; const ay=(s%Hh);
+      x.strokeStyle='rgba(120,160,255,0.10)'; x.lineWidth=1;
+      x.beginPath(); x.moveTo(ax,ay); x.lineTo(ax+30,ay+8); x.stroke(); }
+    x.fillStyle=q>0.45?'#5ee6a8':'#ff6b9d'; x.font='bold 12px -apple-system'; x.textAlign='center';
+    x.fillText(q>0.7?'clean ring':(q>0.45?'recognisable ring':'noisy / streaked'), cx, Hh-14);
+  }
+  nEl.addEventListener('input',draw); hEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   5. OPTICAL DELAY LINE — fringe packet  (Plotly)
+======================================================================= */
+(function(){
+  const posEl=gid('od_pos'); if(!posEl) return;
+  const bwEl=gid('od_bw'), plO=gid('od_pl'), blO=gid('od_bl'),
+        opdO=gid('od_opd'), lcO=gid('od_lc'), visO=gid('od_vis');
+  const LAM=0.55;                         // µm (visible)
+  const X=[]; for(let dx=-40; dx<=40; dx+=0.1) X.push(dx);
+  function draw(){
+    const pos=+posEl.value, bw=+bwEl.value;
+    plO.textContent=(pos>=0?'+':'')+pos.toFixed(1)+' µm';
+    // coherence length: long for narrow band, short for white light
+    const Lc = LAM*LAM/(LAM*bw/30);       // crude: bigger bw -> shorter Lc
+    const Lc_um = 60/bw;                   // tidy display range ~5..120 µm
+    lcO.textContent = Lc_um.toFixed(Lc_um<10?1:0);
+    blO.textContent = bw<2?'narrow band':(bw<7?'moderate':'white light');
+    opdO.textContent=(pos>=0?'+':'')+pos.toFixed(1);
+    const env=x=>Math.exp(-Math.pow(x/Lc_um,2));
+    const y=X.map(dx=>env(dx)*Math.cos(2*Math.PI*dx/LAM));
+    const vis=env(pos);
+    visO.textContent=Math.round(vis*100);
+    // current-position marker fringe value
+    Plotly.react('od_plot',[
+      {x:X,y:X.map(dx=>env(dx)),mode:'lines',line:{color:'rgba(176,140,255,0.5)',width:1.4,dash:'dot'}},
+      {x:X,y:X.map(dx=>-env(dx)),mode:'lines',line:{color:'rgba(176,140,255,0.5)',width:1.4,dash:'dot'}},
+      {x:X,y:y,mode:'lines',line:{color:'#3fd0ff',width:1.6}},
+      {x:[pos,pos],y:[-1.15,1.15],mode:'lines',line:{color:'#ffb24a',width:2.5}}
+    ], baseLayout({
+      xaxis:{title:'path difference Δx  (µm)', range:[-40,40]},
+      yaxis:{title:'combined intensity (fringes)', range:[-1.2,1.2]},
+      annotations:[
+        {x:0,y:1.12,text:'coherence envelope',showarrow:false,font:{color:'#b08cff',size:10}},
+        {x:pos,y:-1.05,text:'trombone',showarrow:false,font:{color:'#ffb24a',size:11},
+          xanchor: pos>0?'right':'left'}
+      ]
+    }), PCFG);
+  }
+  posEl.addEventListener('input',draw); bwEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   6. ADAPTIVE OPTICS — wavefront + PSF  (canvas)
+======================================================================= */
+(function(){
+  const tEl=gid('ao_turb'); if(!tEl) return;
+  const mEl=gid('ao_modes'), tlO=gid('ao_tl'), mlO=gid('ao_ml'),
+        rmsO=gid('ao_rms'), strO=gid('ao_strehl'), vO=gid('ao_verdict'),
+        cwf=gid('ao_wf'), cpsf=gid('ao_psf');
+  // a fixed turbulent phase screen sampled on a grid (deterministic sines)
+  const NG=44;
+  function phaseAt(i,j,turb,modes){
+    const u=i/NG, v=j/NG;
+    // many spatial frequencies; correction removes the lowest 'modes' of them
+    let p=0; const comps=[[1,0.9,0.3],[2,0.6,1.1],[3,0.5,2.0],[5,0.35,0.5],[8,0.25,3.0],[13,0.18,1.5],[21,0.12,2.4]];
+    comps.forEach((c,k)=>{
+      const freq=c[0], amp=c[1], ph=c[2];
+      const corrected = k < (modes/6);     // higher 'modes' removes more components
+      const w = corrected ? Math.max(0, 1-(modes/6 - k)) : 1;
+      p += w*amp*Math.sin(2*Math.PI*freq*u+ph)*Math.cos(2*Math.PI*freq*v+ph*0.7);
+    });
+    return p*turb;
+  }
+  function draw(){
+    const turb=+tEl.value, modes=+mEl.value;
+    tlO.textContent = turb<1?'mild':(turb<2?'moderate':'severe');
+    mlO.textContent = modes;
+    // residual rms across grid
+    let s=0,s2=0,n=0;
+    for(let i=0;i<NG;i++) for(let j=0;j<NG;j++){ const p=phaseAt(i,j,turb,modes); s+=p; s2+=p*p; n++; }
+    const mean=s/n, varr=s2/n-mean*mean, rms=Math.sqrt(Math.max(0,varr))*0.16; // in waves
+    rmsO.textContent=rms.toFixed(2);
+    const strehl=Math.exp(-Math.pow(2*Math.PI*rms,2));
+    strO.textContent=Math.round(strehl*100);
+    vO.textContent = strehl>0.8?'diffraction-limited':(strehl>0.3?'partly corrected':'seeing-limited');
+    vO.style.color = strehl>0.8?'#5ee6a8':(strehl>0.3?'var(--amber)':'#ff6b9d');
+    paintWF(turb,modes); paintPSF(strehl);
+  }
+  function paintWF(turb,modes){
+    const x=cwf.getContext('2d'), W=cwf.width, Hh=cwf.height;
+    x.clearRect(0,0,W,Hh);
+    const R=Math.min(W,Hh)/2-14, cx=W/2, cy=Hh/2, cell=2*R/NG;
+    for(let i=0;i<NG;i++) for(let j=0;j<NG;j++){
+      const px=cx-R+i*cell, py=cy-R+j*cell;
+      const dx=(i-NG/2)/(NG/2), dy=(j-NG/2)/(NG/2);
+      if(dx*dx+dy*dy>1) continue;                 // circular aperture
+      const p=phaseAt(i,j,turb,modes);
+      const t=Math.max(-1,Math.min(1,p/2));
+      const r=Math.round(128+127*t), b=Math.round(128-127*t);
+      x.fillStyle='rgb('+r+',90,'+b+')';
+      x.fillRect(px,py,cell+1,cell+1);
+    }
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=1.5; x.beginPath(); x.arc(cx,cy,R,0,7); x.stroke();
+    x.fillStyle='#cfd6f5'; x.font='11px -apple-system'; x.textAlign='center'; x.fillText('wavefront across the aperture', cx, Hh-6);
+  }
+  function paintPSF(strehl){
+    const x=cpsf.getContext('2d'), W=cpsf.width, Hh=cpsf.height;
+    x.clearRect(0,0,W,Hh); x.fillStyle='#02030a'; x.fillRect(0,0,W,Hh);
+    const cx=W/2, cy=Hh/2;
+    // halo of speckles (more & brighter when Strehl low)
+    let s=777; const Nsp=Math.round((1-strehl)*120);
+    for(let k=0;k<Nsp;k++){ s=(s*1103515245+12345)&0x7fffffff; const a=(s%1000)/1000*2*Math.PI;
+      s=(s*1103515245+12345)&0x7fffffff; const rr=20+(s%1000)/1000*90;
+      const px=cx+rr*Math.cos(a), py=cy+rr*Math.sin(a);
+      const op=0.25*(1-strehl);
+      x.fillStyle='rgba(120,170,255,'+op+')'; x.beginPath(); x.arc(px,py,2.2,0,7); x.fill(); }
+    // sharp core (brighter & tighter when Strehl high)
+    const coreR=6+ (1-strehl)*10;
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,coreR+30);
+    g.addColorStop(0,'rgba(255,255,255,'+(0.4+0.6*strehl)+')');
+    g.addColorStop(coreR/(coreR+30),'rgba(180,210,255,'+(0.3*strehl+0.1)+')');
+    g.addColorStop(1,'rgba(60,90,180,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(cx,cy,coreR+30,0,7); x.fill();
+    x.fillStyle='#cfd6f5'; x.font='11px -apple-system'; x.textAlign='center'; x.fillText('star image (PSF)', cx, Hh-6);
+  }
+  tEl.addEventListener('input',draw); mEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   7. FIZEAU vs MICHELSON — schematics  (canvas, static)
+======================================================================= */
+(function(){
+  const cv=gid('fz_canvas'); if(!cv) return; const x=cv.getContext('2d');
+  const W=cv.width,Hh=cv.height;
+  x.clearRect(0,0,W,Hh); x.fillStyle='#05060d'; x.fillRect(0,0,W,Hh);
+  // incoming flat wavefront from top
+  x.strokeStyle='rgba(63,208,255,0.5)'; x.lineWidth=1.4;
+  for(let yy=14; yy<40; yy+=8){ x.beginPath(); x.moveTo(50,yy); x.lineTo(W-50,yy); x.stroke(); }
+  x.fillStyle='#3fd0ff'; x.font='11px -apple-system'; x.textAlign='center'; x.fillText('flat wavefront from the star', W/2, 10);
+  // three sub-apertures keeping true spacing
+  const subs=[110,220,330]; const ay=70;
+  subs.forEach(sx=>{ x.fillStyle='#9aa3c7'; x.fillRect(sx-22,ay,44,8);
+    x.strokeStyle='#5ee6a8'; x.lineWidth=2; x.beginPath(); x.moveTo(sx-22,ay+4); x.lineTo(sx+22,ay+4); x.stroke(); });
+  x.fillStyle='#cfd6f5'; x.font='11px -apple-system'; x.fillText('sub-apertures (true layout)', W/2, ay-8);
+  // converge to one common focus
+  const fx=W/2, fy=Hh-58;
+  x.strokeStyle='rgba(255,178,74,0.7)'; x.lineWidth=1.8;
+  subs.forEach(sx=>{ x.beginPath(); x.moveTo(sx,ay+8); x.lineTo(fx,fy); x.stroke(); });
+  // detector + image
+  x.fillStyle='#0e1124'; x.strokeStyle='#ffb24a'; x.lineWidth=2;
+  x.beginPath(); x.roundRect(fx-70,fy,140,40,8); x.fill(); x.stroke();
+  x.fillStyle='#fff'; x.font='bold 12px -apple-system'; x.textAlign='center'; x.fillText('common focus', fx, fy+17);
+  x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.fillText('image forms directly', fx, fy+32);
+  x.fillStyle='#ffb24a'; x.font='11px -apple-system'; x.fillText('fields add in the image plane', fx, fy+56);
+})();
+(function(){
+  const cv=gid('mi_canvas'); if(!cv) return; const x=cv.getContext('2d');
+  const W=cv.width,Hh=cv.height;
+  x.clearRect(0,0,W,Hh); x.fillStyle='#05060d'; x.fillRect(0,0,W,Hh);
+  x.fillStyle='#3fd0ff'; x.font='11px -apple-system'; x.textAlign='center'; x.fillText('flat wavefront from the star', W/2, 10);
+  x.strokeStyle='rgba(63,208,255,0.5)'; x.lineWidth=1.4;
+  for(let yy=14; yy<40; yy+=8){ x.beginPath(); x.moveTo(30,yy); x.lineTo(W-30,yy); x.stroke(); }
+  // two well-separated telescopes
+  const t1=70, t2=W-70, ay=66;
+  [t1,t2].forEach(sx=>{ x.strokeStyle='#5ee6a8'; x.lineWidth=2.5; x.beginPath(); x.arc(sx,ay,16,Math.PI,2*Math.PI); x.stroke();
+    x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.fillText('telescope', sx, ay-22); });
+  // beams piped down, through a delay line on one arm, to a central combiner
+  const comx=W/2, comy=Hh-70;
+  x.strokeStyle='rgba(255,178,74,0.75)'; x.lineWidth=1.8;
+  // left arm with trombone
+  x.beginPath(); x.moveTo(t1,ay+16); x.lineTo(t1,150); x.lineTo(140,150); x.stroke();
+  x.fillStyle='#b08cff'; x.fillRect(150,142,40,16); x.strokeStyle='#b08cff'; x.strokeRect(150,142,40,16);
+  x.fillStyle='#b08cff'; x.font='9px -apple-system'; x.fillText('delay line', 170, 136);
+  x.strokeStyle='rgba(255,178,74,0.75)'; x.beginPath(); x.moveTo(190,150); x.lineTo(comx-30,150); x.lineTo(comx-30,comy); x.stroke();
+  // right arm
+  x.beginPath(); x.moveTo(t2,ay+16); x.lineTo(t2,150); x.lineTo(comx+30,150); x.lineTo(comx+30,comy); x.stroke();
+  // combiner box
+  x.fillStyle='#0e1124'; x.strokeStyle='#ffb24a'; x.lineWidth=2;
+  x.beginPath(); x.roundRect(comx-75,comy,150,42,8); x.fill(); x.stroke();
+  x.fillStyle='#fff'; x.font='bold 12px -apple-system'; x.textAlign='center'; x.fillText('beam combiner', comx, comy+17);
+  x.fillStyle='#9aa3c7'; x.font='10px -apple-system'; x.fillText('one fringe per baseline', comx, comy+32);
+})();
+
+/* =======================================================================
+   8. NULLING — transmission vs angle  (Plotly)
+======================================================================= */
+(function(){
+  const bEl=gid('nl_b'); if(!bEl) return;
+  const pEl=gid('nl_p'), blO=gid('nl_bl'), plO=gid('nl_pl'),
+        starO=gid('nl_star'), planetO=gid('nl_planet'), vO=gid('nl_verdict');
+  const LAM=10e-6;                          // 10 µm, thermal-IR nulling
+  const TH=[]; for(let a=0; a<=80; a+=0.2) TH.push(a);    // angle in mas
+  function trans(theta_mas, B){
+    const th_rad=theta_mas/RAD2MAS;
+    return Math.pow(Math.sin(Math.PI*B*th_rad/LAM),2);
+  }
+  function draw(){
+    const B=+bEl.value, thp=+pEl.value;
+    blO.textContent=B.toFixed(0)+' m'; plO.textContent=thp.toFixed(0)+' mas';
+    const Tstar=trans(0.05,B);             // tiny on-axis stellar radius
+    const Tplanet=trans(thp,B);
+    starO.textContent=(Tstar*100).toFixed(Tstar*100<0.1?3:2);
+    planetO.textContent=Math.round(Tplanet*100);
+    const good = Tplanet>0.5 && Tstar<0.01;
+    vO.textContent = good?'planet revealed':(Tplanet>0.5?'star leaks through':'planet still in a null');
+    vO.style.color = good?'#5ee6a8':(Tplanet>0.5?'var(--amber)':'#ff6b9d');
+    const y=TH.map(a=>trans(a,B));
+    Plotly.react('nl_plot',[
+      {x:TH,y:y,mode:'lines',fill:'tozeroy',fillcolor:'rgba(63,208,255,0.10)',line:{color:'#3fd0ff',width:2.4}},
+      {x:[0],y:[Tstar],mode:'markers',marker:{color:'#ff6b9d',size:13,symbol:'star'}},
+      {x:[thp],y:[Tplanet],mode:'markers',marker:{color:'#ffb24a',size:13,symbol:'circle'}}
+    ], baseLayout({
+      xaxis:{title:'angle from the star  (mas)', range:[0,80]},
+      yaxis:{title:'transmission T(θ)', range:[0,1.08]},
+      annotations:[
+        {x:0,y:0.06,text:'star (nulled)',showarrow:true,arrowcolor:'#ff6b9d',ax:42,ay:-24,font:{color:'#ff6b9d',size:11}},
+        {x:thp,y:Tplanet,text:'planet',showarrow:true,arrowcolor:'#ffb24a',ax:0,ay:-28,font:{color:'#ffb24a',size:11}}
+      ]
+    }), PCFG);
+  }
+  bEl.addEventListener('input',draw); pEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   Background starfield
+======================================================================= */
+(function(){
+  const cv=document.getElementById('starfield'); if(!cv) return; const x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280,(innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle='rgba(220,228,255,'+(a*0.7)+')'; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+
+<script>
+(function(){
+  const list=document.getElementById('qz_list'); if(!list)return;
+  const QS=[
+    {q:"What physically happens when two light waves meet exactly in phase (crest on crest)?",
+      opts:["They cancel to darkness","They add up — constructive interference, a bright fringe","They change colour","Nothing; light waves never interact"],a:1,
+      exp:"In phase, the fields add: amplitude doubles, power quadruples. Crest-on-trough (180°) instead cancels — destructive interference."},
+    {q:"In what sense is an ordinary telescope mirror already an interferometer?",
+      opts:["It splits light into colours","It brings light from across the whole mirror to one focus, where the rays add in phase","It records the electric field digitally","It uses two separate dishes"],a:1,
+      exp:"A mirror works only because all the reflected rays arrive in phase at the focus and add constructively into a sharp point — interference across one continuous aperture."},
+    {q:"For an interferometer, the angular resolution is approximately…",
+      opts:["θ ≈ λ × B","θ ≈ λ / B, set by the baseline between telescopes","θ ≈ B / λ","Independent of wavelength"],a:1,
+      exp:"Two telescopes a distance B apart resolve detail as fine as λ/B — as if they were one aperture of size B, even though the glass between is missing."},
+    {q:"The Event Horizon Telescope reaches ~20 microarcseconds mainly because it…",
+      opts:["Uses a single enormous dish","Observes in visible light","Links dishes worldwide into an Earth-sized baseline at 1.3 mm","Has no atmosphere above it"],a:2,
+      exp:"An Earth-sized baseline B with λ = 1.3 mm gives θ ≈ λ/B ≈ 20 µas — sharp enough to resolve a black hole's shadow."},
+    {q:"The 'geometric delay' in interferometry is…",
+      opts:["The time the computer takes to process data","The extra path/time light travels to one telescope versus the other","The age of the light","The exposure time"],a:1,
+      exp:"A tilted wavefront reaches one telescope before the other; that head-start (extra path) is the geometric delay, which must be removed before the beams interfere."},
+    {q:"How do you tell when two telescopes' signals are correctly aligned in time?",
+      opts:["When their colours match","When their correlation (the product summed over time) peaks","When they have equal brightness","When the Sun sets"],a:1,
+      exp:"Correlating — multiplying the two signals and summing — peaks when crests sit on crests. The peak's location gives the exact delay; the fringes appear."},
+    {q:"Why can radio interferometers combine signals in a computer but optical ones cannot?",
+      opts:["Radio telescopes are bigger","Radio fields oscillate slowly enough for electronics to sample; optical fields (~10¹⁴ Hz) are far too fast","Optical light carries no phase","Computers dislike short wavelengths"],a:1,
+      exp:"Electronics can digitize the radio electric field and shift it numerically. Optical frequencies are ~100,000× faster than any sampler, so the light itself must be combined."},
+    {q:"In VLBI, what makes it possible to link telescopes that are never physically connected?",
+      opts:["Very long cables","Precise atomic-clock timestamps on each recording, aligned later in a correlator","Satellites relaying the light","They must be connected; VLBI is a myth"],a:1,
+      exp:"Each station records its field stamped by a hydrogen-maser clock; a central correlator later shifts each by its geometric delay and correlates every pair — Very Long Baseline Interferometry."},
+    {q:"'Aperture synthesis' uses the Earth's rotation to…",
+      opts:["Cool the detectors","Sweep each telescope pair through many baselines, filling the uv-plane","Generate electricity","Keep the source in view"],a:1,
+      exp:"As the Earth turns, each pair's projected separation changes, tracing tracks through the uv-plane. Hours of data turn a few dishes into many effective baselines for an image."},
+    {q:"In an optical interferometer, the 'delay line' (trombone) does what?",
+      opts:["Tunes the colour of the light","Physically lengthens or shortens one beam's path to re-equalise the two paths","Records the field digitally","Cools the mirror"],a:1,
+      exp:"A moving mirror on a track changes one beam's path length by exactly the geometric delay, in real time, so the beams meet in step despite the rotating Earth."},
+    {q:"Fringes in a broadband optical interferometer appear only when path lengths match to within the…",
+      opts:["Baseline","Coherence length, L_c = λ²/Δλ","Aperture diameter","Atomic-clock tick"],a:1,
+      exp:"Wide bandwidth means a short coherence length — a thin fringe packet you must hit precisely. Narrow band gives a long L_c and a forgiving packet."},
+    {q:"Adaptive optics corrects atmospheric blurring by…",
+      opts:["Cooling the air","Measuring the crumpled wavefront and bouncing the light off a deformable mirror that applies the opposite shape","Closing the dome","Using a longer exposure"],a:1,
+      exp:"A deformable mirror, pushed by thousands of actuators hundreds of times a second, flattens the distorted wavefront so the light adds back in phase at the focus."},
+    {q:"The Strehl ratio measures…",
+      opts:["The telescope's diameter","How much light is concentrated into the sharp diffraction-limited core versus a fuzzy halo","The wavelength of observation","The number of telescopes"],a:1,
+      exp:"Strehl S = exp[−(2πσ)²] (Maréchal) with σ the residual wavefront error. S→1 means a near-perfect, diffraction-limited image."},
+    {q:"Why must the ELT's 798 hexagonal segments be 'co-phased'?",
+      opts:["For decoration","So all segments act as one continuous mirror, with their light adding in phase at the focus","To reduce their weight","To change the focal length"],a:1,
+      exp:"A segmented mirror only behaves like one giant mirror if the segments are aligned to a common surface within nanometres — essentially continual interferometric phasing of its own pieces."},
+    {q:"The difference between a Fizeau and a Michelson combiner is mainly…",
+      opts:["Fizeau uses radio, Michelson uses light","Where the beams overlap: Fizeau in the image plane (a real image), Michelson in the pupil plane (fringe per baseline)","Fizeau is digital, Michelson is analogue","There is no real difference"],a:1,
+      exp:"Fizeau keeps the sub-apertures' true layout at one focus and forms an image (ELT-like); Michelson pipes beams to a combiner and records a fringe per baseline (VLTI-like)."},
+    {q:"In nulling interferometry, the on-axis star is suppressed and an off-axis planet survives because…",
+      opts:["The planet is brighter","A 180° phase shift nulls light at zero angle, but the planet's slightly different angle gives a different phase, landing it on a bright fringe","The star is switched off at the source","Planets emit radio, stars don't"],a:1,
+      exp:"T(θ)=sin²(πBθ/λ) is zero on-axis (star nulled) but rises off-axis; tune B so the planet's angle hits a peak. Its polarized reflected light helps confirm it."},
+    {q:"The ExoLife Finder (ELF) and its pathfinder SELF reach a giant aperture cheaply by…",
+      opts:["Casting one enormous thick mirror","Combining many thin, light mirrors in a sparse ring as a Fizeau imaging interferometer","Launching into space","Linking radio dishes worldwide"],a:1,
+      exp:"ELF/SELF (Kuhn et al., 2025) co-phase many independent thin, curvature-polished mirrors into a single Fizeau image — far lighter and cheaper than a filled mirror — to directly image exoplanets and search for biosignatures."}
+  ];
+
+  document.getElementById('qz_total').textContent=QS.length;
+  const cEl=document.getElementById('qz_correct'), aEl=document.getElementById('qz_answered'), fill=document.getElementById('qz_fill');
+  let answered=0, correct=0;
+  function update(){ cEl.textContent=correct; aEl.textContent=answered; fill.style.width=(answered/QS.length*100)+'%'; }
+  function render(){
+    list.innerHTML=''; answered=0; correct=0;
+    QS.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const qt=document.createElement('p'); qt.className='q-text';
+      qt.innerHTML='<span class="q-num">'+(qi+1)+'.</span> '+item.q;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      const exp=document.createElement('div'); exp.className='q-exp';
+      exp.innerHTML='<b>Answer: '+String.fromCharCode(65+item.a)+' — '+item.opts[item.a]+'.</b> '+item.exp;
+      item.opts.forEach((text,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt'; b.type='button';
+        b.innerHTML='<span class="q-mark">'+String.fromCharCode(65+oi)+'</span>'+text;
+        b.addEventListener('click',()=>{
+          if(b.disabled) return;
+          answered++;
+          opts.children[item.a].classList.add('correct');
+          if(oi===item.a) correct++; else b.classList.add('wrong');
+          Array.from(opts.children).forEach(c=>c.disabled=true);
+          exp.classList.add('show');
+          update();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(qt); card.appendChild(opts); card.appendChild(exp);
+      list.appendChild(card);
+    });
+    update();
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<script>
+(function(){
+  const W='https://en.wikipedia.org/wiki/';
+  const GLOSS={
+    'interference':{label:'Interference',wiki:W+'Wave_interference',
+      def:'When two waves overlap, their fields add: in phase they reinforce (constructive), out of phase they cancel (destructive). The basis of all interferometry.',terms:['interference','constructive interference','destructive interference']},
+    'fringe':{label:'Fringes',wiki:W+'Interference_(wave_propagation)#Optical_interference',
+      def:'The pattern of bright and dark bands produced when two coherent beams interfere. Their spacing and contrast encode the source and the geometry.',terms:['fringes','fringe','fringe pattern']},
+    'phase':{label:'Phase',wiki:W+'Phase_(waves)',
+      def:'Where a wave is in its cycle. The phase difference between two beams decides whether they add or cancel — the quantity interferometry measures and controls.',terms:['phase','in phase','phased']},
+    'phasing':{label:'Phasing / delay compensation',wiki:W+'Astronomical_interferometer',
+      def:'Sliding one telescope’s signal in time until it lines up with another’s, removing the geometric delay so the beams interfere cleanly.',terms:['phasing']},
+    'baseline':{label:'Baseline',wiki:W+'Baseline_(interferometry)',
+      def:'The separation between two telescopes in an interferometer. It plays the role of aperture size: resolution improves as the baseline grows.',terms:['baseline']},
+    'interferometry':{label:'Interferometry',wiki:W+'Interferometry',
+      def:'Combining the light or radio waves from separate telescopes so they interfere, achieving the resolution of an aperture as large as their separation.',terms:['interferometry','interferometer','interferometers']},
+    'diffraction-limit':{label:'Diffraction limit',wiki:W+'Diffraction-limited_system',
+      def:'The finest detail an aperture can resolve, θ ≈ 1.22 λ/D, set by the wave nature of light. Interferometry beats it by enlarging the effective aperture.',terms:['diffraction limit','diffraction-limited']},
+    'angular-resolution':{label:'Angular resolution',wiki:W+'Angular_resolution',
+      def:'The smallest angle on the sky a telescope can separate. For an interferometer, θ ≈ λ/B with B the baseline.',terms:['angular resolution']},
+    'event-horizon':{label:'Event horizon',wiki:W+'Event_horizon',
+      def:'The boundary of a black hole from which nothing escapes. The EHT images the bright ring of gas just outside it.',terms:['event horizon']},
+    'eht':{label:'Event Horizon Telescope',wiki:W+'Event_Horizon_Telescope',
+      def:'A global VLBI array observing at 1.3 mm, with an Earth-sized baseline, that imaged the shadows of the black holes in M87 and our own Galaxy.',terms:['Event Horizon Telescope']},
+    'vlbi':{label:'Very Long Baseline Interferometry',wiki:W+'Very-long-baseline_interferometry',
+      def:'Radio interferometry between telescopes too far apart to connect, each recording its field with an atomic-clock timestamp for later correlation.',terms:['Very Long Baseline Interferometry','VLBI']},
+    'vlti':{label:'VLTI',wiki:W+'Very_Large_Telescope_Interferometer',
+      def:'ESO’s Very Large Telescope Interferometer: combines the 8.2 m and 1.8 m telescopes over baselines up to ~130 m in the near-infrared.',terms:['VLTI']},
+    'electric-field':{label:'Electric field',wiki:W+'Electromagnetic_radiation',
+      def:'The oscillating field that is light. Radio electronics can sample it directly; optical fields oscillate far too fast to record.',terms:['electric field']},
+    'geometric-delay':{label:'Geometric delay',wiki:W+'Astronomical_interferometer',
+      def:'The extra travel time of starlight to the farther telescope because the wavefront is tilted. It changes as the Earth rotates and must be compensated.',terms:['geometric delay']},
+    'correlator':{label:'Correlator',wiki:W+'Astronomical_interferometer',
+      def:'The processor (a computer in radio VLBI) that aligns each station’s recorded field by its delay and multiplies pairs together to extract the fringes.',terms:['correlator','correlate']},
+    'aperture-synthesis':{label:'Aperture synthesis',wiki:W+'Aperture_synthesis',
+      def:'Using many baselines, swept by the Earth’s rotation, to synthesise the image an enormous aperture would form. Earned Ryle the 1974 Nobel Prize.',terms:['aperture synthesis']},
+    'uv-plane':{label:'The uv-plane',wiki:W+'Aperture_synthesis',
+      def:'The map of which baselines (spatial frequencies and orientations) an array has measured. A Fourier transform of a filled uv-plane is the image.',terms:['uv-plane']},
+    'atomic-clock':{label:'Hydrogen maser / atomic clock',wiki:W+'Hydrogen_maser',
+      def:'An ultra-stable clock at each VLBI station, time-stamping the recorded field precisely enough that signals can be aligned long after the fact.',terms:['hydrogen-maser','atomic clock','hydrogen maser']},
+    'delay-line':{label:'Delay line (trombone)',wiki:W+'Optical_path_length',
+      def:'A movable mirror on a track that lengthens or shortens an optical beam’s path, like a trombone slide, to match the two paths in real time.',terms:['delay line','trombone slide','trombone']},
+    'beam-combiner':{label:'Beam combiner',wiki:W+'Astronomical_interferometer',
+      def:'The optics where separate telescope beams are physically overlapped so the photons interfere — the analogue heart of an optical interferometer.',terms:['beam combiner']},
+    'coherence-length':{label:'Coherence length',wiki:W+'Coherence_length',
+      def:'The path-length range over which a beam stays in step with itself, L_c = λ²/Δλ. Fringes appear only when the two paths match to within it.',terms:['coherence length']},
+    'visibility':{label:'Fringe visibility',wiki:W+'Interferometric_visibility',
+      def:'The contrast of the fringes (bright minus dark over their sum). It carries the information about the source’s structure.',terms:['visibility','fringe visibility']},
+    'wavefront':{label:'Wavefront',wiki:W+'Wavefront',
+      def:'A surface of constant phase in a wave. A flat wavefront focuses sharply; turbulence crumples it, blurring the image.',terms:['wavefront']},
+    'seeing':{label:'Astronomical seeing',wiki:W+'Astronomical_seeing',
+      def:'Blurring of star images by atmospheric turbulence, which bends light by different amounts across the aperture. Adaptive optics fights it.',terms:['seeing']},
+    'adaptive-optics':{label:'Adaptive optics',wiki:W+'Adaptive_optics',
+      def:'Real-time correction of atmospheric distortion: a deformable mirror applies the opposite of the measured wavefront error hundreds of times a second.',terms:['adaptive optics']},
+    'deformable-mirror':{label:'Deformable mirror',wiki:W+'Deformable_mirror',
+      def:'A thin mirror reshaped by thousands of actuators to flatten a distorted wavefront — the workhorse of adaptive optics and segment control.',terms:['deformable mirror']},
+    'strehl':{label:'Strehl ratio',wiki:W+'Strehl_ratio',
+      def:'The fraction of light gathered into the sharp diffraction-limited core, S = exp[−(2πσ)²]. A measure of how good a correction is; S→1 is perfect.',terms:['Strehl ratio','Strehl']},
+    'elt':{label:'Extremely Large Telescope',wiki:W+'Extremely_Large_Telescope',
+      def:'ESO’s 39 m telescope, built from 798 hexagonal segments that must be co-phased to nanometres, with adaptive optics built into its optical train.',terms:['Extremely Large Telescope']},
+    'segmented-mirror':{label:'Segmented mirror',wiki:W+'Segmented_mirror',
+      def:'A large mirror made of many smaller segments aligned to act as one continuous surface — only effective if the segments are phased together.',terms:['segments','segmented','hexagonal segments']},
+    'fizeau':{label:'Fizeau interferometer',wiki:W+'Astronomical_interferometer#Types',
+      def:'Combination in the image plane: sub-apertures keep their true layout and share one focus, forming a real wide-field image. The ELT and Colossus are Fizeau-type.',terms:['Fizeau']},
+    'michelson':{label:'Michelson stellar interferometer',wiki:W+'Michelson_stellar_interferometer',
+      def:'Combination in the pupil plane: each beam is piped to a combiner and mixed pair by pair, recording a fringe per baseline. The scheme of the VLTI.',terms:['Michelson']},
+    'image-plane':{label:'Image plane',wiki:W+'Cardinal_point_(optics)',
+      def:'Where a real image of the sky forms at the focus. Fizeau combiners interfere the beams here, directly producing a picture.',terms:['image plane']},
+    'pupil-plane':{label:'Pupil plane',wiki:W+'Entrance_pupil',
+      def:'Where the beams themselves (not an image) are overlapped. Michelson combiners and the VLBI correlator mix the light in this plane.',terms:['pupil plane','pupil']},
+    'colossus':{label:'Colossus Telescope',wiki:W+'Astronomical_interferometer',
+      def:'A proposed array of many independent telescopes combined as a Fizeau interferometer, aimed at detecting the heat of life-bearing exoplanets.',terms:['Colossus']},
+    'exolife':{label:'ExoLife Finder (ELF)',wiki:'https://www.light-am.com/article/doi/10.37188/lam.2025.033',
+      def:'A ~50 m-scale Fizeau imaging interferometer (Kuhn et al., 2025): many thin curvature-polished mirrors in a sparse ring, co-phased to ~60 nm, built to directly image exoplanets and hunt for biosignatures in their light.',terms:['ExoLife Finder','ELF']},
+    'self':{label:'SELF (Small-ELF)',wiki:'https://www.light-am.com/article/doi/10.37188/lam.2025.033',
+      def:'The 3.5 m pathfinder for the ExoLife Finder — 15 sub-apertures of 0.5 m, under construction at the Teide Observatory, Tenerife — a testbed for thin-mirror Fizeau imaging interferometry.',terms:['SELF']},
+    'nulling':{label:'Nulling interferometry',wiki:W+'Nulling_interferometry',
+      def:'Applying a 180° phase shift so on-axis starlight cancels in a deep null, while an off-axis planet, at a different phase, survives. Bracewell’s idea.',terms:['nulling interferometry','nulling','null']},
+    'coronagraph':{label:'Coronagraph',wiki:W+'Coronagraph',
+      def:'An instrument that blocks or cancels a bright central source (originally the Sun) to reveal faint structure beside it — the cousin of nulling.',terms:['coronagraph']},
+    'polarization':{label:'Polarization',wiki:W+'Polarization_(waves)',
+      def:'The orientation of a light wave’s oscillation. Starlight reflected off a planet is partly polarized, unlike the star’s own light, helping isolate the planet.',terms:['polarized','polarization','polarimetry']},
+    'transmission':{label:'Transmission map',wiki:W+'Nulling_interferometry',
+      def:'How much light from a given sky angle passes through a nulling interferometer, T(θ)=sin²(πBθ/λ): zero on-axis, rising on the fringes off-axis.',terms:['transmission']},
+    'young':{label:'Young’s double-slit experiment',wiki:W+'Double-slit_experiment',
+      def:'Thomas Young’s 1801 demonstration that light passing two slits forms interference fringes — the first proof of light’s wave nature and the template for two-telescope interferometry.',terms:['two slits','double slit','two pinholes']}
+  };
+
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase();
+    let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z]/.test(b)&&/[^A-Za-z]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd, .step');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>
