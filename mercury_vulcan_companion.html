@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mercury, Vulcan &amp; General Relativity — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(140,40,60,0.20), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  section.chapter.relativity{border-color:rgba(94,230,168,0.30); box-shadow:0 20px 60px rgba(0,50,30,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter.relativity .era{color:var(--green)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* section divider banner */
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* discovery-story beats / timeline */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat.fail  .tag{color:var(--rose)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+  .beat.fail{border-left-color:var(--rose)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .chapter.relativity .lab h3 .dot{background:var(--green);box-shadow:0 0 12px var(--green)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  .chapter.relativity input[type=range]{accent-color:var(--green)}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 10px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer; transition:border-color .12s, background .12s}
+  button.act:hover{border-color:var(--cyan)}
+  button.act.on{background:rgba(63,208,255,0.14); border-color:var(--cyan); color:#fff}
+  button.act.on.gr{background:rgba(94,230,168,0.16); border-color:var(--green)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+  .plot.tall{height:460px}
+
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation / "the reasoning" explainer block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+  .fileref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--amber); background:rgba(255,178,74,0.08); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
+
+  /* data table */
+  .tablewrap{overflow-x:auto; margin-top:14px}
+  table.data{width:100%; border-collapse:collapse; font-size:13.5px; font-variant-numeric:tabular-nums}
+  table.data th, table.data td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line)}
+  table.data th:first-child, table.data td:first-child{text-align:left}
+  table.data thead th{color:var(--cyan); font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; border-bottom:1px solid var(--line)}
+  table.data tr.flag td{background:rgba(94,230,168,0.10); color:#fff}
+  table.data tr.flag td:first-child{color:var(--green); font-weight:700}
+  table.data tr.total td{border-top:2px solid var(--line); font-weight:700; color:#fff}
+
+  /* math supplement */
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+  .mathnote.astro{background:rgba(94,230,168,0.06); border-left-color:var(--green)}
+  .mathnote.astro h4{color:var(--green)}
+
+  /* self-test quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{ margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px; width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px; scrollbar-width:none; }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+    main{ padding:6px 14px 60px; }
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:320px; }
+    .plot.tall{ height:380px; }
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+    .deriv ol, .problem ol{ font-size:13px; }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Mercury, Vulcan &amp; Relativity <small>Interactive companion · the planet that never was</small></div>
+    <div class="links">
+      <a href="#precession">Precession</a>
+      <a href="#budget">The budget</a>
+      <a href="#vulcan" class="hist">Vulcan</a>
+      <a href="#relativity">General relativity</a>
+      <a href="#summary">Summary</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>The planet that<br><span class="grad">never was</span></h1>
+  <p class="sub">Mercury's orbit does not quite close: its perihelion creeps forward by an amount Newton's gravity could not fully account for — a stubborn <b>43 arcseconds per century</b>. The same astronomer who found Neptune from a wobble, Urbain Le Verrier, declared the culprit a hidden inner planet he named <b>Vulcan</b>. People claimed to see it for fifty years. It was never there. The leftover was finally explained in 1915 not by a new planet but by a new theory of gravity — Einstein's general relativity, which predicts <b>43″/century</b> exactly.</p>
+  <p class="byline">A direct sequel to the <a class="inline" href="neptune_companion.html">Neptune companion</a>: same astronomer, same anomaly-hunting method — opposite ending. There the missing mass was real; here the equations themselves had to change.</p>
+</header>
+
+<main>
+
+<!-- ===================== SECTION 1 — PRECESSION ===================== -->
+<section class="chapter" id="precession">
+  <span class="era">the anomaly</span>
+  <h2>A perihelion that will not stay put</h2>
+  <p class="who">What "perihelion precession" actually looks like</p>
+
+  <p>A single planet around a point-mass Sun traces a <b>closed ellipse</b> — it returns to the same perihelion (closest point) every orbit, forever. But Mercury's perihelion slowly <b>rotates</b>: each orbit the long axis of the ellipse swings a tiny bit further around the Sun, so the path is not a closed ellipse but a slowly turning <b>rosette</b>. The rate is tiny — a fraction of an arcsecond per orbit — but it accumulates, and by the 19th century it was measured with brutal precision.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>A precessing ellipse</h3>
+    <p class="hint">The key idea first: <b>a single orbit is always a normal, closed ellipse</b> — the shape you see is exactly what Mercury's orbit looks like at any moment. There is no special "correct" perihelion angle; every value is an ordinary ellipse, just pointing a different way. <b>Precession is that this angle slowly drifts over time</b>, so across the centuries the orbit takes every orientation in turn. Drag the slider to step <i>forward in time</i>: the faint grey ellipse is the starting orbit, the bright one is the orbit later, and the angle between their long axes is the precession. (The drift is hugely sped up here — Mercury's real rate is only ~1.4″ per orbit.) The eccentricity slider sets how elongated the orbit is; Mercury's real $e\approx0.206$.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Time → perihelion drifts to <b><span id="pr_wlbl">70</span>°</b></label>
+        <input id="pr_w" type="range" min="0" max="360" step="1" value="70">
+      </div>
+      <div class="ctl">
+        <label>Eccentricity $e$ <b><span id="pr_elbl">0.21</span></b></label>
+        <input id="pr_e" type="range" min="0" max="0.6" step="0.01" value="0.21">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Axis has drifted</div><div class="v"><span id="pr_wv">70</span><small>°</small></div></div>
+      <div class="stat"><div class="k">Real rate</div><div class="v">~1.4 <small>″/orbit</small></div></div>
+      <div class="stat"><div class="k">One full turn</div><div class="v">~230,000 <small>yr</small></div></div>
+    </div>
+    <figure><div id="pr_plot" class="plot tall"></div><figcaption>Both ellipses are the <b>same</b> normal Mercury orbit: faint grey is the starting orientation, bright cyan is the orbit after the perihelion has drifted. The shape never changes — only the direction the long axis (amber) points. That drift is the precession.</figcaption></figure>
+  </div>
+
+  <div class="mathnote">
+    <h4>How big is the real effect?</h4>
+    <p>Mercury's perihelion advances about <b>574″ per century</b> as measured against the fixed stars — but that is spread over the ~415 orbits Mercury completes in a century, so it is only about <b>1.4″ per orbit</b>: a rotation you would never notice in a single loop. Almost all of it is ordinary Newtonian physics. The whole drama is about the last <b>43″/century</b> that ordinary physics leaves behind.</p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>Where does <span class="grad">574 arcseconds</span> come from?</h3>
+  <p>Most of the precession is bookkeeping and planetary tugs. The mystery is the small remainder that refuses to balance.</p>
+</div>
+
+<!-- ===================== SECTION 2 — THE BUDGET ===================== -->
+<section class="chapter" id="budget">
+  <span class="era">1859 · the accounting</span>
+  <h2>The precession budget — and the 43″ that won't balance</h2>
+  <p class="who">Adding up every known cause, and finding it isn't enough</p>
+
+  <p>To test gravity you account for <i>everything</i> first. Mercury's observed perihelion advance (relative to the fixed stars) is <b>574.10 ± 0.65 ″/century</b>. The overwhelming share is the gravitational tug of the <b>other planets</b> — mostly Venus, Jupiter, and Earth — which Newtonian celestial mechanics predicts at <b>532.30 ″/century</b>. A whisker more comes from the Sun's slight <b>oblateness</b>. Add the known Newtonian effects and you are still left short by about <b>43 ″/century</b>. That is the anomaly Le Verrier published in 1859.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Stack the contributions</h3>
+    <p class="hint">Toggle each known cause and watch the modeled total climb toward the dashed <b>observed</b> line. Newtonian planets alone leave a visible gap — the anomaly. The only term that closes it cleanly is <b>general relativity</b>. (Lense–Thirring, the Sun's spin dragging spacetime, is a tiny negative correction.)</p>
+    <div class="btnrow" id="bg_btns"></div>
+    <div class="readout">
+      <div class="stat"><div class="k">Modeled total</div><div class="v"><span id="bg_total">532.30</span> <small>″/cy</small></div></div>
+      <div class="stat"><div class="k">Observed</div><div class="v">574.10 <small>″/cy</small></div></div>
+      <div class="stat"><div class="k">Gap remaining</div><div class="v"><span id="bg_gap">41.80</span> <small>″/cy</small></div></div>
+    </div>
+    <figure><div id="bg_plot" class="plot"></div><figcaption>Cumulative modeled precession vs. the observed value (dashed white). The gap is the unexplained anomaly.</figcaption></figure>
+    <div id="bg_verdict" class="verdict"></div>
+  </div>
+
+  <div class="tablewrap">
+    <table class="data">
+      <thead><tr><th>Cause</th><th>″ / century</th></tr></thead>
+      <tbody>
+        <tr><td>Gravitational tugs of the other planets</td><td>532.3035</td></tr>
+        <tr><td>Oblateness of the Sun (quadrupole)</td><td>0.0286</td></tr>
+        <tr class="flag"><td>General relativity (Schwarzschild)</td><td>42.9799</td></tr>
+        <tr><td>Lense–Thirring (frame dragging)</td><td>−0.0020</td></tr>
+        <tr class="total"><td>Total predicted</td><td>575.31</td></tr>
+        <tr class="total"><td>Total observed</td><td>574.10 ± 0.65</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mathnote">
+    <h4>Le Verrier's number</h4>
+    <p>Le Verrier's 1859 analysis put the leftover near <b>38″/century</b>; refined data and the modern reduction settle it at <b>~43″/century</b>. Either way it was a real, stubborn residual far larger than the measurement error — exactly the kind of "this doesn't add up" that, a decade earlier, had led him straight to Neptune.</p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>The man who found Neptune <span class="grad">reaches for the same answer</span></h3>
+  <p>A missing residual worked once. Why not twice?</p>
+</div>
+
+<!-- ===================== SECTION 3 — VULCAN ===================== -->
+<section class="chapter hist" id="vulcan">
+  <span class="era">1859–1915 · the hunt</span>
+  <h2>Vulcan: a planet hunted for fifty years</h2>
+  <p class="who">The most reasonable wrong idea in 19th-century astronomy</p>
+
+  <p>Le Verrier's logic was impeccable <i>by precedent</i>. In 1846 an unexplained residual in Uranus's motion had pointed him to a real new planet, Neptune, found within a degree of his prediction. So when Mercury came up short, he applied the same playbook: an unseen mass close to the Sun — a planet (or a ring of asteroids) he named <b>Vulcan</b> — whose gravity would supply the missing tug. On <b>2 January 1860</b> he announced it. Coming from the discoverer of Neptune, the claim carried enormous weight.</p>
+
+  <div class="beats">
+    <div class="beat idea"><div class="tag">The hypothesis · 1859–60</div><p>Le Verrier attributes Mercury's ~38″/century residual to <b>Vulcan</b>, an intra-Mercurial planet orbiting between Mercury and the Sun — invisible in the solar glare except during a transit or a total eclipse.</p></div>
+    <div class="beat test"><div class="tag">The "confirmation" · 1859</div><p>Country physician <b>Edmond Lescarbault</b> reports a small black dot crossing the Sun on 26 March 1859 — a transit of Vulcan. Le Verrier visits him unannounced, inspects the homemade instrument, and (despite misgivings) endorses the sighting. Vulcan seems real.</p></div>
+    <div class="beat fail"><div class="tag">The searches · 1860s–1900s</div><p>Eclipse expeditions hunt for Vulcan in 1883, 1887, 1889, 1900, 1901, 1905, 1908. A scatter of claimed sightings never reconciles. At the 1878 eclipse, respected observers <b>Watson</b> and <b>Swift</b> each report a ruddy object near the Sun — but their positions disagree with each other and with every known star.</p></div>
+    <div class="beat fail"><div class="tag">The verdict · 1908</div><p>Campbell and Perrine at Lick Observatory close the case: deep eclipse photography shows <b>nothing</b> down to faint limits. No planet large enough to move Mercury's perihelion could have hidden from all those searches.</p></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why the same method failed this time</h4>
+    <p>For Neptune, the residual genuinely <i>was</i> another mass, and inverting the gravity gave a direction that worked (see the <a class="inline" href="neptune_companion.html">Neptune companion</a> for that geometry). For Mercury, no mass could fit: a body big enough to shift the perihelion by 43″/century would be bright enough — and perturb Venus and Earth enough — to have been caught. The anomaly was telling astronomers something Newtonian gravity simply could not say. <b>The problem wasn't a missing planet. It was the law.</b></p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>Not a new planet — <span class="grad">a new gravity</span></h3>
+  <p>In November 1915 the 43 arcseconds fell out of pure geometry.</p>
+</div>
+
+<!-- ===================== SECTION 4 — GENERAL RELATIVITY ===================== -->
+<section class="chapter relativity" id="relativity">
+  <span class="era">1915 · the resolution</span>
+  <h2>General relativity: the 43″ from curved spacetime</h2>
+  <p class="who">No extra mass — just the Sun bending space and time</p>
+
+  <p>In Einstein's general relativity the Sun's mass curves spacetime, and a planet follows the straightest path through that curvature. Close to the Sun this departs subtly from a Newtonian ellipse: the orbit no longer quite closes, and the perihelion advances. For a small eccentricity the extra advance per orbit is</p>
+  <div class="eq">$$\Delta\varphi \;=\; \frac{6\pi G M_\odot}{c^2\,a\,(1-e^2)} \;\;\text{(radians per orbit)} \;=\; \frac{24\pi^3 a^2}{c^2 T^2 (1-e^2)},$$</div>
+  <p>with $a$ the semi-major axis, $e$ the eccentricity, $T$ the orbital period, $c$ the speed of light. The key feature: the effect grows as the orbit shrinks (the $1/a$, and through $T$ another strong dependence) and as eccentricity rises ($1/(1-e^2)$). <b>Mercury — closest in and most eccentric — feels it most.</b> Plug Mercury's numbers in and you get <b>43″/century</b>, with no free parameters. Einstein wrote that he was so excited he had heart palpitations.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Watch the orbit fail to close</h3>
+    <p class="hint">This is "the orbit no longer quite closes" made visible. With <b>zero</b> advance the ellipse retraces itself every loop — the planet returns to the same perihelion forever (Newton). Turn the advance up and each loop's perihelion (amber dots) lands a little further around, so the path never repeats: <b>an open, slowly rotating orbit</b>. Add loops one at a time with "orbits elapsed." The advance here is wildly exaggerated — a handful of loops stands in for what really takes thousands.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Advance per orbit (exaggerated) <b><span id="oc_dlbl">25</span>°</b></label>
+        <input id="oc_d" type="range" min="0" max="45" step="1" value="25">
+      </div>
+      <div class="ctl">
+        <label>Orbits elapsed <b><span id="oc_nlbl">4</span></b></label>
+        <input id="oc_n" type="range" min="1" max="8" step="1" value="4">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Per orbit</div><div class="v"><span id="oc_per">25</span><small>°</small></div></div>
+      <div class="stat"><div class="k">Total advance</div><div class="v"><span id="oc_tot">100</span><small>°</small></div></div>
+      <div class="stat"><div class="k">Orbit closes?</div><div class="v" id="oc_cl" style="font-size:15px">no</div></div>
+    </div>
+    <figure><div id="oc_plot" class="plot tall"></div><figcaption>The green path is several successive orbits; amber dots are each loop's perihelion, marching forward. Set the advance to 0 and every loop lands on top of the last — a closed ellipse. Any non-zero advance and the orbit spirals open: it never returns to where it began.</figcaption></figure>
+    <div id="oc_verdict" class="verdict"></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The GR precession formula, live</h3>
+    <p class="hint">Pick a planet, or dial $a$ and $e$ yourself, and the formula above is evaluated exactly. Watch how steeply the effect falls off with distance: Mercury sits near 43″/century while Earth is under 4 and the outer planets are negligible — which is why Mercury, and only Mercury, was the smoking gun.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Preset</label>
+        <select id="gr_sel">
+          <option value="mercury" selected>Mercury (a=0.387, e=0.206)</option>
+          <option value="venus">Venus (a=0.723, e=0.007)</option>
+          <option value="earth">Earth (a=1.000, e=0.017)</option>
+          <option value="mars">Mars (a=1.524, e=0.093)</option>
+          <option value="custom">Custom (use sliders)</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Semi-major axis $a$ <b><span id="gr_albl">0.387</span> AU</b></label>
+        <input id="gr_a" type="range" min="0.2" max="2" step="0.001" value="0.387">
+      </div>
+      <div class="ctl">
+        <label>Eccentricity $e$ <b><span id="gr_elbl">0.206</span></b></label>
+        <input id="gr_e" type="range" min="0" max="0.4" step="0.001" value="0.206">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">GR per orbit</div><div class="v"><span id="gr_orbit">0.103</span> <small>″</small></div></div>
+      <div class="stat"><div class="k">GR per century</div><div class="v"><span id="gr_cy">42.98</span> <small>″/cy</small></div></div>
+      <div class="stat"><div class="k">Mercury target</div><div class="v">42.98 <small>″/cy</small></div></div>
+    </div>
+    <figure><div id="gr_plot" class="plot tall"></div><figcaption>GR perihelion advance (″/century, log scale) vs. semi-major axis. Dots are the real planets; the cyan marker is your current orbit. Mercury sits highest.</figcaption></figure>
+    <div id="gr_verdict" class="verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4>Why this counted as proof, not just a fit</h4>
+    <ol>
+      <li><b>No tuning.</b> The 43″ comes out of $G$, $M_\odot$, $c$ and Mercury's known orbit — quantities fixed by other measurements. There was no knob to turn to make it match.</li>
+      <li><b>It was a postdiction <i>and</i> a prediction.</b> The anomaly was already measured, so GR had to hit a number it could not miss — and it did, to the decimal. The same theory then predicted starlight deflection, confirmed at the <b>1919</b> eclipse.</li>
+      <li><b>It killed Vulcan.</b> Once the residual was accounted for by gravity itself, no inner planet was needed — and none was ever found.</li>
+    </ol>
+    <div class="concl"><b>The lesson:</b> an anomaly can mean "there is something we haven't seen yet" (Neptune) <i>or</i> "our law is incomplete" (Mercury). Same symptom, two profoundly different cures — and only experiment can tell which is which.</div>
+  </div>
+</section>
+
+<!-- ===================== SUMMARY ===================== -->
+<section class="chapter" id="summary">
+  <span class="era">recap</span>
+  <h2>The arc of the story</h2>
+  <div class="beats">
+    <div class="beat known"><div class="tag">The anomaly</div><p>Mercury's perihelion advances <b>574″/century</b>; Newtonian planets + Sun oblateness explain <b>~532″</b>, leaving a stubborn <b>~43″/century</b>.</p></div>
+    <div class="beat idea"><div class="tag">The first guess</div><p>Le Verrier — fresh from Neptune — blames a hidden inner planet, <b>Vulcan</b> (announced 1860). The method that found one planet is reused to invent another.</p></div>
+    <div class="beat fail"><div class="tag">The dead end</div><p>Fifty years of transits and eclipse expeditions turn up nothing real. No mass can fit the data without breaking everything else.</p></div>
+    <div class="beat found"><div class="tag">The cure</div><p><b>General relativity (1915)</b> produces 43″/century from spacetime curvature alone — no new mass, no free parameters. Vulcan vanishes.</p></div>
+  </div>
+  <div class="mathnote astro">
+    <h4>Try it yourself</h4>
+    <p>In Section 2, turn on only the Newtonian planets and read the ~42″ gap — that's what Le Verrier saw. In Section 4, switch the preset to Earth or Mars and watch the GR effect collapse to a few arcseconds or less: the reason the universe handed us the answer through <i>Mercury</i> specifically is that it is closest to the Sun and the most eccentric major planet.</p>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="chapter" id="quiz">
+  <span class="era">check yourself</span>
+  <h2>Test yourself</h2>
+  <div class="quiz-head">
+    <div class="quiz-score">Score <b><span id="qz_score">0</span></b> / <span id="qz_total">0</span></div>
+    <div class="quiz-bar"><i id="qz_fill"></i></div>
+    <button class="quiz-reset" id="qz_reset">Reset</button>
+  </div>
+  <div id="qz_root"></div>
+
+  <h3 class="subhead"><span class="n">§</span>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Mercury's observed perihelion advance is 574.10 ″/century; Newtonian planetary tugs give 532.30 ″/century and solar oblateness 0.03 ″/century. What residual is left, and what supplies it?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Subtract the known Newtonian terms.</b> $574.10 - 532.30 - 0.03 = 41.77$ ″/century.</li>
+          <li><b>Compare to GR.</b> General relativity predicts $42.98$ ″/century; the small difference is measurement uncertainty (±0.65) plus the tiny Lense–Thirring term.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about 42 ″/century, supplied by general relativity — the anomaly Le Verrier blamed on Vulcan.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Using $\Delta\varphi = \dfrac{6\pi G M_\odot}{c^2 a (1-e^2)}$ per orbit, with $GM_\odot=1.327\times10^{20}$, $c=3.00\times10^{8}$, $a=5.79\times10^{10}$ m, $e=0.206$, find the advance per orbit in arcseconds.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Numerator.</b> $6\pi\,GM_\odot = 6\pi(1.327\times10^{20}) = 2.50\times10^{21}$.</li>
+          <li><b>Denominator.</b> $c^2 a (1-e^2) = (9.0\times10^{16})(5.79\times10^{10})(0.958) = 4.99\times10^{27}$.</li>
+          <li><b>Ratio.</b> $\Delta\varphi = 5.02\times10^{-7}$ rad. Times $206265$ ″/rad $= 0.104$ ″.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> ≈ 0.10 ″ per orbit. Over ~415 orbits per century that is ≈ 43 ″/century.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The GR advance per century scales roughly as $1/\big(a^{5/2}(1-e^2)\big)$ (combining the per-orbit $1/a$ with $\sim a^{3/2}$ orbits per century). Roughly how many times smaller is Earth's GR precession than Mercury's, ignoring eccentricity?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance ratio.</b> Earth $a=1.00$ AU vs Mercury $a=0.387$ AU, so $a_\oplus/a_\text{Me}=2.58$.</li>
+          <li><b>Apply the power.</b> $2.58^{2.5}\approx 10.7$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> roughly 10× smaller — about 4 ″/century for Earth vs ~43 for Mercury, which is exactly why Mercury was the planet that exposed the discrepancy.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><b>Mercury, Vulcan &amp; General Relativity</b> — an interactive companion. The rosette and the GR formula are computed live; the precession-budget figures are the modern reduction of Mercury's perihelion advance relative to the fixed stars.</p>
+  <p style="margin-top:8px"><b>Key numbers:</b> observed advance 574.10 ± 0.65 ″/cy; Newtonian planets 532.30 ″/cy; solar oblateness 0.029 ″/cy; general relativity 42.98 ″/cy; Lense–Thirring −0.002 ″/cy. Le Verrier announced Vulcan 2 Jan 1860; Lescarbault's claimed transit 26 Mar 1859; eclipse searches 1878–1908; Einstein's GR result November 1915; light-bending confirmed at the 29 May 1919 eclipse. Sources: <a class="inline" href="https://en.wikipedia.org/wiki/Vulcan_(hypothetical_planet)" target="_blank" rel="noopener">Vulcan (hypothetical planet)</a>; <a class="inline" href="https://en.wikipedia.org/wiki/Tests_of_general_relativity#Perihelion_precession_of_Mercury" target="_blank" rel="noopener">Tests of general relativity</a>; ServiAstro, <i>Mercury and Vulcan</i>. A sibling to the <a class="inline" href="neptune_companion.html">Neptune companion</a>.</p>
+</footer>
+
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7', gold:'#ffd24a', navy:'#5b7cff'};
+const PCFG={responsive:true, displayModeBar:false};
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:56,r:14,t:14,b:46},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const ARCSEC=206264.806; // arcsec per radian
+</script>
+
+<!-- =======================================================================
+     SECTION 1 — A SINGLE PRECESSING ELLIPSE (rotates as you slide)
+======================================================================= -->
+<script>
+(function(){
+  const slW=document.getElementById('pr_w'), slE=document.getElementById('pr_e');
+  const a=1;
+  function ellipse(e,w){
+    const xs=[],ys=[];
+    for(let i=0;i<=360;i++){
+      const nu=i*Math.PI/180;
+      const r=a*(1-e*e)/(1+e*Math.cos(nu));   // focus (Sun) at origin
+      const th=nu+w;
+      xs.push(r*Math.cos(th)); ys.push(r*Math.sin(th));
+    }
+    return {xs,ys};
+  }
+  function draw(){
+    const wDeg=+slW.value, e=+slE.value, w=wDeg*Math.PI/180;
+    document.getElementById('pr_wlbl').textContent=wDeg;
+    document.getElementById('pr_wv').textContent=wDeg;
+    document.getElementById('pr_elbl').textContent=e.toFixed(2);
+    const el=ellipse(e,w);
+    const el0=ellipse(e,0);                     // the starting orbit (ghost reference)
+    const rp=a*(1-e), ra=a*(1+e);
+    const peri=[rp*Math.cos(w), rp*Math.sin(w)];
+    const apo =[ra*Math.cos(w+Math.PI), ra*Math.sin(w+Math.PI)];
+    const traces=[
+      // GHOST: the starting orbit — a perfectly normal ellipse, perihelion along +x
+      {x:el0.xs, y:el0.ys, mode:'lines', line:{color:'rgba(154,163,199,0.40)',width:1.6}, hoverinfo:'skip'},
+      {x:[-ra, rp], y:[0,0], mode:'lines', line:{color:'rgba(154,163,199,0.45)',width:1.2,dash:'dot'}, hoverinfo:'skip'},
+      // the SAME orbit now, after the axis has drifted
+      {x:el.xs, y:el.ys, mode:'lines', line:{color:COL.cyan,width:2.2}, hoverinfo:'skip'},
+      // current major axis (apsidal line)
+      {x:[apo[0],peri[0]], y:[apo[1],peri[1]], mode:'lines', line:{color:COL.amber,width:2}, hoverinfo:'skip'},
+      // Sun at the focus
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.gold,size:16,line:{color:'#ff9a3a',width:1}},hoverinfo:'skip'},
+      // planet at perihelion
+      {x:[peri[0]],y:[peri[1]],mode:'markers',marker:{color:COL.cyan,size:12,line:{color:'#fff',width:1.3}},hoverinfo:'skip'}
+    ];
+    const lim=ra*1.12;
+    Plotly.react('pr_plot',traces,baseLayout({
+      xaxis:{scaleanchor:'y',range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'},
+      yaxis:{range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'}
+    }),PCFG);
+  }
+  slW.addEventListener('input',draw);
+  slE.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 2 — PRECESSION BUDGET
+======================================================================= -->
+<script>
+(function(){
+  const OBS=574.10;
+  const terms=[
+    {key:'planets', label:'Newtonian planets', val:532.3035, color:COL.cyan,  on:true,  gr:false},
+    {key:'oblate',  label:'Sun oblateness',    val:0.0286,   color:COL.violet, on:false, gr:false},
+    {key:'gr',      label:'General relativity', val:42.9799,  color:COL.green,  on:false, gr:true},
+    {key:'lt',      label:'Lense–Thirring',     val:-0.0020,  color:COL.rose,   on:false, gr:false}
+  ];
+  const btnWrap=document.getElementById('bg_btns');
+  terms.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='act'+(t.on?' on':'')+(t.gr?' gr':'');
+    b.textContent=(t.on?'✓ ':'+ ')+t.label;
+    b.addEventListener('click',()=>{ t.on=!t.on; b.classList.toggle('on',t.on); b.textContent=(t.on?'✓ ':'+ ')+t.label; render(); });
+    btnWrap.appendChild(b);
+  });
+  function render(){
+    const on=terms.filter(t=>t.on);
+    let total=on.reduce((s,t)=>s+t.val,0);
+    const gap=OBS-total;
+    document.getElementById('bg_total').textContent=total.toFixed(2);
+    document.getElementById('bg_gap').textContent=gap.toFixed(2);
+    // stacked horizontal bar
+    const traces=on.map(t=>({
+      x:[t.val], y:['Mercury'], type:'bar', orientation:'h', name:t.label,
+      marker:{color:t.color, line:{color:'rgba(0,0,0,0.3)',width:1}},
+      hovertemplate:`${t.label}: %{x:.3f}″<extra></extra>`
+    }));
+    Plotly.react('bg_plot',traces,baseLayout({
+      barmode:'stack',
+      xaxis:{title:'precession (″ / century)', range:[0,640], gridcolor:'rgba(140,160,230,0.1)'},
+      yaxis:{showticklabels:false},
+      margin:{l:14,r:14,t:10,b:46},
+      shapes:[{type:'line',x0:OBS,x1:OBS,y0:-0.5,y1:0.5,line:{color:'#fff',width:2,dash:'dash'}}],
+      annotations:[{x:OBS,y:0.45,text:'observed 574.1',showarrow:false,font:{color:'#fff',size:11},xanchor:'right'}]
+    }),PCFG);
+    const v=document.getElementById('bg_verdict');
+    const grOn=terms.find(t=>t.key==='gr').on;
+    const planetsOnly=terms.find(t=>t.key==='planets').on && !grOn && !terms.find(t=>t.key==='oblate').on;
+    if(Math.abs(gap)<1){ v.className='verdict good'; v.innerHTML=`<b>Balanced.</b> Modeled ${total.toFixed(2)}″ vs observed 574.10″ — gap ${gap.toFixed(2)}″, within the measurement error. General relativity is the term that closes the books.`; }
+    else if(planetsOnly){ v.className='verdict bad'; v.innerHTML=`<b>The anomaly.</b> Newtonian planets give ${total.toFixed(2)}″ but Mercury advances 574.10″ — a ${gap.toFixed(1)}″/century shortfall with no Newtonian source. This is what sent Le Verrier hunting for Vulcan.`; }
+    else if(gap>1){ v.className='verdict bad'; v.innerHTML=`<b>Still short by ${gap.toFixed(2)}″.</b> Keep adding known effects — only general relativity supplies a term big enough to close it.`; }
+    else { v.className='verdict bad'; v.innerHTML=`<b>Overshoot by ${(-gap).toFixed(2)}″.</b> That combination exceeds the observed value.`; }
+  }
+  render();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 4a — ORBIT FAILS TO CLOSE (open vs closed)
+======================================================================= -->
+<script>
+(function(){
+  const slD=document.getElementById('oc_d'), slN=document.getElementById('oc_n');
+  const a=1, e=0.4;
+  function draw(){
+    const dDeg=+slD.value, N=+slN.value;
+    document.getElementById('oc_dlbl').textContent=dDeg;
+    document.getElementById('oc_nlbl').textContent=N;
+    document.getElementById('oc_per').textContent=dDeg;
+    document.getElementById('oc_tot').textContent=dDeg*N;
+    const d=dDeg*Math.PI/180, k=1 - d/(2*Math.PI);   // r = a(1-e^2)/(1+e cos(k φ))
+    const xs=[],ys=[], total=N*360;
+    for(let i=0;i<=total;i++){
+      const phi=i*Math.PI/180;
+      const r=a*(1-e*e)/(1+e*Math.cos(k*phi));
+      xs.push(r*Math.cos(phi)); ys.push(r*Math.sin(phi));
+    }
+    // perihelion of each loop: k*phi = 2π n  ->  phi = 2π n / k
+    const px=[],py=[];
+    for(let n=0;n<=N;n++){ const phi=2*Math.PI*n/k, r=a*(1-e); px.push(r*Math.cos(phi)); py.push(r*Math.sin(phi)); }
+    const end=[xs[xs.length-1], ys[ys.length-1]];
+    const traces=[
+      {x:xs,y:ys,mode:'lines',line:{color:COL.green,width:1.9},hoverinfo:'skip'},
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.gold,size:16,line:{color:'#ff9a3a',width:1}},hoverinfo:'skip'},
+      {x:px,y:py,mode:'markers',marker:{color:COL.amber,size:8},hoverinfo:'skip'},
+      {x:[px[0]],y:[py[0]],mode:'markers+text',marker:{color:COL.amber,size:11,line:{color:'#fff',width:1}},text:['1st perihelion'],textposition:'bottom center',textfont:{size:10,color:COL.amber},hoverinfo:'skip'},
+      {x:[end[0]],y:[end[1]],mode:'markers',marker:{color:COL.cyan,size:12,line:{color:'#fff',width:1.2}},hoverinfo:'skip'}
+    ];
+    const lim=a*(1+e)*1.14;
+    Plotly.react('oc_plot',traces,baseLayout({
+      xaxis:{scaleanchor:'y',range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'},
+      yaxis:{range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'}
+    }),PCFG);
+    const v=document.getElementById('oc_verdict'), cl=document.getElementById('oc_cl');
+    if(dDeg===0){ cl.textContent='yes'; v.className='verdict good'; v.innerHTML='<b>Closed ellipse (Newton).</b> With zero advance the orbit retraces itself exactly every loop and the perihelion never moves — the ideal two-body orbit. Notice all the perihelion dots sit on top of each other.'; }
+    else { cl.textContent='no'; v.className='verdict bad'; v.innerHTML=`<b>Open orbit (general relativity).</b> Each loop the perihelion advances ${dDeg}°, so after ${N} orbit${N>1?'s':''} it has walked ${dDeg*N}° around and the path has not closed. Real Mercury does exactly this at only ~1.4″ per orbit — invisible in one loop, unmistakable over a century.`; }
+  }
+  slD.addEventListener('input',draw);
+  slN.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 4 — GR PRECESSION FORMULA
+======================================================================= -->
+<script>
+(function(){
+  const GM=1.32712440018e20, c=299792458, AU=1.495978707e11, MERC=42.98;
+  const planets={
+    mercury:{a:0.3871,e:0.2056}, venus:{a:0.7233,e:0.0068},
+    earth:{a:1.0000,e:0.0167}, mars:{a:1.5237,e:0.0934}
+  };
+  function grPerCentury(aAU,e){
+    const a=aAU*AU;
+    const perOrbit=6*Math.PI*GM/(c*c*a*(1-e*e));     // rad/orbit
+    const P=Math.pow(aAU,1.5);                        // years (solar units)
+    return {orbit:perOrbit*ARCSEC, cy:perOrbit*ARCSEC*(100/P), P};
+  }
+  const sel=document.getElementById('gr_sel'), slA=document.getElementById('gr_a'), slE=document.getElementById('gr_e');
+  function drawCurve(aAU,e){
+    // real planets
+    const names=['mercury','venus','earth','mars'];
+    const px=[],py=[],ptxt=[];
+    names.forEach(n=>{ const r=grPerCentury(planets[n].a,planets[n].e); px.push(planets[n].a); py.push(r.cy); ptxt.push(n[0].toUpperCase()+n.slice(1)); });
+    // guide curve at the current eccentricity
+    const cx=[],cy=[];
+    for(let aa=0.2; aa<=2.0001; aa+=0.02){ cx.push(aa); cy.push(grPerCentury(aa,e).cy); }
+    const here=grPerCentury(aAU,e);
+    const traces=[
+      {x:cx,y:cy,mode:'lines',line:{color:'rgba(94,230,168,0.5)',width:1.6,dash:'dot'},hoverinfo:'skip'},
+      {x:px,y:py,mode:'markers+text',marker:{color:COL.amber,size:9},text:ptxt,textposition:'top center',textfont:{size:9,color:COL.muted},hovertemplate:'%{text}: %{y:.2f}″/cy<extra></extra>'},
+      {x:[aAU],y:[here.cy],mode:'markers',marker:{color:COL.cyan,size:16,line:{color:'#fff',width:1.5}},hovertemplate:'your orbit: %{y:.2f}″/cy<extra></extra>'}
+    ];
+    Plotly.react('gr_plot',traces,baseLayout({
+      xaxis:{title:'semi-major axis (AU)', range:[0.15,2.05]},
+      yaxis:{title:'GR advance (″/century)', type:'log'}
+    }),PCFG);
+  }
+  function update(fromSel){
+    if(fromSel && sel.value!=='custom'){ const p=planets[sel.value]; slA.value=p.a; slE.value=p.e; }
+    const aAU=+slA.value, e=+slE.value;
+    document.getElementById('gr_albl').textContent=aAU.toFixed(3);
+    document.getElementById('gr_elbl').textContent=e.toFixed(3);
+    const r=grPerCentury(aAU,e);
+    document.getElementById('gr_orbit').textContent=r.orbit.toFixed(3);
+    document.getElementById('gr_cy').textContent=r.cy.toFixed(2);
+    const v=document.getElementById('gr_verdict');
+    if(Math.abs(r.cy-MERC)<1.5){ v.className='verdict good'; v.innerHTML=`<b>${r.cy.toFixed(2)}″/century</b> — this is Mercury's regime, matching the unexplained anomaly almost exactly. The 43″ that needed a planet was curved spacetime all along.`; }
+    else if(r.cy<MERC){ v.className='verdict bad'; v.innerHTML=`<b>Only ${r.cy.toFixed(2)}″/century.</b> Farther out (or rounder) orbits feel far less GR precession — undetectable in the 19th century. Move $a$ inward toward 0.39 AU to reach Mercury's 43″.`; }
+    else { v.className='verdict good'; v.innerHTML=`<b>${r.cy.toFixed(2)}″/century</b> — even stronger than Mercury. Closer to the Sun and more eccentric means more spacetime curvature per orbit and more orbits per century.`; }
+    drawCurve(aAU,e);
+  }
+  sel.addEventListener('change',()=>update(true));
+  slA.addEventListener('input',()=>{ sel.value='custom'; update(false); });
+  slE.addEventListener('input',()=>{ sel.value='custom'; update(false); });
+  update(true);
+})();
+</script>
+
+<!-- =======================================================================
+     QUIZ
+======================================================================= -->
+<script>
+(function(){
+  const QUIZ=[
+    {q:'What is the size of Mercury\'s perihelion anomaly that Newtonian gravity could not explain?',
+     opts:['About 5600 arcseconds per century','About 574 arcseconds per century','About 43 arcseconds per century','About 1 degree per century'],
+     a:2, e:'Of the 574″/century total advance (vs the stars), Newtonian planetary tugs and solar oblateness account for ~532″. The leftover ~43″/century is the famous anomaly.'},
+    {q:'Why did Le Verrier propose the planet Vulcan?',
+     opts:['He had photographed it','He had just used the same method — an unseen mass — to discover Neptune','Newton predicted it','To explain the tides'],
+     a:1, e:'In 1846 an unexplained residual in Uranus led Le Verrier to Neptune. He reused that exact logic for Mercury, proposing an intra-Mercurial planet, Vulcan, to supply the missing gravity.'},
+    {q:'What happened to the searches for Vulcan?',
+     opts:['It was found in 1878','Decades of transit and eclipse searches found nothing real','It turned out to be an asteroid','It was found but later destroyed'],
+     a:1, e:'From Lescarbault\'s dubious 1859 transit through eclipse expeditions to 1908, no consistent, real object was ever confirmed. No planet large enough to move Mercury could have hidden so well.'},
+    {q:'How did general relativity resolve the anomaly?',
+     opts:['By adding a new planet','By predicting ~43″/century from spacetime curvature, with no free parameters','By changing the mass of the Sun','By proving Mercury\'s orbit is circular'],
+     a:1, e:'Einstein\'s 1915 theory gives an extra perihelion advance of 6πGM/(c²a(1−e²)) per orbit. For Mercury that is ~43″/century exactly — no hidden mass required, so Vulcan was unnecessary.'},
+    {q:'Why was Mercury, of all planets, the one that exposed the discrepancy?',
+     opts:['It is the largest planet','It is closest to the Sun and the most eccentric major planet, so the GR effect is strongest','It has no moons','It spins fastest'],
+     a:1, e:'The GR advance grows as orbits shrink and eccentricity rises. Mercury is innermost and most eccentric, giving ~43″/century — versus under 4 for Earth — large enough to measure in the 1800s.'}
+  ];
+  const root=document.getElementById('qz_root');
+  let total=0, score=0;
+  document.getElementById('qz_total').textContent=QUIZ.length;
+  function render(){
+    root.innerHTML=''; total=0; score=0; updateBar();
+    QUIZ.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const marks='ABCD';
+      card.innerHTML=`<p class="q-text"><span class="q-num">${qi+1}.</span>${item.q}</p>`;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      item.opts.forEach((o,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt';
+        b.innerHTML=`<span class="q-mark">${marks[oi]}</span>${o}`;
+        b.addEventListener('click',()=>{
+          if(card.dataset.done)return; card.dataset.done='1';
+          total++;
+          opts.querySelectorAll('.q-opt').forEach(x=>x.disabled=true);
+          opts.querySelectorAll('.q-opt')[item.a].classList.add('correct');
+          if(oi===item.a){ score++; } else { b.classList.add('wrong'); }
+          exp.classList.add('show'); updateBar();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      const exp=document.createElement('div'); exp.className='q-exp'; exp.innerHTML='<b>Why:</b> '+item.e;
+      card.appendChild(exp);
+      root.appendChild(card);
+    });
+  }
+  function updateBar(){
+    document.getElementById('qz_score').textContent=score;
+    document.getElementById('qz_fill').style.width=(score/QUIZ.length*100)+'%';
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<!-- =======================================================================
+     Background starfield
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280, (innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+</body>
+</html>
