@@ -1,0 +1,1819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cosmic Microwave Background &amp; the Power Spectrum — An Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(40,90,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(80,40,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* concept beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  select,input[type=text]{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 6px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer}
+  button.act:hover{border-color:var(--cyan)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:340px}
+  .plot.tall{height:420px}
+
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#05060d}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv h4 .ic{font-size:14px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:780px}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+
+  /* historical quote */
+  .vquote{margin:18px 0 4px; padding:14px 18px; background:rgba(255,178,74,0.06); border:1px solid rgba(255,178,74,0.25); border-left:3px solid var(--amber); border-radius:12px}
+  .vquote p{margin:0; font-size:15px; line-height:1.6; color:var(--ink); font-style:italic}
+  .vquote .src{display:block; margin-top:8px; font-size:12.5px; color:var(--muted); font-style:normal}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  footer a{color:var(--cyan); text-decoration:none}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* sources list */
+  .srclist{list-style:none; padding:0; margin:14px 0 0}
+  .srclist li{padding:9px 0; border-top:1px solid var(--line); font-size:13.5px}
+  .srclist li:first-child{border-top:0}
+  .srclist b{color:var(--ink)}
+  .srclist a{color:var(--cyan); text-decoration:none; word-break:break-all; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.4)}
+
+  /* glossary rail + tooltips */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">The Cosmic Microwave Background <small>Interactive companion · the afterglow of the Big Bang, and how its power spectrum weighs the dark matter</small></div>
+    <div class="links">
+      <a href="#afterglow">Afterglow</a>
+      <a href="#discovery" class="hist">Discovery</a>
+      <a href="#recombination">Last scattering</a>
+      <a href="#mapping" class="hist">COBE → Planck</a>
+      <a href="#powerspectrum">Power spectrum</a>
+      <a href="#fourier">Fourier machine</a>
+      <a href="#harmonics">Spherical harmonics</a>
+      <a href="#darkmatter">Acoustic peaks</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>The whole sky glows at <span class="grad">2.725 kelvin</span></h1>
+  <p class="sub">Leftover heat from the Big Bang fills the universe — a near-perfect blackbody, the same temperature in every direction to a part in a hundred thousand. Hidden in those one-part-in-100,000 ripples is a curve of peaks, the <i>power spectrum</i>, and the heights of those peaks turn out to weigh the cosmos — and demand that most of its matter be dark.</p>
+  <p class="byline">An interactive companion to the keynote <b>“Cosmic microwave background and the power curve: Evidence for dark matter.”</b> Every chapter rebuilds the working physics — the blackbody afterglow, the surface of last scattering, the COBE-to-Planck maps, the Fourier transform and its spherical-harmonic cousin, and the acoustic peaks that reveal the dark matter.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every key term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. THE AFTERGLOW -->
+<!-- ============================================================= -->
+<section class="chapter" id="afterglow">
+  <span class="era">Chapter 1 · The afterglow · A blackbody at 2.725 K</span>
+  <h2>The Big Bang left the whole sky faintly glowing</h2>
+  <p class="who">Leftover radiation · why it is invisibly cold · why its light peaks in the microwave · and the static on an untuned TV</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Heat left over from the Big Bang</div>
+      <p>The cosmic microwave background is leftover radiation from the Big Bang — the heat of the early universe, stretched and cooled by 13.8 billion years of expansion. It fills all of space, arriving from every direction at once. It is not light from any star or galaxy; it is the glow of the universe itself when it was young and hot.</p></div>
+    <div class="beat idea"><div class="tag">So cold it is invisible</div>
+      <p>That glow is now just $2.725$ degrees above absolute zero — far too cold for human eyes. A body at that temperature radiates most strongly not as visible light but in the <b>microwave</b> part of the electromagnetic spectrum, with a wavelength of about a millimetre. To see the afterglow you need a radio dish, not a telescope's mirror.</p></div>
+    <div class="beat test"><div class="tag">You have already seen it</div>
+      <p>According to NASA, before cable, a television tuned to an empty channel showed a faint snow of static — and a small fraction of that hiss was the cosmic microwave background itself, the afterglow of the Big Bang picked up by the antenna. The oldest light in the universe was leaking into living rooms as noise.</p></div>
+    <div class="beat found"><div class="tag">A near-perfect blackbody</div>
+      <p>Spread the CMB out by wavelength and it traces a <b>blackbody spectrum</b> — the exact thermal curve of an object in equilibrium at one temperature. That perfect thermal shape is the fingerprint of a hot, dense origin, and it is the single hardest fact for any rival to the Big Bang to explain.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Heat the early universe — watch the blackbody peak slide</h3>
+    <p class="hint">The curve is the <b>Planck spectrum</b> $B_\nu(T)$ — the brightness of a blackbody at temperature $T$, across frequency. Drag the temperature up from today's $2.725$ K toward the $\sim3000$ K of recombination: the whole curve brightens and its peak marches from the microwave band up through the infrared toward visible light. Today's cold CMB peaks squarely in the microwave, near $160$ GHz (about a millimetre).</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Temperature <b>T = <span id="bb_tlbl">2.725</span> K</b></label>
+        <input id="bb_t" type="range" min="2.725" max="3000" step="0.275" value="2.725">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Peak frequency</div><div class="v"><span id="bb_nu">160</span><small> GHz</small></div></div>
+      <div class="stat"><div class="k">Peak wavelength</div><div class="v" style="font-size:17px"><span id="bb_lam">1.06 mm</span></div></div>
+      <div class="stat"><div class="k">Band</div><div class="v" id="bb_band" style="font-size:15px">microwave</div></div>
+      <div class="stat"><div class="k">Redshift since</div><div class="v">z = <span id="bb_z">0</span></div></div>
+    </div>
+    <div id="bb_plot" class="plot"></div>
+    <p class="codecap" style="font-size:12px;color:var(--muted);margin:8px 0 0">Each curve is normalised to its own peak so the shape stays visible; the dashed grey curve is today's $2.725$ K reference. Frequency runs on a log axis from radio through to near-infrared.</p>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Wien's law, and why a colder universe glows redder-er</h4>
+    <p class="lead">Two short facts fix where the afterglow peaks today and where it peaked in the past.</p>
+    <ol>
+      <li><b>Wien's displacement law.</b> A blackbody's peak wavelength is inversely proportional to its temperature: $\lambda_{\max}=b/T$ with $b=2.898\times10^{-3}\ \text{m·K}$. At $T=2.725$ K this gives $\lambda_{\max}=1.06$ mm — a microwave.</li>
+      <li><b>Equivalently, in frequency.</b> $\nu_{\max}\approx(58.8\ \text{GHz/K})\,T=160$ GHz today — the microwave band, exactly where radio astronomers find it.</li>
+      <li><b>The temperature–redshift link.</b> Expansion stretches every wavelength by $(1+z)$, so the CMB was hotter in the past: $T(z)=T_0(1+z)$. Run the slider to $T=3000$ K and you are viewing redshift $z=T/T_0-1\approx1100$ — the epoch of recombination in Chapter 3.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> the same number you read off the slider — temperature — doubles as a clock. A blackbody at $2.725$ K is the universe at age 13.8 Gyr; at $3000$ K it is the universe at 380,000 years, the moment its light was set free.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why a perfect blackbody is such damning evidence</h4>
+    <p>A <b>blackbody spectrum</b> only forms in tight thermal equilibrium — matter and radiation colliding so often they share one temperature. The early universe was exactly that: a hot, opaque plasma. The CMB measured by the COBE satellite matched a $2.725$ K blackbody to better than one part in ten thousand — the most perfect blackbody ever measured. No model in which the redshift comes from light merely "tiring" on its journey can reproduce that thermal curve; only an expanding universe that was once hot and dense can.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Use Wien's law $\lambda_{\max}=b/T$ with $b=2.898\times10^{-3}$ m·K to find the peak wavelength of the CMB at $T=2.725$ K.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Divide.</b> $\lambda_{\max}=\dfrac{2.898\times10^{-3}}{2.725}=1.06\times10^{-3}$ m.</li>
+          <li><b>Convert.</b> $1.06\times10^{-3}$ m $=1.06$ mm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda_{\max}\approx1.06$ mm — a microwave, which is why it is called the cosmic <i>microwave</i> background.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The CMB was released when the universe was about $3000$ K. Using $T(z)=T_0(1+z)$ with $T_0=2.725$ K, find the redshift of that surface.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rearrange.</b> $1+z=T/T_0=3000/2.725$.</li>
+          <li><b>Evaluate.</b> $1+z=1101\Rightarrow z\approx1100$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z\approx1100$ — the light has been stretched by a factor of about 1100 since it was set free, cooling from 3000 K to 2.725 K.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A microwave photon at the CMB peak has frequency $\nu=160$ GHz. Find its energy in electronvolts. Use $E=h\nu$, $h=4.14\times10^{-15}$ eV·s.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Multiply.</b> $E=(4.14\times10^{-15})(1.60\times10^{11})$.</li>
+          <li><b>Evaluate.</b> $E=6.6\times10^{-4}$ eV.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $E\approx0.66$ meV — a thousand times feebler than visible light, which is why the CMB is invisibly faint and cold.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. DISCOVERY -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="discovery">
+  <span class="era">Chapter 2 · The discovery · 1948 – 1965 · Alpher's prediction, Penzias &amp; Wilson's accident</span>
+  <h2>Predicted on paper, then found as unexplainable noise</h2>
+  <p class="who">Ralph Alpher's 1948 prediction · the Bell Labs antenna that hissed from every direction · what a plasma is and why it matters</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Predicted in 1948</div>
+      <p>The American cosmologist Ralph Alpher first predicted the cosmic microwave background in 1948. If the early universe was extremely hot and dense, he reasoned, then as it expanded and cooled, a bath of relic radiation must have been released — and it should still be detectable today, redshifted into a faint, cold glow. The prediction sat largely unnoticed for nearly two decades.</p></div>
+    <div class="beat idea"><div class="tag">Found by accident</div>
+      <p>In 1965 two researchers at Bell Telephone Laboratories, Arno Penzias and Robert Wilson, were building a sensitive radio receiver and were puzzled by a persistent background hiss they could not remove. They cleaned the antenna, even evicted nesting pigeons — and the noise stayed. They soon realised it came uniformly from all over the sky.</p></div>
+    <div class="beat test"><div class="tag">The same in every direction</div>
+      <p>That uniformity was the decisive clue. Noise from a city, the Sun, or the galaxy would point somewhere; this pointed nowhere because it came from everywhere. An <b>isotropic</b> signal — identical in all directions — is the signature of something filling all of space, not a source sitting in it. Penzias and Wilson had stumbled onto Alpher's predicted afterglow.</p></div>
+    <div class="beat found"><div class="tag">A glimpse of the primordial plasma</div>
+      <p>Observing the sky at millimetre to sub-millimetre wavelengths lets us see the early universe's <b>plasma</b> just as it vanished — at the instant it cooled into neutral gas. A plasma is matter so hot that electrons are torn free of their nuclei; the Sun is a great gravitationally-bound ball of it. The CMB is the last light of the cosmic plasma, the moment before it switched off.</p></div>
+  </div>
+
+  <div class="vquote">
+    <p>“We have observed an excess antenna temperature… essentially isotropic, unpolarized, and free from seasonal variations.”</p>
+    <span class="src">— A. A. Penzias &amp; R. W. Wilson, <i>A Measurement of Excess Antenna Temperature at 4080 Mc/s</i>, Astrophysical Journal, 1965. The understated sentence that announced the afterglow of the Big Bang and later won a Nobel Prize.</span>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Point the horn antenna — the hiss never goes away</h3>
+    <p class="hint">Penzias and Wilson's puzzle in one control. Swing the Bell-Labs horn antenna to any patch of sky and read its excess temperature. A local source — the galaxy, the Sun — would spike in one direction and vanish elsewhere. The CMB does not: it reads the same everywhere, the hallmark of an <b>isotropic</b> signal filling all of space. (Crank the precision and a tiny part-in-a-thousand variation appears — the dipole of Chapter 7 — but the zeroth-order story is sameness.)</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Antenna pointing <b><span id="hn_albl">0</span>°</b> from the zenith sweep</label>
+        <input id="hn_a" type="range" min="0" max="360" step="1" value="35">
+      </div>
+      <div class="ctl">
+        <label>Signal model</label>
+        <select id="hn_mode">
+          <option value="cmb" selected>CMB (fills all space)</option>
+          <option value="local">A local source (e.g. the galaxy)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Excess antenna temperature</div><div class="v"><span id="hn_t">3.5</span><small> K</small></div></div>
+      <div class="stat"><div class="k">Varies with direction?</div><div class="v" id="hn_var" style="font-size:15px">no</div></div>
+    </div>
+    <figure><canvas id="hn_canvas" width="900" height="320"></canvas>
+      <figcaption>The horn (amber) sweeps across the sky dome. For the CMB the gauge holds steady from every direction — isotropy. Switch to a local source and the same sweep spikes and fades, betraying a location. Isotropy is what told Penzias and Wilson their noise was cosmic.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why "the same in all directions" means "fills all of space"</h4>
+    <p class="lead">The logic that turned an annoying hiss into a discovery.</p>
+    <ol>
+      <li><b>Sources have locations.</b> Any object <i>in</i> space — a transmitter, a star, the Milky Way's disk — subtends some direction. Aim away from it and its signal drops. Direction-dependence is the fingerprint of a localized source.</li>
+      <li><b>The hiss had none.</b> Penzias and Wilson found the excess temperature was the same toward every patch of sky, day and night, season to season. No pointing made it stronger or weaker.</li>
+      <li><b>Only a filled volume does that.</b> A signal coming equally from all directions must be emitted by — or fill — the whole volume around the observer. Redshifted to microwaves and thermal in shape, that volume-filling glow is exactly Alpher's predicted relic.</li>
+    </ol>
+    <div class="concl"><b>The verdict:</b> isotropy promoted the noise from "instrument problem" to "the oldest light in the universe." The faint anisotropies — Chapters 4–8 — are the deviations from this sameness, and they carry nearly all the cosmological information.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>What a plasma is, and why the CMB is its farewell</h4>
+    <p>A <b>plasma</b> is an ionised gas: electrons dissociated from nuclei, free to roam. Plasmas are hot — it is thermal energy that keeps the negative electrons from binding to the positive nuclei. Free electrons scatter light fiercely, so a plasma is opaque. The early universe was one vast plasma, and the CMB is the radiation that escaped at the very moment it cooled enough for electrons and nuclei to combine into transparent neutral gas. The next chapter watches that switch flip.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Penzias and Wilson worked at $4080$ MHz. What wavelength is that? Use $\lambda=c/\nu$, $c=3.00\times10^8$ m/s.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Divide.</b> $\lambda=\dfrac{3.00\times10^8}{4.080\times10^9}$.</li>
+          <li><b>Evaluate.</b> $\lambda=0.0735$ m $=7.35$ cm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\lambda\approx7.4$ cm — a radio/microwave wavelength on the low-frequency tail of the CMB blackbody curve, where the antenna was sensitive.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Alpher reasoned the relic radiation would be redshifted by expansion. If it was released at $3000$ K and we observe $2.725$ K, by what factor have its wavelengths stretched?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Take the ratio.</b> stretch $=T_{\text{emit}}/T_{\text{obs}}=3000/2.725$.</li>
+          <li><b>Evaluate.</b> $\approx1100$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> a factor of about $1100$ — the same $(1+z)$ that turns 3000 K into 2.725 K, confirming Alpher's "hot start, then cool" picture.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Explain, in one or two sentences, why a uniform hiss from all directions could not be coming from the Milky Way's disk.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>The disk is a structure with a shape.</b> Its emission is concentrated along a band on the sky (the Milky Way we see at night), so a receiver pointed toward the band reads more than one pointed at a galactic pole.</li>
+          <li><b>The CMB shows no such band.</b> Equal signal in every direction rules out any structure embedded in space.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> Galactic emission is strongly direction-dependent; the CMB's perfect isotropy means it fills space rather than sitting within it.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. LAST SCATTERING -->
+<!-- ============================================================= -->
+<section class="chapter" id="recombination">
+  <span class="era">Chapter 3 · The first 380,000 years · Recombination &amp; the surface of last scattering</span>
+  <h2>The fog clears, and the universe lets its light go</h2>
+  <p class="who">The opaque primordial plasma · electrons binding to nuclei · the universe turning transparent · and the shell of last scattering we still see</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">An opaque, foggy plasma</div>
+      <p>The primordial plasma was a soup of electrons, hydrogen and helium nuclei, a trace of other light nuclei, and photons — all at once. Photons could not travel far: they were constantly <b>scattered</b> off the free electrons, ricocheting like sunlight inside a dense fog. The universe was opaque. You could not have seen across the room, let alone across the cosmos.</p></div>
+    <div class="beat idea"><div class="tag">Cooling lets matter neutralise</div>
+      <p>As the universe expanded it cooled, and eventually it cooled enough that electrons could bind with the protons and helium nuclei. This is <b>recombination</b>: the charged plasma transforms into a neutral gas of hydrogen and helium atoms. With the free electrons mopped up, there is suddenly almost nothing left to scatter the photons.</p></div>
+    <div class="beat test"><div class="tag">The universe turns transparent</div>
+      <p>At that moment — about 380,000 years after the Big Bang — the fog lifts. The thermal photons stop ricocheting and begin to free-stream across the universe in straight lines, hardly touching matter again. This switch from opaque to transparent is called <b>decoupling</b>: light and matter go their separate ways.</p></div>
+    <div class="beat found"><div class="tag">A shell of last scattering around us</div>
+      <p>The photons that left the right distance away, headed our way, are arriving now. They paint an image of the universe at that transition — a thin spherical shell around us, the <b>surface of last scattering</b>, some 46 billion light-years off in comoving distance. Mapping the CMB is looking back in time to the instant the universe became clear, and no further: it is a wall of light we cannot see behind.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Cool the universe through recombination — watch the fog lift</h3>
+    <p class="hint">Slide the redshift from the hot early plasma (right) down through recombination toward today (left). The blue curve is the <b>ionisation fraction</b> $x_e$ — the share of electrons still free. While $x_e$ is high the gas is a plasma and a photon (amber) zig-zags, trapped; as $x_e$ collapses near $z\approx1100$ the electrons vanish into atoms and the photon breaks free and streams straight. The orange curve is the <b>visibility</b> — the probability a CMB photon last scattered there — and it spikes at the surface of last scattering.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Redshift <b>z = <span id="rc_zlbl">1300</span></b></label>
+        <input id="rc_z" type="range" min="0" max="1600" step="5" value="1300">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Temperature</div><div class="v"><span id="rc_t">3500</span><small> K</small></div></div>
+      <div class="stat"><div class="k">Ionisation fraction xₑ</div><div class="v" id="rc_xe">0.98</div></div>
+      <div class="stat"><div class="k">State of the universe</div><div class="v" id="rc_state" style="font-size:15px">opaque plasma</div></div>
+    </div>
+    <figure><canvas id="rc_canvas" width="900" height="300"></canvas>
+      <figcaption>Top strip: a photon's path through the electron field at the chosen redshift — a trapped zig-zag in the plasma, a straight escape once neutral. Below: ionisation fraction $x_e(z)$ (blue) and the visibility function (orange), whose peak at $z\approx1090$ is the surface of last scattering.</figcaption></figure>
+    <div id="rc_plot" class="plot" style="height:280px"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why recombination waits until 3000 K, not 150,000 K</h4>
+    <p class="lead">Hydrogen's binding energy is $13.6$ eV, which corresponds to a temperature of $\sim158{,}000$ K. So why does the gas stay ionised until it is fifty times cooler?</p>
+    <ol>
+      <li><b>Photons hugely outnumber atoms.</b> There are roughly two billion CMB photons for every baryon. Even when the <i>average</i> photon is too feeble to ionise hydrogen, the rare energetic photons in the blackbody tail are still numerous enough to keep tearing atoms apart.</li>
+      <li><b>The tail sets the schedule.</b> Recombination only completes once even those tail photons are too few — which the Saha equation places at $T\approx3000$ K, redshift $z\approx1100$, not at the naïve $158{,}000$ K.</li>
+      <li><b>Then it runs fast.</b> Once it tips, the free-electron fraction $x_e$ plummets, the scattering rate crashes, and within a relatively thin shell of redshift the universe goes from opaque to transparent — giving the CMB a sharp surface of last scattering rather than a gradual haze.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> the enormous photon-to-baryon ratio is why the CMB was released at a cosy 3000 K — cool enough that its redshifted light lands in the microwave today, and sharp enough that it carries a crisp snapshot of the infant universe.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>A wall of light, 13.8 billion years deep</h4>
+    <p>Because the universe was opaque before <b>decoupling</b>, no light reaches us from earlier than the surface of last scattering — it is the most distant thing any telescope can ever see in light. Everything beyond it is hidden behind the cosmic fog. To probe earlier still, cosmologists must turn to neutrinos or gravitational waves, which the plasma did not stop. The CMB is the universe's baby photograph, taken at 380,000 years, and the faint blotches on it — Chapter 4 — are the seeds that grew into every galaxy.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Recombination occurs near $z\approx1100$. If the universe is $13.8$ Gyr old and recombination was at $380{,}000$ yr, what fraction of cosmic history had passed when the CMB was released?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Form the ratio.</b> $\dfrac{3.8\times10^5}{1.38\times10^{10}}$.</li>
+          <li><b>Evaluate.</b> $\approx2.8\times10^{-5}$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $0.0028\%$ — the CMB snapshot was taken when the universe was a newborn, less than three hundred-thousandths of its present age.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Hydrogen's ionisation energy is $13.6$ eV. Convert that to a temperature using $E=kT$ with $k=8.62\times10^{-5}$ eV/K.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rearrange.</b> $T=E/k=13.6/(8.62\times10^{-5})$.</li>
+          <li><b>Evaluate.</b> $T\approx1.58\times10^{5}$ K.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\sim158{,}000$ K — yet recombination waits until $\sim3000$ K, fifty times cooler, because photons outnumber baryons two-billion-to-one.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The surface of last scattering lies at comoving distance $\sim46$ billion light-years, yet the light is only $13.8$ billion years old. Why is the distance larger than the light-travel time?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Space expanded during the journey.</b> The photon set out when the universe was tiny; as it travelled, expansion carried its starting point ever farther away.</li>
+          <li><b>Comoving distance accounts for that stretch.</b> It measures where the emitting matter is <i>now</i>, not how far the light went.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the $46$ Gly comoving distance reflects 13.8 Gyr of expansion stretching the space the light crossed; light-travel time alone would undercount it.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. MAPPING: COBE -> WMAP -> PLANCK -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="mapping">
+  <span class="era">Chapter 4 · Mapping the sky · 1989 – 2018 · COBE, WMAP &amp; Planck</span>
+  <h2>From a uniform glow to a map of the infant universe</h2>
+  <p class="who">Why the tiny fluctuations matter · COBE's first full-sky map · Planck's exquisite picture · the anomalies · and the case for dark matter and dark energy</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Uniform — but not perfectly</div>
+      <p>The CMB is at a strikingly uniform temperature, the same to about one part in a hundred thousand across the whole sky. But it is not <i>exactly</i> uniform. With precise enough telescopes, faint fluctuations appear — patches a few microkelvin hotter or colder than average. Those <b>anisotropies</b> are where all the cosmology lives.</p></div>
+    <div class="beat idea"><div class="tag">The fluctuations are the seeds</div>
+      <p>By studying these fluctuations, cosmologists learn how the early universe was built. The hot and cold patches mark where matter was very slightly denser or sparser at last scattering — the seeds that gravity later grew into galaxies and the vast cosmic web. Reading them measures the basic parameters of the Big Bang theory itself.</p></div>
+    <div class="beat test"><div class="tag">COBE, then ever sharper eyes</div>
+      <p>Portions of the CMB were mapped in the decades after 1965, but the first space-based full-sky map came from NASA's Cosmic Background Explorer, <b>COBE</b>, launched in 1989 — which first resolved the fluctuations. WMAP sharpened the picture; then in 2013 the European Space Agency's <b>Planck</b> telescope released the highest-precision map yet, down to a few arcminutes.</p></div>
+    <div class="beat found"><div class="tag">Evidence for the dark sector</div>
+      <p>Planck also confirmed puzzles WMAP had seen — unexpected large-scale asymmetries and a mysterious cold spot. And its final 2018 release sharpened the evidence that <b>dark matter</b> and <b>dark energy</b> — the unseen mass and the force driving cosmic acceleration — really do exist, by pinning down the heights of the fluctuation peaks. That weighing is the subject of the rest of this companion.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Strip the map down — monopole, dipole, then the real ripples</h3>
+    <p class="hint">An all-sky CMB map in the oval (Mollweide) projection the missions use. By default you see what your eyes would: a single uniform temperature — the <b>monopole</b>, 2.725 K. Remove it and crank the gain and a hot-cold split appears — the <b>dipole</b> from our motion. Remove that too and the screen fills with the real, part-in-100,000 <b>anisotropies</b>: the baby photograph COBE first caught and Planck made crisp. The resolution slider takes you from COBE's blur to Planck's detail.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Subtract</label>
+        <select id="mp_sub">
+          <option value="0">nothing (raw — uniform 2.725 K)</option>
+          <option value="1">the monopole (reveals the dipole)</option>
+          <option value="2" selected>monopole + dipole (reveals anisotropies)</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Angular resolution <b><span id="mp_reslbl">Planck (5′)</span></b></label>
+        <input id="mp_res" type="range" min="0" max="2" step="1" value="2">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Showing</div><div class="v" id="mp_show" style="font-size:15px">anisotropies</div></div>
+      <div class="stat"><div class="k">Fluctuation scale</div><div class="v" id="mp_amp" style="font-size:15px">±18 μK</div></div>
+      <div class="stat"><div class="k">Mission analogue</div><div class="v" id="mp_mission" style="font-size:15px">Planck</div></div>
+    </div>
+    <figure><canvas id="mp_canvas" width="900" height="470"></canvas>
+      <figcaption>Blue is colder, red hotter. The monopole is the mean temperature; the dipole is a single hot-and-cold pair from the Solar System's ~370 km/s motion; the anisotropies are the genuine $\Delta T/T\sim10^{-5}$ ripples whose statistics — the power spectrum — carry the cosmological parameters.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The three layers of the CMB sky, by amplitude</h4>
+    <p class="lead">The map is a stack of signals a thousand-fold apart in size — which is why each had to be peeled off in turn.</p>
+    <ol>
+      <li><b>Monopole — $2.725$ K.</b> The average temperature over the whole sphere. It is the entire signal to one part in a thousand, and it is what Penzias and Wilson measured.</li>
+      <li><b>Dipole — $\sim3.4$ mK ($10^{-3}$).</b> A single hot-cold modulation from our own motion through the CMB: the sky is blueshifted (hotter) ahead of us and redshifted (colder) behind. It is a local Doppler effect, not primordial — so it is subtracted off.</li>
+      <li><b>Anisotropies — $\sim30\ \mu$K ($10^{-5}$).</b> What remains after removing monopole and dipole: the true primordial pattern. COBE detected it in 1992; resolving its fine structure took WMAP and Planck. These ripples, and only these, encode the contents of the universe.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> the cosmologically precious signal is ten thousand times fainter than the foreground it hides under. Extracting it — and then reducing it to a single curve, the power spectrum — is what Chapters 5–8 are about.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why a map is not the prediction</h4>
+    <p>Theory cannot predict that <i>this</i> particular patch of sky is hot and <i>that</i> one cold — the pattern is a single random draw from the early universe. What theory predicts are the <b>statistical</b> properties of the map: how much fluctuation there is at each angular scale. So cosmologists do not compare the map pixel-by-pixel to a model; they compress it into a curve of "roughness versus scale" — the <b>power spectrum</b> — and compare that. The next chapter builds exactly that idea.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The CMB anisotropies are about $\Delta T/T\sim10^{-5}$. With $T=2.725$ K, what temperature fluctuation $\Delta T$ does that correspond to, in microkelvin?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Multiply.</b> $\Delta T=10^{-5}\times2.725$ K $=2.7\times10^{-5}$ K.</li>
+          <li><b>Convert.</b> $=27\ \mu$K.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\Delta T\approx27\ \mu$K — a few tens of microkelvin, the scale of the ripples Planck mapped.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The dipole is $\Delta T/T\approx1.23\times10^{-3}$. Show this implies a Solar-System speed of about $370$ km/s. Use $\Delta T/T=v/c$, $c=3.00\times10^5$ km/s.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Solve for $v$.</b> $v=(\Delta T/T)\,c=1.23\times10^{-3}\times3.00\times10^5$.</li>
+          <li><b>Evaluate.</b> $v=369$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v\approx370$ km/s — our motion relative to the CMB rest frame, read straight from the dipole's amplitude.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> COBE resolved features about $7°$ across; Planck reached about $5'$ (arcminutes). By what factor did the angular resolution improve?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Put both in arcminutes.</b> $7°=420'$; Planck $=5'$.</li>
+          <li><b>Divide.</b> $420/5=84$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $80\times$ finer — enough to resolve not just the first peak of the power spectrum but a whole series of them.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. THE POWER SPECTRUM -->
+<!-- ============================================================= -->
+<section class="chapter" id="powerspectrum">
+  <span class="era">Chapter 5 · The power curve · Roughness as a function of scale</span>
+  <h2>How rough is the sky? It depends how closely you look</h2>
+  <p class="who">Why theory predicts statistics, not maps · the ocean analogy · the multipole moment · and the power spectrum as a curve of roughness versus angular scale</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">We measure patterns, not pixels</div>
+      <p>Our theories do not predict the CMB map itself — they predict its statistical properties. The single most important one is called the <b>power spectrum</b>: a measure of the smoothness or roughness of the temperature map as a function of <b>angular scale</b>. It is the curve every CMB mission is ultimately built to measure.</p></div>
+    <div class="beat idea"><div class="tag">"Roughness" depends on the scale</div>
+      <p>What does roughness-versus-scale mean? Picture describing the surface of the Pacific Ocean. Is it smooth or rough? It depends on the length scale. On scales far larger than a typical wave it looks smooth; on the scale of a single wave it is rough; zoom in below the wavelength of a wave and it can look smooth again. Roughness is not one number — it is a curve.</p></div>
+    <div class="beat test"><div class="tag">Power on the sky</div>
+      <p>The CMB power spectrum measures the spatial wavelength of temperature fluctuations across the sky. The scale-dependent amount of fluctuation we call <b>power</b>. Plot power on the vertical axis against angular scale on the horizontal, and the CMB's roughness reveals itself scale by scale — far from featureless, it is a series of distinct bumps.</p></div>
+    <div class="beat found"><div class="tag">The multipole axis</div>
+      <p>Angular scale is labelled by the <b>multipole moment</b> $\ell$: a higher multipole corresponds to a smaller scale. $\ell\approx2$ is the whole-sky variation; $\ell\approx200$ is patches about a degree across; $\ell\approx1000$ is arcminute speckle. Read the power spectrum left to right and you sweep from the largest structures down to the finest, reading off how much fluctuation lives at each.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Tune the sky to one scale — the ocean analogy, live</h3>
+    <p class="hint">The same random CMB-like field, band-pass filtered to keep only fluctuations near a chosen <b>multipole moment</b> $\ell$. Slide $\ell$ up and the patches shrink: low $\ell$ is a few broad blobs across the whole sky (smooth, large-scale), high $\ell$ is fine mottling (rough, small-scale). The readout converts $\ell$ to an angular size on the sky, $\theta\approx180°/\ell$ — the wave-by-wave "roughness" the <b>power spectrum</b> catalogues.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Multipole moment <b>ℓ = <span id="ps_llbl">200</span></b></label>
+        <input id="ps_l" type="range" min="2" max="900" step="1" value="200">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Angular scale θ ≈ 180°/ℓ</div><div class="v"><span id="ps_theta">0.9</span><small>°</small></div></div>
+      <div class="stat"><div class="k">Compared to the full Moon</div><div class="v" id="ps_moon" style="font-size:15px">~2× the Moon</div></div>
+      <div class="stat"><div class="k">Character</div><div class="v" id="ps_char" style="font-size:15px">degree-scale</div></div>
+    </div>
+    <figure><canvas id="ps_canvas" width="900" height="300"></canvas>
+      <figcaption>A patch of sky containing only fluctuations near multipole $\ell$. The amber marker on the curve below shows where this scale sits on the CMB power spectrum — the first big peak lives near $\ell\approx220$, about a degree, twice the width of the full Moon.</figcaption></figure>
+    <div id="ps_plot" class="plot" style="height:280px"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> From multipole to angle, and the ocean made precise</h4>
+    <p class="lead">One conversion turns the abstract axis into something you can point at in the sky.</p>
+    <ol>
+      <li><b>The multipole is an inverse angle.</b> A pattern that wraps around the sky $\ell$ times has features about $\theta\approx180°/\ell$ across. So $\ell=2$ is $\sim90°$ (whole-sky), $\ell=200$ is $\sim0.9°$ (about a degree), $\ell=1000$ is $\sim0.18°$ (a tenth of a degree).</li>
+      <li><b>Power is variance per scale.</b> Decompose the map into patterns of every size; the power $C_\ell$ is the mean-square amplitude of the patterns at multipole $\ell$. Large $C_\ell$ means the sky is rough at that scale; small $C_\ell$ means smooth.</li>
+      <li><b>The ocean, formalised.</b> "Smooth on large scales, rough at the wave scale, smooth again below it" is just a power spectrum with little power at small $\ell$, a peak at the wave's $\ell$, and falling power at high $\ell$ — exactly the shape the CMB turns out to have, with its peak near $\ell\approx220$.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> a single curve, $C_\ell$ versus $\ell$, replaces the map without losing any of its cosmological content — because the early universe's fluctuations were random, fully described by how much power sits at each scale. The job of Chapters 6–7 is to explain <i>how</i> a map is turned into that curve.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why compress a map into a curve at all?</h4>
+    <p>A Planck temperature map has roughly fifty million pixels. No theory predicts those fifty million numbers — they are one random realisation. But every viable theory predicts the <b>power spectrum</b>, a few thousand numbers $C_\ell$, with exquisite precision. Comparing the measured $C_\ell$ to the predicted $C_\ell$ is how the contents of the universe are weighed. The compression from map to curve is the act of Fourier analysis on a sphere — which is why we now need the Fourier transform, and then its spherical cousin.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The first acoustic peak sits near $\ell=220$. Using $\theta\approx180°/\ell$, what angular scale is that?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Divide.</b> $\theta=180/220$.</li>
+          <li><b>Evaluate.</b> $\theta\approx0.82°$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $0.8°$ — a touch larger than the full Moon's $0.5°$. The dominant CMB hot/cold patches are roughly Moon-sized on the sky.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The full Moon spans about $0.5°$. What multipole does that angular scale correspond to?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Invert.</b> $\ell\approx180°/\theta=180/0.5$.</li>
+          <li><b>Evaluate.</b> $\ell\approx360$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\ell\approx360$ — between the first and second acoustic peaks of the CMB power spectrum.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> In the ocean analogy, why does the surface look "smooth again" on scales much smaller than a wave?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Most power lives at the wave scale.</b> The water's height varies most over a wavelength; that is where the spectrum peaks.</li>
+          <li><b>Below it, little varies.</b> Within a patch far smaller than a wave, the surface is nearly flat, so there is little power at those small scales.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> roughness is concentrated near the wave's own scale; far above and far below it, the power spectrum is low, so the surface reads as smooth — exactly the bump-shaped curve the CMB also shows.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. THE FOURIER MACHINE -->
+<!-- ============================================================= -->
+<section class="chapter" id="fourier">
+  <span class="era">Chapter 6 · The winding machine · Decomposing a mixed signal</span>
+  <h2>Wind a signal around a circle and its frequencies fall out</h2>
+  <p class="who">The Fourier transform problem · winding a signal around a circle · the "centre of mass" trick · and why peaks appear at the component frequencies</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The decomposition problem</div>
+      <p>The defining problem of the <b>Fourier transform</b> is to take a mixed signal — several pure tones added together — and recover the individual frequencies it is built from. The CMB sky is just such a mixture: hot and cold patches of many sizes superimposed. To read off "how much power at each scale," we first need a machine that separates a blend into its parts.</p></div>
+    <div class="beat idea"><div class="tag">Wind it around a circle</div>
+      <p>Here is the trick. Take the signal's graph and wind it around a circle, so that a high point of the signal sits far from the origin and a low point sits close in. You control one knob: how fast the signal winds around the circle — the <b>winding frequency</b>. For most winding speeds the wound-up graph is a smudge balanced symmetrically about the centre.</p></div>
+    <div class="beat test"><div class="tag">Watch the centre of mass</div>
+      <p>Now track the <b>centre of mass</b> of that wound-up graph. There are two rates in play: the signal's own frequency, and the winding frequency. When the winding frequency equals a frequency present in the signal, the bumps all pile up on one side, and the centre of mass lurches far from the origin. Off-resonance, it sits near zero.</p></div>
+    <div class="beat found"><div class="tag">Peaks reveal the recipe</div>
+      <p>So sweep the winding frequency and plot how far the centre of mass strays from the origin. You get a flat baseline with sharp <b>peaks</b> — one at each frequency hiding in the signal. The Fourier transform is exactly this centre-of-mass measurement, and its peaks read out the recipe of the mixture. That is how a tangled CMB map is sorted into power at each scale.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Turn the winding knob — find the hidden frequencies</h3>
+    <p class="hint">The signal at the top is a blend of two pure tones plus a constant offset. Below left, it is wound around a circle at the <b>winding frequency</b> you set; the amber dot is the <b>centre of mass</b>. Below right is the payoff: the distance of the centre of mass from the origin, swept across all winding frequencies. Drag the knob and watch the dot swing wide exactly when you hit a frequency baked into the signal — the spikes in the right-hand plot. That measurement <i>is</i> the <b>Fourier transform</b>.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Winding frequency <b><span id="ft_flbl">2.00</span> cycles/s</b></label>
+        <input id="ft_f" type="range" min="0" max="6" step="0.02" value="2.0">
+      </div>
+      <div class="ctl">
+        <label>Signal recipe</label>
+        <select id="ft_sig">
+          <option value="0" selected>2 Hz + 3.5 Hz tones</option>
+          <option value="1">single 3 Hz tone</option>
+          <option value="2">2 Hz + 3 Hz + 5 Hz</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Centre-of-mass distance</div><div class="v" id="ft_mag">0.50</div></div>
+      <div class="stat"><div class="k">On a signal frequency?</div><div class="v" id="ft_hit" style="font-size:15px">yes — 2 Hz</div></div>
+    </div>
+    <figure><canvas id="ft_canvas" width="900" height="430"></canvas>
+      <figcaption>Top: the raw signal $g(t)$. Lower left: $g(t)$ wound around the origin at the winding frequency; the amber dot is its centre of mass. Lower right: |centre of mass| versus winding frequency — the spikes mark the tones in the signal. Slide the knob onto a spike to make the dot swing far out.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The winding machine, written as an integral</h4>
+    <p class="lead">The picture is literally the Fourier transform; here is the same thing in symbols.</p>
+    <ol>
+      <li><b>Winding is multiplication by a rotating phasor.</b> Winding the signal $g(t)$ around the origin at winding frequency $f$ means forming $g(t)\,e^{-2\pi i f t}$ — a point in the plane that spins at rate $f$ with radius $g(t)$.</li>
+      <li><b>Centre of mass is an average.</b> The centre of mass of the wound graph over a duration is $\hat g(f)=\dfrac{1}{T}\displaystyle\int_0^T g(t)\,e^{-2\pi i f t}\,dt$ — exactly the (finite-window) Fourier transform.</li>
+      <li><b>Resonance makes it large.</b> If $g$ contains a tone $\cos(2\pi f_0 t)$, then at $f=f_0$ the rotation cancels that tone's own spin, the contributions stop averaging away, and $|\hat g(f)|$ spikes. Away from $f_0$ the phasor washes the contribution out to nearly zero.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> $|\hat g(f)|$ peaks at every frequency present in $g$ — the recipe of the mixture, recovered. On the sky the analogue of "frequency" is angular scale, and the analogue of $|\hat g(f)|^2$ is the power $C_\ell$. The only change for the CMB is that the signal lives on a sphere, not a line.</p></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>From the line to the sphere</h4>
+    <p>The winding machine decomposes a signal on a <i>line</i> into sine waves. The CMB is a signal on the <i>surface of a sphere</i>, so its natural building blocks are not sine waves but <b>spherical harmonics</b> — the sphere's version of the Fourier basis. The centre-of-mass idea carries straight over: project the map onto each spherical harmonic, and the amount of each one present plays the role of $\hat g(f)$. The multipole $\ell$ is the spherical analogue of frequency. The next chapter climbs that ladder, starting from the simplest harmonic of all.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A signal is $g(t)=\cos(2\pi\cdot2\,t)+\cos(2\pi\cdot3.5\,t)$. At which winding frequencies will the centre-of-mass plot show peaks?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Read the tones.</b> The signal is a sum of $2$ Hz and $3.5$ Hz components.</li>
+          <li><b>Peaks at the tones.</b> The winding machine resonates when the winding frequency matches each.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> peaks at $f=2$ Hz and $f=3.5$ Hz (plus a peak at $f=0$ from any constant offset).</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Why does a constant offset (a "DC" term) in the signal produce a peak at winding frequency $f=0$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>At $f=0$ there is no winding.</b> $e^{-2\pi i\cdot0\cdot t}=1$, so the wound graph is just the signal itself, all on one side if it has a nonzero average.</li>
+          <li><b>Its centre of mass is the mean.</b> A nonzero average puts the centre of mass off the origin even with no rotation.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> a constant is a "frequency-zero" component, so it shows up as a peak at $f=0$ — on the CMB this is the monopole, the mean temperature.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> In words, what plays the role of "frequency" when the Fourier idea is moved from a line to the sphere of the sky?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>The basis changes.</b> Sine waves become spherical harmonics.</li>
+          <li><b>The index changes.</b> The continuous frequency $f$ becomes the discrete multipole moment $\ell$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the multipole moment $\ell$ is the spherical stand-in for frequency; higher $\ell$ means finer angular features, just as higher $f$ means faster oscillation.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. SPHERICAL HARMONICS -->
+<!-- ============================================================= -->
+<section class="chapter" id="harmonics">
+  <span class="era">Chapter 7 · Fourier on a sphere · Monopole, dipole, and up the ladder</span>
+  <h2>The sky's building blocks: a uniform glow, a hot-cold split, then finer patterns</h2>
+  <p class="who">Spherical harmonics as the Fourier basis on a sphere · the monopole average · the dipole from our motion · and how the rungs build the power spectrum</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">A signal on a sphere</div>
+      <p>The CMB is a temperature defined over the whole celestial sphere — a mixed signal, like the ocean, but wrapped on a ball. To Fourier-analyse it we use <b>spherical harmonics</b>: the three-dimensional counterpart of the one-dimensional sine-and-cosine basis. Each harmonic is a standing pattern of hot and cold lobes on the sphere, labelled by a multipole $\ell$.</p></div>
+    <div class="beat idea"><div class="tag">The monopole: one number for the whole sky</div>
+      <p>The simplest harmonic, $\ell=0$, is uniform over the entire sphere. The quantity averaged over the whole sky we call the <b>monopole</b> — and for the CMB it is just the mean temperature, $2.725$ K. It carries no pattern, only the overall level. To see structure we subtract it off.</p></div>
+    <div class="beat test"><div class="tag">The dipole: our own motion</div>
+      <p>Subtract the average and the next thing that remains is the <b>dipole</b>, $\ell=1$: one hemisphere hot, the opposite cold. It comes from our motion. Radiation in the direction we travel is blueshifted and so appears hotter; radiation behind us is redshifted and colder. The dipole is a Doppler effect of the Solar System's roughly $370$ km/s drift, not a feature of the early universe — so it too is removed.</p></div>
+    <div class="beat found"><div class="tag">Up the ladder to the power spectrum</div>
+      <p>Beyond the dipole come the quadrupole ($\ell=2$), octupole, and ever-finer harmonics — more and smaller hot-cold patches as $\ell$ climbs. Each multipole's total strength, averaged over its patterns, is the power $C_\ell$. Stack those numbers up across $\ell$ and you have rebuilt the <b>power spectrum</b> of Chapter 5 — the harmonic-by-harmonic recipe of the sky.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Climb the multipole ladder — one harmonic at a time</h3>
+    <p class="hint">Each setting shows a single <b>spherical harmonic</b> pattern on the oval sky. $\ell=0$ is the uniform <b>monopole</b> (the mean temperature); $\ell=1$ is the <b>dipole</b>, one hot lobe and one cold; $\ell=2$ the quadrupole, and so on. As $\ell$ rises the sky breaks into more and smaller patches — roughly $\ell$ hot-cold cycles around the sphere — which is why high $\ell$ probes small angular scales. Pause on $\ell=1$ to see the motion-induced dipole called out.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Multipole <b>ℓ = <span id="sh_llbl">1</span></b></label>
+        <input id="sh_l" type="range" min="0" max="8" step="1" value="1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Harmonic</div><div class="v" id="sh_name" style="font-size:15px">dipole</div></div>
+      <div class="stat"><div class="k">Angular scale ≈ 180°/ℓ</div><div class="v" id="sh_scale" style="font-size:15px">180°</div></div>
+      <div class="stat"><div class="k">Role</div><div class="v" id="sh_role" style="font-size:14px">our 370 km/s motion</div></div>
+    </div>
+    <figure><canvas id="sh_canvas" width="900" height="440"></canvas>
+      <figcaption>A schematic of the $\ell$-th harmonic on the Mollweide sky: red hot, blue cold. The monopole is flat; the dipole splits the sky in two; higher multipoles tile it ever more finely. The real CMB is a weighted sum of <i>all</i> of these, and $C_\ell$ records how much of each is present.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The dipole's size from a 370 km/s drift</h4>
+    <p class="lead">The keynote's worked case — turning our motion into the millikelvin dipole the maps must remove.</p>
+    <ol>
+      <li><b>Doppler shift of a thermal sky.</b> Moving at speed $v$ through blackbody radiation tilts its temperature by direction: $\dfrac{\Delta T}{T}=\dfrac{v}{c}\cos\theta$, hottest dead ahead ($\theta=0$), coldest dead behind.</li>
+      <li><b>Insert the speed.</b> With $v\approx370$ km/s and $c=3.00\times10^5$ km/s, the amplitude is $\dfrac{v}{c}=1.23\times10^{-3}$.</li>
+      <li><b>Convert to temperature.</b> $\Delta T=\dfrac{v}{c}\,T=1.23\times10^{-3}\times2.725\ \text{K}=3.4\times10^{-3}$ K $=3.4$ mK.</li>
+    </ol>
+    <div class="concl"><b>The result:</b> a $3.4$ mK dipole — a hundred times larger than the primordial anisotropies, and entirely due to our own velocity. Because it is local, not cosmological, it is the $\ell=1$ term that gets subtracted before the real CMB pattern is studied. Hotter ahead, colder behind: a sky-sized speedometer.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The coefficients $a_{\ell m}$ and the spectrum $C_\ell$</h4>
+    <p>Expanding the map in <b>spherical harmonics</b> gives a set of coefficients $a_{\ell m}$ — one centre-of-mass number for each harmonic, exactly as $\hat g(f)$ was for the line. The <b>power spectrum</b> is their mean square at each multipole, $C_\ell=\langle|a_{\ell m}|^2\rangle$, averaged over the $2\ell+1$ patterns at that $\ell$. That averaging is why theory can predict $C_\ell$ even though it cannot predict any single $a_{\ell m}$: the individual patterns are random, but their typical strength is fixed by physics. And the shape of $C_\ell$ — its peaks — is set by sound waves in the primordial plasma, the subject of the final chapter.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Reproduce the dipole amplitude. With $v=370$ km/s, $c=3.00\times10^5$ km/s and $T=2.725$ K, find $\Delta T$ in millikelvin.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Fractional shift.</b> $v/c=370/3.00\times10^5=1.23\times10^{-3}$.</li>
+          <li><b>Times $T$.</b> $\Delta T=1.23\times10^{-3}\times2.725=3.4\times10^{-3}$ K.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\Delta T\approx3.4$ mK — the motion-induced dipole, ~100× the primordial ripples.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The quadrupole is $\ell=2$. Roughly what angular scale does it correspond to, and how does that compare to the dipole?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Use $\theta\approx180°/\ell$.</b> For $\ell=2$, $\theta\approx90°$.</li>
+          <li><b>Compare to dipole.</b> The dipole ($\ell=1$) is $\sim180°$, the whole sky split in two; the quadrupole halves that scale.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\ell=2$ is $\sim90°$-scale structure — four lobes around the sky, half the angular size of the dipole's two.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Why can cosmologists predict $C_\ell$ but not the value of any individual coefficient $a_{\ell m}$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Each $a_{\ell m}$ is a random draw.</b> The early universe seeded one particular realisation we cannot predict in detail.</li>
+          <li><b>Their variance is fixed by physics.</b> The <i>typical</i> squared amplitude at each $\ell$, $C_\ell=\langle|a_{\ell m}|^2\rangle$, is set by the cosmological model.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the map is a random realisation, so individual coefficients are unpredictable, but their statistical spread — the power spectrum — is exactly what theory predicts and observation measures.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. ACOUSTIC PEAKS -> DARK MATTER -->
+<!-- ============================================================= -->
+<section class="chapter" id="darkmatter">
+  <span class="era">Chapter 8 · The payoff · Acoustic peaks and the case for dark matter</span>
+  <h2>The peaks weigh the universe — and most of its matter is dark</h2>
+  <p class="who">Sound waves in the primordial plasma · the harmonic peaks · how peak heights separate ordinary matter from dark matter · the keynote's central claim</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The plasma rang like a drum</div>
+      <p>Before recombination, the photon–baryon plasma was springy: gravity pulled matter into dense spots, photon pressure pushed back, and the competition set up <b>acoustic oscillations</b> — real sound waves sloshing through the early universe. When the plasma neutralised, those waves froze in place, leaving a pattern of hot and cold imprinted at special scales.</p></div>
+    <div class="beat idea"><div class="tag">Frozen waves make peaks</div>
+      <p>Regions caught at maximum compression or maximum rarefaction at the instant of last scattering show the strongest temperature contrast. These special scales appear as a series of <b>peaks</b> in the power spectrum — harmonics of a fundamental, like the overtones of a struck drum. The first and tallest peak sits near $\ell\approx220$, about one degree on the sky.</p></div>
+    <div class="beat test"><div class="tag">The peaks are a balance sheet</div>
+      <p>The exact positions and heights of those peaks encode the contents of the universe. The first peak's position fixes the geometry (space is flat). The relative heights of the odd and even peaks weigh the ordinary <b>baryons</b>. And the third peak, with the overall envelope, is sensitive to something that has mass and gravity but no pressure — <b>dark matter</b>.</p></div>
+    <div class="beat found"><div class="tag">Most of the matter is invisible</div>
+      <p>Only a model with several times more dark matter than ordinary matter reproduces the measured peaks. Fitting Planck's power spectrum gives roughly five-sixths of all matter as dark — invisible stuff that neither emits nor absorbs light, felt only through gravity. The power curve is the keynote's headline evidence: the CMB doesn't just suggest dark matter, it <b>weighs</b> it.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Tune the cosmos — try to fit the peaks without dark matter</h3>
+    <p class="hint">A schematic CMB power spectrum you control. The grey curve is the Planck-measured reference; the cyan curve is your model. Slide the ordinary-matter (<b>baryon</b>) density and the <b>dark matter</b> density and watch the peaks rise, fall and trade heights. Try to match the grey curve — then drag dark matter toward zero and watch the fit fall apart: the third peak collapses and the early peaks balloon. You cannot reproduce the real sky without a large dark component. <span style="color:var(--muted)">(Illustrative model — the trends are real, the exact curve is schematic.)</span></p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Baryon density <b>Ω<sub>b</sub>h² = <span id="dm_wblbl">0.022</span></b></label>
+        <input id="dm_wb" type="range" min="0.008" max="0.040" step="0.001" value="0.022">
+      </div>
+      <div class="ctl">
+        <label>Dark-matter density <b>Ω<sub>c</sub>h² = <span id="dm_wclbl">0.120</span></b></label>
+        <input id="dm_wc" type="range" min="0.000" max="0.220" step="0.004" value="0.120">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="act" id="dm_planck">Planck best-fit</button>
+      <button class="act" id="dm_nodm">No dark matter</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Total matter Ω<sub>m</sub>h²</div><div class="v" id="dm_wm">0.142</div></div>
+      <div class="stat"><div class="k">Dark fraction</div><div class="v"><span id="dm_frac">85</span><small>%</small></div></div>
+      <div class="stat"><div class="k">Fit to Planck</div><div class="v" id="dm_fit" style="font-size:15px">excellent</div></div>
+    </div>
+    <div id="dm_plot" class="plot tall"></div>
+    <div class="verdict" id="dm_verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why the peaks demand dark matter</h4>
+    <p class="lead">Three readings of the curve, each weighing a different ingredient.</p>
+    <ol>
+      <li><b>First-peak position → flat geometry.</b> The sound waves all travel the same distance (the sound horizon) before freezing, setting one physical size. Its angular size on the sky, observed at $\ell\approx220$, only works out if space is geometrically flat — fixing the total energy density to the critical value.</li>
+      <li><b>Odd-vs-even peak heights → baryons.</b> Baryons add inertia to the oscillating plasma, deepening the compressions (odd peaks: 1st, 3rd) relative to the rarefactions (even peaks: 2nd). The measured first-to-second peak ratio pins the baryon density at $\Omega_b h^2\approx0.022$ — only about $5\%$ of the critical density.</li>
+      <li><b>Third peak &amp; envelope → dark matter.</b> Dark matter has gravity but no pressure, so it doesn't oscillate — it builds potential wells the photons fall into, boosting the third peak and steadying the whole pattern. Matching the third peak requires $\Omega_c h^2\approx0.12$, several times the baryons.</li>
+    </ol>
+    <div class="concl"><b>The verdict:</b> flat geometry needs $\Omega\approx1$, but baryons supply only $\sim5\%$ and all the glowing matter even less. The peaks force a large, pressureless, invisible component — dark matter at $\sim27\%$ — with the rest, dark energy, making up the balance. The power curve is a scale that reads out the dark universe.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>What "evidence for dark matter" means here</h4>
+    <p>The CMB argument for <b>dark matter</b> is independent of galaxy rotation curves or gravitational lensing — it comes purely from the heights of the <b>acoustic</b> peaks at redshift $1100$, long before galaxies existed. The same fit also requires <b>dark energy</b> to make the geometry flat while keeping the matter density low, which is why Planck's 2018 release is quoted as evidence for both. A universe of only the atoms we can see would show the wrong peaks; the sky we actually measure is about $5\%$ ordinary matter, $27\%$ dark matter, $68\%$ dark energy. The power curve is how those numbers are weighed.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Planck finds $\Omega_b h^2\approx0.022$ for baryons and $\Omega_c h^2\approx0.12$ for dark matter. What fraction of the total matter is dark?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Total matter.</b> $\Omega_m h^2=0.022+0.12=0.142$.</li>
+          <li><b>Dark fraction.</b> $0.12/0.142=0.85$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $85\%$ of the matter is dark — roughly five-sixths, with ordinary atoms a small minority.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The first acoustic peak is observed at $\ell\approx220$, corresponding to $\sim1°$. What would it mean for the geometry if the peak instead appeared at a much smaller scale (higher $\ell$)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>The physical size is fixed.</b> The sound horizon at last scattering is a known length.</li>
+          <li><b>Angle depends on geometry.</b> In a negatively-curved (open) universe, a fixed length subtends a <i>smaller</i> angle, pushing the peak to higher $\ell$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> a peak at higher $\ell$ would signal an open, negatively-curved universe. Its observed position at $\ell\approx220$ instead indicates flat geometry, $\Omega\approx1$.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> In one or two sentences, why does dark matter affect the peaks differently from ordinary baryonic matter?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Baryons feel photon pressure.</b> They are coupled to the radiation, so they oscillate — loading the compressions and shaping odd-vs-even peak heights.</li>
+          <li><b>Dark matter does not.</b> Pressureless, it cannot oscillate; it only provides gravity, deepening wells and boosting the third and higher peaks.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> baryons ring with the photons (setting peak <i>ratios</i>); dark matter only gravitates (setting the <i>envelope</i> and third peak) — so the two are separable from the curve, which is what makes the dark matter measurable.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SELF-TEST QUIZ -->
+<!-- ============================================================= -->
+<section class="chapter" id="quiz">
+  <span class="era">Check yourself · Sixteen questions</span>
+  <h2>Did the afterglow tell you what you think?</h2>
+  <p class="who">Sixteen questions spanning the blackbody afterglow, its discovery, recombination and last scattering, the COBE-to-Planck maps, the power spectrum, the Fourier and spherical-harmonic machinery, and the acoustic peaks that weigh the dark matter</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Self-test</h3>
+    <p class="hint">Pick an answer for each question. Correct choices turn green, mistakes turn red, and a short explanation appears either way. Your running score sits at the top; nothing is sent anywhere.</p>
+    <div class="quiz-head">
+      <div class="quiz-score">Score <b><span id="qz_correct">0</span></b> / <span id="qz_total">16</span> &nbsp;·&nbsp; <span id="qz_answered">0</span> answered</div>
+      <div class="quiz-bar"><i id="qz_fill"></i></div>
+      <button class="quiz-reset" id="qz_reset" type="button">Reset</button>
+    </div>
+    <div id="qz_list"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A walk through the physics of the cosmic microwave background, built to mirror the keynote “Cosmic microwave background and the power curve: Evidence for dark matter.” It rebuilds the working chain: the $2.725$ K blackbody afterglow and its microwave peak, Alpher's prediction and Penzias &amp; Wilson's accidental discovery, recombination and the surface of last scattering, the COBE-to-Planck maps and their monopole–dipole–anisotropy hierarchy, the power spectrum as roughness-versus-scale, the Fourier "winding machine" and its spherical-harmonic generalisation, and the acoustic peaks whose heights weigh the baryons and the dark matter.</p>
+  <p style="margin-top:8px"><b>Key numbers retraced:</b> $T_0=2.725$ K with Wien peak $\lambda_{\max}=1.06$ mm ($\nu\approx160$ GHz); the temperature–redshift law $T(z)=T_0(1+z)$ giving recombination at $z\approx1100$, $T\approx3000$ K, age $380{,}000$ yr; anisotropies $\Delta T/T\sim10^{-5}$ ($\sim27\,\mu$K) and the motion dipole $\Delta T\approx3.4$ mK from $v\approx370$ km/s; the multipole–angle relation $\theta\approx180°/\ell$ with the first acoustic peak at $\ell\approx220$; the Fourier transform $\hat g(f)=\tfrac1T\!\int g(t)e^{-2\pi i f t}dt$; and the densities $\Omega_b h^2\approx0.022$, $\Omega_c h^2\approx0.12$ — about $85\%$ of the matter dark.</p>
+
+  <h3 class="subhead" style="color:var(--cyan)">Sources from the keynote</h3>
+  <ul class="srclist">
+    <li><b>What is the CMB?</b> — Space.com<br><a href="https://www.space.com/33892-cosmic-microwave-background.html" target="_blank" rel="noopener">space.com/33892-cosmic-microwave-background.html</a></li>
+    <li><b>Importance of the CMB &amp; the power spectrum</b> — LibreTexts (UC Davis, <i>A Cosmology Workbook</i>)<br><a href="https://phys.libretexts.org/Courses/University_of_California_Davis/Physics_156%3A_A_Cosmology_Workbook/01%3A_Workbook/1.27%3A_Cosmic_Microwave_Background_Anisotropies" target="_blank" rel="noopener">phys.libretexts.org · 1.27: Cosmic Microwave Background Anisotropies</a></li>
+    <li><b>Angular scales &amp; the power spectrum (animation)</b> — ESA / Planck<br><a href="https://sci.esa.int/web/planck/-/51562-the-power-spectrum-of-temperature-fluctuations-in-the-cosmic-microwave-background-ndash-animation" target="_blank" rel="noopener">sci.esa.int · The power spectrum of temperature fluctuations in the CMB</a></li>
+    <li><b>Spherical harmonics, explained simply</b> — r/explainlikeimfive<br><a href="https://www.reddit.com/r/explainlikeimfive/comments/1dj474l/eli5_maths_wizards_what_isare_spherical_harmonics/" target="_blank" rel="noopener">reddit.com · ELI5: what is/are spherical harmonics</a></li>
+    <li><b>Fourier transform, visualised</b> — 3Blue1Brown (YouTube)<br><a href="https://www.youtube.com/watch?v=spUNpyF58BY" target="_blank" rel="noopener">youtube.com/watch?v=spUNpyF58BY</a></li>
+  </ul>
+</footer>
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:58,r:16,t:16,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7'};
+const CKMS=299792;        // speed of light, km/s
+const T0_CMB=2.725;       // CMB temperature today, K
+
+// deterministic PRNG (mulberry32)
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+
+// diverging CMB colour map: v in [-1,1] -> Planck-ish blue(cold)/white/red(hot)
+function cmbColor(v){
+  v=Math.max(-1,Math.min(1,v));
+  // stops: -1 deep blue, -0.4 cyan, 0 pale, 0.4 orange, 1 red
+  const stops=[[-1,[8,24,120]],[-0.5,[40,110,210]],[-0.15,[120,180,225]],[0,[235,235,225]],[0.15,[245,200,120]],[0.5,[225,120,40]],[1,[150,20,20]]];
+  for(let i=0;i<stops.length-1;i++){
+    const a=stops[i], b=stops[i+1];
+    if(v>=a[0]&&v<=b[0]){
+      const f=(v-a[0])/(b[0]-a[0]);
+      return 'rgb('+Math.round(a[1][0]+f*(b[1][0]-a[1][0]))+','+Math.round(a[1][1]+f*(b[1][1]-a[1][1]))+','+Math.round(a[1][2]+f*(b[1][2]-a[1][2]))+')';
+    }
+  }
+  return 'rgb(235,235,225)';
+}
+// point inside Mollweide-ish oval centred (cx,cy) semi-axes (ax,ay)
+function inOval(px,py,cx,cy,ax,ay){ const dx=(px-cx)/ax, dy=(py-cy)/ay; return dx*dx+dy*dy<=1; }
+
+// schematic CMB TT power spectrum  D_l = l(l+1)C_l/2pi  in uK^2
+function clPeaks(l, wb, wc){
+  const rb=wb/0.022, rc=wc/0.12, wm=wb+wc;
+  const shift=1 - 0.07*((wm-0.142)/0.142);
+  const cen=[12, 220, 535, 810, 1120, 1440].map(c=>c*shift);
+  const wid=[60, 85, 95, 115, 130, 150];
+  let h=[1150, 5700, 2500, 2500, 1150, 780];
+  // baryon loading: odd peaks (1,3,5 -> idx 1,3,5) up, even (2,4 -> idx 2,4) down
+  h[1]*=(0.55+0.45*rb);
+  h[2]*=Math.max(0.2,(1.45-0.45*rb));
+  h[3]*=(0.5+0.5*rb);
+  h[4]*=Math.max(0.2,(1.40-0.40*rb));
+  h[5]*=(0.5+0.5*rb);
+  // dark matter: holds up the 3rd+ peaks; its absence inflates early peaks (radiation driving)
+  const noDM=Math.max(0,1-rc);
+  h[1]*=(1+0.55*noDM);
+  h[2]*=(1+0.30*noDM);
+  h[3]*=(0.25+0.75*rc);
+  h[4]*=(0.30+0.70*rc);
+  h[5]*=(0.30+0.70*rc);
+  let s=0;
+  for(let i=0;i<cen.length;i++){ s+=h[i]*Math.exp(-Math.pow((l-cen[i])/wid[i],2)); }
+  s*=Math.exp(-Math.pow(l/1700,1.7));   // Silk damping tail
+  return Math.max(0,s);
+}
+</script>
+
+<!-- ---- Lab 1: CMB blackbody spectrum ---- -->
+<script>
+(function(){
+  const tEl=document.getElementById('bb_t'); if(!tEl) return;
+  const tlbl=document.getElementById('bb_tlbl'), nuO=document.getElementById('bb_nu'),
+        lamO=document.getElementById('bb_lam'), bandO=document.getElementById('bb_band'), zO=document.getElementById('bb_z');
+  const HK=0.04799;   // h/k in K per GHz
+  function Bnu(nuGHz,T){ const x=HK*nuGHz/T; return Math.pow(nuGHz,3)/(Math.exp(x)-1); }
+  const NUS=[]; for(let i=0;i<=240;i++){ NUS.push(Math.pow(10, 0 + i/240*6)); } // 1 .. 1e6 GHz
+  function curve(T){ const y=NUS.map(n=>Bnu(n,T)); const mx=Math.max(...y); return y.map(v=>v/mx); }
+  function band(lamMM){ if(lamMM>0.1) return 'microwave'; if(lamMM>0.00074) return 'infrared'; if(lamMM>0.00038) return 'visible'; return 'UV+'; }
+  function render(){
+    const T=parseFloat(tEl.value);
+    tlbl.textContent=(T<10? T.toFixed(3): Math.round(T));
+    const nuPk=58.79*T, lamPk=2.898/T;
+    nuO.textContent=(nuPk>=1000? (nuPk/1000).toFixed(0)+'k' : nuPk.toFixed(0));
+    lamO.textContent = lamPk>=1 ? lamPk.toFixed(2)+' mm' : (lamPk*1000>=1 ? (lamPk*1000).toFixed(0)+' µm' : (lamPk*1e6).toFixed(0)+' nm');
+    bandO.textContent=band(lamPk);
+    zO.textContent=(T/T0_CMB-1).toFixed(0);
+    const traces=[];
+    if(Math.abs(T-T0_CMB)>0.01){
+      traces.push({x:NUS,y:curve(T0_CMB),mode:'lines',line:{color:'rgba(150,160,190,0.55)',width:1.5,dash:'dash'},name:'2.725 K'});
+    }
+    traces.push({x:NUS,y:curve(T),mode:'lines',line:{color:COL.cyan,width:2.5},fill:'tozeroy',fillcolor:'rgba(63,208,255,0.12)'});
+    traces.push({x:[nuPk],y:[1],mode:'markers',marker:{color:COL.amber,size:9}});
+    const lay=baseLayout({
+      xaxis:{type:'log',title:'frequency (GHz)',range:[0,6],gridcolor:'rgba(140,160,230,0.12)',linecolor:'rgba(140,160,230,0.3)'},
+      yaxis:{title:'brightness (peak = 1)',range:[0,1.12],gridcolor:'rgba(140,160,230,0.12)'}
+    });
+    if(!render.init){ Plotly.newPlot('bb_plot',traces,lay,PCFG); render.init=true; } else Plotly.react('bb_plot',traces,lay,PCFG);
+  }
+  tEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 2: horn antenna isotropy ---- -->
+<script>
+(function(){
+  const aEl=document.getElementById('hn_a'); if(!aEl) return;
+  const albl=document.getElementById('hn_albl'), tO=document.getElementById('hn_t'), varO=document.getElementById('hn_var'),
+        modeEl=document.getElementById('hn_mode'), cv=document.getElementById('hn_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H*0.62, R=Math.min(W*0.42,H*0.52);
+  const SRC=90; // local source direction (deg)
+  function tempAt(ang,mode){
+    if(mode==='cmb'){ return 2.725; }
+    let d=Math.abs(((ang-SRC+540)%360)-180); // angular distance to source
+    return 0.15 + 7.6*Math.exp(-Math.pow(d/22,2));
+  }
+  function render(){
+    const ang=parseFloat(aEl.value), mode=modeEl.value;
+    albl.textContent=ang.toFixed(0);
+    const T=tempAt(ang,mode);
+    tO.textContent=T.toFixed(mode==='cmb'?2:1);
+    varO.textContent=(mode==='cmb'?'no — isotropic':'yes — points to a source');
+    varO.style.color=(mode==='cmb'?COL.green:COL.rose);
+    // draw
+    x.clearRect(0,0,W,H);
+    // sky ring
+    for(let i=0;i<360;i+=2){
+      const a0=i*Math.PI/180, a1=(i+2)*Math.PI/180;
+      let v;
+      if(mode==='cmb'){ v=0.0; }
+      else { let d=Math.abs(((i-SRC+540)%360)-180); v=Math.exp(-Math.pow(d/22,2)); }
+      x.beginPath(); x.moveTo(cx+Math.cos(a0)*R*0.78,cy+Math.sin(a0)*R*0.78);
+      x.arc(cx,cy,R,a0,a1); x.lineTo(cx+Math.cos(a1)*R*0.78,cy+Math.sin(a1)*R*0.78);
+      x.closePath();
+      x.fillStyle=(mode==='cmb')? 'rgba(225,120,60,0.30)' : ('rgba('+Math.round(60+v*195)+','+Math.round(50+v*120)+','+Math.round(70-v*40)+','+(0.18+v*0.75)+')');
+      x.fill();
+    }
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=1; x.beginPath(); x.arc(cx,cy,R,0,7); x.stroke();
+    // observer + pointer
+    const ar=ang*Math.PI/180;
+    x.strokeStyle=COL.amber; x.lineWidth=3; x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+Math.cos(ar)*R*0.92,cy+Math.sin(ar)*R*0.92); x.stroke();
+    // horn triangle
+    x.save(); x.translate(cx,cy); x.rotate(ar);
+    x.fillStyle=COL.amber; x.beginPath(); x.moveTo(R*0.55,0); x.lineTo(R*0.88,-16); x.lineTo(R*0.88,16); x.closePath(); x.fill();
+    x.restore();
+    x.fillStyle='#cfe9ff'; x.beginPath(); x.arc(cx,cy,7,0,7); x.fill();
+    // gauge bar
+    const gw=180, gx=20, gy=H-26;
+    x.fillStyle='rgba(120,140,230,0.12)'; x.fillRect(gx,gy,gw,12);
+    const frac=Math.min(1,T/8);
+    x.fillStyle=(mode==='cmb')?COL.green:COL.amber; x.fillRect(gx,gy,gw*frac,12);
+    x.fillStyle=COL.muted; x.font='12px -apple-system,sans-serif'; x.fillText('antenna T',gx,gy-6);
+    x.fillStyle=COL.ink; x.font='13px -apple-system,sans-serif';
+    x.fillText((mode==='cmb'?'CMB — same from every direction':'Local source — bright one way, dark the rest'), gx, 24);
+  }
+  aEl.addEventListener('input',render); modeEl.addEventListener('change',render); render();
+})();
+</script>
+
+<!-- ---- Lab 3: recombination / last scattering ---- -->
+<script>
+(function(){
+  const zEl=document.getElementById('rc_z'); if(!zEl) return;
+  const zlbl=document.getElementById('rc_zlbl'), tO=document.getElementById('rc_t'), xeO=document.getElementById('rc_xe'),
+        stO=document.getElementById('rc_state'), cv=document.getElementById('rc_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height;
+  function xe(z){ return 1/(1+Math.exp((1090-z)/55)); }
+  function vis(z){ return Math.exp(-Math.pow((z-1090)/140,2)); }
+  // fixed electron field
+  const rng=mulberry32(7), elec=[]; for(let i=0;i<320;i++){ elec.push({x:Math.random()*W, y:18+Math.random()*(H*0.55-18)}); }
+  // photon state
+  let ph={x:20,y:H*0.3,vx:2.2,vy:0,trail:[]};
+  function resetPhoton(){ ph={x:20,y:30+Math.random()*(H*0.5-30),vx:2.2,vy:0,trail:[]}; }
+  function plot(z){
+    const Z=[]; for(let zz=0;zz<=1600;zz+=20) Z.push(zz);
+    const t1={x:Z,y:Z.map(xe),mode:'lines',line:{color:COL.cyan,width:2.5},name:'xe'};
+    const t2={x:Z,y:Z.map(z2=>vis(z2)),mode:'lines',line:{color:COL.amber,width:2},name:'visibility',yaxis:'y'};
+    const mk={x:[z],y:[xe(z)],mode:'markers',marker:{color:COL.ink,size:9,line:{color:'#fff',width:1}}};
+    const lay=baseLayout({
+      xaxis:{title:'redshift z  (earlier →)',range:[1600,0],gridcolor:'rgba(140,160,230,0.12)'},
+      yaxis:{title:'xe  /  visibility',range:[-0.03,1.08]},
+      annotations:[{x:1090,y:1.02,text:'last scattering',showarrow:false,font:{color:COL.amber,size:11}}]
+    });
+    if(!plot.init){ Plotly.newPlot('rc_plot',[t1,t2,mk],lay,PCFG); plot.init=true; } else Plotly.react('rc_plot',[t1,t2,mk],lay,PCFG);
+  }
+  function frame(){
+    const z=parseFloat(zEl.value), xv=xe(z);
+    // advance photon
+    const trapped=xv;
+    ph.x+=ph.vx; ph.y+=ph.vy*1;
+    // scatter probability proportional to xe
+    if(Math.random()<0.10*trapped){
+      const ang=Math.random()*Math.PI*2; const sp=Math.hypot(ph.vx,ph.vy)||2.4;
+      ph.vx=Math.cos(ang)*2.4; ph.vy=Math.sin(ang)*2.4;
+    } else if(trapped<0.05){ ph.vx=2.6; ph.vy*=0.7; }
+    if(ph.y<14){ph.y=14;ph.vy=Math.abs(ph.vy);} if(ph.y>H*0.58){ph.y=H*0.58;ph.vy=-Math.abs(ph.vy);}
+    ph.trail.push({x:ph.x,y:ph.y}); if(ph.trail.length>120) ph.trail.shift();
+    if(ph.x>W-16){ resetPhoton(); }
+    // draw
+    x.clearRect(0,0,W,H);
+    // electrons (alpha ~ xe)
+    elec.forEach(e=>{ x.fillStyle='rgba(120,170,255,'+(0.10+0.55*xv)+')'; x.beginPath(); x.arc(e.x,e.y,2.1,0,7); x.fill(); });
+    // photon trail
+    x.strokeStyle='rgba(255,178,74,0.85)'; x.lineWidth=2; x.beginPath();
+    ph.trail.forEach((p,i)=>{ if(i===0)x.moveTo(p.x,p.y); else x.lineTo(p.x,p.y); }); x.stroke();
+    x.fillStyle=COL.amber; x.beginPath(); x.arc(ph.x,ph.y,4,0,7); x.fill();
+    // label band
+    x.fillStyle='rgba(8,10,22,0.6)'; x.fillRect(0,0,W,1);
+    x.fillStyle=COL.muted; x.font='12px -apple-system,sans-serif';
+    x.fillText(xv>0.5?'opaque plasma — photon trapped, zig-zagging':(xv>0.1?'recombining — fog thinning':'transparent — photon free-streams'), 12, H*0.58+22);
+    requestAnimationFrame(frame);
+  }
+  function upd(){
+    const z=parseFloat(zEl.value), xv=xe(z);
+    zlbl.textContent=z.toFixed(0);
+    tO.textContent=Math.round(T0_CMB*(1+z));
+    xeO.textContent=xv.toFixed(2);
+    stO.textContent=(xv>0.5?'opaque plasma':(xv>0.1?'recombining':'transparent gas'));
+    stO.style.color=(xv>0.5?COL.rose:(xv>0.1?COL.amber:COL.green));
+    plot(z);
+  }
+  zEl.addEventListener('input',upd); upd(); requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- ---- Lab 4: COBE -> Planck all-sky map ---- -->
+<script>
+(function(){
+  const subEl=document.getElementById('mp_sub'); if(!subEl) return;
+  const resEl=document.getElementById('mp_res'), reslbl=document.getElementById('mp_reslbl'),
+        showO=document.getElementById('mp_show'), ampO=document.getElementById('mp_amp'), misO=document.getElementById('mp_mission'),
+        cv=document.getElementById('mp_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H/2, ax=W*0.47, ay=H*0.46;
+  // random plane-wave modes for the anisotropy field
+  const rng=mulberry32(2025), waves=[];
+  for(let i=0;i<70;i++){
+    const l=2+Math.pow(rng(),1.4)*1300;
+    const th=rng()*Math.PI*2;
+    const amp=Math.sqrt(clPeaks(l,0.022,0.12))/75;
+    waves.push({l:l, kx:Math.cos(th)*l*0.5, ky:Math.sin(th)*l*0.5, ph:rng()*Math.PI*2, amp:amp});
+  }
+  const RES=[{lmax:30,lbl:'COBE (7°)',mis:'COBE'},{lmax:550,lbl:'WMAP (0.3°)',mis:'WMAP'},{lmax:1300,lbl:'Planck (5′)',mis:'Planck'}];
+  const GW=200, GH=100;  // offscreen grid
+  // Precompute the anisotropy field for each resolution ONCE (so the slider stays snappy)
+  const cache=RES.map(R=>{
+    const vals=new Float32Array(GW*GH); let m=0,m2=0;
+    for(let j=0;j<GH;j++){ for(let i=0;i<GW;i++){
+      const lon=(i/GW-0.5)*2*Math.PI, lat=(j/GH-0.5)*Math.PI;
+      let s=0; for(const w of waves){ if(w.l>R.lmax) continue; s+=w.amp*Math.cos(w.kx*lon+w.ky*lat+w.ph); }
+      vals[j*GW+i]=s; m+=s; m2+=s*s;
+    }}
+    m/=(GW*GH); const std=Math.sqrt(Math.max(1e-6,m2/(GW*GH)-m*m));
+    return {vals:vals, std:std};
+  });
+  function render(){
+    const sub=parseInt(subEl.value), res=parseInt(resEl.value), R=RES[res];
+    reslbl.textContent=R.lbl; misO.textContent=R.mis;
+    showO.textContent=(sub===0?'monopole (uniform)':sub===1?'dipole':'anisotropies');
+    ampO.textContent=(sub===0?'2.725 K':sub===1?'±3.4 mK':'±'+ (res===0?'30':res===1?'24':'18') +' μK');
+    misO.style.color=COL.amber;
+    const C=cache[res], inv=1/(2.4*C.std);
+    x.clearRect(0,0,W,H);
+    const bw=W/GW, bh=H/GH;
+    for(let j=0;j<GH;j++){ for(let i=0;i<GW;i++){
+      const px=(i+0.5)*bw, py=(j+0.5)*bh;
+      if(!inOval(px,py,cx,cy,ax,ay)) continue;
+      const lon=((px-cx)/ax), lat=((py-cy)/ay);  // normalised -1..1
+      let v;
+      if(sub===0){ v=0.35; }
+      else if(sub===1){ v=0.85*Math.cos(lon*Math.PI*0.5)*Math.cos(lat*Math.PI*0.5); }
+      else { v=Math.max(-1,Math.min(1, C.vals[j*GW+i]*inv)); }
+      x.fillStyle=cmbColor(v);
+      x.fillRect(px-bw/2-0.5, py-bh/2-0.5, bw+1, bh+1);
+    }}
+    // oval outline mask edges
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,ax,ay,0,0,7); x.stroke();
+    // graticule
+    x.strokeStyle='rgba(255,255,255,0.06)'; x.lineWidth=1;
+    for(let g=-2;g<=2;g++){ x.beginPath(); x.ellipse(cx,cy,ax,ay*Math.cos(g*0.5),0,0,7); x.stroke(); }
+  }
+  subEl.addEventListener('change',render);
+  resEl.addEventListener('input',render);
+  resEl.addEventListener('change',render);
+  render();
+})();
+</script>
+
+<!-- ---- Lab 5: power-spectrum scale filter ---- -->
+<script>
+(function(){
+  const lEl=document.getElementById('ps_l'); if(!lEl) return;
+  const llbl=document.getElementById('ps_llbl'), thO=document.getElementById('ps_theta'), moonO=document.getElementById('ps_moon'),
+        chO=document.getElementById('ps_char'), cv=document.getElementById('ps_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H/2, ax=W*0.47, ay=H*0.44;
+  function buildWaves(l){
+    const rng=mulberry32(Math.round(l)*13+1), ws=[];
+    for(let i=0;i<10;i++){ const th=rng()*Math.PI*2; const lm=l*(0.9+rng()*0.2); ws.push({kx:Math.cos(th)*lm*0.5,ky:Math.sin(th)*lm*0.5,ph:rng()*Math.PI*2}); }
+    return ws;
+  }
+  function drawMap(l){
+    const ws=buildWaves(l), GW=200, GH=80, bw=W/GW, bh=H/GH;
+    // normalise
+    let m=0,m2=0,n=0,buf=[];
+    for(let j=0;j<GH;j++){ for(let i=0;i<GW;i++){
+      const lon=(i/GW-0.5)*2*Math.PI, lat=(j/GH-0.5)*Math.PI; let s=0;
+      for(const w of ws) s+=Math.cos(w.kx*lon+w.ky*lat+w.ph);
+      buf.push(s); m+=s; m2+=s*s; n++;
+    }}
+    m/=n; const sd=Math.sqrt(Math.max(1e-6,m2/n-m*m));
+    x.clearRect(0,0,W,H);
+    for(let j=0;j<GH;j++){ for(let i=0;i<GW;i++){
+      const px=(i+0.5)*bw, py=(j+0.5)*bh; if(!inOval(px,py,cx,cy,ax,ay)) continue;
+      const v=Math.max(-1,Math.min(1,buf[j*GW+i]/(2.2*sd)));
+      x.fillStyle=cmbColor(v); x.fillRect(px-bw/2-0.5,py-bh/2-0.5,bw+1,bh+1);
+    }}
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,ax,ay,0,0,7); x.stroke();
+  }
+  function plot(l){
+    const L=[]; for(let ll=2;ll<=1100;ll+=6) L.push(ll);
+    const D=L.map(ll=>clPeaks(ll,0.022,0.12));
+    const t={x:L,y:D,mode:'lines',line:{color:'rgba(120,140,230,0.85)',width:2},fill:'tozeroy',fillcolor:'rgba(120,140,230,0.08)'};
+    const mk={x:[l],y:[clPeaks(l,0.022,0.12)],mode:'markers',marker:{color:COL.amber,size:11,line:{color:'#fff',width:1}}};
+    const lay=baseLayout({xaxis:{title:'multipole ℓ',range:[0,1100]},yaxis:{title:'power  ℓ(ℓ+1)Cℓ/2π  (µK²)',rangemode:'tozero'}});
+    if(!plot.init){ Plotly.newPlot('ps_plot',[t,mk],lay,PCFG); plot.init=true; } else Plotly.react('ps_plot',[t,mk],lay,PCFG);
+  }
+  function upd(){
+    const l=parseInt(lEl.value), th=180/l;
+    llbl.textContent=l; thO.textContent=(th>=1?th.toFixed(1):th.toFixed(2));
+    const moonR=th/0.5;
+    moonO.textContent=(moonR>=1? '~'+moonR.toFixed(1)+'× the Moon' : (1/moonR).toFixed(1)+'× smaller');
+    chO.textContent=(l<60?'large-scale':l<400?'degree-scale':'fine speckle');
+    drawMap(l); plot(l);
+  }
+  lEl.addEventListener('input',upd); upd();
+})();
+</script>
+
+<!-- ---- Lab 6: Fourier winding machine ---- -->
+<script>
+(function(){
+  const fEl=document.getElementById('ft_f'); if(!fEl) return;
+  const flbl=document.getElementById('ft_flbl'), sigEl=document.getElementById('ft_sig'),
+        magO=document.getElementById('ft_mag'), hitO=document.getElementById('ft_hit'),
+        cv=document.getElementById('ft_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height, N=420;
+  const SIGS=[{f:[2,3.5],lbl:'2 Hz + 3.5 Hz'},{f:[3],lbl:'3 Hz'},{f:[2,3,5],lbl:'2 Hz + 3 Hz + 5 Hz'}];
+  const T=new Array(N).fill(0).map((_,i)=>i/(N-1)*2);   // 0..2 s
+  function gOf(sig){ return T.map(t=>{ let s=1; SIGS[sig].f.forEach(f=>s+=Math.cos(2*Math.PI*f*t)); return s; }); }
+  function comAt(g,f){ let re=0,im=0; for(let i=0;i<N;i++){ const a=2*Math.PI*f*T[i]; re+=g[i]*Math.cos(a); im-=g[i]*Math.sin(a); } return [re/N,im/N]; }
+  function render(){
+    const f=parseFloat(fEl.value), sig=parseInt(sigEl.value), g=gOf(sig);
+    flbl.textContent=f.toFixed(2);
+    const com=comAt(g,f), mag=Math.hypot(com[0],com[1]);
+    magO.textContent=mag.toFixed(2);
+    // nearest signal freq
+    let hit='no — between tones', best=99;
+    SIGS[sig].f.concat([0]).forEach(sf=>{ const d=Math.abs(f-sf); if(d<best){best=d;} });
+    if(best<0.14){ const nf=SIGS[sig].f.concat([0]).find(sf=>Math.abs(f-sf)<0.14); hit='yes — '+(nf===0?'0 (offset)':nf+' Hz'); }
+    hitO.textContent=hit; hitO.style.color=(best<0.14?COL.green:COL.muted);
+    // ---- draw ----
+    x.clearRect(0,0,W,H);
+    // top: signal
+    const tyc=70, tamp=46, x0=30, x1=W-20;
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.lineWidth=1; x.beginPath(); x.moveTo(x0,tyc); x.lineTo(x1,tyc); x.stroke();
+    const gmax=Math.max(...g);
+    x.strokeStyle=COL.cyan; x.lineWidth=2; x.beginPath();
+    for(let i=0;i<N;i++){ const px=x0+(x1-x0)*i/(N-1), py=tyc-(g[i]/gmax)*tamp; if(i===0)x.moveTo(px,py); else x.lineTo(px,py); } x.stroke();
+    x.fillStyle=COL.muted; x.font='12px -apple-system,sans-serif'; x.fillText('signal  g(t)',x0,18);
+    // lower-left: wound graph
+    const lcx=W*0.27, lcy=H*0.66, S=80/gmax;
+    x.strokeStyle='rgba(140,160,230,0.18)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(lcx-95,lcy); x.lineTo(lcx+95,lcy); x.stroke();
+    x.beginPath(); x.moveTo(lcx,lcy-95); x.lineTo(lcx,lcy+95); x.stroke();
+    x.strokeStyle=COL.violet; x.lineWidth=1.6; x.beginPath();
+    for(let i=0;i<N;i++){ const a=2*Math.PI*f*T[i]; const px=lcx+g[i]*Math.cos(a)*S, py=lcy-(-g[i]*Math.sin(a))*S; if(i===0)x.moveTo(px,py); else x.lineTo(px,py); } x.stroke();
+    // centre of mass dot
+    const cmx=lcx+com[0]*S*2, cmy=lcy-(com[1])*S*2;  // *2 visual gain
+    x.strokeStyle='rgba(255,178,74,0.5)'; x.lineWidth=1; x.beginPath(); x.moveTo(lcx,lcy); x.lineTo(cmx,cmy); x.stroke();
+    x.fillStyle=COL.amber; x.beginPath(); x.arc(cmx,cmy,6,0,7); x.fill();
+    x.fillStyle=COL.muted; x.fillText('wound at '+f.toFixed(2)+' Hz',lcx-95,H*0.66-105);
+    x.fillStyle=COL.amber; x.fillText('centre of mass',lcx-95,H*0.66+112);
+    // lower-right: spectrum
+    const rx0=W*0.55, rx1=W-22, ry0=H-30, ryTop=H*0.40, fmax=6;
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.beginPath(); x.moveTo(rx0,ry0); x.lineTo(rx1,ry0); x.stroke();
+    x.beginPath(); x.moveTo(rx0,ry0); x.lineTo(rx0,ryTop); x.stroke();
+    // compute |Z(f)| curve
+    let pts=[], smax=0;
+    for(let ff=0;ff<=fmax+0.001;ff+=0.04){ const c=comAt(g,ff); const mg=Math.hypot(c[0],c[1]); pts.push([ff,mg]); if(mg>smax)smax=mg; }
+    x.strokeStyle=COL.green; x.lineWidth=2; x.beginPath();
+    pts.forEach((p,i)=>{ const px=rx0+(rx1-rx0)*p[0]/fmax, py=ry0-(p[1]/smax)*(ry0-ryTop); if(i===0)x.moveTo(px,py); else x.lineTo(px,py); }); x.stroke();
+    // current f marker
+    const mpx=rx0+(rx1-rx0)*f/fmax;
+    x.strokeStyle='rgba(255,178,74,0.8)'; x.lineWidth=1.5; x.beginPath(); x.moveTo(mpx,ry0); x.lineTo(mpx,ryTop); x.stroke();
+    x.fillStyle=COL.amber; x.beginPath(); x.arc(mpx,ry0-(mag/smax)*(ry0-ryTop),5,0,7); x.fill();
+    x.fillStyle=COL.muted; x.font='12px -apple-system,sans-serif'; x.fillText('|centre of mass|  vs  winding frequency',rx0,ryTop-8);
+    // freq ticks
+    for(let ff=0;ff<=fmax;ff++){ const px=rx0+(rx1-rx0)*ff/fmax; x.fillStyle=COL.muted; x.fillText(ff,px-3,ry0+16); }
+  }
+  fEl.addEventListener('input',render); sigEl.addEventListener('change',render); render();
+})();
+</script>
+
+<!-- ---- Lab 7: spherical harmonic ladder ---- -->
+<script>
+(function(){
+  const lEl=document.getElementById('sh_l'); if(!lEl) return;
+  const llbl=document.getElementById('sh_llbl'), nameO=document.getElementById('sh_name'),
+        scaleO=document.getElementById('sh_scale'), roleO=document.getElementById('sh_role'),
+        cv=document.getElementById('sh_canvas'), x=cv.getContext('2d');
+  const W=cv.width, H=cv.height, cx=W/2, cy=H/2, ax=W*0.47, ay=H*0.46;
+  const NAMES=['monopole','dipole','quadrupole','octupole','ℓ=4','ℓ=5','ℓ=6','ℓ=7','ℓ=8'];
+  function val(l,lon,lat){
+    const lonA=lon*Math.PI, latA=lat*Math.PI/2;
+    if(l===0) return 0.55;
+    if(l===1) return Math.sin(lonA/2);                       // clean left-cold / right-hot dipole
+    return Math.cos(l*lonA/2)*Math.cos(Math.max(1,Math.floor(l/2))*latA);
+  }
+  function render(){
+    const l=parseInt(lEl.value);
+    llbl.textContent=l; nameO.textContent=NAMES[l];
+    scaleO.textContent=(l===0?'whole sky':Math.round(180/l)+'°');
+    roleO.textContent=(l===0?'the mean temperature':l===1?'our 370 km/s motion':'primordial structure');
+    roleO.style.color=(l<=1?COL.amber:COL.green);
+    const GW=220, GH=110, bw=W/GW, bh=H/GH;
+    x.clearRect(0,0,W,H);
+    for(let j=0;j<GH;j++){ for(let i=0;i<GW;i++){
+      const px=(i+0.5)*bw, py=(j+0.5)*bh; if(!inOval(px,py,cx,cy,ax,ay)) continue;
+      const lon=(px-cx)/ax, lat=(py-cy)/ay;
+      x.fillStyle=cmbColor(val(l,lon,lat)); x.fillRect(px-bw/2-0.5,py-bh/2-0.5,bw+1,bh+1);
+    }}
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.lineWidth=1.5; x.beginPath(); x.ellipse(cx,cy,ax,ay,0,0,7); x.stroke();
+    if(l===1){
+      x.fillStyle='#fff'; x.font='13px -apple-system,sans-serif';
+      x.fillText('hotter →', cx+ax*0.42, cy-ay*0.78);
+      x.fillText('← colder', cx-ax*0.72, cy-ay*0.78);
+    }
+  }
+  lEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 8: acoustic peaks & dark matter ---- -->
+<script>
+(function(){
+  const wbEl=document.getElementById('dm_wb'); if(!wbEl) return;
+  const wcEl=document.getElementById('dm_wc'), wblbl=document.getElementById('dm_wblbl'), wclbl=document.getElementById('dm_wclbl'),
+        wmO=document.getElementById('dm_wm'), fracO=document.getElementById('dm_frac'), fitO=document.getElementById('dm_fit'),
+        verd=document.getElementById('dm_verdict'),
+        planckBtn=document.getElementById('dm_planck'), nodmBtn=document.getElementById('dm_nodm');
+  const LREF=[]; for(let l=2;l<=1300;l+=8) LREF.push(l);
+  function render(){
+    const wb=parseFloat(wbEl.value), wc=parseFloat(wcEl.value);
+    wblbl.textContent=wb.toFixed(3); wclbl.textContent=wc.toFixed(3);
+    const wm=wb+wc; wmO.textContent=wm.toFixed(3);
+    const frac=wc/wm*100; fracO.textContent=frac.toFixed(0);
+    const ref=LREF.map(l=>clPeaks(l,0.022,0.12));
+    const mod=LREF.map(l=>clPeaks(l,wb,wc));
+    // fractional RMS difference
+    let se=0,sr=0; for(let i=0;i<LREF.length;i++){ se+=Math.pow(mod[i]-ref[i],2); sr+=ref[i]*ref[i]; }
+    const rms=Math.sqrt(se/sr);
+    let fit,cls;
+    if(rms<0.06){fit='excellent';cls='good';} else if(rms<0.16){fit='good';cls='good';} else if(rms<0.4){fit='poor';cls='bad';} else {fit='badly wrong';cls='bad';}
+    fitO.textContent=fit; fitO.style.color=(cls==='good'?COL.green:COL.rose);
+    const tref={x:LREF,y:ref,mode:'lines',line:{color:'rgba(150,160,190,0.6)',width:2,dash:'dot'},name:'Planck'};
+    const tmod={x:LREF,y:mod,mode:'lines',line:{color:COL.cyan,width:2.5},name:'model',fill:'tozeroy',fillcolor:'rgba(63,208,255,0.07)'};
+    const lay=baseLayout({xaxis:{title:'multipole ℓ',range:[0,1300]},yaxis:{title:'ℓ(ℓ+1)Cℓ/2π  (µK²)',rangemode:'tozero'},
+      annotations:[{x:220,y:clPeaks(220,wb,wc),text:'1st',showarrow:false,yshift:12,font:{color:COL.amber,size:11}},
+                   {x:535,y:clPeaks(535,wb,wc),text:'2nd',showarrow:false,yshift:12,font:{color:COL.amber,size:11}},
+                   {x:810,y:clPeaks(810,wb,wc),text:'3rd',showarrow:false,yshift:12,font:{color:COL.amber,size:11}}]});
+    if(!render.init){ Plotly.newPlot('dm_plot',[tref,tmod],lay,PCFG); render.init=true; } else Plotly.react('dm_plot',[tref,tmod],lay,PCFG);
+    if(frac>70 && cls==='good'){ verd.className='verdict good'; verd.innerHTML='<b>Fits — and demands dark matter.</b> About '+frac.toFixed(0)+'% of the matter is dark, several times the baryons. This is the configuration that matches Planck: a flat universe whose peaks only line up with a large pressureless component.'; }
+    else if(wc<0.03){ verd.className='verdict bad'; verd.innerHTML='<b>No dark matter → the peaks break.</b> Without a pressureless component the third peak collapses and the early peaks balloon from radiation driving. A universe of atoms alone cannot reproduce the measured curve — the data force dark matter.'; }
+    else { verd.className='verdict bad'; verd.innerHTML='<b>Off the mark ('+fit+').</b> The peak heights no longer match Planck. Nudge the densities back toward Ω<sub>b</sub>h²≈0.022 and Ω<sub>c</sub>h²≈0.12 to recover the fit.'; }
+  }
+  function set(wb,wc){ wbEl.value=wb; wcEl.value=wc; render(); }
+  planckBtn.addEventListener('click',()=>set(0.022,0.120));
+  nodmBtn.addEventListener('click',()=>set(0.022,0.000));
+  wbEl.addEventListener('input',render); wcEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- =======================================================================
+     QUIZ DATA
+======================================================================= -->
+<script>
+window.CMB_QUIZ=[
+  {q:"What is the cosmic microwave background?", opts:["Light from the first stars","Leftover thermal radiation from the hot early universe","Emission from the Milky Way's dust","Reflected sunlight in the upper atmosphere"], a:1, exp:"The CMB is relic radiation released when the universe was young, hot and dense — now cooled by expansion to 2.725 K and filling all of space."},
+  {q:"The CMB is 2.725 K. A blackbody that cold radiates most strongly in which band?", opts:["Visible light","X-rays","Microwaves","Radio waves below 1 MHz"], a:2, exp:"Wien's law gives a peak near 1 mm / 160 GHz — the microwave band, which is why it is the cosmic microwave background."},
+  {q:"Why could a pre-cable television show a bit of the CMB as static?", opts:["The screen reflects it","The antenna picks up the microwave afterglow as noise on an empty channel","TVs emit their own CMB","It is an optical illusion"], a:1, exp:"A small fraction of the snow on an untuned analog TV was the CMB itself, detected as radio noise — the oldest light leaking into living rooms."},
+  {q:"Penzias and Wilson realised their mysterious antenna noise was cosmic because it was:", opts:["Strongest toward the Sun","The same from every direction (isotropic)","Only present at night","Coming from the city"], a:1, exp:"A local source points somewhere; the hiss came equally from all directions, the signature of something filling all of space rather than sitting in it."},
+  {q:"At recombination the universe became transparent because:", opts:["The photons ran out of energy","Electrons combined with nuclei into neutral atoms, leaving little to scatter light","The universe stopped expanding","Dark matter absorbed the plasma"], a:1, exp:"Once free electrons were bound into neutral hydrogen and helium, the scattering that made the plasma opaque ceased and photons began free-streaming."},
+  {q:"Using T(z) = T₀(1+z) with T₀ = 2.725 K, the CMB released at about 3000 K corresponds to redshift:", opts:["z ≈ 11","z ≈ 1100","z ≈ 110,000","z ≈ 3"], a:1, exp:"1+z = 3000/2.725 ≈ 1100. The light has been stretched ~1100-fold since the surface of last scattering."},
+  {q:"The 'surface of last scattering' is:", opts:["The edge of the observable universe in every wavelength","The shell from which CMB photons last scattered before free-streaming to us","The surface of the Sun","A layer in Earth's atmosphere"], a:1, exp:"It is the thin shell, ~380,000 years after the Big Bang, where photons scattered for the last time — a wall of light we cannot see behind in any telescope."},
+  {q:"On the CMB sky, ranked by size, the three signals are:", opts:["Anisotropies > dipole > monopole","Monopole (2.725 K) > dipole (~3 mK) > anisotropies (~30 µK)","All exactly equal","Dipole > monopole > anisotropies"], a:1, exp:"The uniform monopole dominates; the motion dipole is ~1000× smaller; the primordial anisotropies are ~10⁵× smaller than the monopole."},
+  {q:"The CMB dipole — one hemisphere hot, the other cold — is caused by:", opts:["Dark energy","Our own motion through the CMB (a Doppler effect)","The Earth's magnetic field","Galactic rotation only"], a:1, exp:"Moving at ~370 km/s blueshifts the sky ahead (hotter) and redshifts it behind (colder), a ~3.4 mK dipole that is subtracted as it is local, not primordial."},
+  {q:"The CMB power spectrum plots:", opts:["Temperature versus time","The amount of fluctuation (power) versus angular scale (multipole ℓ)","Brightness versus distance","Redshift versus velocity"], a:1, exp:"It is the 'roughness versus scale' curve — how much temperature fluctuation lives at each angular scale, the statistic theory actually predicts."},
+  {q:"Using θ ≈ 180°/ℓ, the first acoustic peak at ℓ ≈ 220 corresponds to an angular scale of about:", opts:["90°","1°","0.01°","45°"], a:1, exp:"180/220 ≈ 0.8°, a touch wider than the full Moon — the dominant hot/cold patch size on the CMB sky."},
+  {q:"In the Fourier 'winding machine', the centre of mass swings far from the origin when:", opts:["The signal is silent","The winding frequency matches a frequency present in the signal","The winding frequency is zero only","Never — it stays centred"], a:1, exp:"At resonance the signal's bumps stop averaging away and pile up on one side, producing the spectral peak that reveals that frequency."},
+  {q:"Spherical harmonics are used for the CMB because they are:", opts:["Easier to draw","The Fourier basis for a signal defined on a sphere","Only valid for flat maps","A type of telescope"], a:1, exp:"The CMB lives on the sphere of the sky, so its natural building blocks are spherical harmonics — the sphere's analogue of sines and cosines, indexed by multipole ℓ."},
+  {q:"The peaks in the CMB power spectrum come from:", opts:["Individual galaxies","Sound waves (acoustic oscillations) in the primordial photon–baryon plasma, frozen at last scattering","Telescope artifacts","Reflections off dark matter"], a:1, exp:"Gravity and photon pressure drove real sound waves; scales caught at maximum compression or rarefaction at last scattering imprint the harmonic peaks."},
+  {q:"The first peak appearing at ℓ ≈ 220 (about 1°) tells cosmologists that space is:", opts:["Strongly curved like a sphere","Geometrically flat","Negatively curved (open)","Expanding faster than light"], a:1, exp:"The sound horizon is a known physical size; its observed angular size of ~1° only works out if the geometry is flat, fixing the total density near critical."},
+  {q:"Why is the CMB power spectrum considered evidence for dark matter?", opts:["It shows dark matter glowing","The peak heights — especially the third peak — can only be fit with several times more pressureless matter than baryons","Dark matter blocks the CMB","It isn't; the CMB says nothing about matter"], a:1, exp:"Baryons set the odd/even peak ratio; a large pressureless component is needed to match the third peak and envelope. Fits give ~85% of the matter dark — the keynote's headline result."}
+];
+</script>
+
+<!-- =======================================================================
+     GLOSSARY DATA
+======================================================================= -->
+<script>
+window.CMB_GLOSS={
+  cmb:{label:"Cosmic microwave background", terms:["cosmic microwave background"], def:"The relic thermal radiation released ~380,000 years after the Big Bang, now redshifted to a 2.725 K blackbody filling the whole sky — the oldest light we can see.", wiki:"https://en.wikipedia.org/wiki/Cosmic_microwave_background"},
+  blackbody:{label:"Blackbody spectrum", terms:["blackbody spectrum","blackbody"], def:"The exact thermal radiation curve of an object in equilibrium at one temperature. The CMB matches a 2.725 K blackbody to better than one part in 10,000 — the signature of a hot, dense origin.", wiki:"https://en.wikipedia.org/wiki/Black-body_radiation"},
+  microwave:{label:"Microwave", terms:["microwave"], def:"The band of the electromagnetic spectrum with wavelengths of roughly a millimetre to tens of centimetres, where a 2.725 K blackbody radiates most strongly.", wiki:"https://en.wikipedia.org/wiki/Microwave"},
+  bigbang:{label:"Big Bang", terms:["Big Bang"], def:"The hot, dense early state of the universe from which it has been expanding and cooling for ~13.8 billion years; the CMB is its leftover heat.", wiki:"https://en.wikipedia.org/wiki/Big_Bang"},
+  plasma:{label:"Plasma", terms:["plasma"], def:"An ionised gas in which electrons are torn free of nuclei. Free electrons scatter light strongly, so the early-universe plasma was opaque until recombination.", wiki:"https://en.wikipedia.org/wiki/Plasma_(physics)"},
+  isotropic:{label:"Isotropic", terms:["isotropic"], def:"The same in every direction. The CMB's near-perfect isotropy is what told Penzias and Wilson their antenna noise filled all of space rather than coming from a source.", wiki:"https://en.wikipedia.org/wiki/Isotropy"},
+  recombination:{label:"Recombination", terms:["recombination"], def:"The epoch (~380,000 yr, z≈1100, T≈3000 K) when electrons bound to nuclei, turning the ionised plasma into neutral gas and releasing the CMB.", wiki:"https://en.wikipedia.org/wiki/Recombination_(cosmology)"},
+  decoupling:{label:"Decoupling", terms:["decoupling"], def:"The moment matter and radiation stopped interacting, as recombination removed the free electrons that scattered photons — the universe turned transparent.", wiki:"https://en.wikipedia.org/wiki/Recombination_(cosmology)"},
+  lastscattering:{label:"Surface of last scattering", terms:["surface of last scattering"], def:"The thin shell around us from which CMB photons last scattered before free-streaming to Earth — a wall of light 13.8 billion years old.", wiki:"https://en.wikipedia.org/wiki/Surface_of_last_scattering"},
+  scatter:{label:"Scattering", terms:["scattered"], def:"The deflection of photons by free electrons (Thomson scattering). Frequent scattering in the plasma made the early universe opaque, like light inside a fog.", wiki:"https://en.wikipedia.org/wiki/Thomson_scattering"},
+  anisotropy:{label:"Anisotropies", terms:["anisotropies","anisotropy"], def:"The tiny direction-dependent temperature fluctuations of the CMB, ΔT/T ~ 10⁻⁵ — the seeds of galaxies, and the carrier of all the cosmological information.", wiki:"https://en.wikipedia.org/wiki/Cosmic_microwave_background#Anisotropy"},
+  monopole:{label:"Monopole", terms:["monopole"], def:"The ℓ=0 term: the temperature averaged over the whole sky, 2.725 K. It is the overall level of the CMB, carrying no pattern.", wiki:"https://en.wikipedia.org/wiki/Multipole_expansion"},
+  dipole:{label:"Dipole", terms:["dipole"], def:"The ℓ=1 term: a single hot–cold split of the sky (~3.4 mK) caused by our ~370 km/s motion, blueshifting the sky ahead and redshifting it behind.", wiki:"https://en.wikipedia.org/wiki/Cosmic_microwave_background#Dipole_anisotropy"},
+  multipole:{label:"Multipole moment (ℓ)", terms:["multipole moment","multipole"], def:"The index labelling angular scale on the sphere; higher ℓ means smaller features, with angular size θ ≈ 180°/ℓ. The spherical analogue of frequency.", wiki:"https://en.wikipedia.org/wiki/Multipole_expansion"},
+  powerspectrum:{label:"Power spectrum", terms:["power spectrum"], def:"The curve of fluctuation power Cℓ versus multipole ℓ — 'roughness as a function of angular scale.' Its peaks encode the contents of the universe.", wiki:"https://en.wikipedia.org/wiki/Cosmic_microwave_background#Power_spectrum"},
+  angularscale:{label:"Angular scale", terms:["angular scale"], def:"The size of a feature on the sky, in degrees. Related to multipole by θ ≈ 180°/ℓ; the CMB's first peak sits near 1°, about twice the full Moon.", wiki:"https://en.wikipedia.org/wiki/Angular_diameter"},
+  fourier:{label:"Fourier transform", terms:["Fourier transform"], def:"The operation that decomposes a mixed signal into the pure frequencies it contains — visualised as winding the signal around a circle and tracking its centre of mass.", wiki:"https://en.wikipedia.org/wiki/Fourier_transform"},
+  winding:{label:"Winding frequency", terms:["winding frequency"], def:"The rate at which a signal's graph is wrapped around the origin in the Fourier 'winding machine.' When it matches a frequency in the signal, the centre of mass lurches out, making a spectral peak.", wiki:"https://en.wikipedia.org/wiki/Fourier_transform"},
+  com:{label:"Centre of mass (Fourier)", terms:["centre of mass"], def:"The average position of the wound-up signal in the plane. Its distance from the origin, swept over winding frequency, is the magnitude of the Fourier transform.", wiki:"https://en.wikipedia.org/wiki/Fourier_transform"},
+  sphericalharmonics:{label:"Spherical harmonics", terms:["spherical harmonics"], def:"The natural set of patterns for a signal on a sphere — the Fourier basis of the sky, labelled by multipole ℓ. Expanding the CMB in them yields the coefficients behind the power spectrum.", wiki:"https://en.wikipedia.org/wiki/Spherical_harmonics"},
+  acoustic:{label:"Acoustic oscillations", terms:["acoustic oscillations","acoustic"], def:"Sound waves in the primordial photon–baryon plasma, driven by gravity against photon pressure. Frozen at recombination, they imprint the harmonic peaks of the power spectrum.", wiki:"https://en.wikipedia.org/wiki/Baryon_acoustic_oscillations"},
+  baryon:{label:"Baryons", terms:["baryons","baryon"], def:"Ordinary matter — protons and neutrons. Coupled to photons in the early plasma, baryons oscillate, setting the odd-vs-even heights of the acoustic peaks. Only ~5% of the universe.", wiki:"https://en.wikipedia.org/wiki/Baryon"},
+  darkmatter:{label:"Dark matter", terms:["dark matter"], def:"Matter that gravitates but neither emits nor absorbs light. Pressureless, it doesn't oscillate; it deepens potential wells, boosting the third CMB peak — the basis of the keynote's claim.", wiki:"https://en.wikipedia.org/wiki/Dark_matter"},
+  darkenergy:{label:"Dark energy", terms:["dark energy"], def:"The component driving the accelerating expansion, ~68% of the energy budget. The CMB needs it to keep geometry flat while matter stays low.", wiki:"https://en.wikipedia.org/wiki/Dark_energy"},
+  cobe:{label:"COBE", terms:["COBE"], def:"NASA's Cosmic Background Explorer (launched 1989): made the first full-sky CMB map, confirmed its blackbody spectrum, and first detected the anisotropies.", wiki:"https://en.wikipedia.org/wiki/Cosmic_Background_Explorer"},
+  planck:{label:"Planck satellite", terms:["Planck"], def:"ESA's Planck mission (2009–2013): mapped the CMB to ~5 arcminutes, measuring the acoustic peaks precisely enough to weigh the baryons, dark matter and dark energy.", wiki:"https://en.wikipedia.org/wiki/Planck_(spacecraft)"},
+  redshift:{label:"Redshift (z)", terms:["redshifted","redshift"], def:"The stretching of wavelengths by cosmic expansion, by a factor (1+z). It cools the CMB as T(z)=T₀(1+z) and underlies the temperature–redshift relation.", wiki:"https://en.wikipedia.org/wiki/Redshift"}
+};
+</script>
+
+<!-- =======================================================================
+     ENGINES: starfield, quiz, glossary
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    const n=Math.min(220, Math.floor(innerWidth*innerHeight/9000));
+    stars=Array.from({length:n},()=>({x:Math.random()*cv.width, y:Math.random()*cv.height,
+      r:Math.random()*1.3+0.2, a:Math.random()*0.6+0.2, tw:Math.random()*0.02+0.004, ph:Math.random()*7}));
+  }
+  function frame(t){
+    x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const al=s.a+0.35*Math.sin(s.ph+t*s.tw);
+      x.fillStyle='rgba(180,200,255,'+Math.max(0,al)+')';
+      x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize',resize); resize(); requestAnimationFrame(frame);
+})();
+</script>
+<script>
+(function(){
+  const list=document.getElementById('qz_list'); if(!list) return;
+  const QS=window.CMB_QUIZ||[];
+  document.getElementById('qz_total').textContent=QS.length;
+  const cEl=document.getElementById('qz_correct'), aEl=document.getElementById('qz_answered'), fill=document.getElementById('qz_fill');
+  let answered=0, correct=0;
+  function update(){ cEl.textContent=correct; aEl.textContent=answered; fill.style.width=(QS.length?answered/QS.length*100:0)+'%'; }
+  function render(){
+    list.innerHTML=''; answered=0; correct=0;
+    QS.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const qt=document.createElement('p'); qt.className='q-text';
+      qt.innerHTML='<span class="q-num">'+(qi+1)+'.</span> '+item.q;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      const exp=document.createElement('div'); exp.className='q-exp';
+      exp.innerHTML='<b>Answer: '+String.fromCharCode(65+item.a)+' — '+item.opts[item.a]+'.</b> '+item.exp;
+      item.opts.forEach((text,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt'; b.type='button';
+        b.innerHTML='<span class="q-mark">'+String.fromCharCode(65+oi)+'</span>'+text;
+        b.addEventListener('click',()=>{
+          if(b.disabled) return;
+          answered++;
+          opts.children[item.a].classList.add('correct');
+          if(oi===item.a) correct++; else b.classList.add('wrong');
+          Array.from(opts.children).forEach(c=>c.disabled=true);
+          exp.classList.add('show'); update();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(qt); card.appendChild(opts); card.appendChild(exp);
+      list.appendChild(card);
+    });
+    update();
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+<script>
+(function(){
+  const GLOSS=window.CMB_GLOSS||{};
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase(); let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z0-9]/.test(b)&&/[^A-Za-z0-9]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm==='pre'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .step, .leadin, .mathnote p');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>

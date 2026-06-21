@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Astronomy Companions — Interactive Library</title>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+
+  /* ---------- Hero ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:80px 22px 24px; text-align:center}
+  header.hero h1{font-size:clamp(32px,6vw,58px); margin:0 0 8px; line-height:1.06; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:660px; margin:12px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:24px 22px 80px}
+
+  /* ---------- Square tile grid ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:22px; margin-top:18px}
+  a.card{
+    aspect-ratio:1/1;
+    display:flex; flex-direction:column; justify-content:flex-end; text-decoration:none; color:inherit;
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    padding:22px clamp(16px,2.4vw,22px);
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    transition:transform .2s cubic-bezier(.2,.7,.2,1), border-color .2s ease, box-shadow .2s ease;
+    position:relative; overflow:hidden; z-index:1;
+  }
+  /* soft accent glow that blooms from the top on hover */
+  a.card::before{
+    content:""; position:absolute; inset:0; z-index:-1; opacity:.5;
+    background:radial-gradient(120% 80% at 50% -10%, var(--accent,var(--cyan)), transparent 55%);
+    transition:opacity .2s ease;
+  }
+  a.card:hover, a.card:focus-visible{
+    transform:scale(1.06); border-color:var(--accent,var(--cyan));
+    box-shadow:0 30px 80px rgba(0,0,0,0.55); z-index:2; outline:none;
+  }
+  a.card:hover::before, a.card:focus-visible::before{opacity:.9}
+  .card .era{display:inline-block; font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--accent,var(--cyan)); border:1px solid var(--line); padding:4px 10px; border-radius:999px;
+    align-self:flex-start; margin-bottom:auto; background:rgba(5,6,13,0.35)}
+  .card h2{font-size:clamp(19px,2.4vw,23px); margin:14px 0 4px; line-height:1.18; color:#fff}
+  .card .who{color:var(--muted); font-size:13px; margin:0}
+  .card .go{margin-top:12px; font-size:12.5px; font-weight:600; color:var(--accent,var(--cyan));
+    display:flex; align-items:center; gap:6px}
+  .card .go .arrow{transition:transform .2s ease}
+  a.card:hover .go .arrow{transform:translateX(4px)}
+  /* the long blurb only matters on a full card; hide it in square mode */
+  .card p:not(.who){display:none}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:0 22px 60px; text-align:center; color:var(--muted); font-size:13px}
+  footer a{color:var(--cyan); text-decoration:none}
+  footer a:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Astronomy Companions <small>Interactive explainers · one idea, made playable</small></div>
+    <div class="links">
+      <a href="#library">Library</a>
+      <a href="https://github.com/vmon5589/astronomyCompanions" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1><span class="grad">Astronomy Companions</span></h1>
+  <p class="sub">A growing library of interactive companions — each one takes a single thread in astronomy and astrophysics and turns it into something you can move, tune, and watch recompute live.</p>
+  <p class="byline">Pick a topic below. Every companion is self-contained: <b>move the sliders</b>, the plots run the real equations.</p>
+</header>
+
+<main>
+  <div class="grid" id="library">
+
+    <a class="card" href="trigonometry_companion.html" style="--accent:var(--cyan)">
+      <span class="era">Foundations</span>
+      <h2>Trigonometry &amp; Calculus for Astrophysics</h2>
+      <p class="who">The math behind the rest of the library</p>
+      <p>Right triangles, radians, and derivatives built up one idea at a time — each chapter ends in an astrophysics payoff so the math never floats free of the sky.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="spectroscopy_companion.html" style="--accent:var(--violet)">
+      <span class="era">Light &amp; matter</span>
+      <h2>A History of Astronomical Spectroscopy</h2>
+      <p class="who">From Fraunhofer's dark lines to stellar chemistry</p>
+      <p>How splitting starlight into a spectrum let us read the composition, temperature, and motion of objects we can never touch — traced through the people who figured it out.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="kepler_companion.html" style="--accent:var(--amber)">
+      <span class="era">Orbits</span>
+      <h2>Kepler &amp; the Orbit of Mars</h2>
+      <p class="who">How an ellipse replaced the perfect circle</p>
+      <p>Follow Kepler wrestling Tycho's Mars data into the laws of planetary motion — and steer the orbit yourself to see why nothing but an ellipse fits.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="redshift_companion.html" style="--accent:var(--rose)">
+      <span class="era">Cosmology</span>
+      <h2>Redshift &amp; the Expanding Universe</h2>
+      <p class="who">Why distant galaxies look reddened</p>
+      <p>Stretch a spectrum, watch its lines slide, and connect Doppler shifts to cosmic expansion and Hubble's law — the first evidence the universe is growing.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="cmb_companion.html" style="--accent:var(--green)">
+      <span class="era">Cosmology</span>
+      <h2>The Cosmic Microwave Background &amp; the Power Spectrum</h2>
+      <p class="who">The oldest light, decoded</p>
+      <p>The afterglow of the Big Bang and the acoustic peaks hidden in it — tune the cosmology and watch the power spectrum respond to what the early universe was made of.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="vera_rubin_companion.html" style="--accent:var(--cyan)">
+      <span class="era">Dark matter</span>
+      <h2>Vera Rubin &amp; the Rotation of Galaxies</h2>
+      <p class="who">The flat curve that demanded dark matter</p>
+      <p>Rubin's galaxy rotation measurements refused to fall off the way visible matter said they should — adjust the mass and see why the discrepancy points to something unseen.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+    <a class="card" href="blackholes_companion.html" style="--accent:var(--violet)">
+      <span class="era">Extreme gravity</span>
+      <h2>A Brief History of Black Holes</h2>
+      <p class="who">From a math curiosity to a photographed shadow</p>
+      <p>The long road from Schwarzschild's solution to event-horizon imaging — explore escape velocity, horizons, and how gravity can trap light itself.</p>
+      <span class="go">Open companion <span class="arrow">→</span></span>
+    </a>
+
+  </div>
+</main>
+
+<footer>
+  <p>Interactive astronomy companions · hosted on <a href="https://github.com/vmon5589/astronomyCompanions" target="_blank" rel="noopener">GitHub Pages</a></p>
+</footer>
+
+<!-- =======================================================================
+     Background starfield
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280, (innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+</body>
+</html>

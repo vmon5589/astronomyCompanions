@@ -410,7 +410,83 @@
 
   <div class="mathnote astro">
     <h4>Astrophysics payoff · the bending of light past a black hole</h4>
-    <p>A light ray aimed near a mass is deflected by an angle that Einstein's general relativity gives as $\alpha = 4GM/(c^2 b)$ for an impact parameter $b$ — and at the heart of that formula sits the same right-triangle thinking, with the deflection built from the sine of the grazing angle integrated along the path. Push $b$ inward to $1.5$ Schwarzschild radii and the ray can loop the hole entirely: that critical circle is the <b>photon sphere</b>, and it is what paints the glowing ring seen in the Event Horizon Telescope image of M87*. Every photon in that ring is a right triangle resolved by gravity.</p>
+    <p>A light ray aimed near a mass is deflected by an angle that Einstein's general relativity gives as $\alpha = \dfrac{4GM}{c^2 b}$, where $b$ is the <b>impact parameter</b> — how far off-centre the ray was aimed. The formula looks like pure gravity, but a sine is doing the bookkeeping at every step: the aim distance $b$ <i>is</i> a sine of the geometry, and gravity bends the ray only through the sine of the angle to the mass.</p>
+    <p>The diagram and derivation below unpack exactly where each $\sin$ enters. Push $b$ inward to $1.5$ Schwarzschild radii and the summed bending closes into a full loop: that critical circle is the <b>photon sphere</b>, and it is what paints the glowing ring in the Event Horizon Telescope image of M87*. Every photon in that ring is a right triangle resolved by gravity.</p>
+  </div>
+
+  <figure>
+    <svg viewBox="0 0 900 360" width="900" height="360" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A light ray bends as it passes a black hole. The impact parameter b equals r times sin of the angle phi to the mass, and the sideways tug that bends the ray is the gravitational pull times sin phi. Summed along the path these sine-weighted tugs turn the ray by the deflection angle alpha.">
+      <defs>
+        <marker id="ah-cyan" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd0ff"/></marker>
+        <marker id="ah-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+        <marker id="ah-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+      </defs>
+
+      <!-- triangle base P->V (completes the right triangle) -->
+      <line x1="300" y1="140" x2="450" y2="140" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="2 4" opacity="0.35"/>
+      <!-- undeflected (no-mass) path -->
+      <line x1="450" y1="140" x2="884" y2="140" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.55"/>
+      <text x="726" y="132" fill="#9aa3c7" font-size="12" font-style="italic">path with no mass present</text>
+      <!-- outgoing asymptote -->
+      <line x1="450" y1="140" x2="884" y2="232" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.45"/>
+      <!-- deflection angle alpha -->
+      <path d="M600,140 A150,150 0 0,1 596.7,171.2" fill="none" stroke="#b08cff" stroke-width="2"/>
+      <text x="612" y="167" fill="#b08cff" font-size="16" font-weight="700">α</text>
+      <text x="612" y="184" fill="#b08cff" font-size="11">deflection</text>
+
+      <!-- the light ray -->
+      <path d="M70,140 L360,140 C430,141 462,150 510,166 C604,200 742,219 884,232" fill="none" stroke="#3fd0ff" stroke-width="6" opacity="0.18"/>
+      <path d="M70,140 L360,140 C430,141 462,150 510,166 C604,200 742,219 884,232" fill="none" stroke="#3fd0ff" stroke-width="2.4" marker-end="url(#ah-cyan)"/>
+      <text x="88" y="132" fill="#3fd0ff" font-size="12">light ray</text>
+      <text x="812" y="252" fill="#3fd0ff" font-size="12">to observer</text>
+
+      <!-- black hole -->
+      <circle cx="450" cy="250" r="46" fill="#ff6b9d" opacity="0.13"/>
+      <circle cx="450" cy="250" r="30" fill="none" stroke="#ff6b9d" stroke-width="3" opacity="0.85"/>
+      <circle cx="450" cy="250" r="24" fill="#000"/>
+      <text x="450" y="312" fill="#ff6b9d" font-size="12" text-anchor="middle">mass (the ring marks the photon sphere)</text>
+
+      <!-- impact parameter b -->
+      <line x1="450" y1="140" x2="450" y2="250" stroke="#5ee6a8" stroke-width="2"/>
+      <text x="461" y="196" fill="#5ee6a8" font-size="15" font-weight="700">b</text>
+      <text x="461" y="212" fill="#5ee6a8" font-size="11">impact parameter</text>
+      <!-- right-angle marker at the foot -->
+      <path d="M459,140 L459,149 L450,149" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.7"/>
+
+      <!-- r and the pull toward the mass -->
+      <line x1="300" y1="140" x2="450" y2="250" stroke="#ffb24a" stroke-width="1.8" opacity="0.9"/>
+      <line x1="300" y1="140" x2="356.5" y2="181.4" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ah-amber)"/>
+      <text x="366" y="174" fill="#ffb24a" font-size="13" font-weight="600">pull GM/r²</text>
+      <text x="410" y="214" fill="#ffb24a" font-size="14" font-weight="700">r</text>
+
+      <!-- sideways component = pull x sin(phi) -->
+      <line x1="356.5" y1="181.4" x2="300" y2="181.4" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>
+      <line x1="300" y1="140" x2="300" y2="181.4" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ah-rose)"/>
+      <text x="150" y="176" fill="#ff6b9d" font-size="13" font-weight="600">sideways tug</text>
+      <text x="150" y="192" fill="#ff6b9d" font-size="12">= pull × sin φ</text>
+      <text x="150" y="207" fill="#9aa3c7" font-size="11">(this is what bends the ray)</text>
+
+      <!-- angle phi at P -->
+      <path d="M334,140 A34,34 0 0,1 327.4,160.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+      <text x="340" y="158" fill="#b08cff" font-size="14" font-weight="700">φ</text>
+
+      <!-- point P -->
+      <circle cx="300" cy="140" r="4.5" fill="#3fd0ff"/>
+      <text x="282" y="131" fill="#e8ecff" font-size="12" font-weight="600">P</text>
+    </svg>
+    <figcaption>How the sine enters. Pick any point $P$ on the ray. Its line to the mass (amber, length $r$) makes angle $\varphi$ with the direction of travel, and the right triangle gives the aim distance as a sine: $b=r\sin\varphi$ (green). Gravity pulls straight toward the mass, but only the slice <i>across</i> the motion bends the ray — that slice is the pull times $\sin\varphi$ (rose). Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
+  </figure>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Step by step: where the sine hides in $\alpha = 4GM/c^2b$</h4>
+    <p class="lead">Two different sines do the work — one fixes the aim, the other selects the bending. Both are the plain opposite-over-hypotenuse ratio from the start of this chapter.</p>
+    <ol>
+      <li><b>The aim distance is a sine.</b> At any instant the photon's line to the mass makes an angle $\varphi$ with its direction of travel. Drop the perpendicular and you have a right triangle: hypotenuse $r$ (distance to the mass), opposite side $b$ (the perpendicular miss distance). So $b = r\sin\varphi$ — the impact parameter is a sine, and it stays fixed for the entire flight.</li>
+      <li><b>The sine selects the part of gravity that bends.</b> The pull $GM/r^2$ points straight at the mass, but a tug along your line of motion only speeds you up or slows you down — it cannot turn you. Only the component <i>across</i> the motion bends the ray, and projecting the pull onto that direction brings in the sine again: $\text{sideways tug}=\dfrac{GM}{r^2}\sin\varphi$. Dead ahead ($\varphi\to0$, $\sin\varphi\to0$) nothing bends; broadside at closest approach ($\varphi=90^\circ$, $\sin\varphi=1$) the bending is fiercest.</li>
+      <li><b>Add the sine-weighted tugs along the whole path.</b> Summing every tiny turn from far approach to far departure is the integral $\displaystyle\int_0^{\pi}\sin\varphi\,d\varphi = \big[-\cos\varphi\big]_0^{\pi}=2$ — the sine is literally the thing being summed. The total works out to $\alpha = \dfrac{2GM}{c^2 b}$, the bending Newton's gravity alone would give.</li>
+      <li><b>Relativity doubles it.</b> The curvature of space itself contributes an equal second half, doubling the result to Einstein's $\alpha = \dfrac{4GM}{c^2 b}$. The $b$ in the denominator is the very $\sin\varphi$ aim-distance from step 1: aim closer (smaller $b$) and the bend grows. At $b = 1.5\,R_s$ the summed turn closes into a full circle and the photon orbits the hole — the <b>photon sphere</b>.</li>
+    </ol>
+    <div class="concl"><b>Conclusion:</b> the deflection is nothing but a heap of sideways tugs, each one the pull times the sine of the angle to the mass. Pile them up to the limit and the heap becomes the bright ring the Event Horizon Telescope photographed around M87*.</div>
   </div>
   <h3 class="subhead"><span class="n">3</span>Practice problems</h3>
   <div class="problems">
@@ -474,6 +550,65 @@
   <div class="deriv">
     <h4><span class="ic">∴</span> Step by step: building the wave equation</h4>
     <p class="lead">A wave is not a new object — it is the vertical shadow of a point circling at a steady rate. Each symbol in $y=A\cos(2\pi f t+\phi)$ falls out of that picture.</p>
+
+    <figure>
+      <svg viewBox="0 0 900 360" width="900" height="360" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A point circling a unit circle of radius A at angle 2 pi f t plus phi. Its height is projected across to trace a sine wave on the right, where the same A is the amplitude, one full revolution is the period T equals one over f, and the head start phi shifts the curve.">
+        <defs>
+          <marker id="wv-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        </defs>
+
+        <!-- ===== left: the spinning circle ===== -->
+        <line x1="85" y1="185" x2="270" y2="185" stroke="#9aa3c7" stroke-width="1" opacity="0.35"/>
+        <line x1="175" y1="95" x2="175" y2="278" stroke="#9aa3c7" stroke-width="1" opacity="0.35"/>
+        <circle cx="175" cy="185" r="90" fill="none" stroke="#9aa3c7" stroke-width="1.4" opacity="0.6"/>
+        <!-- spin direction -->
+        <path d="M205,108 A40,40 0 0,1 232,150" fill="none" stroke="#9aa3c7" stroke-width="1.4" marker-end="url(#wv-arrow)" opacity="0.8"/>
+        <text x="118" y="86" fill="#9aa3c7" font-size="11.5">spins at f turns/sec</text>
+        <!-- amplitude radius A (green) -->
+        <line x1="175" y1="185" x2="220" y2="107.1" stroke="#5ee6a8" stroke-width="2.6"/>
+        <circle cx="220" cy="107.1" r="5" fill="#3fd0ff"/>
+        <text x="226" y="112" fill="#3fd0ff" font-size="12" font-weight="600">P</text>
+        <text x="160" y="138" fill="#5ee6a8" font-size="15" font-weight="700">A</text>
+        <!-- angle arc -->
+        <path d="M211,185 A36,36 0 0,1 193,154.8" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="214" y="176" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+
+        <!-- projector: height of P unrolls across to the wave -->
+        <line x1="220" y1="107.1" x2="500" y2="107.1" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="4 4" marker-end="url(#wv-arrow)" opacity="0.8"/>
+
+        <!-- ===== right: the wave ===== -->
+        <line x1="360" y1="185" x2="884" y2="185" stroke="#9aa3c7" stroke-width="1.2" marker-end="url(#wv-arrow)"/>
+        <line x1="360" y1="285" x2="360" y2="90" stroke="#9aa3c7" stroke-width="1.2" marker-end="url(#wv-arrow)"/>
+        <text x="858" y="203" fill="#9aa3c7" font-size="11.5">time t</text>
+        <text x="366" y="100" fill="#9aa3c7" font-size="11.5">height</text>
+
+        <!-- the wave -->
+        <path d="M360,270.6 L378,274.8 L396,266.4 L414,246.6 L432,218.1 L450,185.0 L468,151.9 L486,123.4 L504,103.6 L522,95.2 L540,99.4 L558,115.7 L576,141.6 L594,173.7 L612,207.4 L630,237.9 L648,261.0 L666,273.4 L684,273.4 L702,261.0 L720,237.9 L738,207.4 L756,173.7 L774,141.6 L792,115.7 L810,99.4 L828,95.2 L846,103.6 L864,123.4 L882,151.9" fill="none" stroke="#3fd0ff" stroke-width="6" opacity="0.16"/>
+        <path d="M360,270.6 L378,274.8 L396,266.4 L414,246.6 L432,218.1 L450,185.0 L468,151.9 L486,123.4 L504,103.6 L522,95.2 L540,99.4 L558,115.7 L576,141.6 L594,173.7 L612,207.4 L630,237.9 L648,261.0 L666,273.4 L684,273.4 L702,261.0 L720,237.9 L738,207.4 L756,173.7 L774,141.6 L792,115.7 L810,99.4 L828,95.2 L846,103.6 L864,123.4 L882,151.9" fill="none" stroke="#3fd0ff" stroke-width="2.4"/>
+
+        <!-- now marker -->
+        <line x1="500" y1="107.1" x2="500" y2="185" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.7"/>
+        <circle cx="500" cy="107.1" r="5" fill="#3fd0ff"/>
+        <text x="478" y="100" fill="#3fd0ff" font-size="11.5">now</text>
+
+        <!-- amplitude A on the wave (green, same A) -->
+        <line x1="825" y1="184" x2="825" y2="96" stroke="#5ee6a8" stroke-width="2"/>
+        <path d="M821,100 L825,95 L829,100" fill="none" stroke="#5ee6a8" stroke-width="2"/>
+        <path d="M821,180 L825,185 L829,180" fill="none" stroke="#5ee6a8" stroke-width="2"/>
+        <text x="833" y="144" fill="#5ee6a8" font-size="15" font-weight="700">A</text>
+
+        <!-- period T brace (amber) peak-to-peak -->
+        <path d="M525,205 L525,212 L675,212 M675,212 L675,219 M675,212 L825,212 L825,205" fill="none" stroke="#ffb24a" stroke-width="1.8"/>
+        <text x="608" y="236" fill="#ffb24a" font-size="13" font-weight="600">T = 1/f</text>
+        <text x="560" y="251" fill="#ffb24a" font-size="11">one full turn = one wavelength</text>
+
+        <!-- phase phi (violet): head start before the first rise -->
+        <path d="M360,166 L360,160 L450,160 L450,166" fill="none" stroke="#b08cff" stroke-width="1.8"/>
+        <text x="392" y="153" fill="#b08cff" font-size="14" font-weight="700">φ</text>
+      </svg>
+      <figcaption>One picture, every symbol. The point rides a circle of radius $A$ at angle $\theta = 2\pi f t + \phi$ (it has a head start $\phi$ and gains $2\pi f t$ as time runs). Its height — the green leg $A\sin\theta$ — is carried straight across (dashed) and laid down against time to draw the wave. The circle's radius becomes the wave's <b>amplitude</b> $A$; one full revolution becomes one <b>period</b> $T=1/f$; the starting head start $\phi$ is the <b>phase</b> that slides the whole curve left or right. Writing it with $\cos$ instead of $\sin$ just starts the clock a quarter-turn earlier (step 4).</figcaption>
+    </figure>
+
     <ol>
       <li><b>Put the point on the unit circle.</b> At angle θ its coordinates are $(\cos\theta,\sin\theta)$, and Pythagoras on the radius gives $\cos^2\theta+\sin^2\theta=1$ for every θ.</li>
       <li><b>Spin at a steady rate.</b> Let the angle grow with time, $\theta=\omega t$, where ω is the angular speed in radians per second. The height is then $\sin(\omega t)$.</li>

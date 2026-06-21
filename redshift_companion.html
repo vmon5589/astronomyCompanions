@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Redshift &amp; the Expanding Universe — An Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(40,90,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(80,40,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* concept beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  select,input[type=text]{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 6px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer}
+  button.act:hover{border-color:var(--cyan)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:340px}
+  .plot.tall{height:420px}
+
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#05060d}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* python code block */
+  pre.code{background:#080b18; border:1px solid var(--line); border-left:3px solid var(--cyan);
+    border-radius:11px; padding:14px 16px; overflow-x:auto; margin:14px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:12.7px; line-height:1.6; color:#d6dcff;
+    white-space:pre;}
+  pre.code .c{color:#69739c; font-style:italic}
+  pre.code .s{color:var(--green)}
+  pre.code .n{color:var(--amber)}
+  pre.code .k{color:var(--violet)}
+  pre.code .b{color:var(--cyan)}
+  .codecap{font-size:12px; color:var(--muted); margin:-6px 0 2px}
+  .fileref{font-family:ui-monospace,Menlo,monospace; font-size:12px; color:var(--amber);
+    background:rgba(255,178,74,0.08); border:1px solid rgba(255,178,74,0.25); border-radius:6px; padding:1px 6px}
+  code.inlinecode{font-family:ui-monospace,Menlo,monospace; font-size:12.5px; color:#cfe9ff;
+    background:rgba(63,208,255,0.08); border:1px solid var(--line); border-radius:5px; padding:0 5px}
+
+  /* derivation block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv h4 .ic{font-size:14px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  /* step list */
+  .steps{counter-reset:st; display:grid; gap:10px; margin:14px 0 2px}
+  .step{position:relative; padding:10px 12px 10px 44px; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; font-size:13.5px}
+  .step::before{counter-increment:st; content:counter(st); position:absolute; left:12px; top:10px; width:22px; height:22px; border-radius:50%; background:rgba(255,178,74,0.18); color:var(--amber); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center}
+  .step b{color:#fff}
+
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:780px}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+
+  /* historical quote */
+  .vquote{margin:18px 0 4px; padding:14px 18px; background:rgba(255,178,74,0.06); border:1px solid rgba(255,178,74,0.25); border-left:3px solid var(--amber); border-radius:12px}
+  .vquote p{margin:0; font-size:15px; line-height:1.6; color:var(--ink); font-style:italic}
+  .vquote .src{display:block; margin-top:8px; font-size:12.5px; color:var(--muted); font-style:normal}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* glossary rail + tooltips */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* MathJax equations are the main mobile-overflow culprit: a wide display
+       equation forces the layout viewport wider than the phone, which shrink-zooms
+       the whole page and leaves the interactive plots mis-scaled. Let wide display
+       math scroll inside its own box instead of stretching the page. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }        /* keep tap targets ~44px tall-ish */
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }  /* one control per row */
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    /* readout stats: two per row instead of free-flow */
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }                            /* stack stats fully */
+    header.hero h1{ font-size:26px; }
+  }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* historical figures from the keynote notes */
+  figure.histfig{margin:14px 0}
+  figure.histfig img{display:block;width:100%;height:auto}
+  figure.histfig.narrow{max-width:520px;margin-left:auto;margin-right:auto}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Redshift &amp; the Expanding Universe <small>Interactive companion · how a shifted fingerprint of light weighs the cosmos</small></div>
+    <div class="links">
+      <a href="#fingerprint">Starlight's fingerprint</a>
+      <a href="#shift">Red, blue &amp; space</a>
+      <a href="#cepheids" class="hist">Cepheids &amp; Hubble</a>
+      <a href="#candles">Standard candles</a>
+      <a href="#dilation" class="hist">The decisive test</a>
+      <a href="#tired" class="hist">Tired light</a>
+      <a href="#relativistic">Relativistic Doppler</a>
+      <a href="#lorentz">The light clock</a>
+      <a href="#quiz">Test yourself</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Mostly red, a few blue —<br>starlight arrives <span class="grad">shifted</span></h1>
+  <p class="sub">The same dark lines that name the elements in a star arrive, from another galaxy, shifted in wavelength — usually toward red as it recedes, occasionally toward blue as it approaches. That single shift, red or blue, measures a velocity and a distance; and for the distant sky it ultimately tells us space itself is expanding rather than the light merely growing <i>tired</i> on the journey.</p>
+  <p class="byline">An interactive companion to the keynote <b>“Examining evidence for universe expansion through comparing redshift and ‘tired light’.”</b> Every chapter rebuilds the working physics — absorption spectra, the Doppler shift, standard candles, cosmic time dilation, and the relativistic Doppler effect with its Lorentz-transformation roots.</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every key term in the text is <span style="color:var(--green);font-weight:700">highlighted</span> — hover it for a definition, and this panel fills with the terms (and Wikipedia links) for whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. STARLIGHT'S FINGERPRINT -->
+<!-- ============================================================= -->
+<section class="chapter" id="fingerprint">
+  <span class="era">Chapter 1 · Reading light · The fingerprint of an atom</span>
+  <h2>Each element signs its name in missing colours</h2>
+  <p class="who">Absorption spectra · the barcode every atom imprints · why a distant galaxy's barcode arrives shifted whole</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Light carries composition</div>
+      <p>When starlight reaches Earth and its astronomers, we can read what the star is made of. Spread the light into a spectrum and a continuous rainbow appears — but crossed by sharp dark gaps. Long ago physicists catalogued these gaps for every basic chemical element; each has its own <b>absorption signature</b>, a unique pattern of missing wavelengths.</p></div>
+    <div class="beat idea"><div class="tag">The lines are a fixed barcode</div>
+      <p>A cool atom in the star's outer layers absorbs precisely the wavelengths it would itself emit — so hydrogen always removes the same colours, oxygen its own set, sodium its own. The pattern is a <b>barcode</b> fixed by atomic physics: in the laboratory those wavelengths never move. That fixity is what makes them useful as a ruler.</p></div>
+    <div class="beat test"><div class="tag">The whole barcode slides</div>
+      <p>Photograph the spectrum of a distant galaxy and the barcode is unmistakably the same pattern — same spacings, same ratios — but bodily displaced toward the red end. Nothing about the atoms changed; the entire signature has been <b>shifted in wavelength</b> between emission and detection.</p></div>
+    <div class="beat found"><div class="tag">A shift you can measure</div>
+      <p>Because the rest wavelengths are known to many digits, the displacement is a number you can read off: the <b>redshift</b> $z$. Chapters 2–7 are about what that one number means — a velocity, a distance, and finally a verdict on whether space itself is expanding.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Slide the redshift — watch the barcode march toward red</h3>
+    <p class="hint">The top strip is the laboratory (rest-frame) spectrum of hydrogen, sodium and calcium. The bottom strip is the same light after a redshift $z$: every line moves to a longer wavelength by the factor $(1+z)$, the pattern stretching but never rearranging.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Redshift <b>z = <span id="sp_zval">0.000</span></b></label>
+        <input id="sp_z" type="range" min="-0.05" max="0.30" step="0.002" value="0.05">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Direction</div><div class="v" id="sp_dir" style="font-size:15px">redshift →</div></div>
+      <div class="stat"><div class="k">Recession speed (cz)</div><div class="v"><span id="sp_v">—</span><small> km/s</small></div></div>
+      <div class="stat"><div class="k">Hα: 656.3 nm →</div><div class="v"><span id="sp_ha">—</span><small> nm</small></div></div>
+    </div>
+    <figure><canvas id="sp_canvas" width="900" height="300"></canvas>
+      <figcaption>Rest frame (top) versus observed (bottom). The dashed tie-lines connect each rest line to its shifted image — equal spacings in the rest frame open up by exactly $(1+z)$ in the observed frame.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> What the shift <i>is</i>, as a number</h4>
+    <p class="lead">One definition, and the small-shift velocity that follows from it.</p>
+    <ol>
+      <li><b>Define the redshift.</b> If a line emitted at rest wavelength $\lambda_{\text{rest}}$ is observed at $\lambda_{\text{obs}}$, the redshift is the fractional stretch $z=\dfrac{\lambda_{\text{obs}}-\lambda_{\text{rest}}}{\lambda_{\text{rest}}}$. So $\lambda_{\text{obs}}=(1+z)\,\lambda_{\text{rest}}$ — every line scales by the same factor, which is why the pattern never scrambles.</li>
+      <li><b>Read the sign.</b> $z>0$ is a redshift (receding); $z<0$ is a <b>blueshift</b> (approaching). The shift of one well-known line fixes $z$ for the whole spectrum.</li>
+      <li><b>Turn it into a speed.</b> For modest shifts the classical Doppler relation gives $v\approx cz$, with $c=299{,}792\ \text{km/s}$. A galaxy at $z=0.01$ recedes at roughly $3000\ \text{km/s}$.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> a single measured displacement of the barcode becomes a recession velocity. Chapter 2 asks what that velocity is really telling us — and uncovers the surprise that the galaxies are barely moving at all.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why the lines, not the colour, carry the information</h4>
+    <p>A star's overall colour shifts with temperature and with reddening by dust — sloppy, model-dependent clues. The <b>absorption lines</b> are different: their rest wavelengths are atomic constants. Measuring the <i>displacement of a known line</i> rather than the hue of the continuum is what makes redshift a precise, falsifiable measurement instead of an impression.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The Hα line of hydrogen has rest wavelength $\lambda_{\text{rest}}=656.3$ nm. In a galaxy's spectrum it is found at $\lambda_{\text{obs}}=663.0$ nm. Find the redshift $z$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the definition.</b> $z=\dfrac{663.0-656.3}{656.3}=\dfrac{6.7}{656.3}$.</li>
+          <li><b>Evaluate.</b> $z=0.01021$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z\approx0.0102$ — a one-percent stretch, placing the galaxy at a recession speed of about $cz\approx3060$ km/s.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Using $v\approx cz$ with $c=299{,}792$ km/s, what recession speed does $z=0.0102$ imply?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Multiply.</b> $v=cz=299{,}792\times0.0102$.</li>
+          <li><b>Evaluate.</b> $v=3058$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v\approx3060$ km/s — valid because $z\ll1$; for large $z$ the relativistic formula of Chapter 7 is required.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A calcium line at rest is $393.4$ nm. In a quasar it is observed at $786.8$ nm. Show this is a redshift of $z=1.0$, and explain why $v=cz$ would be wrong here.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Compute $z$.</b> $z=\dfrac{786.8-393.4}{393.4}=\dfrac{393.4}{393.4}=1.00$.</li>
+          <li><b>Test the naïve speed.</b> $cz=299{,}792$ km/s $=c$ — a speed equal to light, which is impossible for a massive galaxy.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z=1.0$ doubles every wavelength. The linear $v=cz$ breaks down because it ignores relativity (and, cosmologically, the stretching of space); the proper treatment never reaches or exceeds $c$.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. RED, BLUE & EXPANDING SPACE -->
+<!-- ============================================================= -->
+<section class="chapter" id="shift">
+  <span class="era">Chapter 2 · The interpretation · Velocity, or stretching space?</span>
+  <h2>Mostly red, a few blue — and a balloon that explains both</h2>
+  <p class="who">Andromeda approaches at 300 km/s · almost everything else recedes · why the galaxies barely move while the distances grow</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Almost everything is redshifting</div>
+      <p>Survey the sky and the overwhelming majority of galaxies show redshifts — their barcodes slid toward red. The natural first reading is recession: the objects are moving away. And the farther away they are, the larger the shift.</p></div>
+    <div class="beat idea"><div class="tag">But a hundred are blue</div>
+      <p>About a hundred nearby galaxies <b>blueshift</b> instead. The Andromeda Galaxy (M31) is the famous case: a blueshift of roughly $300$ km/s ($186$ mi/s). It is falling toward us and will merge with the Milky Way in about four billion years. So redshift is not a universal law of light — it is a velocity readout, and velocities point both ways.</p></div>
+    <div class="beat test"><div class="tag">The galaxies aren't really travelling</div>
+      <p>Here is the twist. The distant galaxies are not so much flying <i>through</i> space as being carried apart by space itself. The <b>expanding universe</b> stretches the wavelength of a photon in flight; the redshift is <b>cosmological</b>, written into the journey, not into a local engine.</p></div>
+    <div class="beat found"><div class="tag">The balloon analogy</div>
+      <p>Ink dots on an inflating balloon all recede from one another, each seeing the rest fly away, none at the centre — because there is no centre on the surface. Nearby motions (Andromeda's infall) are local wrinkles riding on top of the global stretch, exactly as a dot can be nudged across the rubber while the rubber itself grows.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Inflate the universe — see why farther means faster</h3>
+    <p class="hint">Press play and the grid of galaxies expands uniformly. Watch the velocity arrows: a galaxy twice as far recedes twice as fast — that proportionality, $v=H_0 d$, <b>is</b> Hubble's law, and it falls out of nothing but uniform stretching.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Hubble constant <b>H₀ = <span id="hb_hlbl">70</span></b> km/s/Mpc</label>
+        <input id="hb_h" type="range" min="50" max="100" step="1" value="70">
+      </div>
+      <div class="ctl">
+        <label>Animation speed <b><span id="hb_slbl">1.0</span>×</b></label>
+        <input id="hb_s" type="range" min="0.2" max="3" step="0.1" value="1">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="act" id="hb_play">⏸ pause</button>
+      <button class="act" id="hb_reset">reset scale</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Scale factor a(t)</div><div class="v" id="hb_a">1.00</div></div>
+      <div class="stat"><div class="k">Our viewpoint</div><div class="v" style="font-size:15px">any galaxy works</div></div>
+    </div>
+    <figure><canvas id="hb_canvas" width="900" height="380"></canvas>
+      <figcaption>Left: a comoving grid of galaxies stretching uniformly about whichever one you call home (cyan). Arrow length is recession speed. Right: the live $v$-versus-$d$ plot — a straight line through the origin whose slope is $H_0$.</figcaption></figure>
+    <div class="verdict" id="hb_verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Andromeda's blueshift, measured from a sodium line</h4>
+    <p class="lead">The keynote's worked case — the same arithmetic that first revealed M31 was approaching.</p>
+    <ol>
+      <li><b>The data.</b> Comparing a sodium (Na D) line in a nearby Milky-Way star with the same line in light from M31's core, the galaxy's line sits $\Delta\lambda=-6.3$ Å shortward of rest $\lambda=5890$ Å — a shift toward the blue.</li>
+      <li><b>The Doppler formula.</b> For small shifts $\dfrac{\Delta\lambda}{\lambda}=\dfrac{v}{c}$, so $v=\dfrac{\Delta\lambda}{\lambda}\,c$.</li>
+      <li><b>Substitute.</b> $v=\dfrac{-6.3}{5890}\times(3.00\times10^{5}\ \text{km/s})=-321\ \text{km/s}$.</li>
+    </ol>
+    <div class="concl"><b>The result:</b> $v\approx-321$ km/s — the minus sign meaning <i>approach</i>. Andromeda is the proof that "redshift" is a directionless measurement of motion, not a one-way property of ageing light.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Hubble's law, and what its slope means</h4>
+    <p>Uniform expansion makes recession speed proportional to distance: $v=H_0\,d$. The slope $H_0\approx70\ \text{km/s/Mpc}$ is the <b>Hubble constant</b>; its inverse $1/H_0$ is a rough age of the universe. Crucially, the law looks the same from <i>every</i> galaxy — there is no privileged centre, the balloon's defining feature. Measuring $v$ from a redshift (Chapter 1) and $d$ from a standard candle (Chapter 3) is how the slope is pinned down.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Reproduce the keynote's M31 result. A Na line at $\lambda=5890$ Å is shifted by $\Delta\lambda=-6.3$ Å. Using $v=(\Delta\lambda/\lambda)c$ with $c=3.00\times10^{5}$ km/s, find $v$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Fractional shift.</b> $\dfrac{\Delta\lambda}{\lambda}=\dfrac{-6.3}{5890}=-1.07\times10^{-3}$.</li>
+          <li><b>Multiply by $c$.</b> $v=-1.07\times10^{-3}\times3.00\times10^{5}=-321$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $v=-321$ km/s — Andromeda approaching, the textbook blueshift.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A galaxy recedes at $v=7000$ km/s. With $H_0=70$ km/s/Mpc, how far away is it?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Invert Hubble's law.</b> $d=v/H_0=7000/70$.</li>
+          <li><b>Evaluate.</b> $d=100$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $d=100$ Mpc $\approx326$ million light-years — distance read straight off a velocity, the engine of the cosmic distance ladder's far rungs.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Estimate a "Hubble age" of the universe as $1/H_0$. Convert $H_0=70$ km/s/Mpc to per-second using $1\ \text{Mpc}=3.086\times10^{19}$ km, then take the reciprocal.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $H_0=\dfrac{70}{3.086\times10^{19}}=2.27\times10^{-18}\ \text{s}^{-1}$.</li>
+          <li><b>Reciprocal.</b> $1/H_0=4.41\times10^{17}$ s.</li>
+          <li><b>To years.</b> $\div(3.156\times10^{7}\ \text{s/yr})=1.40\times10^{10}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $14$ billion years — strikingly close to the true age, because uniform expansion ties the slope of Hubble's law to a timescale.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. CEPHEIDS & HUBBLE -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="cepheids">
+  <span class="era">Chapter 3 · The first yardstick · 1908 – 1929 · Leavitt, Cepheids &amp; Hubble's plot</span>
+  <h2>A pulsing star becomes a ruler to the galaxies</h2>
+  <p class="who">Henrietta Leavitt's period–luminosity law · Hubble's Cepheids in Andromeda · the 1929 velocity–distance plot · and why the candle had to be upgraded</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The island-universe question</div>
+      <p>In the early 1900s nobody knew how big the universe was. Were the faint <b>spiral nebulae</b> just gas clouds inside our own Milky Way, or separate "island universes" — whole galaxies — impossibly far away? Hubble's working hypothesis was the bold one: they are distant galaxies. To prove it he needed a distance to a faint smudge, and there was no obvious way to measure one.</p></div>
+    <div class="beat idea"><div class="tag">Leavitt's pulsing yardstick</div>
+      <p>The key had been forged in 1908–1912 by <b>Henrietta Leavitt</b>. Studying <b>Cepheid variables</b> — stars that rhythmically brighten and dim — in the Magellanic Clouds, she found a clean <b>period–luminosity relation</b>: the slower a Cepheid pulses, the more luminous it truly is. Time the blinking and you know the star's real brightness — a <b>standard candle</b> whose distance follows from how faint it looks.</p></div>
+    <div class="beat test"><div class="tag">Hubble points the 100-inch</div>
+      <p>Hubble found Cepheids in the Andromeda nebula, timed their periods, applied Leavitt's law, and got a distance far beyond the Milky Way — settling the debate: the spirals are galaxies. Then he paired such distances with Vesto Slipher's measured <b>recession velocities</b> (read from redshifts, Chapter 1) and plotted one against the other.</p></div>
+    <div class="beat found"><div class="tag">Velocity rises with distance</div>
+      <p>The 1929 plot was a straight line: the farther a galaxy, the faster it recedes — $v\approx H_0 d$, the same law Chapter 2 drew from the balloon, now seen in real data. (Hubble's slope came out near $500$ km/s/Mpc — badly miscalibrated — but the linear trend was unmistakable, and the expanding universe had its first observational law.)</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Watch a Cepheid breathe — and read its true brightness</h3>
+    <p class="hint">A Cepheid physically swells and shrinks, brightening and dimming on a clockwork period. Slide the period: the star pulses (slower for longer-period stars), the light curve traces its characteristic fast-rise/slow-decline shape, and <b>Leavitt's law</b> turns the period into an intrinsic luminosity. Longer period ⇒ a genuinely brighter star — that is the whole trick.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Pulsation period <b><span id="cep_plbl">10</span> days</b></label>
+        <input id="cep_p" type="range" min="2" max="60" step="1" value="10">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Absolute magnitude M_V</div><div class="v" id="cep_mv">—</div></div>
+      <div class="stat"><div class="k">True luminosity</div><div class="v"><span id="cep_lum">—</span><small> L☉</small></div></div>
+      <div class="stat"><div class="k">Brighter when</div><div class="v" style="font-size:15px">period is longer</div></div>
+    </div>
+    <figure><canvas id="cep_canvas" width="900" height="320"></canvas>
+      <figcaption>Left: the star pulsing — bluer-white and smaller at peak brightness, redder and swollen at minimum. Right: its light curve, plotted on a real-time day axis. Because the clock no longer rescales with the period, the cadence genuinely tracks it — change the slider and you can watch the old, faster (or slower) peaks scroll off as the new rhythm takes over.</figcaption></figure>
+    <div id="cep_pl" class="plot" style="height:300px"></div>
+    <p class="codecap">Leavitt's period–luminosity law: longer-period Cepheids sit higher (brighter). The amber marker tracks your slider.</p>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Why a Cepheid breathes — the helium valve</h3>
+    <p class="hint">A Cepheid pulsates because a buried layer of partially ionized helium acts as a heat valve — the κ-mechanism, or "Eddington valve". Watch one cycle: when the star compresses, that ionization zone turns opaque and <i>traps</i> the radiation streaming up from the core; the dammed heat builds pressure and pushes the layers back out; expanded and cooled, the helium recombines, the valve turns clear, the heat escapes, and gravity pulls everything back down to begin again. This self-driving cycle only runs for stars crossing the instability strip.</p>
+    <figure><canvas id="kap_canvas" width="900" height="340"></canvas>
+      <figcaption>Left: the star pulsing. Right: a radial slice — energy (amber) rises from the core; the helium valve turns <b>opaque</b> on compression, damming the heat that then drives the layers outward, and <b>clear</b> on expansion, letting it escape. Heat absorbed when compressed and released when expanded does net work on the gas, so the oscillation pumps itself instead of damping out.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The κ-mechanism, one cycle</h4>
+    <p class="lead">Why the pulsation drives itself instead of dying away, in six beats.</p>
+    <ol>
+      <li><b>Ordinary layers damp.</b> Squeeze a normal gas and it heats and becomes <i>more transparent</i>, so trapped radiation leaks straight out and the push dies. That is why most stars don't throb.</li>
+      <li><b>The helium valve reverses it.</b> In the He⁺ → He⁺⁺ ionization zone, compression spends its energy <i>ionizing</i> helium rather than heating it — so the opacity $\kappa$ <b>rises</b> with compression instead of falling.</li>
+      <li><b>Heat is dammed.</b> The now-opaque layer blocks the radiation flowing up from the core, and pressure builds beneath it.</li>
+      <li><b>The push-out.</b> That excess pressure overpowers gravity and drives the outer layers outward — the star swells.</li>
+      <li><b>Release.</b> Expanded and cooled, the helium recombines (He⁺⁺ → He⁺), the opacity drops, and the dammed heat escapes.</li>
+      <li><b>Fall-back.</b> With the pressure spent, gravity pulls the layers back inward — and the cycle repeats.</li>
+    </ol>
+    <div class="concl"><b>Two consequences:</b> the valve only sits at the right depth within a narrow temperature band — the <b>instability strip</b> — so only stars crossing it pulsate; and the period is a sound-crossing time set by mean density, $P \propto 1/\sqrt{\rho}$, so a puffier, more luminous Cepheid rings slower. That density–period link is the physical root of Leavitt's law.</div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> From blink rate to distance — the bottom rung of the ladder</h4>
+    <p class="lead">Four steps turn a flickering star into a distance in megaparsecs.</p>
+    <ol>
+      <li><b>Time the pulse.</b> Watch the light curve and read off the period $P$ (days) — pure timing, no model.</li>
+      <li><b>Leavitt's law gives the true brightness.</b> A longer period means a more luminous star: $M_V \approx -1.43 - 2.81\,\log_{10}P$, the absolute magnitude.</li>
+      <li><b>Measure how faint it looks.</b> The apparent magnitude $m_V$ is read straight from the image.</li>
+      <li><b>The gap is the distance.</b> $m_V - M_V = 5\log_{10}\!\big(d/10\,\text{pc}\big) \Rightarrow d$ — the same distance modulus used throughout the next chapter.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> a model-free distance to any galaxy near enough to resolve its Cepheids. This is the bottom rung of the <b>cosmic distance ladder</b>; every longer-range method above it is calibrated against this one.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Fit Hubble's velocity–distance line</h3>
+    <p class="hint">Each point is a galaxy: its Cepheid distance across, its redshift velocity up. Slide the line's slope — the <b>Hubble constant</b> $H_0$ — to thread the cloud. The slope that best fits is the expansion rate, and its reciprocal $1/H_0$ is a rough age of the universe.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Slope H₀ <b><span id="hub_hlbl">70</span></b> km/s/Mpc</label>
+        <input id="hub_h" type="range" min="20" max="120" step="1" value="40">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Slope H₀</div><div class="v"><span id="hub_hlbl2">70</span><small> km/s/Mpc</small></div></div>
+      <div class="stat"><div class="k">Residual scatter</div><div class="v">±<span id="hub_rms">—</span><small> km/s</small></div></div>
+      <div class="stat"><div class="k">Hubble age 1/H₀</div><div class="v"><span id="hub_age">—</span><small> Gyr</small></div></div>
+    </div>
+    <div id="hub_plot" class="plot tall"></div>
+    <div class="verdict" id="hub_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why Cepheids hit a wall — and Type Ia take over</h4>
+    <p>Cepheids are luminous, but not luminous <i>enough</i>: even the brightest fade below detection beyond roughly $40$ Mpc, so they cannot reach the deep universe where the expansion history — and its acceleration — reveal themselves. They must also be resolved as individual stars, so crowding and dust extinction bias them, and the period–luminosity zero-point drifts with a star's metallicity. A <b>Type Ia supernova</b> sidesteps all of this: for a few weeks it can outshine its entire host galaxy — about a hundred thousand times brighter than a Cepheid — so it is visible across billions of light-years. The two are not rivals but a ladder: Cepheids in nearby galaxies <i>calibrate</i> the Type Ia peak luminosity, and the supernovae then carry that calibration into the cosmological distance. The next chapter takes up that brighter candle.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A Cepheid pulses with period $P=10$ days. Using Leavitt's law $M_V=-1.43-2.81\log_{10}P$, find its absolute magnitude.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Log of the period.</b> $\log_{10}10=1$.</li>
+          <li><b>Apply the law.</b> $M_V=-1.43-2.81(1)=-4.24$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $M_V\approx-4.24$ — a star roughly four thousand times the Sun's luminosity, set entirely by its blink rate.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> That same Cepheid is observed at apparent magnitude $m_V=24.0$ in a distant galaxy. Use $m_V-M_V=5\log_{10}(d/10\,\text{pc})$ to find the distance.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance modulus.</b> $m_V-M_V=24.0-(-4.24)=28.24$.</li>
+          <li><b>Solve.</b> $\log_{10}(d/10\,\text{pc})=28.24/5=5.648$, so $d=10\times10^{5.648}$ pc.</li>
+          <li><b>Evaluate.</b> $d=10^{6.648}$ pc $=4.45\times10^{6}$ pc $=4.45$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $d\approx4.5$ Mpc — a model-free galaxy distance, the very measurement that proved the spirals lie far outside the Milky Way.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Hubble's 1929 slope was about $H_0=500$ km/s/Mpc. Estimate the implied "Hubble age" $1/H_0$ (use $1\,\text{Mpc}=3.086\times10^{19}$ km, $1\,\text{yr}=3.156\times10^{7}$ s) and say why it troubled astronomers.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $H_0=500/3.086\times10^{19}=1.62\times10^{-17}\ \text{s}^{-1}$.</li>
+          <li><b>Reciprocal.</b> $1/H_0=6.17\times10^{16}$ s $=1.96\times10^{9}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2$ billion years — younger than the known age of Earth's rocks. The paradox was the clue that Hubble's <i>distances</i> were several times too small; fixing the calibration lowered $H_0$ toward today's $\sim70$ and the age toward $\sim14$ Gyr.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. STANDARD CANDLES -->
+<!-- ============================================================= -->
+<section class="chapter" id="candles">
+  <span class="era">Chapter 4 · The distance ladder · A bulb of known wattage</span>
+  <h2>If you know the true brightness, the dimness tells the distance</h2>
+  <p class="who">Type Ia supernovae as standard candles · white dwarfs at a universal trigger mass · the inverse-square law turned into a ruler</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">A velocity isn't a distance</div>
+      <p>Hubble's law needs <i>both</i> $v$ and $d$. Redshift hands us $v$; distance is the hard half. The trick is to find objects whose true <b>luminosity</b> we already know — <b>standard candles</b> — and let their apparent faintness do the ranging.</p></div>
+    <div class="beat idea"><div class="tag">The light-bulb argument</div>
+      <p>Know a bulb's wattage, and its apparent brightness alone tells you how far off it is: brightness falls as the square of distance. Measure the <b>flux</b> you receive, compare to the known output, and invert the <b>inverse-square law</b>. The whole game is finding a cosmic bulb of known wattage.</p></div>
+    <div class="beat test"><div class="tag">Type Ia supernovae</div>
+      <p>A <b>Type Ia supernova</b> is the explosion of a <b>white dwarf</b> in a binary — the dead core of a star not massive enough to become a neutron star or black hole. It detonates near a universal mass threshold, so these explosions reach nearly the same peak luminosity every time: a standard candle bright enough to see across the cosmos.</p></div>
+    <div class="beat found"><div class="tag">A light curve you can recognise</div>
+      <p>Type Ia events also share a characteristic <b>light curve</b> — a distinctive rise and fall of brightness over weeks. That recognisable shape both confirms the candle's identity and, in Chapter 5, carries the single most decisive clue about expansion.</p></div>
+  </div>
+
+  <figure style="margin:18px 0 6px"><canvas id="ia_canvas" width="900" height="320"></canvas>
+    <figcaption>A Type Ia on loop: a white dwarf (right) siphons gas from a bloated red-giant companion (left) until it nears the <b>Chandrasekhar mass</b> (~1.4 M☉) — then it detonates, flares to a peak brightness that is nearly the same for every such explosion, and the ejecta expand and fade. That repeatable peak is what turns the blast into a standard candle.</figcaption></figure>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Push the supernova away — watch the flux fall as 1/d²</h3>
+    <p class="hint">The explosion has a fixed true luminosity. Slide it outward and the light you collect drops as the square of distance. A candle of <i>known</i> $L$ turns a measured flux straight into a distance.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Distance <b><span id="sc_dlbl">100</span></b> Mpc</label>
+        <input id="sc_d" type="range" min="10" max="600" step="2" value="100">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Relative flux</div><div class="v"><span id="sc_flux">—</span></div></div>
+      <div class="stat"><div class="k">vs. at 10 Mpc</div><div class="v"><span id="sc_ratio">—</span><small>×</small></div></div>
+      <div class="stat"><div class="k">Distance modulus m−M</div><div class="v" id="sc_dm">—</div></div>
+    </div>
+    <figure><canvas id="sc_canvas" width="900" height="300"></canvas>
+      <figcaption>Left: the same supernova at the slider distance, its collected light spread over a sphere of area $4\pi d^2$. Right: the inverse-square curve, with your current distance marked — halve the distance and the flux quadruples.</figcaption></figure>
+    <div id="sc_plot" class="plot" style="height:300px"></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>One supernova is noise — a thousand draw the cosmos</h3>
+    <p class="hint">No real result rests on a single explosion. Modern analyses fit a <b>Hubble diagram</b> — distance modulus against redshift — through <i>hundreds to thousands</i> of Type Ia supernovae at once. Drag the sample size up: a lone point with $\pm0.15$ mag of scatter could sit almost anywhere, but as the count grows the cloud sharpens into the expansion law and the inferred rate tightens as $1/\sqrt{N}$.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Supernovae in the sample <b><span id="hd_nlbl">1</span></b></label>
+        <input id="hd_n" type="range" min="1" max="600" step="1" value="1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Supernovae used</div><div class="v" id="hd_n2">1</div></div>
+      <div class="stat"><div class="k">H₀ uncertainty (stat.)</div><div class="v">±<span id="hd_unc">—</span><small>%</small></div></div>
+      <div class="stat"><div class="k">Per-SN scatter</div><div class="v">±0.15<small> mag</small></div></div>
+    </div>
+    <div id="hd_plot" class="plot tall"></div>
+    <div class="verdict" id="hd_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The modern many-supernova surveys</h4>
+    <p>Edwin Hubble's 1929 diagram used just a few dozen galaxies and Cepheid distances. Type Ia supernovae took over as the long-range candle, and in 1998 two teams used them to discover the <i>accelerating</i> expansion. Today the <b>Pantheon+</b> compilation fits about $1{,}550$ Type Ia supernovae spanning $0.001<z<2.3$, and the <b>James Webb Space Telescope</b> is sharpening their host-galaxy distances and pushing the sample to higher redshift. The single-candle physics of this chapter is real — but the cosmology is always read from the <i>ensemble</i>.</p>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> From flux to distance, and the magnitude shorthand</h4>
+    <p class="lead">The inverse-square law, then the logarithmic units astronomers actually use.</p>
+    <ol>
+      <li><b>Spread the light over a sphere.</b> A source of luminosity $L$ seen from distance $d$ delivers a flux $F=\dfrac{L}{4\pi d^2}$ — the energy is diluted across the sphere's area.</li>
+      <li><b>Invert for distance.</b> If $L$ is known (the candle is standard), then $d=\sqrt{\dfrac{L}{4\pi F}}$ — a measured flux becomes a distance.</li>
+      <li><b>Use magnitudes.</b> Astronomers package the same ratio logarithmically as the <b>distance modulus</b> $m-M=5\log_{10}\!\big(d/10\,\text{pc}\big)$, where $M$ (absolute) is the candle's known output and $m$ (apparent) is what we measure.</li>
+    </ol>
+    <div class="concl"><b>The yield:</b> a distance to pair with the redshift velocity — the two numbers Hubble's law needs. With both in hand, the next chapter finds a feature of the light curves that no static-universe model can fake.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why a white dwarf makes such a good candle</h4>
+    <p>A white dwarf accreting from a companion approaches the <b>Chandrasekhar mass</b> ($\approx1.4\,M_\odot$), a sharp physical threshold set by quantum pressure. Detonation at a nearly universal mass means a nearly universal energy release — hence a repeatable peak luminosity. Small variations correlate with light-curve width and are calibrated out, tightening the candle to a few-percent distance precision.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Two identical supernovae sit at $50$ Mpc and $150$ Mpc. By what factor is the nearer one brighter?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Inverse-square ratio.</b> $\dfrac{F_{50}}{F_{150}}=\left(\dfrac{150}{50}\right)^2$.</li>
+          <li><b>Evaluate.</b> $=3^2=9$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $9\times$ brighter — three times closer means nine times the flux, the steep leverage that makes faint candles into precise distances.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A Type Ia has absolute magnitude $M=-19.3$. It is observed at apparent magnitude $m=16.7$. Find its distance from $m-M=5\log_{10}(d/10\,\text{pc})$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance modulus.</b> $m-M=16.7-(-19.3)=36.0$.</li>
+          <li><b>Solve.</b> $\log_{10}(d/10\,\text{pc})=36.0/5=7.2$, so $d=10\times10^{7.2}$ pc.</li>
+          <li><b>Evaluate.</b> $d=10^{8.2}$ pc $=1.585\times10^{8}$ pc $=158$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $d\approx158$ Mpc — a distance pulled from brightness alone, ready to pair with the object's redshift.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The same candle is moved from $100$ Mpc to $400$ Mpc. By how many magnitudes does it dim? (Use $\Delta m=5\log_{10}(d_2/d_1)$.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance ratio.</b> $d_2/d_1=400/100=4$.</li>
+          <li><b>Magnitude change.</b> $\Delta m=5\log_{10}4=5\times0.602=3.01$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $3$ magnitudes fainter — a factor $\approx16$ in flux, the same $1/d^2$ dimming the lab makes visible.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. THE DECISIVE TEST -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="dilation">
+  <span class="era">Chapter 5 · The verdict · Expansion's unforgeable signature</span>
+  <h2>Distant explosions fade in slow motion</h2>
+  <p class="who">Light curves stretched by (1+z) · cosmic time dilation · the observation a tired-light universe cannot reproduce</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">A clock you can watch explode</div>
+      <p>Every Type Ia supernova rises and fades on the same intrinsic schedule — a built-in clock. So if anything stretches the <i>arrival times</i> of a distant explosion's light, we can detect it by simply timing how long the event appears to last.</p></div>
+    <div class="beat idea"><div class="tag">Expansion should slow the clock</div>
+      <p>If space is expanding, later photons travel across a slightly larger universe than earlier ones — so the whole event arrives <b>spread out in time</b>. The prediction is sharp: a supernova at redshift $z$ should appear to evolve slower by exactly the factor $(1+z)$. This is <b>cosmic time dilation</b>.</p></div>
+    <div class="beat test"><div class="tag">The measurement</div>
+      <p>Astronomers timed the light curves of supernovae across a range of redshifts. The distant ones genuinely <b>last longer</b> — their light curves are stretched, and stretched by precisely $(1+z)$. The same factor that reddens the light also slows its clock.</p></div>
+    <div class="beat found"><div class="tag">A discriminating result</div>
+      <p>This is the crux of the keynote's comparison. A redshift could, in principle, come from many causes — but only an <b>expanding universe</b> stretches <i>time</i> along with wavelength. A photon that merely lost energy en route would redden without ever slowing the explosion's clock. The data show the slowing. The clock decides.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Stretch a supernova's light curve — and pick the model</h3>
+    <p class="hint">The template is a nearby ($z=0$) Type Ia light curve. Raise the redshift, then choose what nature does to it: an <b>expanding universe</b> widens the curve by $(1+z)$ in time, while a <b>tired-light</b> photon-decay model reddens it but leaves its duration untouched. Only one matches the observations.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Supernova redshift <b>z = <span id="td_zlbl">0.5</span></b></label>
+        <input id="td_z" type="range" min="0" max="1.0" step="0.02" value="0.5">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="act" id="td_exp">expanding universe — stretch by (1+z)</button>
+      <button class="act" id="td_tl">tired light — no stretch</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Predicted stretch</div><div class="v"><span id="td_factor">—</span><small>×</small></div></div>
+      <div class="stat"><div class="k">Apparent duration</div><div class="v"><span id="td_dur">—</span><small> days</small></div></div>
+      <div class="stat"><div class="k">Matches data?</div><div class="v" id="td_match" style="font-size:15px">—</div></div>
+    </div>
+    <div id="td_plot" class="plot tall"></div>
+    <div class="verdict" id="td_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>One factor, two faces</h4>
+    <p>The relation $\Delta t_{\text{obs}}=(1+z)\,\Delta t_{\text{emit}}$ is not an extra assumption bolted on — it is the <i>time-domain twin</i> of $\lambda_{\text{obs}}=(1+z)\,\lambda_{\text{rest}}$. A wave's wavelength and its period are stretched by the same expansion, because both are just "distance between successive crests" measured in space and in time. Confirming the time stretch independently confirms that the wavelength stretch is genuine expansion, not energy loss.</p>
+  </div>
+
+  <div class="vquote">
+    <p>"Type Ia supernovae show cosmic time dilation: distant ones appear to evolve and fade slower, their light curves stretched by a factor of $(1+z)$ — confirming the expansion of the universe and Einstein's relativity."</p>
+    <span class="src">— the keynote's central evidence slide, after Scientific American's report on time-dilation measurements in exploding stars.</span>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A nearby Type Ia takes $20$ days to fade by a set amount. At $z=0.5$, how long should the <i>same</i> fade appear to take in an expanding universe?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Stretch factor.</b> $1+z=1.5$.</li>
+          <li><b>Apply it.</b> $\Delta t_{\text{obs}}=1.5\times20=30$ days.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $30$ days — fully half again as long, a stretch large enough to measure cleanly, and exactly what is seen.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A distant supernova's light curve is observed to last $1.8\times$ as long as a local one. What redshift does the time-dilation factor imply?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Set the factor.</b> $1+z=1.8$.</li>
+          <li><b>Solve.</b> $z=0.8$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z=0.8$ — and the wavelength redshift measured from the same spectrum agrees, the consistency that nails expansion.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A tired-light model says photons lose energy over distance but arrival <i>times</i> are unaffected. What apparent light-curve duration does it predict for the $z=0.5$ supernova of problem 1, and how does that test the model?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Tired-light prediction.</b> No time stretch: $\Delta t_{\text{obs}}=20$ days, unchanged from the local value.</li>
+          <li><b>Compare with data.</b> Observation gives $\approx30$ days, matching $(1+z)$ expansion, not the flat tired-light value.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> tired light predicts $20$ days; the sky shows $30$. The measured slowing falsifies energy-loss redshift and confirms expansion.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. TIRED LIGHT -->
+<!-- ============================================================= -->
+<section class="chapter hist" id="tired">
+  <span class="era">Chapter 6 · The alternative · A tempting idea that fails the tests</span>
+  <h2>What if the light just grew tired on the way?</h2>
+  <p class="who">Photons losing energy to plasma, gravity, the microwave background · why every clean test still points to expansion</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Space is not empty</div>
+      <p>A photon's journey can span billions of light-years through space that is <b>not</b> a pure vacuum: it is threaded with <b>plasma</b> (gas of charged particles), bathed in the <b>cosmic microwave background</b>, and woven with gravitational fields. It is reasonable to ask whether the light is altered along the way.</p></div>
+    <div class="beat idea"><div class="tag">The tired-light hypothesis</div>
+      <p>The <b>tired light</b> idea proposes exactly that: photons gradually <i>lose energy</i> over distance — to gravity, to interactions with the plasma — so more distant light arrives redder. It would reproduce Hubble's law without any expansion, a static universe in which only the photons age.</p></div>
+    <div class="beat test"><div class="tag">Confront it with data</div>
+      <p>A good alternative must match every observation, not just the one it was built for. Tired light explains the redshift–distance trend by construction — so the decisive tests are the things it <i>didn't</i> set out to explain: the timing of supernovae, the brightness of distant galaxies, the spectrum of the microwave background.</p></div>
+    <div class="beat found"><div class="tag">Where it breaks</div>
+      <p>It fails the clock. Energy loss reddens a photon but cannot stretch the <i>duration</i> of an event — yet distant supernovae demonstrably fade in slow motion by $(1+z)$ (Chapter 5). Add the surface-brightness and microwave-background tests below and the static picture cannot stand. Expansion survives every test at once.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Score the two models against the evidence</h3>
+    <p class="hint">Pick an observational test. The plot shows what each model predicts and what the sky actually does; the verdict says which survives. Expansion is the only model that passes all four.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Observational test</label>
+        <select id="tl_test">
+          <option value="time" selected>Supernova time dilation</option>
+          <option value="tolman">Surface brightness (Tolman test)</option>
+          <option value="cmb">CMB blackbody spectrum</option>
+          <option value="hubble">Redshift–distance linearity</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Tired light predicts</div><div class="v" id="tl_pred_tl" style="font-size:14px">—</div></div>
+      <div class="stat"><div class="k">Expansion predicts</div><div class="v" id="tl_pred_ex" style="font-size:14px">—</div></div>
+      <div class="stat"><div class="k">Sky shows</div><div class="v" id="tl_obs" style="font-size:14px">—</div></div>
+    </div>
+    <div id="tl_plot" class="plot tall"></div>
+    <div class="verdict" id="tl_verdict"></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The Tolman surface-brightness test</h4>
+    <p>The cleanest discriminator after time dilation. In an expanding universe the surface brightness of a galaxy falls as $(1+z)^{-4}$ — one factor of $(1+z)$ each from time dilation, photon-energy redshift, and two from angular-area dimming. A static tired-light universe predicts only $(1+z)^{-1}$. The steep observed dimming matches expansion, not energy loss. Together with the perfect blackbody form of the <b>cosmic microwave background</b> — which scattering-based tired light would smear — the evidence converges hard.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> At $z=1$, by what factor does surface brightness dim under expansion $(1+z)^{-4}$ versus tired light $(1+z)^{-1}$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Expansion.</b> $(1+1)^{-4}=2^{-4}=1/16$.</li>
+          <li><b>Tired light.</b> $(1+1)^{-1}=1/2$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> expansion dims by $16\times$, tired light by only $2\times$ — an eightfold difference the Tolman test resolves decisively in favour of expansion.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A tired-light model tuned to fit Hubble's law predicts no light-curve stretching. Supernovae at $z=0.3,0.6,0.9$ are observed to last $1.3,1.6,1.9\times$ a local event. Which model do the numbers support?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Expansion prediction.</b> $1+z=1.3,1.6,1.9$ — identical to the data.</li>
+          <li><b>Tired-light prediction.</b> $1.0$ at every redshift — flatly contradicted.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the stretch tracks $(1+z)$ exactly, supporting expansion; tired light's "no stretch" is ruled out at every redshift.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Tired light needs photons to lose energy to intervening matter. Qualitatively, why would such scattering also <i>blur</i> distant galaxies — and what does the sharpness of real images imply?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Scattering deflects.</b> Any interaction that drains a photon's energy will, in general, also change its direction, smearing point sources into fuzz.</li>
+          <li><b>Observation.</b> Distant galaxies are imaged sharply, with no redshift-dependent blurring.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> energy-loss-by-collision should blur images; the crispness of high-$z$ galaxies argues against it, while cosmological redshift (pure wavelength stretch) introduces no blur.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. RELATIVISTIC DOPPLER -->
+<!-- ============================================================= -->
+<section class="chapter" id="relativistic">
+  <span class="era">Chapter 7 · High speeds · When v ≈ cz is no longer allowed</span>
+  <h2>The relativistic Doppler effect</h2>
+  <p class="who">Why the naïve $v=cz$ breaks · folding time dilation into the shift · the factor $\sqrt{(1+\beta)/(1-\beta)}$</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The classical shift, recalled</div>
+      <p>For everyday speeds the Doppler shift is linear: $z\approx\beta$, where $\beta=v/c$. It works for Andromeda and for nearby galaxies. But push $\beta$ toward $1$ and it predicts $z$ growing without limit and velocities exceeding $c$ — nonsense.</p></div>
+    <div class="beat idea"><div class="tag">The moving source also runs slow</div>
+      <p>Relativity adds a second effect the classical formula omits: a source rushing away is itself <b>time-dilated</b>, its emission clock ticking slow by the Lorentz factor $\gamma$. The observed shift is the classical wave-stretching <i>multiplied</i> by that slowdown.</p></div>
+    <div class="beat test"><div class="tag">The combined formula</div>
+      <p>The two effects merge into the <b>relativistic Doppler effect</b>: $1+z=\sqrt{\dfrac{1+\beta}{1-\beta}}$. At small $\beta$ it reduces to $z\approx\beta$; as $\beta\to1$, $z\to\infty$ smoothly — without the velocity ever reaching $c$.</p></div>
+    <div class="beat found"><div class="tag">Why it matters here</div>
+      <p>Quasars and the fastest jets reach $z$ of several. Interpreting those shifts demands the relativistic formula — and understanding <i>why</i> it has a $\gamma$ in it sends us, in Chapter 8, to the Lorentz transformation and a single bouncing photon.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Classical vs relativistic — watch them part company</h3>
+    <p class="hint">Raise the speed $\beta=v/c$. At low speed the linear $z=\beta$ and the relativistic $z=\sqrt{(1+\beta)/(1-\beta)}-1$ agree. As $\beta$ climbs they diverge sharply: relativity bends upward toward infinite redshift while velocity stays below $c$.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Source speed <b>β = v/c = <span id="rd_blbl">0.30</span></b></label>
+        <input id="rd_b" type="range" min="0" max="0.98" step="0.01" value="0.30">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Lorentz factor γ</div><div class="v" id="rd_gamma">—</div></div>
+      <div class="stat"><div class="k">Classical z = β</div><div class="v" id="rd_zc">—</div></div>
+      <div class="stat"><div class="k">Relativistic z</div><div class="v" id="rd_zr">—</div></div>
+      <div class="stat"><div class="k">Naïve cz</div><div class="v"><span id="rd_naive">—</span><small> ×c</small></div></div>
+    </div>
+    <div id="rd_plot" class="plot tall"></div>
+    <div class="verdict" id="rd_verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Building the relativistic Doppler factor</h4>
+    <p class="lead">Classical wave-stretching, times the source's own time dilation.</p>
+    <ol>
+      <li><b>Classical recession stretch.</b> In the time between two crests the source moves away, lengthening the wavelength by $(1+\beta)$ in the observer's frame.</li>
+      <li><b>The source clock runs slow.</b> The emitter is moving, so its period is dilated by $\gamma=\dfrac{1}{\sqrt{1-\beta^2}}$ — fewer crests per second leave it than its rest frame would say.</li>
+      <li><b>Combine.</b> $1+z=\gamma\,(1+\beta)=\dfrac{1+\beta}{\sqrt{1-\beta^2}}=\dfrac{1+\beta}{\sqrt{(1-\beta)(1+\beta)}}=\sqrt{\dfrac{1+\beta}{1-\beta}}$.</li>
+    </ol>
+    <div class="concl"><b>The result:</b> $1+z=\sqrt{\dfrac{1+\beta}{1-\beta}}$. The whole correction over the classical formula is that factor of $\gamma$ — and the next chapter derives $\gamma$ itself from nothing but a light clock and Pythagoras.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>When do you actually need relativity?</h4>
+    <p>Relativistic Doppler effects matter only when speeds approach $c$ (or, cosmologically, when distances are vast). One of Einstein's postulates is that <b>light travels at the same speed for every observer</b>; holding that fixed forces moving clocks to run slow, which is the $\gamma$ above. For everyday speeds far below $c$, $\gamma\to1$ and the humble <b>Galilean</b> formula $z\approx\beta$ is all you need.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A jet recedes at $\beta=0.6$. Find the Lorentz factor $\gamma$ and the relativistic redshift $z$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Lorentz factor.</b> $\gamma=\dfrac{1}{\sqrt{1-0.6^2}}=\dfrac{1}{\sqrt{0.64}}=1.25$.</li>
+          <li><b>Redshift.</b> $1+z=\sqrt{\dfrac{1.6}{0.4}}=\sqrt{4}=2$, so $z=1.0$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\gamma=1.25$, $z=1.0$ — whereas the naïve $z=\beta$ would have said $0.6$, a $40\%$ error at this speed.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A quasar shows $z=2$. Treating it as a pure relativistic Doppler shift, what recession $\beta$ does $1+z=\sqrt{(1+\beta)/(1-\beta)}$ give?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Square it.</b> $(1+z)^2=9=\dfrac{1+\beta}{1-\beta}$.</li>
+          <li><b>Solve.</b> $9(1-\beta)=1+\beta\Rightarrow 8=10\beta\Rightarrow\beta=0.8$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\beta=0.8$ — comfortably below $1$, unlike the naïve $cz=2c$ the linear law would demand.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Show the relativistic formula reduces to the classical one for small $\beta$. Expand $\sqrt{(1+\beta)/(1-\beta)}$ to first order in $\beta$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>First-order expansions.</b> $(1+\beta)^{1/2}\approx1+\tfrac{\beta}{2}$ and $(1-\beta)^{-1/2}\approx1+\tfrac{\beta}{2}$.</li>
+          <li><b>Multiply.</b> $\left(1+\tfrac{\beta}{2}\right)\left(1+\tfrac{\beta}{2}\right)\approx1+\beta$, so $z\approx\beta$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z\approx\beta$ — the classical Doppler law is the low-speed limit, which is why $v=cz$ is safe for nearby galaxies.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. THE LIGHT CLOCK -->
+<!-- ============================================================= -->
+<section class="chapter" id="lorentz">
+  <span class="era">Chapter 8 · The foundation · Where γ comes from</span>
+  <h2>One bouncing photon, Pythagoras, and the Lorentz factor</h2>
+  <p class="who">The light clock · constant light speed forces time to bend · deriving $\gamma$ and the time-dilation that powers the relativistic Doppler shift</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">Changing perspective</div>
+      <p>In a spacetime diagram you are always at the origin; to describe someone moving relative to you, you must transform their coordinates onto yours. The crude "just slide everything over" recipe — a <b>shear transformation</b> — has a fatal flaw: it changes <i>every</i> velocity, including light's.</p>
+      <figure style="margin-top:12px"><canvas id="sh_canvas" width="880" height="250"></canvas>
+        <figcaption>A shear <i>can</i> stand the moving object's worldline upright (right) — but it drags the light line off $45°$, so the speed of light comes out different in the new frame. The dashed line marks where light <i>should</i> be. That broken invariance is exactly what the Lorentz transformation repairs.</figcaption></figure></div>
+    <div class="beat idea"><div class="tag">Light's speed is sacred</div>
+      <p>Because light travels at the same speed from a moving source as from a still one, any valid change of perspective must leave the speed of light unchanged in <i>all</i> directions. The transformation that does this — leaving one speed invariant while adjusting all others — is the <b>Lorentz transformation</b>.</p></div>
+    <div class="beat test"><div class="tag">A clock made of light</div>
+      <p>To see the consequence, build a <b>light clock</b>: a photon bouncing between two mirrors, one tick per bounce off the lower mirror. Stationary, the photon goes straight up and down. Set the clock moving, and from our frame the photon must travel a longer, diagonal path — yet at the same speed $c$.</p></div>
+    <div class="beat found"><div class="tag">So the moving clock runs slow</div>
+      <p>Same speed, longer path, therefore <b>more time per tick</b>: the moving clock ticks slower. Pythagoras turns that picture into the exact factor $\gamma$ — the very $\gamma$ that sits inside the relativistic Doppler formula of Chapter 7.</p></div>
+  </div>
+
+  <h3 class="subhead"><span class="n">A</span>From a cat's-eye view — the spacetime picture</h3>
+  <p class="leadin">Before the light clock, here is the picture the keynote draws to make the Lorentz transformation <i>intuitive</i>. Plot position $X$ across and time $T$ up. You, sitting still, trace a vertical line. A cat gliding past traces a tilted line — and the tilt <b>is</b> its velocity, distance over time. From the cat's own point of view it sits still and <i>you</i> are the tilted line, inverted. To compare the two perspectives fairly we must re-draw the grid so one of them stands upright — but <i>how</i> we re-draw it is the whole story.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The spacetime globe — skew the grid, keep light at 45°</h3>
+    <p class="hint">Position runs left–right ($X$), time runs bottom–top ($T$). The white line is you; the rose line is a cat passing at $0.6\,c$; the yellow lines are light. Change perspective with the slider — you ride into a new frame, so its grid stays upright and the worldlines swing. Pick <i>how</i> they swing: a <b>shear</b> (the naïve Galilean slide) leaves the light line <b>bent</b> — its slope, hence its speed, has changed, which is forbidden. A <b>Lorentz</b> boost keeps both light lines pinned at exactly $45°$ while the cat swings upright (at $u=0.6$) and your line tips the opposite way — light's speed unchanged for everyone, in every direction.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Shift to a frame moving at <b>u = <span id="st_ulbl">0.00</span> c</b></label>
+        <input id="st_u" type="range" min="-0.8" max="0.8" step="0.01" value="0">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button class="act" id="st_lor">Lorentz transformation</button>
+      <button class="act" id="st_gal">shear (Galilean)</button>
+      <button class="act" id="st_cat">jump to the cat's frame (u = 0.6)</button>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Lorentz factor γ</div><div class="v" id="st_gamma">—</div></div>
+      <div class="stat"><div class="k">Light speed in this frame</div><div class="v"><span id="st_cspeed">—</span><small> c</small></div></div>
+      <div class="stat"><div class="k">Cat's speed in this frame</div><div class="v"><span id="st_catspeed">—</span><small> c</small></div></div>
+    </div>
+    <figure><canvas id="st_canvas" width="900" height="460"></canvas>
+      <figcaption>You ride in the chosen frame, so its grid stays upright (cyan = time axis, green = space axis) and the worldlines skew. Under a <b>Lorentz</b> boost both yellow light lines stay locked at $45°$ while the cat's line swings upright at $u=0.6$ and yours tips the other way — from the cat's seat, you are now the moving one. Under a <b>shear</b> the cat still comes upright, but the light line bends: its speed would change, which nature forbids.</figcaption></figure>
+    <div class="verdict" id="st_verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why a shear fails and a Lorentz boost works</h4>
+    <p class="lead">The cat-and-person argument, in four steps.</p>
+    <ol>
+      <li><b>A velocity is an angle.</b> On the $X$–$T$ diagram, a worldline's tilt from vertical is exactly distance-over-time — its speed. So changing someone's speed means changing the angle of their line.</li>
+      <li><b>The naïve fix shears.</b> To put the cat upright you could just slide every row sideways until the cat's line stands vertical (a <b>shear transformation</b>). It works for the cat — but because it tips <i>all</i> lines by an amount that grows with time, it changes <b>every</b> velocity, the $45°$ light line included.</li>
+      <li><b>But light's angle is sacred.</b> Light travels at the same speed from a moving source as a still one, so its line must stay at $45°$ in every frame. A shear breaks that — its measured light speed becomes $(1-u)\,c$ — so a shear cannot be the right way to change perspective.</li>
+      <li><b>Lorentz rotates about the light line.</b> The correct move scissors the space and time axes <i>symmetrically</i> toward the $45°$ line, leaving that one speed fixed while every other speed changes. The light line is unchanged in <b>all</b> directions — and that single requirement <i>is</i> the <b>Lorentz transformation</b>.</li>
+    </ol>
+    <div class="concl"><b>The payoff:</b> holding light's angle fixed forces time and space themselves to skew between observers. That skew is time dilation and length contraction — and the light clock below turns it into the exact factor $\gamma$.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Where this picture comes from</h4>
+    <p>The keynote builds this from a short video — <a class="inline" href="https://www.youtube.com/watch?v=Rh0pYtQG5wI" target="_blank" rel="noopener">youtube.com/watch?v=Rh0pYtQG5wI</a> — which demonstrates the idea with a physical <b>“spacetime globe”</b> toy: a grid of sliding bars carrying dots like events on a plot. Pull the bars and the $X$ and $T$ axes scissor to exactly the relativistic angle, so two observers' perspectives can be compared while the diagonal light line holds firm. The interactive above is that toy in software — drag the slider and watch the same bars skew.</p>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Run two light clocks — one still, one moving</h3>
+    <p class="hint">Left: a stationary light clock, the photon bouncing straight up and down. Right: the same clock moving at $\beta=v/c$, the photon tracing a longer diagonal at the identical speed $c$. The longer path is why its tick takes $\gamma$ times as long.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Clock speed <b>β = v/c = <span id="lc_blbl">0.60</span></b></label>
+        <input id="lc_b" type="range" min="0" max="0.95" step="0.01" value="0.60">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Lorentz factor γ</div><div class="v" id="lc_gamma">—</div></div>
+      <div class="stat"><div class="k">Path length ratio</div><div class="v"><span id="lc_path">—</span><small>×</small></div></div>
+      <div class="stat"><div class="k">Moving tick lasts</div><div class="v"><span id="lc_tick">—</span><small>× longer</small></div></div>
+    </div>
+    <figure><canvas id="lc_canvas" width="900" height="380"></canvas>
+      <figcaption>Both photons move at exactly $c$. The moving clock's photon (right) covers the hypotenuse while the still one (left) covers only the vertical leg — so the moving clock logs fewer ticks in the same elapsed time.</figcaption></figure>
+  </div>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> The light-clock derivation of time dilation</h4>
+    <p class="lead">Exactly the keynote's chain: one right triangle, solved for the period.</p>
+    <ol>
+      <li><b>Stationary clock.</b> The photon crosses a gap $L_0$ at speed $c$, so a half-tick is $T_0/2=L_0/c$, i.e. the rest period is $T_0=2L_0/c$.</li>
+      <li><b>Moving clock, the triangle.</b> In our frame the clock moves a distance $vT/2$ sideways while the photon climbs $L_0$, so the photon's diagonal is the hypotenuse: $\left(\dfrac{cT}{2}\right)^2=L_0^2+\left(\dfrac{vT}{2}\right)^2$.</li>
+      <li><b>Solve for $T$.</b> $\dfrac{c^2T^2}{4}-\dfrac{v^2T^2}{4}=L_0^2\Rightarrow \dfrac{T^2}{4}(c^2-v^2)=L_0^2\Rightarrow T=\dfrac{2L_0}{\sqrt{c^2-v^2}}$.</li>
+      <li><b>Factor out $c$.</b> $T=\dfrac{2L_0/c}{\sqrt{1-v^2/c^2}}=\dfrac{T_0}{\sqrt{1-\beta^2}}=\gamma\,T_0$.</li>
+    </ol>
+    <div class="concl"><b>The result:</b> $T=\gamma T_0$ with $\gamma=\dfrac{1}{\sqrt{1-\beta^2}}$ — the moving clock's tick is stretched by $\gamma$. Drop this $\gamma$ into Chapter 7 and the relativistic Doppler factor $\sqrt{(1+\beta)/(1-\beta)}$ is fully explained, from a single photon up.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Length contraction, and when to bother</h4>
+    <p>Run the same light clock lying along the direction of motion and the geometry instead delivers <b>length contraction</b>: moving rulers shrink by $1/\gamma$. Both effects are two readings of one Lorentz transformation. And both vanish for everyday speeds — when $\beta\ll1$, $\gamma\to1$ and the world is safely <b>Galilean</b>. Relativity is only forced on us by the stubborn constancy of $c$ at extreme speeds and cosmic distances — the same constancy that made the redshift such a clean cosmological ruler in the first place.</p>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A light clock moves at $\beta=0.8$. By what factor $\gamma$ does its tick lengthen?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Apply the formula.</b> $\gamma=\dfrac{1}{\sqrt{1-0.8^2}}=\dfrac{1}{\sqrt{1-0.64}}=\dfrac{1}{\sqrt{0.36}}$.</li>
+          <li><b>Evaluate.</b> $\gamma=\dfrac{1}{0.6}=1.667$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\gamma\approx1.67$ — the moving clock ticks two-thirds as fast, i.e. its tick lasts $1.67\times$ longer.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Use the light-clock triangle directly. With $L_0=1$ (in units where $c=1$) and $v=0.6$, solve $\left(\tfrac{T}{2}\right)^2=1+\left(\tfrac{0.6\,T}{2}\right)^2$ for the period $T$, and compare to $T_0=2$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Expand.</b> $\dfrac{T^2}{4}=1+\dfrac{0.36\,T^2}{4}\Rightarrow \dfrac{T^2}{4}(1-0.36)=1$.</li>
+          <li><b>Solve.</b> $T^2=\dfrac{4}{0.64}=6.25\Rightarrow T=2.5$.</li>
+          <li><b>Ratio.</b> $T/T_0=2.5/2=1.25=\gamma$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $T=2.5$, i.e. $\gamma=1.25$ — Pythagoras alone reproduces the Lorentz factor for $\beta=0.6$.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Connect the chapters: a source recedes at $\beta=0.6$. Using $1+z=\gamma(1+\beta)$ with the $\gamma=1.25$ just found, compute $z$ and confirm it matches $\sqrt{(1+\beta)/(1-\beta)}$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Via $\gamma(1+\beta)$.</b> $1+z=1.25\times1.6=2.0$, so $z=1.0$.</li>
+          <li><b>Via the closed form.</b> $\sqrt{1.6/0.4}=\sqrt{4}=2.0$ — identical.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z=1.0$ both ways — the light-clock $\gamma$ feeds straight into the relativistic Doppler shift, closing the loop from a bouncing photon to a quasar's redshift.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- SELF-TEST QUIZ -->
+<!-- ============================================================= -->
+<section class="chapter" id="quiz">
+  <span class="era">Check yourself · Eighteen questions</span>
+  <h2>Did the light tell you what you think?</h2>
+  <p class="who">Eighteen questions spanning absorption spectra, redshift and expansion, Cepheids and Hubble's ladder, standard candles, cosmic time dilation, the tired-light comparison, and the relativistic Doppler effect</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Self-test</h3>
+    <p class="hint">Pick an answer for each question. Correct choices turn green, mistakes turn red, and a short explanation appears either way. Your running score sits at the top; nothing is sent anywhere.</p>
+    <div class="quiz-head">
+      <div class="quiz-score">Score <b><span id="qz_correct">0</span></b> / <span id="qz_total">16</span> &nbsp;·&nbsp; <span id="qz_answered">0</span> answered</div>
+      <div class="quiz-bar"><i id="qz_fill"></i></div>
+      <button class="quiz-reset" id="qz_reset" type="button">Reset</button>
+    </div>
+    <div id="qz_list"></div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A walk through the physics of redshift, built to mirror the keynote “Examining evidence for universe expansion through comparing redshift and ‘tired light’.” It rebuilds the working chain: the atomic barcode of absorption spectra, the Doppler reading of its shift, the balloon picture of expanding space, Type Ia supernovae as standard candles, the $(1+z)$ time dilation that discriminates expansion from tired light, and the relativistic Doppler effect with its Lorentz-transformation roots in a single light clock.</p>
+  <p style="margin-top:8px"><b>Key numbers retraced:</b> redshift $z=(\lambda_{\text{obs}}-\lambda_{\text{rest}})/\lambda_{\text{rest}}$ and $v\approx cz$; Andromeda's blueshift $-321$ km/s from a $-6.3$ Å sodium shift at $5890$ Å; Hubble's law $v=H_0 d$ with $H_0\approx70$ km/s/Mpc; the inverse-square law $F=L/4\pi d^2$; cosmic time dilation $\Delta t_{\text{obs}}=(1+z)\Delta t_{\text{emit}}$; relativistic Doppler $1+z=\sqrt{(1+\beta)/(1-\beta)}=\gamma(1+\beta)$; and the light-clock identity $\left(\tfrac{cT}{2}\right)^2=L_0^2+\left(\tfrac{vT}{2}\right)^2\Rightarrow T=\gamma T_0$.</p>
+</footer>
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:56,r:16,t:16,b:46},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7'};
+const CKMS=299792;  // speed of light, km/s
+// approximate visible-wavelength (nm) -> rgb
+function waveRGB(wl){
+  let r=0,g=0,b=0;
+  if(wl>=380&&wl<440){ r=-(wl-440)/60; b=1; }
+  else if(wl<490){ g=(wl-440)/50; b=1; }
+  else if(wl<510){ g=1; b=-(wl-510)/20; }
+  else if(wl<580){ r=(wl-510)/70; g=1; }
+  else if(wl<645){ r=1; g=-(wl-645)/65; }
+  else if(wl<=780){ r=1; }
+  else { r=0.35; } // near-IR: dim red
+  if(wl<380){ b=0.4; }
+  let f=1;
+  if(wl>700) f=0.3+0.7*(780-wl)/80; if(f<0.25) f=0.25;
+  if(wl<420) f=0.3+0.7*(wl-360)/60;
+  return [Math.round(255*Math.max(0,Math.min(1,r*f))),
+          Math.round(255*Math.max(0,Math.min(1,g*f))),
+          Math.round(255*Math.max(0,Math.min(1,b*f)))];
+}
+</script>
+
+<!-- ---- Lab 1: absorption-spectrum redshift ---- -->
+<script>
+(function(){
+  const zEl=document.getElementById('sp_z'); if(!zEl) return;
+  const zval=document.getElementById('sp_zval'), vO=document.getElementById('sp_v'),
+        haO=document.getElementById('sp_ha'), dirO=document.getElementById('sp_dir'),
+        cv=document.getElementById('sp_canvas'), x=cv.getContext('2d');
+  // rest wavelengths (nm): label, wl
+  const LINES=[
+    ['Ca K',393.4],['Ca H',396.8],['Hδ',410.2],['Hγ',434.0],
+    ['Hβ',486.1],['Na D',589.0],['Hα',656.3]
+  ];
+  const WMIN=380, WMAX=880;
+  function xof(wl, x0,x1){ return x0+(wl-WMIN)/(WMAX-WMIN)*(x1-x0); }
+  function strip(yTop,yBot, z){
+    const x0=70, x1=cv.width-20;
+    // rainbow background
+    for(let px=x0;px<=x1;px++){
+      const wl=WMIN+(px-x0)/(x1-x0)*(WMAX-WMIN);
+      const c=waveRGB(wl);
+      x.fillStyle='rgb('+c[0]+','+c[1]+','+c[2]+')';
+      x.fillRect(px,yTop,1,yBot-yTop);
+    }
+    // absorption lines
+    LINES.forEach(L=>{
+      const wl=L[1]*(1+z);
+      if(wl<WMIN||wl>WMAX) return;
+      const px=xof(wl,x0,x1);
+      x.fillStyle='rgba(5,6,13,0.92)'; x.fillRect(px-1.5,yTop,3,yBot-yTop);
+      x.fillStyle=COL.ink; x.font='10px -apple-system'; x.textAlign='center';
+      x.fillText(L[0], px, yTop<100?yTop-4:yBot+13);
+    });
+    return {x0,x1};
+  }
+  function render(){
+    const z=parseFloat(zEl.value);
+    const W=cv.width,H=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='left';
+    x.fillText('Rest frame  (laboratory, z = 0)', 70, 28);
+    const a=strip(40,110,0);
+    x.textAlign='left'; x.fillStyle=COL.muted;
+    x.fillText('Observed  (z = '+z.toFixed(3)+')', 70, 178);
+    strip(190,260,z);
+    // tie lines
+    x.strokeStyle='rgba(180,200,255,0.35)'; x.setLineDash([4,4]); x.lineWidth=1;
+    LINES.forEach(L=>{
+      const rwl=L[1], owl=L[1]*(1+z);
+      if(owl<WMIN||owl>WMAX) return;
+      const xr=xof(rwl,a.x0,a.x1), xo=xof(owl,a.x0,a.x1);
+      x.beginPath(); x.moveTo(xr,110); x.lineTo(xo,190); x.stroke();
+    });
+    x.setLineDash([]);
+    // wavelength axis ticks
+    x.fillStyle=COL.muted; x.font='10px -apple-system'; x.textAlign='center';
+    for(let wl=400;wl<=850;wl+=100){ const px=xof(wl,a.x0,a.x1); x.fillText(wl+' nm', px, 285); }
+    // readouts
+    zval.textContent=z.toFixed(3);
+    vO.textContent=(CKMS*z).toFixed(0);
+    haO.textContent=(656.3*(1+z)).toFixed(1);
+    if(z>0.0005){ dirO.textContent='redshift →'; dirO.style.color=COL.rose; }
+    else if(z<-0.0005){ dirO.textContent='← blueshift'; dirO.style.color=COL.cyan; }
+    else { dirO.textContent='at rest'; dirO.style.color=COL.ink; }
+  }
+  zEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 2: Hubble expansion ---- -->
+<script>
+(function(){
+  const hEl=document.getElementById('hb_h'); if(!hEl) return;
+  const hlbl=document.getElementById('hb_hlbl'), slbl=document.getElementById('hb_slbl'),
+        sEl=document.getElementById('hb_s'), aO=document.getElementById('hb_a'),
+        playBtn=document.getElementById('hb_play'), resetBtn=document.getElementById('hb_reset'),
+        verd=document.getElementById('hb_verdict'),
+        cv=document.getElementById('hb_canvas'), x=cv.getContext('2d');
+  // comoving galaxy grid (offsets in "Mpc-ish" units), home at 0,0
+  const GAL=[];
+  for(let i=-2;i<=2;i++) for(let j=-2;j<=2;j++){ if(i||j) GAL.push({i,j}); }
+  let a=1.0, running=true, last=null;
+  const U=26; // Mpc per grid unit
+  function render(){
+    const H0=parseFloat(hEl.value);
+    const W=cv.width,Hc=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,Hc);
+    // LEFT: expanding grid
+    const cx=235, cy=Hc/2, px=34*1.0; // px per comoving unit at a=1
+    const sc=px*a*0.62;
+    // home galaxy (cyan) at center
+    GAL.forEach(g=>{
+      const gx=cx+g.i*sc, gy=cy+g.j*sc;
+      if(gx<20||gx>440||gy<20||gy>Hc-20) return;
+      const dMpc=Math.hypot(g.i,g.j)*U*a;
+      const v=H0*dMpc/40; // arrow scale
+      // velocity arrow (radial)
+      const ang=Math.atan2(g.j,g.i);
+      x.strokeStyle='rgba(255,107,157,0.8)'; x.lineWidth=1.6;
+      x.beginPath(); x.moveTo(gx,gy);
+      const ex=gx+Math.cos(ang)*v, ey=gy+Math.sin(ang)*v;
+      x.lineTo(ex,ey); x.stroke();
+      // galaxy dot
+      x.fillStyle='#b9c6ff'; x.beginPath(); x.arc(gx,gy,3.2,0,7); x.fill();
+    });
+    x.fillStyle=COL.cyan; x.beginPath(); x.arc(cx,cy,6,0,7); x.fill();
+    x.font='11px -apple-system'; x.textAlign='center'; x.fillStyle=COL.cyan;
+    x.fillText('us', cx, cy-12);
+    x.fillStyle=COL.muted; x.font='12px -apple-system';
+    x.fillText('comoving galaxies · arrows = recession speed', cx, Hc-14);
+    // RIGHT: v vs d plot
+    const x0=505, x1=W-30, yT=40, yB=Hc-50;
+    x.strokeStyle='rgba(140,160,230,0.3)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(x0,yB); x.lineTo(x1,yB); x.moveTo(x0,yB); x.lineTo(x0,yT); x.stroke();
+    x.fillStyle=COL.muted; x.font='11px -apple-system'; x.textAlign='center';
+    x.fillText('distance  d  (Mpc)', (x0+x1)/2, Hc-14);
+    x.save(); x.translate(x0-38,(yT+yB)/2); x.rotate(-Math.PI/2);
+    x.fillText('velocity  v  (km/s)',0,0); x.restore();
+    // axis scale
+    const dMax=Math.hypot(2,2)*U*Math.max(a,1.6), vMax=parseFloat(hEl.value)*dMax;
+    // Hubble line
+    x.strokeStyle=COL.amber; x.lineWidth=2;
+    x.beginPath(); x.moveTo(x0,yB);
+    x.lineTo(x1, yB-(H0*dMax/vMax)*(yB-yT)); x.stroke();
+    // points
+    GAL.forEach(g=>{
+      const dMpc=Math.hypot(g.i,g.j)*U*a; const v=H0*dMpc;
+      const pxp=x0+dMpc/dMax*(x1-x0), pyp=yB-v/vMax*(yB-yT);
+      x.fillStyle=COL.green; x.beginPath(); x.arc(pxp,pyp,3,0,7); x.fill();
+    });
+    x.fillStyle=COL.amber; x.font='11px -apple-system'; x.textAlign='right';
+    x.fillText('slope = H₀ = '+H0+' km/s/Mpc', x1, yT+4);
+    aO.textContent=a.toFixed(2);
+    hlbl.textContent=H0;
+    verd.className='verdict good';
+    verd.innerHTML='Every galaxy recedes at <b>v = H₀d</b> — twice as far, twice as fast — and the picture is identical from <b>any</b> home galaxy. That is the balloon: no centre, uniform stretch.';
+  }
+  function loop(ts){
+    if(!running){ last=null; return; }
+    if(last==null) last=ts;
+    const dt=(ts-last)/1000; last=ts;
+    a+=dt*0.18*parseFloat(sEl.value);
+    if(a>=2.3) a=1.0;            // re-inflate: loop the movie so it never freezes
+    render(); requestAnimationFrame(loop);
+  }
+  playBtn.addEventListener('click',()=>{ running=!running; playBtn.textContent=running?'⏸ pause':'▶ play';
+    if(running){ last=null; requestAnimationFrame(loop); } });
+  resetBtn.addEventListener('click',()=>{ a=1.0; render(); });
+  hEl.addEventListener('input',render);
+  sEl.addEventListener('input',()=>{ slbl.textContent=parseFloat(sEl.value).toFixed(1); });
+  render(); requestAnimationFrame(loop);
+})();
+</script>
+
+<!-- ---- Lab 3: standard candle inverse-square ---- -->
+<script>
+(function(){
+  const dEl=document.getElementById('sc_d'); if(!dEl) return;
+  const dlbl=document.getElementById('sc_dlbl'), fO=document.getElementById('sc_flux'),
+        rO=document.getElementById('sc_ratio'), dmO=document.getElementById('sc_dm'),
+        cv=document.getElementById('sc_canvas'), x=cv.getContext('2d');
+  function drawStar(d){
+    const W=cv.width,H=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // observer at left
+    const ox=70, oy=H/2;
+    x.fillStyle=COL.cyan; x.beginPath(); x.arc(ox,oy,7,0,7); x.fill();
+    x.fillStyle=COL.muted; x.font='11px -apple-system'; x.textAlign='center';
+    x.fillText('telescope', ox, oy+22);
+    // supernova position scales with distance (10..600 -> 150..860)
+    const sx=150+(d-10)/(600-10)*(860-150), sy=H/2;
+    const f=(10/d)*(10/d); // relative to 10 Mpc
+    const glow=8+Math.sqrt(f)*46;
+    const grad=x.createRadialGradient(sx,sy,1,sx,sy,glow);
+    grad.addColorStop(0,'rgba(255,245,210,'+Math.min(1,0.5+f).toFixed(3)+')');
+    grad.addColorStop(0.4,'rgba(255,210,120,'+Math.min(0.8,0.3+f*0.6).toFixed(3)+')');
+    grad.addColorStop(1,'rgba(255,180,80,0)');
+    x.fillStyle=grad; x.beginPath(); x.arc(sx,sy,glow,0,7); x.fill();
+    x.fillStyle='#fff'; x.beginPath(); x.arc(sx,sy,3.5,0,7); x.fill();
+    x.fillStyle=COL.amber; x.font='11px -apple-system';
+    x.fillText('Type Ia · '+d+' Mpc', sx, sy+glow+16);
+    // collecting cone
+    x.strokeStyle='rgba(63,208,255,0.25)'; x.lineWidth=1; x.setLineDash([3,4]);
+    x.beginPath(); x.moveTo(sx,sy); x.lineTo(ox,oy-10); x.moveTo(sx,sy); x.lineTo(ox,oy+10); x.stroke();
+    x.setLineDash([]);
+    return f;
+  }
+  let plotInit=false;
+  function plot(d){
+    if(typeof Plotly==='undefined') return;
+    const ds=[],fs=[];
+    for(let dd=10;dd<=600;dd+=4){ ds.push(dd); fs.push((10/dd)*(10/dd)); }
+    const curve={x:ds,y:fs,mode:'lines',line:{color:COL.violet,width:2.4}};
+    const f=(10/d)*(10/d);
+    const mk={x:[d],y:[f],mode:'markers',marker:{color:COL.amber,size:11,line:{color:'#fff',width:1}}};
+    const lay=baseLayout({xaxis:{title:'distance d (Mpc)',gridcolor:'rgba(140,160,230,0.12)'},
+      yaxis:{title:'relative flux  (= (10/d)²)',type:'log',gridcolor:'rgba(140,160,230,0.12)'}});
+    if(!plotInit){ Plotly.newPlot('sc_plot',[curve,mk],lay,PCFG); plotInit=true; }
+    else Plotly.react('sc_plot',[curve,mk],lay,PCFG);
+  }
+  function render(){
+    const d=parseInt(dEl.value);
+    const f=drawStar(d); plot(d);
+    dlbl.textContent=d;
+    fO.textContent=f<0.01?f.toExponential(2):f.toFixed(3);
+    rO.textContent=(1/f).toFixed(f<0.04?0:1);
+    const dm=5*Math.log10(d*1e5); // d_pc=d*1e6; modulus=5log10(d_pc/10)=5log10(d*1e5)
+    dmO.textContent=dm.toFixed(2);
+  }
+  dEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Ch.3 lab: pulsating Cepheid + period-luminosity ---- -->
+<script>
+(function(){
+  const pEl=document.getElementById('cep_p'); if(!pEl) return;
+  const plbl=document.getElementById('cep_plbl'), mvO=document.getElementById('cep_mv'),
+        lumO=document.getElementById('cep_lum'),
+        cv=document.getElementById('cep_canvas'), x=cv.getContext('2d');
+  const W=cv.width,H=cv.height;
+  function leavM(P){ return -1.43 - 2.81*Math.log10(P); }
+  function lumOf(P){ return Math.pow(10,(4.83-leavM(P))/2.5); }    // L/Lsun
+  function bright(ph){ ph=((ph%1)+1)%1; return ph<0.18 ? 0.28+0.72*ph/0.18 : 1.0-0.72*(ph-0.18)/0.82; }
+  let simDay=0, last=null, hist=[];
+  const RATE=8;                    // simulated days per real second (constant — no period scaling)
+  function drawTrace(x0,x1,yT,yB,dFrom,dTo){
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.lineWidth=1; x.strokeRect(x0,yT,x1-x0,yB-yT);
+    const span=dTo-dFrom;
+    x.strokeStyle=COL.amber; x.lineWidth=2; x.beginPath(); let pen=false;
+    hist.forEach(h=>{ if(h.d<dFrom) return; const hx=x0+(h.d-dFrom)/span*(x1-x0), hy=yB-h.b*(yB-yT);
+      if(!pen){ x.moveTo(hx,hy); pen=true; } else x.lineTo(hx,hy); });
+    x.stroke();
+  }
+  function frame(ts){
+    if(last==null) last=ts;
+    const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    const P=parseFloat(pEl.value);
+    simDay+=RATE*dt;                              // CONSTANT real-time day clock (no period scaling)
+    const ph=(simDay/P)%1, b=bright(ph);
+    hist.push({d:simDay,b});
+    const Wm=4*P, keep=Wm+6;
+    while(hist.length && hist[0].d<simDay-keep) hist.shift();
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // pulsing star (left)
+    const cx=160, cy=H/2, R=46*(1+0.17*(1-b));
+    const g=Math.round(170+70*b), bl=Math.round(80+160*b);
+    let gl=x.createRadialGradient(cx,cy,R*0.5,cx,cy,R*2.5);
+    gl.addColorStop(0,'rgba(255,'+g+','+bl+','+(0.45*b+0.12).toFixed(3)+')'); gl.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=gl; x.beginPath(); x.arc(cx,cy,R*2.5,0,7); x.fill();
+    let gd=x.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.1,cx,cy,R);
+    gd.addColorStop(0,'rgb(255,'+Math.min(255,g+50)+','+Math.min(255,bl+60)+')');
+    gd.addColorStop(0.7,'rgb(255,'+g+','+bl+')');
+    gd.addColorStop(1,'rgb(180,'+(g*0.6|0)+','+(bl*0.5|0)+')');
+    x.fillStyle=gd; x.beginPath(); x.arc(cx,cy,R,0,7); x.fill();
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='center';
+    x.fillText('Cepheid pulsing · P = '+P.toFixed(0)+' d', cx, H-16);
+    const x0=430, x1=W-24, mT=46, mB=H-46;
+    drawTrace(x0,x1,mT,mB, simDay-Wm, simDay);
+    x.fillStyle='#fff'; x.beginPath(); x.arc(x1, mB-b*(mB-mT), 3, 0, 7); x.fill();
+    x.fillStyle=COL.muted; x.font='11px -apple-system'; x.textAlign='center';
+    x.fillText('apparent brightness vs time  (last '+Wm.toFixed(0)+' days — cadence tracks the period)', (x0+x1)/2, mT-10);
+    x.textAlign='right'; x.fillText('bright', x0-6, mT+4); x.fillText('faint', x0-6, mB);
+    requestAnimationFrame(frame);
+  }
+  function plPlot(){
+    if(typeof Plotly==='undefined') return;
+    const P=parseFloat(pEl.value), ps=[],ms=[];
+    for(let pp=2;pp<=60;pp+=0.5){ ps.push(pp); ms.push(leavM(pp)); }
+    const line={x:ps,y:ms,mode:'lines',line:{color:COL.violet,width:2.6}};
+    const mk={x:[P],y:[leavM(P)],mode:'markers',marker:{color:COL.amber,size:12,line:{color:'#fff',width:1}}};
+    const lay=baseLayout({xaxis:{title:'pulsation period P (days)',type:'log',range:[Math.log10(2),Math.log10(60)]},
+      yaxis:{title:'absolute magnitude M_V  (brighter ↑)',autorange:'reversed'}});
+    if(!plPlot.init){ Plotly.newPlot('cep_pl',[line,mk],lay,PCFG); plPlot.init=true; } else Plotly.react('cep_pl',[line,mk],lay,PCFG);
+  }
+  function upd(){ const P=parseFloat(pEl.value); plbl.textContent=P.toFixed(0); mvO.textContent=leavM(P).toFixed(2);
+    const L=lumOf(P); lumO.textContent=(L>=1000? (Math.round(L/100)*100).toLocaleString() : Math.round(L)); plPlot(); }
+  pEl.addEventListener('input',upd); upd(); requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- ---- Ch.3 lab: kappa-mechanism (helium valve) animation ---- -->
+<script>
+(function(){
+  const cv=document.getElementById('kap_canvas'); if(!cv) return;
+  const x=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const CYC=4.6;
+  const colX=400, colW=180, colBot=H-52;
+  const phot=Array.from({length:30},()=>({x:colX+12+Math.random()*(colW-24), y:colBot-Math.random()*200, sp:55+Math.random()*40}));
+  let t0=null,last=null;
+  function frame(ts){
+    if(t0==null){ t0=ts; last=ts; }
+    const dt=Math.min(0.05,(ts-last)/1000); last=ts;
+    const t=(ts-t0)/1000, p=(t%CYC)/CYC;
+    const size=0.5-0.5*Math.cos(2*Math.PI*p);       // 0 compressed .. 1 expanded
+    const opac=(1+Math.cos(2*Math.PI*p))/2;          // 1 opaque .. 0 clear
+    const expanding=Math.sin(2*Math.PI*p)>0;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // --- pulsing star (left) ---
+    const cx=175, cy=H/2, Rs=54*(0.84+0.32*size), br=0.55+0.45*(1-opac);
+    const gc=Math.round(170+70*br), bc=Math.round(90+150*br);
+    let gl=x.createRadialGradient(cx,cy,Rs*0.4,cx,cy,Rs*2.2);
+    gl.addColorStop(0,'rgba(255,'+gc+','+bc+','+(0.4*br+0.12).toFixed(2)+')'); gl.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=gl; x.beginPath(); x.arc(cx,cy,Rs*2.2,0,7); x.fill();
+    let gd=x.createRadialGradient(cx-Rs*0.3,cy-Rs*0.3,Rs*0.1,cx,cy,Rs);
+    gd.addColorStop(0,'rgb(255,'+Math.min(255,gc+50)+','+Math.min(255,bc+50)+')');
+    gd.addColorStop(1,'rgb(200,'+(gc*0.6|0)+','+(bc*0.5|0)+')');
+    x.fillStyle=gd; x.beginPath(); x.arc(cx,cy,Rs,0,7); x.fill();
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='center';
+    x.fillText(size>0.5?'swollen, brighter':'compressed, dimmer', cx, cy+Rs+28);
+    // --- radial-slice column (right) ---
+    const colTop=64+(1-size)*64;
+    let ig=x.createLinearGradient(0,colBot,0,colBot-46);
+    ig.addColorStop(0,'rgba(255,170,70,0.55)'); ig.addColorStop(1,'rgba(255,170,70,0)');
+    x.fillStyle=ig; x.fillRect(colX,colBot-46,colW,46);
+    x.strokeStyle='rgba(140,160,230,0.35)'; x.lineWidth=1.4; x.strokeRect(colX,colTop,colW,colBot-colTop);
+    const vY=colTop+(colBot-colTop)*0.40, vH=24, vB=vY+vH;
+    if(opac>0.4){ let tg=x.createLinearGradient(0,vB,0,vB+50);
+      tg.addColorStop(0,'rgba(255,140,50,'+(0.5*opac).toFixed(2)+')'); tg.addColorStop(1,'rgba(255,140,50,0)');
+      x.fillStyle=tg; x.fillRect(colX,vB,colW,50); }
+    x.fillStyle='rgba(255,'+Math.round(150-70*opac)+','+Math.round(80-40*opac)+','+(0.25+0.65*opac).toFixed(2)+')';
+    x.fillRect(colX,vY,colW,vH);
+    x.strokeStyle='rgba(255,205,130,0.65)'; x.lineWidth=1; x.strokeRect(colX,vY,colW,vH);
+    // photons rising from the core
+    phot.forEach(ph=>{
+      ph.y -= ph.sp*dt;
+      if(opac>0.5 && ph.y<vB) ph.y=vB+Math.random()*5;   // trapped below the opaque valve
+      if(ph.y<colTop-2) ph.y=colBot-2;                    // escaped -> respawn at base
+      x.fillStyle='rgba(255,228,150,0.95)'; x.beginPath(); x.arc(ph.x,ph.y,2,0,7); x.fill();
+    });
+    // pressure / gravity arrow
+    const ax=colX+colW+24, ay=(colTop+colBot)/2;
+    x.strokeStyle=expanding?'rgba(94,230,168,0.85)':'rgba(255,107,157,0.85)'; x.lineWidth=2; x.beginPath();
+    if(expanding){ x.moveTo(ax,ay+22); x.lineTo(ax,ay-22); x.lineTo(ax-5,ay-14); x.moveTo(ax,ay-22); x.lineTo(ax+5,ay-14); }
+    else { x.moveTo(ax,ay-22); x.lineTo(ax,ay+22); x.lineTo(ax-5,ay+14); x.moveTo(ax,ay+22); x.lineTo(ax+5,ay+14); }
+    x.stroke();
+    x.fillStyle=expanding?'rgba(94,230,168,0.95)':'rgba(255,107,157,0.95)'; x.font='11px -apple-system'; x.textAlign='left';
+    x.fillText(expanding?'pressure':'gravity', ax+9, ay+4);
+    // labels
+    x.fillStyle=COL.muted; x.font='11px -apple-system'; x.textAlign='left';
+    x.fillText('He ionization zone (the valve)', colX+6, vY-7);
+    x.fillText('energy from the core', colX+6, colBot-7);
+    x.fillStyle='#1a1206'; x.font='600 11px -apple-system'; x.textAlign='center';
+    x.fillText(opac>0.5?'He²⁺ · κ high · opaque':'He⁺ · κ low · clear', colX+colW/2, vY+vH/2+4);
+    const cap = p<0.12?'① compressed — opacity high, heat trapped'
+              : p<0.5 ?'② dammed heat pushes the layers outward'
+              : p<0.62?'③ expanded — helium recombines, heat escapes'
+              :        '④ cooled layers fall back under gravity';
+    x.fillStyle=COL.amber; x.font='13px -apple-system'; x.textAlign='center';
+    x.fillText(cap, W/2, H-14);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- ---- Ch.3 lab: fit Hubble's velocity-distance line ---- -->
+<script>
+(function(){
+  const hEl=document.getElementById('hub_h'); if(!hEl) return;
+  const hlbl=document.getElementById('hub_hlbl'), hlbl2=document.getElementById('hub_hlbl2'),
+        rmsO=document.getElementById('hub_rms'), ageO=document.getElementById('hub_age'),
+        verd=document.getElementById('hub_verdict');
+  function rng(a){ return function(){ a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296; }; }
+  const r=rng(19), PTS=[];
+  for(let i=0;i<26;i++){ const d=0.6+r()*19; const v=70*d+(r()*2-1)*255; PTS.push({d,v:Math.max(0,v)}); }
+  function render(){
+    const H0=parseFloat(hEl.value); hlbl.textContent=H0; if(hlbl2) hlbl2.textContent=H0;
+    const sc={x:PTS.map(p=>p.d), y:PTS.map(p=>p.v), mode:'markers',
+      marker:{color:COL.amber,size:8,line:{color:'#0a0c18',width:0.5}}};
+    const line={x:[0,20],y:[0,H0*20],mode:'lines',line:{color:COL.cyan,width:2.4}};
+    const lay=baseLayout({xaxis:{title:'distance d (Mpc)  — from Cepheids',range:[0,20.5]},
+      yaxis:{title:'recession velocity v (km/s)  — from redshift',range:[0,1750]}});
+    if(typeof Plotly!=='undefined'){
+      if(!render.init){ Plotly.newPlot('hub_plot',[line,sc],lay,PCFG); render.init=true; }
+      else Plotly.react('hub_plot',[line,sc],lay,PCFG);
+    }
+    let ss=0; PTS.forEach(p=>{ const e=p.v-H0*p.d; ss+=e*e; });
+    const rms=Math.sqrt(ss/PTS.length); rmsO.textContent=Math.round(rms);
+    const ageGyr=1/(H0/3.086e19)/3.156e16; ageO.textContent=ageGyr.toFixed(1);
+    verd.style.borderColor=''; verd.style.background='';
+    if(Math.abs(H0-70)<=6){ verd.className='verdict good';
+      verd.innerHTML='<b>H₀ ≈ '+H0+' km/s/Mpc.</b> The line threads the galaxies — slope and data agree. Reciprocal age ≈ '+ageGyr.toFixed(1)+' Gyr, close to the true ~13.8 Gyr.'; }
+    else { verd.className='verdict'; verd.style.borderColor='rgba(255,178,74,0.4)';
+      verd.innerHTML='Residual scatter ±'+Math.round(rms)+' km/s — tune the slope toward the best fit. <i>(Hubble\'s own 1929 slope was ~500, because his distances were several times too small — which also made the universe look only ~2 Gyr old.)</i>'; }
+  }
+  hEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Ch.4 figure: animated Type Ia supernova ---- -->
+<script>
+(function(){
+  const cv=document.getElementById('ia_canvas'); if(!cv) return;
+  const x=cv.getContext('2d'); const W=cv.width,H=cv.height;
+  const CYC=9.0;                                  // seconds per loop
+  const gx=300, gy=H/2-6, dx=600, dy=H/2-6;       // giant + white-dwarf centres
+  const eject=Array.from({length:170},()=>({a:Math.random()*7, v:0.5+Math.random()*1.0, h:Math.random(), s:0.6+Math.random()*1.9}));
+  const stream=Array.from({length:54},()=>({o:Math.random(), w:Math.random()}));
+  let t0=null;
+  function frame(ts){
+    if(t0==null) t0=ts; const t=(ts-t0)/1000; const p=(t%CYC)/CYC;
+    x.fillStyle='rgba(5,6,13,0.30)'; x.fillRect(0,0,W,H);   // soft motion trails
+    const accr = p<0.46, expand = p>=0.46;
+    // red-giant companion
+    const gR=46;
+    let gg=x.createRadialGradient(gx-13,gy-13,5,gx,gy,gR);
+    gg.addColorStop(0,'#ffe0ab'); gg.addColorStop(0.5,'#ff9d5c'); gg.addColorStop(1,'#7a2e16');
+    x.fillStyle=gg; x.beginPath(); x.arc(gx,gy,gR,0,7); x.fill();
+    if(accr){
+      const ph=p/0.46;
+      stream.forEach(s=>{ const f=(s.o+ph*1.7)%1;
+        const px=gx+(dx-gx)*f, py=gy+Math.sin(f*Math.PI)*46*(s.w-0.5);
+        const al=0.55*(1-Math.abs(f-0.5)*1.3);
+        x.fillStyle='rgba(255,205,130,'+Math.max(0,al)+')';
+        x.beginPath(); x.arc(px,py,1.6,0,7); x.fill(); });
+      x.strokeStyle='rgba(170,205,255,0.45)'; x.lineWidth=2;
+      x.save(); x.translate(dx,dy); x.scale(1,0.32); x.beginPath(); x.arc(0,0,22,0,7); x.stroke(); x.restore();
+    }
+    if(!expand){
+      const grow=1+0.45*(p/0.46), dR=9*grow;
+      let gd=x.createRadialGradient(dx,dy,0,dx,dy,dR*2.5);
+      gd.addColorStop(0,'#ffffff'); gd.addColorStop(0.4,'#bcd4ff'); gd.addColorStop(1,'rgba(120,150,255,0)');
+      x.fillStyle=gd; x.beginPath(); x.arc(dx,dy,dR*2.5,0,7); x.fill();
+      x.fillStyle='#eaf2ff'; x.beginPath(); x.arc(dx,dy,dR*0.6,0,7); x.fill();
+    } else {
+      const ep=(p-0.46)/0.54;                       // 0..1 through the blast
+      const bright=Math.exp(-Math.pow((ep-0.05)/0.09,2))*0.8 + 0.9*Math.exp(-ep*3);
+      eject.forEach(q=>{ const rad=ep*q.v*Math.min(W,H)*1.0;
+        const px=dx+Math.cos(q.a)*rad, py=dy+Math.sin(q.a)*rad*0.78;
+        const al=Math.max(0,1-ep)*0.95;
+        x.fillStyle='rgba(255,'+(150+90*q.h|0)+','+(40+45*q.h|0)+','+al+')';
+        x.beginPath(); x.arc(px,py,q.s,0,7); x.fill(); });
+      const fr=10+95*bright;
+      let gf=x.createRadialGradient(dx,dy,0,dx,dy,fr);
+      gf.addColorStop(0,'rgba(255,255,255,'+Math.min(1,bright)+')');
+      gf.addColorStop(0.3,'rgba(255,240,200,'+0.6*bright+')');
+      gf.addColorStop(1,'rgba(255,140,60,0)');
+      x.fillStyle=gf; x.beginPath(); x.arc(dx,dy,fr,0,7); x.fill();
+    }
+    x.font='12px -apple-system'; x.textAlign='center';
+    x.fillStyle='rgba(230,236,255,0.85)'; x.fillText('red-giant companion', gx, gy+64);
+    const msg=accr?'accreting toward the Chandrasekhar limit (~1.4 M☉)':(p<0.62?'detonation → standard-candle peak':'ejecta expand and fade');
+    x.fillStyle=accr?'#9fd8ff':'#ffd6a0'; x.fillText(msg, W/2, H-12);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+
+<!-- ---- Lab 3b: many-supernova Hubble diagram ---- -->
+<script>
+(function(){
+  const nEl=document.getElementById('hd_n'); if(!nEl) return;
+  const nlbl=document.getElementById('hd_nlbl'), n2=document.getElementById('hd_n2'),
+        uncO=document.getElementById('hd_unc'), verd=document.getElementById('hd_verdict');
+  const OM=0.3, OL=0.7, cH0=299792/70;            // c/H0 in Mpc
+  function E(z){ return Math.sqrt(OM*Math.pow(1+z,3)+OL); }
+  function mu(z){ const n=60, dz=z/n; let s=0;
+    for(let i=0;i<n;i++){ const za=i*dz, zb=(i+1)*dz; s+=0.5*dz*(1/E(za)+1/E(zb)); }
+    const dL=(1+z)*cH0*s; return 5*Math.log10(dL)+25; }
+  function rng(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a);
+    t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+  const r=rng(7), POOL=[];
+  for(let i=0;i<600;i++){
+    const z=0.012*Math.pow(1.5/0.012, r());
+    const u1=Math.max(1e-6,r()), u2=r();
+    const g=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+    POOL.push({z, mu: mu(z)+g*0.15});
+  }
+  const zc=[],mc=[]; for(let z=0.012; z<=1.55; z*=1.06){ zc.push(z); mc.push(mu(z)); }
+  function render(){
+    const N=parseInt(nEl.value); nlbl.textContent=N; n2.textContent=N;
+    const pts=POOL.slice(0,N);
+    const line={x:zc,y:mc,mode:'lines',line:{color:COL.cyan,width:2.4}};
+    const sc={x:pts.map(p=>p.z), y:pts.map(p=>p.mu), mode:'markers',
+      marker:{color:COL.amber,size:6,opacity:0.72,line:{color:'#0a0c18',width:0.4}}};
+    const lay=baseLayout({xaxis:{title:'redshift z',type:'log',range:[Math.log10(0.01),Math.log10(1.7)]},
+      yaxis:{title:'distance modulus  μ = m − M  (mag)'}});
+    if(typeof Plotly!=='undefined'){
+      if(!render.init){ Plotly.newPlot('hd_plot',[line,sc],lay,PCFG); render.init=true; }
+      else Plotly.react('hd_plot',[line,sc],lay,PCFG);
+    }
+    const unc=6.9/Math.sqrt(N);                    // %: sigma_mu=0.15 -> 6.9%/sqrt(N) on H0
+    uncO.textContent=unc.toFixed(unc<1?2:1);
+    verd.style.borderColor=''; verd.style.background='';
+    if(N<=2){ verd.className='verdict bad';
+      verd.innerHTML='<b>One or two supernovae:</b> a single point carries ±0.15 mag of scatter and could sit almost anywhere on the curve — you cannot pin the expansion rate from it.'; }
+    else if(N<60){ verd.className='verdict'; verd.style.borderColor='rgba(255,178,74,0.4)';
+      verd.innerHTML='<b>'+N+' supernovae:</b> the relation is lifting out of the noise; the inferred H₀ is good to about ±'+unc.toFixed(1)+'% (statistical only).'; }
+    else { verd.className='verdict good';
+      verd.innerHTML='<b>'+N+' supernovae:</b> the Hubble diagram is unmistakable and H₀ tightens to ±'+unc.toFixed(2)+'% (statistical). This is the real method — Pantheon+ uses ~1,550 SNe Ia, with JWST now extending and cross-checking the ladder.'; }
+  }
+  nEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 4: cosmic time dilation light curve ---- -->
+<script>
+(function(){
+  const zEl=document.getElementById('td_z'); if(!zEl) return;
+  const zlbl=document.getElementById('td_zlbl'), facO=document.getElementById('td_factor'),
+        durO=document.getElementById('td_dur'), matchO=document.getElementById('td_match'),
+        expBtn=document.getElementById('td_exp'), tlBtn=document.getElementById('td_tl'),
+        verd=document.getElementById('td_verdict');
+  let model='exp';
+  // template Ia brightness (peak=1 at t=0), t in rest-frame days
+  function B(t){
+    if(t<-20) return 0;
+    if(t<0) return Math.exp(-0.5*Math.pow(t/8,2));      // rise
+    return 0.62*Math.exp(-t/11)+0.38*Math.exp(-t/48);    // fast + slow decline
+  }
+  // base duration: width where B>0.1 of peak
+  const baseDur=(function(){ let lo=null,hi=null; for(let t=-25;t<=120;t+=0.2){ if(B(t)>=0.1){ if(lo===null)lo=t; hi=t; } } return hi-lo; })();
+  function render(){
+    const z=parseFloat(zEl.value);
+    const S=(model==='exp')?(1+z):1.0;
+    zlbl.textContent=z.toFixed(2);
+    // template trace (z=0)
+    const tt=[],tb=[],ot=[],ob=[];
+    for(let t=-25;t<=120;t+=0.5){ tt.push(t); tb.push(B(t)); }
+    // observed: stretch time axis by S (expansion) — observed time = S * rest time
+    for(let t=-25;t<=120;t+=0.5){ ot.push(t*S); ob.push(B(t)); }
+    const tmpl={x:tt,y:tb,mode:'lines',line:{color:COL.muted,width:1.6,dash:'dot'},name:'local (z=0)'};
+    const obs={x:ot,y:ob,mode:'lines',line:{color:(model==='exp')?COL.green:COL.rose,width:2.6},name:'observed'};
+    const lay=baseLayout({xaxis:{title:'time since peak (observer days)',range:[-30,120]},
+      yaxis:{title:'relative brightness',range:[0,1.08]}});
+    if(typeof Plotly!=='undefined'){
+      if(!render.init){ Plotly.newPlot('td_plot',[tmpl,obs],lay,PCFG); render.init=true; }
+      else Plotly.react('td_plot',[tmpl,obs],lay,PCFG);
+    }
+    facO.textContent=S.toFixed(2);
+    durO.textContent=(baseDur*S).toFixed(0);
+    const correct=(model==='exp');
+    matchO.textContent=correct?'✓ yes':'✗ no';
+    matchO.style.color=correct?COL.green:COL.rose;
+    if(model==='exp'){
+      verd.className='verdict good';
+      verd.innerHTML='<b>Expanding universe:</b> the light curve is stretched in time by exactly $(1+z)='+S.toFixed(2)+'$. This is what the supernova surveys actually measure — the redshift slows the clock as well as reddening the light.';
+    } else {
+      verd.className='verdict bad';
+      verd.innerHTML='<b>Tired light:</b> energy loss reddens the photons but cannot stretch <i>time</i>, so the predicted duration stays '+baseDur.toFixed(0)+' days at every redshift. The sky shows '+(baseDur*(1+z)).toFixed(0)+' days — this model is falsified.';
+    }
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([verd]);
+  }
+  expBtn.addEventListener('click',()=>{ model='exp'; render(); });
+  tlBtn.addEventListener('click',()=>{ model='tl'; render(); });
+  zEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 5: tired-light scorecard ---- -->
+<script>
+(function(){
+  const tEl=document.getElementById('tl_test'); if(!tEl) return;
+  const pTL=document.getElementById('tl_pred_tl'), pEX=document.getElementById('tl_pred_ex'),
+        obs=document.getElementById('tl_obs'), verd=document.getElementById('tl_verdict');
+  function planck(nu,T){ // arbitrary-units blackbody vs frequency
+    const a=nu*nu*nu; const e=Math.exp(nu/T)-1; return a/Math.max(e,1e-6);
+  }
+  function render(){
+    const test=tEl.value; let traces=[], lay, vt;
+    if(test==='time'){
+      const zs=[],tl=[],ex=[],od=[];
+      for(let z=0;z<=1.2;z+=0.05){ zs.push(z); tl.push(1); ex.push(1+z); }
+      for(let z=0.1;z<=1.1;z+=0.2){ od.push(z); }
+      traces=[
+        {x:zs,y:tl,mode:'lines',line:{color:COL.rose,width:2,dash:'dash'}},
+        {x:zs,y:ex,mode:'lines',line:{color:COL.green,width:2.4}},
+        {x:od,y:od.map(z=>1+z+(((z*53)%7)-3)*0.01),mode:'markers',marker:{color:COL.amber,size:9,line:{color:'#fff',width:1}}}
+      ];
+      lay=baseLayout({xaxis:{title:'redshift z'},yaxis:{title:'light-curve stretch  Δt_obs / Δt_emit',range:[0.8,2.3]}});
+      pTL.textContent='no stretch (×1)'; pEX.textContent='×(1+z)'; obs.textContent='×(1+z) ✓';
+      vt='<b>Decisive for expansion.</b> Observed light-curve widths track $(1+z)$ exactly; tired light predicts a flat ×1 and is ruled out.';
+    } else if(test==='tolman'){
+      const zs=[],tl=[],ex=[];
+      for(let z=0;z<=1.2;z+=0.05){ zs.push(z); tl.push(Math.pow(1+z,-1)); ex.push(Math.pow(1+z,-4)); }
+      traces=[
+        {x:zs,y:tl,mode:'lines',line:{color:COL.rose,width:2,dash:'dash'}},
+        {x:zs,y:ex,mode:'lines',line:{color:COL.green,width:2.4}}
+      ];
+      lay=baseLayout({xaxis:{title:'redshift z'},yaxis:{title:'relative surface brightness',type:'log'}});
+      pTL.textContent='(1+z)⁻¹'; pEX.textContent='(1+z)⁻⁴'; obs.textContent='≈(1+z)⁻⁴ ✓';
+      vt='<b>Favours expansion.</b> Distant galaxies dim far faster than tired light allows; the steep $(1+z)^{-4}$ falloff is the expansion signature.';
+    } else if(test==='cmb'){
+      const nu=[],ex=[],tl=[];
+      for(let n=0.1;n<=6;n+=0.08){ nu.push(n); ex.push(planck(n,1.0)); tl.push(planck(n,1.0)*(1+0.45*Math.sin(n*1.4))*Math.exp(-n*0.06)); }
+      const mx=Math.max(...ex);
+      traces=[
+        {x:nu,y:ex.map(v=>v/mx),mode:'lines',line:{color:COL.green,width:2.6}},
+        {x:nu,y:tl.map(v=>v/mx),mode:'lines',line:{color:COL.rose,width:2,dash:'dash'}}
+      ];
+      lay=baseLayout({xaxis:{title:'frequency (arb.)'},yaxis:{title:'intensity (normalised)',range:[0,1.15]}});
+      pTL.textContent='distorted / smeared'; pEX.textContent='perfect blackbody'; obs.textContent='perfect blackbody ✓';
+      vt='<b>Favours expansion.</b> The microwave background is the most perfect blackbody known. A scattering tired-light medium would smear it; cooling-by-expansion preserves the shape.';
+    } else {
+      const ds=[],v1=[];
+      for(let d=0;d<=400;d+=10){ ds.push(d); v1.push(70*d/1000); }
+      traces=[
+        {x:ds,y:v1,mode:'lines',line:{color:COL.green,width:2.4}},
+        {x:ds,y:v1,mode:'lines',line:{color:COL.rose,width:1.4,dash:'dot'}}
+      ];
+      lay=baseLayout({xaxis:{title:'distance d (Mpc)'},yaxis:{title:'recession v (×1000 km/s)'}});
+      pTL.textContent='linear v∝d'; pEX.textContent='linear v∝d'; obs.textContent='linear ✓ (both fit)';
+      vt='<b>Not discriminating.</b> Both models reproduce Hubble\'s linear law by construction — which is exactly why the keynote leans on time dilation, the Tolman test and the CMB to break the tie.';
+    }
+    if(typeof Plotly!=='undefined'){
+      if(!render.init){ Plotly.newPlot('tl_plot',traces,lay,PCFG); render.init=true; }
+      else Plotly.react('tl_plot',traces,lay,PCFG);
+    }
+    const good=(test!=='hubble');
+    verd.className='verdict '+(good?'good':'');
+    if(!good) verd.style.borderColor='rgba(255,178,74,0.4)';
+    verd.innerHTML='<span style="color:'+COL.green+'">expansion</span> &nbsp;vs&nbsp; <span style="color:'+COL.rose+'">tired light</span> — '+vt;
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([verd]);
+  }
+  tEl.addEventListener('change',render); render();
+})();
+</script>
+
+<!-- ---- Lab 6: relativistic Doppler ---- -->
+<script>
+(function(){
+  const bEl=document.getElementById('rd_b'); if(!bEl) return;
+  const blbl=document.getElementById('rd_blbl'), gO=document.getElementById('rd_gamma'),
+        zcO=document.getElementById('rd_zc'), zrO=document.getElementById('rd_zr'),
+        nvO=document.getElementById('rd_naive'), verd=document.getElementById('rd_verdict');
+  function zrel(b){ return Math.sqrt((1+b)/(1-b))-1; }
+  function render(){
+    const b=parseFloat(bEl.value);
+    const bs=[],zc=[],zr=[];
+    for(let x=0;x<=0.985;x+=0.005){ bs.push(x); zc.push(x); zr.push(zrel(x)); }
+    const tc={x:bs,y:zc,mode:'lines',line:{color:COL.cyan,width:2,dash:'dash'}};
+    const tr={x:bs,y:zr,mode:'lines',line:{color:COL.amber,width:2.6}};
+    const mk={x:[b,b],y:[b,zrel(b)],mode:'markers',marker:{color:[COL.cyan,COL.amber],size:11,line:{color:'#fff',width:1}}};
+    const lay=baseLayout({xaxis:{title:'β = v/c',range:[0,1]},yaxis:{title:'redshift z',range:[0,6]}});
+    if(typeof Plotly!=='undefined'){
+      if(!render.init){ Plotly.newPlot('rd_plot',[tc,tr,mk],lay,PCFG); render.init=true; }
+      else Plotly.react('rd_plot',[tc,tr,mk],lay,PCFG);
+    }
+    const g=1/Math.sqrt(1-b*b);
+    blbl.textContent=b.toFixed(2);
+    gO.textContent=g.toFixed(3);
+    zcO.textContent=b.toFixed(3);
+    zrO.textContent=zrel(b).toFixed(3);
+    nvO.textContent=b.toFixed(2);
+    const err=(zrel(b)-b)/Math.max(b,1e-6)*100;
+    verd.className='verdict '+(b<0.1?'good':'');
+    if(b>=0.1){ verd.style.borderColor='rgba(255,178,74,0.4)'; verd.style.background='rgba(255,178,74,0.08)'; }
+    verd.innerHTML='At β = '+b.toFixed(2)+': classical $z=β='+b.toFixed(3)+'$ but relativistic $z='+zrel(b).toFixed(3)+'$ — the linear law is off by <b>'+err.toFixed(0)+'%</b>. '+(b<0.1?'At low speed the two agree, so $v=cz$ is safe.':'Near light speed only the relativistic curve stays physical (v never reaches c).');
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([verd]);
+  }
+  bEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Lab 7: light clock ---- -->
+<script>
+(function(){
+  const bEl=document.getElementById('lc_b'); if(!bEl) return;
+  const blbl=document.getElementById('lc_blbl'), gO=document.getElementById('lc_gamma'),
+        pathO=document.getElementById('lc_path'), tickO=document.getElementById('lc_tick'),
+        cv=document.getElementById('lc_canvas'), x=cv.getContext('2d');
+  const GAP=150, TOP=90, C=190; // px/s photon speed
+  let yL=0, dirL=1, yR=0, dirR=1, clkX=505, last=null, trail=[];
+  function clock(cx, yPhoton, label, moving){
+    // mirrors
+    x.strokeStyle='rgba(180,200,255,0.6)'; x.lineWidth=3;
+    x.beginPath(); x.moveTo(cx-30,TOP); x.lineTo(cx+30,TOP); x.stroke();
+    x.beginPath(); x.moveTo(cx-30,TOP+GAP); x.lineTo(cx+30,TOP+GAP); x.stroke();
+    // photon
+    x.fillStyle=COL.amber; x.beginPath(); x.arc(cx,TOP+yPhoton,5,0,7); x.fill();
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='center';
+    x.fillText(label, cx, TOP+GAP+30);
+  }
+  function render(){
+    const W=cv.width,H=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // LEFT stationary
+    clock(180, yL, 'at rest', false);
+    // trail of moving photon (diagonal)
+    x.strokeStyle='rgba(255,178,74,0.35)'; x.lineWidth=1.4;
+    x.beginPath();
+    trail.forEach((p,i)=>{ if(i===0)x.moveTo(p.x,p.y); else x.lineTo(p.x,p.y); });
+    x.stroke();
+    // RIGHT moving
+    clock(clkX, yR, 'moving (β)', true);
+    const b=parseFloat(bEl.value), g=1/Math.sqrt(1-b*b);
+    blbl.textContent=b.toFixed(2);
+    gO.textContent=g.toFixed(3);
+    pathO.textContent=g.toFixed(3);
+    tickO.textContent=g.toFixed(3);
+    // labels
+    x.fillStyle=COL.muted; x.font='12px -apple-system'; x.textAlign='center';
+    x.fillText('photon goes straight up & down', 180, 50);
+    x.fillText('same photon traces a longer diagonal — same speed c', 650, 50);
+  }
+  function loop(ts){
+    if(last==null) last=ts;
+    const dt=(ts-last)/1000; last=ts;
+    const b=parseFloat(bEl.value);
+    // left: vertical speed = C
+    yL+=dirL*C*dt; if(yL>GAP){ yL=GAP; dirL=-1; } if(yL<0){ yL=0; dirL=1; }
+    // right: vertical component = C*sqrt(1-b^2); horizontal drift = b*C
+    const vy=C*Math.sqrt(1-b*b);
+    yR+=dirR*vy*dt; if(yR>GAP){ yR=GAP; dirR=-1; } if(yR<0){ yR=0; dirR=1; }
+    clkX+=b*C*dt;
+    if(clkX>W_RIGHT_MAX){ clkX=505; trail=[]; }
+    trail.push({x:clkX, y:TOP+yR}); if(trail.length>240) trail.shift();
+    render(); requestAnimationFrame(loop);
+  }
+  const W_RIGHT_MAX=860;
+  bEl.addEventListener('input',()=>{ trail=[]; render(); });
+  render(); requestAnimationFrame(loop);
+})();
+</script>
+
+<!-- ---- Lab 7b: spacetime globe — Lorentz vs shear ---- -->
+<script>
+(function(){
+  const uEl=document.getElementById('st_u'); if(!uEl) return;
+  const ulbl=document.getElementById('st_ulbl'), gO=document.getElementById('st_gamma'),
+        cO=document.getElementById('st_cspeed'), catO=document.getElementById('st_catspeed'),
+        lorBtn=document.getElementById('st_lor'), galBtn=document.getElementById('st_gal'),
+        catBtn=document.getElementById('st_cat'), verd=document.getElementById('st_verdict'),
+        cv=document.getElementById('st_canvas'), x=cv.getContext('2d');
+  let mode='lor';                       // 'lor' or 'gal'
+  const VCAT=0.6;                       // the cat's speed (c=1)
+  const cx=415, cy=400, PXU=72;         // diagram origin + scale
+  const BOX={l:60,r:770,t:34,b:404};
+  function S(X,T){ return [cx+X*PXU, cy-T*PXU]; }
+  // ACTIVE boost: transform an event (X,T) into the frame moving at u, then plot it.
+  // We move WITH the chosen frame, so its own grid stays upright and the worldlines skew.
+  function fwd(X,T,u){
+    if(mode==='lor'){ const g=1/Math.sqrt(1-u*u); return [g*(X-u*T), g*(T-u*X)]; }
+    return [X-u*T, T];                  // Galilean shear: time untouched
+  }
+  function wline(X1,T1,X2,T2,u,col,w){
+    const a=fwd(X1,T1,u), b=fwd(X2,T2,u);
+    const A=S(a[0],a[1]), B=S(b[0],b[1]);
+    x.strokeStyle=col; x.lineWidth=w; x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+    return b;                           // transformed far end, for labelling
+  }
+  function render(){
+    const u=parseFloat(uEl.value);
+    const W=cv.width,H=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    x.save(); x.beginPath(); x.rect(BOX.l,BOX.t,BOX.r-BOX.l,BOX.b-BOX.t); x.clip();
+    // this frame's OWN grid stays upright (we are riding in it)
+    x.strokeStyle='rgba(176,140,255,0.16)'; x.lineWidth=1;
+    for(let X=-6;X<=6;X++){ const A=S(X,-0.5),B=S(X,5.5); x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); }
+    for(let T=0;T<=5;T++){ const A=S(-6,T),B=S(6,T); x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); }
+    // upright axes of this frame: T (cyan, vertical), X (green, horizontal)
+    let A=S(0,-0.5),B=S(0,5.5); x.strokeStyle=COL.cyan; x.lineWidth=2.2; x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+    A=S(-6,0);B=S(6,0); x.strokeStyle=COL.green; x.lineWidth=2.2; x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+    // light rays — transformed (the whole point: do they stay at 45°?)
+    const lR=wline(0,0,5,5,u,COL.amber,2.8);
+    const lL=wline(0,0,-5,5,u,COL.amber,2.8);
+    // worldlines, transformed: person (white), cat (rose)
+    const pEnd=wline(0,0,0,5,u,'#eef2ff',2.8);
+    const cEnd=wline(0,0,VCAT*5,5,u,COL.rose,2.8);
+    x.restore();
+    // labels at transformed far ends
+    x.font='12px -apple-system'; x.textAlign='left'; let p;
+    p=S(cEnd[0],cEnd[1]); x.fillStyle=COL.rose; x.fillText('cat', p[0]+6, p[1]);
+    p=S(pEnd[0],pEnd[1]); x.fillStyle='#eef2ff'; x.fillText('you', p[0]+6, p[1]);
+    p=S(lR[0],lR[1]); x.fillStyle=COL.amber; x.fillText('light', p[0]+6, p[1]+4);
+    // axis titles
+    x.fillStyle=COL.muted; x.textAlign='center';
+    x.fillText('position  X  →', (BOX.l+BOX.r)/2, H-8);
+    x.save(); x.translate(22,(BOX.t+BOX.b)/2); x.rotate(-Math.PI/2); x.fillText('time  T  ↑',0,0); x.restore();
+    // right-side status
+    x.textAlign='left'; x.font='13px -apple-system';
+    x.fillStyle=(mode==='lor')?COL.green:COL.rose;
+    x.fillText(mode==='lor'?'LORENTZ':'SHEAR', 792, 60);
+    if(Math.abs(u-VCAT)<0.02){ x.fillStyle=COL.amber; x.font='12px -apple-system'; x.fillText("★ cat's", 792, 86); x.fillText('rest frame', 792, 102); }
+    // readouts
+    const g=1/Math.sqrt(1-u*u);
+    ulbl.textContent=u.toFixed(2);
+    gO.textContent=(mode==='lor')?g.toFixed(3):'1.000';
+    // measured speeds in the new frame (right-going light dir (1,1); cat dir (VCAT,1))
+    let cSpeed, catSpeed;
+    if(mode==='lor'){ cSpeed=1.0; catSpeed=(VCAT-u)/(1-VCAT*u); }
+    else { cSpeed=(1-u); catSpeed=(VCAT-u); }
+    cO.textContent=cSpeed.toFixed(3);
+    cO.style.color=(Math.abs(cSpeed-1)<1e-6)?COL.green:COL.rose;
+    catO.textContent=catSpeed.toFixed(3);
+    // verdict
+    if(mode==='lor'){
+      verd.className='verdict good';
+      verd.innerHTML='<b>Lorentz transformation.</b> The $T\'$ and $X\'$ axes scissor symmetrically and the $45°$ light line bisects them, so light reads <b>'+cSpeed.toFixed(2)+'c</b> in this frame — and in every direction. At $u=0.6$ the cat\'s line becomes the new time axis: from the cat\'s seat <i>it</i> is at rest and you are the tilted line.';
+    } else {
+      verd.className='verdict bad';
+      verd.innerHTML='<b>Shear (Galilean).</b> Only the time grid tipped; the "now" axis stayed flat. The cat can be made upright, but the light line tipped with everything else, so light now measures <b>'+cSpeed.toFixed(2)+'c</b> — its speed changed. Nature forbids that, which is exactly why a shear is the <i>wrong</i> way to change frames.';
+    }
+    if(window.MathJax&&MathJax.typesetPromise) MathJax.typesetPromise([verd]);
+  }
+  lorBtn.addEventListener('click',()=>{ mode='lor'; render(); });
+  galBtn.addEventListener('click',()=>{ mode='gal'; render(); });
+  catBtn.addEventListener('click',()=>{ uEl.value=VCAT; render(); });
+  uEl.addEventListener('input',render); render();
+})();
+</script>
+
+<!-- ---- Static figure: the shear flaw (in Chapter 8 beat) ---- -->
+<script>
+(function(){
+  const cv=document.getElementById('sh_canvas'); if(!cv) return;
+  const x=cv.getContext('2d');
+  const OBJ=0.5;                        // object's speed (c=1)
+  function panel(ox,oy,pxu,u,title){
+    const box={l:ox-150,r:ox+150,t:oy-185,b:oy+18};
+    function S(X,T){ return [ox+X*pxu, oy-T*pxu]; }
+    function shear(X,T){ return [X-u*T, T]; }   // Galilean slide
+    function line(X1,T1,X2,T2,col,w,dash){
+      const a=shear(X1,T1), b=shear(X2,T2), A=S(a[0],a[1]), B=S(b[0],b[1]);
+      x.strokeStyle=col; x.lineWidth=w; x.setLineDash(dash||[]);
+      x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); x.setLineDash([]);
+      return b;
+    }
+    x.save(); x.beginPath(); x.rect(box.l,box.t,box.r-box.l,box.b-box.t); x.clip();
+    // faint axes (this panel's frame, upright)
+    x.strokeStyle='rgba(140,160,230,0.28)'; x.lineWidth=1.4;
+    let A=S(0,0),B=S(0,5); x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+    A=S(-4,0);B=S(4,0); x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke();
+    // reference 45deg where light SHOULD be (dashed grey) on the sheared panel
+    if(u!==0){ x.strokeStyle='rgba(180,200,255,0.4)';
+      A=S(0,0);B=S(5,5); x.lineWidth=1.2; x.setLineDash([4,4]);
+      x.beginPath(); x.moveTo(A[0],A[1]); x.lineTo(B[0],B[1]); x.stroke(); x.setLineDash([]); }
+    // light rays (transformed)
+    const lR=line(0,0,5,5,COL.amber,2.6);
+    line(0,0,-5,5,COL.amber,2.6);
+    // object worldline (transformed)
+    const ob=line(0,0,OBJ*5,5,COL.rose,2.6);
+    x.restore();
+    // labels
+    x.font='12px -apple-system'; x.textAlign='left';
+    let p=S(lR[0],lR[1]); x.fillStyle=COL.amber; x.fillText('light', p[0]+5, p[1]+10);
+    p=S(ob[0],ob[1]); x.fillStyle=COL.rose; x.fillText(u===0?'object':'object (upright)', p[0]+5, p[1]);
+    x.fillStyle=COL.ink; x.font='600 12.5px -apple-system'; x.textAlign='center';
+    x.fillText(title, ox, box.t-8);
+    // light-speed callout
+    const slope=(1-u);  // measured light speed in this panel
+    x.textAlign='center'; x.font='12px -apple-system';
+    if(u===0){ x.fillStyle=COL.green; x.fillText('light speed = 1.00 c  ✓', ox, oy+38); }
+    else { x.fillStyle=COL.rose; x.fillText('light speed = '+slope.toFixed(2)+' c  ✗ (changed!)', ox, oy+38); }
+  }
+  function draw(){
+    x.fillStyle='#05060d'; x.fillRect(0,0,cv.width,cv.height);
+    panel(220,205,34,0,    '① your frame');
+    // divider
+    x.strokeStyle='rgba(140,160,230,0.22)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(440,24); x.lineTo(440,236); x.stroke();
+    panel(660,205,34,OBJ,  '② after a shear → object made upright');
+  }
+  draw();
+})();
+</script>
+<!-- =======================================================================
+     QUIZ DATA
+======================================================================= -->
+<script>
+window.REDSHIFT_QUIZ=[
+  {q:"A galaxy's absorption lines keep the same spacings and ratios but sit at longer wavelengths. What has happened?", opts:["The atoms in the galaxy are different elements","The whole spectrum is redshifted — every line scaled by (1+z)","The star simply got hotter","The lines were absorbed twice"], a:1, exp:"Redshift scales every wavelength by the same factor (1+z), so the barcode shifts bodily without rearranging — the fingerprint of a shift, not of different chemistry."},
+  {q:"Redshift is defined as z = (λ_obs − λ_rest)/λ_rest. A line at rest 500 nm is seen at 505 nm. What is z?", opts:["0.01","0.05","0.1","0.005"], a:0, exp:"z = (505−500)/500 = 5/500 = 0.01 — a one-percent stretch."},
+  {q:"For small shifts the recession speed is v ≈ cz. What does a blueshift (z < 0) mean?", opts:["The galaxy is exploding","The galaxy is approaching us","The light is hotter","Nothing physical"], a:1, exp:"A negative z is a blueshift: the source is moving toward us. Andromeda is the classic case at about −321 km/s."},
+  {q:"Andromeda's sodium line is shifted −6.3 Å from 5890 Å. Using v=(Δλ/λ)c, the speed is about:", opts:["−321 km/s (approaching)","+321 km/s (receding)","−6.3 km/s","−3000 km/s"], a:0, exp:"v = (−6.3/5890)(3×10⁵) = −321 km/s. The minus sign means approach — M31 will merge with the Milky Way in ~4 billion years."},
+  {q:"Why does the balloon analogy say there is no centre to the expansion?", opts:["The balloon is too big to have one","On the surface every dot sees all others recede, with none privileged","Galaxies are glued in place","The centre is the Milky Way"], a:1, exp:"On an inflating balloon's 2-D surface, every dot recedes from every other and none is special — the model for a homogeneous expanding universe."},
+  {q:"Hubble's law is v = H₀d. A galaxy receding at 7000 km/s with H₀ = 70 km/s/Mpc is at:", opts:["490 Mpc","100 Mpc","10 Mpc","70 Mpc"], a:1, exp:"d = v/H₀ = 7000/70 = 100 Mpc — distance read straight from a velocity."},
+  {q:"What makes a Type Ia supernova a good 'standard candle'?", opts:["It is the brightest object in any galaxy","White dwarfs detonate near a universal mass, giving nearly the same peak luminosity","It never changes brightness","Its colour is always blue"], a:1, exp:"Accreting white dwarfs explode near the Chandrasekhar mass (~1.4 M☉), so their peak luminosity is nearly uniform — a known wattage."},
+  {q:"Flux obeys F = L/(4πd²). Move a candle from 50 Mpc to 150 Mpc. It becomes:", opts:["3× fainter","9× fainter","1/3 as far so brighter","unchanged"], a:1, exp:"Three times farther means (3)² = 9 times fainter — the steep inverse-square leverage."},
+  {q:"Distant Type Ia light curves are observed to be stretched in time by a factor of:", opts:["(1+z)","(1+z)²","1/(1+z)","no stretch at all"], a:0, exp:"Cosmic time dilation stretches the observed duration by exactly (1+z), the time-domain twin of the wavelength stretch."},
+  {q:"Why is the (1+z) light-curve stretching such powerful evidence for expansion specifically?", opts:["It proves the supernovae are hot","Energy-loss (tired-light) redshift cannot slow an event's clock; only expansion stretches time too","It measures the white dwarf's mass","It is easier to observe than redshift"], a:1, exp:"A photon that merely lost energy would redden without changing arrival times. Observed time dilation requires the wavelength shift to be genuine expansion."},
+  {q:"The 'tired light' hypothesis proposes that:", opts:["Stars run out of fuel","Photons gradually lose energy over distance, reddening without expansion","Space is a perfect vacuum","Galaxies are stationary and bright"], a:1, exp:"Tired light explains the redshift–distance trend via photon energy loss in a static universe — but fails the time-dilation, Tolman and CMB tests."},
+  {q:"The Tolman surface-brightness test: expansion predicts dimming as (1+z)⁻⁴ while tired light predicts (1+z)⁻¹. At z=1 the two differ by a factor of:", opts:["2","4","8","16"], a:2, exp:"Expansion: 2⁻⁴ = 1/16. Tired light: 2⁻¹ = 1/2. Ratio = 8 — the observed steep dimming favours expansion."},
+  {q:"Which observational test does NOT distinguish expansion from tired light?", opts:["Supernova time dilation","The redshift–distance (Hubble) linearity itself","The Tolman surface-brightness test","The CMB blackbody spectrum"], a:1, exp:"Both models reproduce Hubble's linear law by construction, so it can't break the tie — which is why the other three tests matter."},
+  {q:"The naïve v = cz fails at high redshift because:", opts:["c is not constant","It ignores relativity and would imply speeds at or above c","Wavelength is undefined","Galaxies stop moving"], a:1, exp:"At z=1, cz = c; the linear law would demand light-speed recession. The relativistic formula keeps v below c for any finite z."},
+  {q:"The relativistic Doppler redshift is 1+z = √((1+β)/(1−β)) = γ(1+β). The extra factor over the classical law is:", opts:["The Lorentz factor γ from the source's time dilation","The Hubble constant","The inverse-square law","Length contraction"], a:0, exp:"Relativity adds the moving source's own time dilation by γ, multiplying the classical wave-stretch (1+β)."},
+  {q:"In the light-clock derivation, the moving clock's tick obeys (cT/2)² = L₀² + (vT/2)². Solving gives:", opts:["T = T₀ (no change)","T = γT₀, with γ = 1/√(1−β²)","T = T₀/2","T = βT₀"], a:1, exp:"Pythagoras on the photon's diagonal yields T = 2L₀/√(c²−v²) = γT₀ — the moving clock runs slow by γ, the same γ inside the relativistic Doppler shift."},
+  {q:"What did Henrietta Leavitt's period–luminosity law let astronomers do with a Cepheid variable?", opts:["Measure its temperature from its colour","Infer its true luminosity from its pulsation period, making it a standard candle","Detonate it as a supernova","Measure its redshift directly"], a:1, exp:"Longer-period Cepheids are intrinsically brighter. Timing the pulse gives the true luminosity; comparing to apparent brightness gives the distance — the first rung of the distance ladder."},
+  {q:"Why did Type Ia supernovae replace Cepheids for measuring the most distant galaxies?", opts:["Cepheids don't exist outside the Milky Way","A Type Ia is ~100,000× brighter, so it's visible across billions of light-years where Cepheids fade out","Cepheids give the wrong redshift","Supernovae are easier to time"], a:1, exp:"Cepheids fade below detection beyond ~40 Mpc and suffer crowding, dust and metallicity effects. A Type Ia briefly outshines its whole galaxy, reaching the cosmological distances where expansion history shows — while Cepheids calibrate its peak luminosity."}
+];
+</script>
+
+<!-- =======================================================================
+     GLOSSARY DATA
+======================================================================= -->
+<script>
+window.REDSHIFT_GLOSS={
+  redshift:{label:"Redshift (z)", terms:["redshift"], def:"The fractional stretch of a spectrum's wavelengths toward red, z = (λ_obs − λ_rest)/λ_rest. Reads out as a recession velocity and, cosmologically, as expansion.", wiki:"https://en.wikipedia.org/wiki/Redshift"},
+  blueshift:{label:"Blueshift", terms:["blueshift"], def:"A shift of spectral lines toward shorter (bluer) wavelengths, z < 0 — the signature of an approaching source, like the Andromeda Galaxy.", wiki:"https://en.wikipedia.org/wiki/Blueshift"},
+  absorption:{label:"Absorption spectrum", terms:["absorption signature","absorption spectra","absorption lines","absorption line"], def:"The pattern of dark gaps a continuous spectrum acquires when cool atoms absorb their own characteristic wavelengths — a barcode unique to each element.", wiki:"https://en.wikipedia.org/wiki/Absorption_spectroscopy"},
+  doppler:{label:"Doppler effect", terms:["Doppler"], def:"The shift in observed wavelength caused by relative motion between source and observer. For small speeds, Δλ/λ = v/c.", wiki:"https://en.wikipedia.org/wiki/Doppler_effect"},
+  recession:{label:"Recession velocity", terms:["recession velocity","recession speed","recession"], def:"The speed at which a source moves away along the line of sight, inferred from redshift as v ≈ cz at low z.", wiki:"https://en.wikipedia.org/wiki/Recessional_velocity"},
+  hubble:{label:"Hubble's law", terms:["Hubble's law","Hubble constant"], def:"Recession speed is proportional to distance, v = H₀d, with H₀ ≈ 70 km/s/Mpc — the direct consequence of uniform cosmic expansion.", wiki:"https://en.wikipedia.org/wiki/Hubble%27s_law"},
+  hubblediagram:{label:"Hubble diagram", terms:["Hubble diagram"], def:"A plot of distance (or distance modulus) against redshift for many standard candles. Fitting hundreds to thousands of Type Ia supernovae to it measures the expansion history — and revealed cosmic acceleration.", wiki:"https://en.wikipedia.org/wiki/Hubble%27s_law#Hubble_diagram"},
+  cepheid:{label:"Cepheid variable", terms:["Cepheid variables","Cepheid variable","Cepheids","Cepheid"], def:"A type of star that pulsates in size and brightness on a regular period of days to weeks. Its period reveals its true luminosity, making it a standard candle.", wiki:"https://en.wikipedia.org/wiki/Cepheid_variable"},
+  periodlum:{label:"Period–luminosity relation", terms:["period–luminosity relation","period-luminosity relation","period–luminosity","Leavitt's law"], def:"Henrietta Leavitt's law: the longer a Cepheid's pulsation period, the greater its intrinsic luminosity — so timing the pulse yields the star's true brightness.", wiki:"https://en.wikipedia.org/wiki/Period-luminosity_relation"},
+  leavitt:{label:"Henrietta Leavitt", terms:["Henrietta Leavitt"], def:"American astronomer (1868–1921) who discovered the Cepheid period–luminosity relation in 1908–1912 — the calibration that made cosmic distances measurable.", wiki:"https://en.wikipedia.org/wiki/Henrietta_Swan_Leavitt"},
+  islanduniverse:{label:"Island universe / spiral nebula", terms:["spiral nebulae","spiral nebula","island universes","island universe"], def:"The early-1900s name and idea for what we now call galaxies — debated as either nearby gas clouds or distant star systems until Hubble's Cepheid distances settled it.", wiki:"https://en.wikipedia.org/wiki/Galaxy#History_of_observation"},
+  distanceladder:{label:"Cosmic distance ladder", terms:["cosmic distance ladder","distance ladder"], def:"The chain of overlapping distance methods — parallax → Cepheids → Type Ia supernovae → Hubble's law — each calibrating the next out to cosmological scales.", wiki:"https://en.wikipedia.org/wiki/Cosmic_distance_ladder"},
+  kappamech:{label:"κ-mechanism (Eddington valve)", terms:["κ-mechanism","kappa mechanism","Eddington valve"], def:"The pulsation engine of Cepheids: a partially-ionized helium layer grows more opaque when compressed, damming heat that then pushes the star outward — absorbing heat when compressed and releasing it when expanded, so the oscillation drives itself.", wiki:"https://en.wikipedia.org/wiki/Kappa%E2%80%93mechanism"},
+  instabilitystrip:{label:"Instability strip", terms:["instability strip"], def:"A narrow, nearly vertical band on the H–R diagram where a star's helium ionization zone sits at just the right depth to drive pulsations. Cepheids pulsate only while crossing it.", wiki:"https://en.wikipedia.org/wiki/Instability_strip"},
+  ionization:{label:"Ionization zone", terms:["partially ionized","ionization zone","partially-ionized"], def:"A layer where atoms are in the act of losing electrons (here He⁺ ⇄ He⁺⁺). Energy poured in goes into ionization rather than heat, which is what lets opacity rise under compression and run the κ-mechanism.", wiki:"https://en.wikipedia.org/wiki/Ionization"},
+  expansion:{label:"Expanding universe", terms:["expanding universe","expansion","expanding"], def:"The growth of space itself over time, carrying galaxies apart and stretching photon wavelengths in flight (cosmological redshift).", wiki:"https://en.wikipedia.org/wiki/Expansion_of_the_universe"},
+  cosmological:{label:"Cosmological redshift", terms:["cosmological"], def:"Redshift produced by the stretching of space during a photon's journey, distinct from a local Doppler motion through space.", wiki:"https://en.wikipedia.org/wiki/Redshift#Expansion_of_space"},
+  candle:{label:"Standard candle", terms:["standard candles","standard candle"], def:"An object of known intrinsic luminosity; comparing known output to observed flux yields distance via the inverse-square law.", wiki:"https://en.wikipedia.org/wiki/Cosmic_distance_ladder#Standard_candles"},
+  snia:{label:"Type Ia supernova", terms:["Type Ia supernova","Type Ia supernovae","Type Ia"], def:"The thermonuclear explosion of a white dwarf near a universal trigger mass, giving a repeatable peak brightness — cosmology's premier standard candle.", wiki:"https://en.wikipedia.org/wiki/Type_Ia_supernova"},
+  whitedwarf:{label:"White dwarf", terms:["white dwarf"], def:"The dense, Earth-sized remnant core of a low-to-intermediate-mass star, supported by electron degeneracy pressure.", wiki:"https://en.wikipedia.org/wiki/White_dwarf"},
+  invsq:{label:"Inverse-square law", terms:["inverse-square law"], def:"Flux falls as 1/d²: F = L/(4πd²). Doubling the distance quarters the brightness — the basis of standard-candle ranging.", wiki:"https://en.wikipedia.org/wiki/Inverse-square_law"},
+  luminosity:{label:"Luminosity", terms:["luminosity"], def:"The total intrinsic power output of a source. Knowing it (a standard candle) converts a measured flux into a distance.", wiki:"https://en.wikipedia.org/wiki/Luminosity"},
+  flux:{label:"Flux", terms:["flux"], def:"The light energy received per unit area at the observer; for a point source it equals L/(4πd²).", wiki:"https://en.wikipedia.org/wiki/Flux#Radiometry"},
+  distmod:{label:"Distance modulus", terms:["distance modulus"], def:"The logarithmic distance measure m − M = 5·log₁₀(d/10 pc), relating apparent and absolute magnitude to distance.", wiki:"https://en.wikipedia.org/wiki/Distance_modulus"},
+  lightcurve:{label:"Light curve", terms:["light curve","light curves"], def:"A source's brightness plotted against time. Type Ia events share a characteristic rise-and-fall shape used both to identify and to time them.", wiki:"https://en.wikipedia.org/wiki/Light_curve"},
+  timedilation:{label:"Cosmic time dilation", terms:["cosmic time dilation","time dilation","time-dilated"], def:"Expansion stretches not only wavelengths but durations: a distant event appears to unfold slower by (1+z). Distant supernovae fade in slow motion.", wiki:"https://en.wikipedia.org/wiki/Time_dilation#Cosmological"},
+  tiredlight:{label:"Tired light", terms:["tired light","tired-light"], def:"A static-universe hypothesis in which photons lose energy over distance, mimicking Hubble's law — but failing the time-dilation, Tolman and CMB tests.", wiki:"https://en.wikipedia.org/wiki/Tired_light"},
+  plasma:{label:"Plasma", terms:["plasma"], def:"An ionised gas of free charged particles. Interstellar and intergalactic space is filled with thin plasma, invoked (unsuccessfully) by tired-light models.", wiki:"https://en.wikipedia.org/wiki/Plasma_(physics)"},
+  cmb:{label:"Cosmic microwave background", terms:["cosmic microwave background"], def:"The relic blackbody radiation from the early universe, now at ~2.7 K — its near-perfect spectrum is a key test against tired light.", wiki:"https://en.wikipedia.org/wiki/Cosmic_microwave_background"},
+  reldoppler:{label:"Relativistic Doppler effect", terms:["relativistic Doppler effect","relativistic Doppler"], def:"The exact shift for fast sources, 1+z = √((1+β)/(1−β)) = γ(1+β), combining classical wave-stretching with the source's time dilation.", wiki:"https://en.wikipedia.org/wiki/Relativistic_Doppler_effect"},
+  lorentz:{label:"Lorentz transformation", terms:["Lorentz transformation"], def:"The coordinate change between inertial frames that leaves the speed of light invariant in all directions — the foundation of special relativity.", wiki:"https://en.wikipedia.org/wiki/Lorentz_transformation"},
+  gamma:{label:"Lorentz factor (γ)", terms:["Lorentz factor"], def:"γ = 1/√(1−β²), the factor by which moving clocks run slow and moving lengths contract; it appears inside the relativistic Doppler shift.", wiki:"https://en.wikipedia.org/wiki/Lorentz_factor"},
+  lightclock:{label:"Light clock", terms:["light clock"], def:"A thought-experiment clock ticking on a bouncing photon. Because its path lengthens when it moves but light's speed is fixed, Pythagoras yields T = γT₀.", wiki:"https://en.wikipedia.org/wiki/Time_dilation#Simple_inference"},
+  lengthcontraction:{label:"Length contraction", terms:["length contraction"], def:"The shrinking of a moving object's length along its motion by a factor 1/γ — the spatial counterpart of time dilation.", wiki:"https://en.wikipedia.org/wiki/Length_contraction"},
+  galilean:{label:"Galilean transformation", terms:["Galilean"], def:"The low-speed (v ≪ c) coordinate change of classical mechanics, recovered from the Lorentz transformation as γ → 1.", wiki:"https://en.wikipedia.org/wiki/Galilean_transformation"},
+  chandrasekhar:{label:"Chandrasekhar mass", terms:["Chandrasekhar mass"], def:"The ~1.4 M☉ upper limit for a white dwarf set by electron degeneracy pressure; reaching it triggers a Type Ia detonation.", wiki:"https://en.wikipedia.org/wiki/Chandrasekhar_limit"},
+  quasar:{label:"Quasar", terms:["Quasars","quasar"], def:"An extremely luminous active galactic nucleus, often at high redshift, where the relativistic Doppler and cosmological treatments become essential.", wiki:"https://en.wikipedia.org/wiki/Quasar"}
+};
+</script>
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    const n=Math.min(220, Math.floor(innerWidth*innerHeight/9000));
+    stars=Array.from({length:n},()=>({x:Math.random()*cv.width, y:Math.random()*cv.height,
+      r:Math.random()*1.3+0.2, a:Math.random()*0.6+0.2, tw:Math.random()*0.02+0.004, ph:Math.random()*7}));
+  }
+  function frame(t){
+    x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const al=s.a+0.35*Math.sin(s.ph+t*s.tw);
+      x.fillStyle='rgba(180,200,255,'+Math.max(0,al)+')';
+      x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame);
+  }
+  addEventListener('resize',resize); resize(); requestAnimationFrame(frame);
+})();
+</script>
+<script>
+(function(){
+  const list=document.getElementById('qz_list'); if(!list) return;
+  const QS=window.REDSHIFT_QUIZ||[];
+  document.getElementById('qz_total').textContent=QS.length;
+  const cEl=document.getElementById('qz_correct'), aEl=document.getElementById('qz_answered'), fill=document.getElementById('qz_fill');
+  let answered=0, correct=0;
+  function update(){ cEl.textContent=correct; aEl.textContent=answered; fill.style.width=(QS.length?answered/QS.length*100:0)+'%'; }
+  function render(){
+    list.innerHTML=''; answered=0; correct=0;
+    QS.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const qt=document.createElement('p'); qt.className='q-text';
+      qt.innerHTML='<span class="q-num">'+(qi+1)+'.</span> '+item.q;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      const exp=document.createElement('div'); exp.className='q-exp';
+      exp.innerHTML='<b>Answer: '+String.fromCharCode(65+item.a)+' — '+item.opts[item.a]+'.</b> '+item.exp;
+      item.opts.forEach((text,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt'; b.type='button';
+        b.innerHTML='<span class="q-mark">'+String.fromCharCode(65+oi)+'</span>'+text;
+        b.addEventListener('click',()=>{
+          if(b.disabled) return;
+          answered++;
+          opts.children[item.a].classList.add('correct');
+          if(oi===item.a) correct++; else b.classList.add('wrong');
+          Array.from(opts.children).forEach(c=>c.disabled=true);
+          exp.classList.add('show'); update();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(qt); card.appendChild(opts); card.appendChild(exp);
+      list.appendChild(card);
+    });
+    update();
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<script>
+(function(){
+  const GLOSS=window.REDSHIFT_GLOSS||{};
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase(); let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z0-9]/.test(b)&&/[^A-Za-z0-9]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm==='pre'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .step, .leadin, .mathnote p');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>
