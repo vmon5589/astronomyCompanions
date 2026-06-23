@@ -318,6 +318,7 @@
       <a href="#galaxy" class="amateur">Reading the Galaxy</a>
       <a href="#absorption">Anti-aligned gas</a>
       <a href="#cosmic">Galaxies &amp; time</a>
+      <a href="#sun">The Sun</a>
       <a href="#moon">The Moon</a>
       <a href="#jove" class="amateur">Radio Jove</a>
       <a href="#quiz">Test yourself</a>
@@ -769,8 +770,80 @@
 <div class="divider">
   <div class="rule"></div>
   <h3>Closer to home · <span class="grad">the Solar System in radio</span></h3>
-  <p>Radio doesn't only reach across the cosmos. It read the surface of our own Moon before any astronaut touched it — and it lets a backyard antenna hear Jupiter.</p>
+  <p>Radio doesn't only reach across the cosmos. It pins down the storms erupting on our own Sun, mapped the surface of our Moon before any astronaut touched it, and lets a backyard antenna hear Jupiter.</p>
 </div>
+
+<!-- ============================================================= -->
+<!-- 6a. IDENTIFYING A BURST'S SOURCE · THE SUN -->
+<!-- ============================================================= -->
+<section class="chapter" id="sun">
+  <span class="era">1945 – 1949 · Pinning a burst on the sky</span>
+  <h2>How do astronomers identify the source of a radio burst?</h2>
+  <p class="who">From a single blurry dish to interferometry — Ruby Payne-Scott and the Sun's radio storms</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The problem</div>
+      <p>A single dish hears a burst loud and clear but can barely say <i>where</i> it came from. A telescope's sharpness is set by $\theta\approx\lambda/D$, and radio wavelengths are enormous — at $\lambda=1$ m, even a 30-metre dish blurs the sky to about 2°, four times the width of the full Moon. The Sun erupts in radio storms, but one antenna cannot tell which sunspot is responsible, or even whether the source sits on the disk or high in the corona.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Don't build a bigger dish — use two antennas far apart and <b>interfere</b> their signals. A pair separated by a baseline $B$ resolves detail as finely as a single dish the size of $B$: $\theta\approx\lambda/B$. The combined signal rises and falls in <b>fringes</b> as the source drifts across the sky, and the fringe pattern pins its position to a sliver of the beam. The full machinery — fringes, baselines, aperture synthesis, VLBI — is its own story: see the <a class="inline" href="https://vmon5589.github.io/astronomyCompanions/interferometry_companion.html" target="_blank" rel="noopener">interferometry companion</a>.</p></div>
+    <div class="beat test"><div class="tag">The test · a cliff and the sea</div>
+      <p><b>Ruby Payne-Scott</b>, at Australia's CSIRO Radiophysics Laboratory, built one of the first radio interferometers from a <i>single</i> antenna — by using the ocean as a mirror. Perched on the 85-metre <b>Dover Heights</b> cliff near Sydney, her antenna caught the Sun's radio waves twice: the <b>direct</b> ray, and a ray <b>reflected off the sea</b>. The two paths interfere — a <b>sea-cliff</b> (Lloyd's-mirror) interferometer — and as the Sun rose the fringes swept through, fixing each burst's height and tracing it to a <b>sunspot</b> group.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Payne-Scott became one of the world's first radio astronomers and a founder of solar radio astronomy. She classified the Sun's bursts, co-invented the <b>swept-lobe</b> interferometer that followed a moving source in real time, and helped lay the groundwork for the interferometric arrays that image the radio sky today.</p></div>
+  </div>
+
+  <figure style="margin:14px 0 6px">
+    <svg viewBox="0 0 600 300" style="display:block;width:100%;height:auto;background:#070a14" role="img" aria-label="A sea-cliff interferometer: the direct ray from the rising Sun and a ray reflected off the sea interfere at a cliff-top antenna.">
+      <!-- sea -->
+      <rect x="0" y="232" width="600" height="68" fill="#10243a"/>
+      <line x1="0" y1="232" x2="515" y2="232" stroke="rgba(120,160,210,0.45)" stroke-width="1.5"/>
+      <!-- cliff + antenna -->
+      <rect x="515" y="108" width="85" height="124" fill="#241c14" stroke="rgba(140,160,230,0.25)"/>
+      <line x1="550" y1="108" x2="550" y2="72" stroke="#cfd6f5" stroke-width="3"/>
+      <circle cx="550" cy="66" r="10" fill="none" stroke="#cfd6f5" stroke-width="3"/>
+      <!-- Sun low on the horizon -->
+      <circle cx="66" cy="150" r="20" fill="#ffb24a"/>
+      <g stroke="#ffb24a" stroke-width="2"><line x1="66" y1="120" x2="66" y2="110"/><line x1="36" y1="150" x2="26" y2="150"/><line x1="45" y1="129" x2="38" y2="122"/></g>
+      <!-- direct ray Sun -> antenna -->
+      <line x1="84" y1="142" x2="540" y2="68" stroke="#3fd0ff" stroke-width="2"/>
+      <!-- reflected ray Sun -> sea -> antenna -->
+      <line x1="80" y1="166" x2="290" y2="232" stroke="#ffb24a" stroke-width="2"/>
+      <line x1="290" y1="232" x2="544" y2="72" stroke="#ffb24a" stroke-width="2"/>
+      <circle cx="290" cy="232" r="3.5" fill="#ffe2ad"/>
+      <!-- labels -->
+      <text x="66" y="196" fill="#ffd9a0" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">Sun (rising)</text>
+      <text x="300" y="96" fill="#3fd0ff" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">direct ray</text>
+      <text x="168" y="214" fill="#ffb24a" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">reflected off the sea</text>
+      <text x="120" y="270" fill="#9fb4d6" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">the sea — nature's mirror</text>
+      <text x="598" y="40" fill="#cfd6f5" font-size="13" text-anchor="end" font-family="-apple-system,sans-serif">cliff-top antenna</text>
+      <text x="557" y="178" fill="#cfd6f5" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">Dover</text>
+      <text x="557" y="193" fill="#cfd6f5" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">Heights</text>
+    </svg>
+    <figcaption><b>Payne-Scott's sea-cliff interferometer.</b> One antenna, two paths: the direct ray and a ray bounced off the ocean act like two antennas separated in height. As the Sun climbs, the steadily changing path difference sweeps interference fringes past the dish — and the fringe timing fixes the burst's height and pins it to a sunspot group.</figcaption>
+  </figure>
+
+  <div class="mathnote">
+    <h4>Why one dish can't, but two can</h4>
+    <p>Angular resolution is $\theta\approx\lambda/D$. At $\lambda=2$ m a lone 30-m dish gives $\theta\approx0.07$ rad $\approx4°$ — useless for finding which feature on the half-degree solar disk is erupting. Replace the dish diameter $D$ with a <b>baseline</b> of a few kilometres and the same wavelength yields arc-minutes; span continents with <b>VLBI</b> and you reach milli-arcseconds. A burst's <i>brightness</i> needs only one antenna; its <i>address</i> needs two.</p>
+  </div>
+
+  <h3 class="subhead">The Sun's radio bursts — and where they come from</h3>
+  <p class="leadin">Once you can locate a burst, its <b>drift across frequency</b> betrays its origin. The corona's electron density falls with height, and ionised gas radiates most strongly at its <b>plasma frequency</b>, which is set by that density. So a disturbance climbing outward through the corona emits at a steadily <i>lower</i> frequency — and the rate of drift reveals how fast it moves and how high it has risen.</p>
+
+  <div class="mathnote">
+    <h4>Type III — electron beams from a flare</h4>
+    <p>A flare shoots beams of near-light-speed electrons up through the corona. They stir up plasma waves as they go, and the emission sweeps from hundreds of MHz down to a few MHz in <i>seconds</i> — a fast downward drift that tracks the beam racing outward and thinning into the high corona. These are the bursts a backyard antenna catches most often.</p>
+  </div>
+  <div class="mathnote">
+    <h4>Type II shocks &amp; Type I noise storms</h4>
+    <p><b>Type II</b> bursts drift down far more slowly, over minutes: they mark a <b>shock wave</b> — often driven by a coronal mass ejection — ploughing outward at ~1000 km/s. <b>Type I</b> noise storms are long-lived crackle from the turbulent magnetic fields above active <b>sunspot</b> regions — the very storms Payne-Scott first tied to sunspots. Read off its drift, a burst's <i>type</i> names the physical machine that made it.</p>
+  </div>
+
+  <div class="mathnote">
+    <h4>Hear the Sun on a satellite dish — the "Itty Bitty Telescope"</h4>
+    <p>You don't need a cliff. The Society of Amateur Radio Astronomers' <b>Itty Bitty Telescope (IBT)</b> is an ordinary satellite-TV dish and its LNB repurposed as a radio telescope: swept across the sky it registers a clear jump in noise as the beam crosses the <b>Sun</b>, whose ~12-GHz glow easily outshines the cold sky. It is the simplest hands-on proof that the Sun is a blazing radio source — and a felt demonstration that a single dish's <b>beam</b> is the only, crude, sense of direction one antenna has. Build notes: <a class="inline" href="https://www.radio-astronomy.org/node/248" target="_blank" rel="noopener">radio-astronomy.org · The Itty Bitty Telescope</a>.</p>
+  </div>
+</section>
 
 <!-- ============================================================= -->
 <!-- 6b. THE MOON BEFORE APOLLO -->
@@ -813,6 +886,11 @@
     <div class="mathnote">
       <h4>Why longer waves see deeper — and steadier</h4>
       <p>A heat wave from the lunar day soaks into the regolith but fades with depth over a thermal skin depth $\delta$ of only a few centimetres, so deep layers barely feel the day–night cycle. Radio emission at wavelength $\lambda$ escapes from a depth roughly proportional to $\lambda$: short waves report the swinging surface, long waves report the calm interior. The steep damping with depth could only happen if the surface material conducts heat very poorly — i.e. a fluffy, porous dust. Robert <b>Dicke</b> first measured the Moon's microwave emission in 1946; two decades of such work, plus the radar surveys, retired the "deep dust" fear well before Apollo.</p>
+    </div>
+
+    <div class="mathnote">
+      <h4>Layer by layer: why the radio glow runs <i>hotter after</i> the heat</h4>
+      <p>The regolith is not one uniform blanket but a <b>graded stack</b> of layers — a few centimetres of the fluffiest, most insulating dust on top, grading into denser, more compacted, more conductive material below. Each layer <b>stores and re-radiates heat differently</b>: heat soaking down from the lunar noon is held by the lower layers and released slowly, so their radio emission stays warm long after the surface skin has cooled. Because longer wavelengths emerge from deeper, hotter-for-longer layers, the radio brightness both <b>lags</b> the Sun and stays elevated <i>after</i> the surface is heated — the Moon's radio activity is strongest well past local noon, and during a lunar eclipse the radio brightness barely flinches while the infrared skin plunges. That mismatch is the tell: a single uniform surface could not do it. Reading the lag and the damping wavelength by wavelength is exactly how astronomers reconstructed the Moon's <b>layered sub-surface</b> — its density and conductivity increasing with depth — without ever digging a hole.</p>
     </div>
     <p style="font-size:12.5px;color:var(--muted);margin-top:10px">References: T. W. Thompson, <a class="inline" href="https://ntrs.nasa.gov/citations/19790050928" target="_blank" rel="noopener">“A review of earth-based radar mapping of the Moon”</a> (NASA, 1979); and the radio-astronomy overview at <a class="inline" href="https://www.britannica.com/science/radio-astronomy" target="_blank" rel="noopener">Encyclopædia Britannica</a>.</p>
   </div>

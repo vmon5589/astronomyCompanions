@@ -309,6 +309,7 @@
       <a href="#resolution">Resolution</a>
       <a href="#phasing">The phasing puzzle</a>
       <a href="#radio">Radio · VLBI &amp; EHT</a>
+      <a href="#burst">Locating a burst</a>
       <a href="#optical">Optical · VLTI</a>
       <a href="#adaptive">Adaptive optics</a>
       <a href="#fizeau">Fizeau vs Michelson</a>
@@ -571,6 +572,60 @@
       </ol>
       <div class="concl"><b>Conclusion:</b> VLBI turns precise timekeeping and the planet's own rotation into an aperture the size of the Earth — no glass required between the dishes.</div>
     </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4b. LOCATING A RADIO BURST · PAYNE-SCOTT -->
+<!-- ============================================================= -->
+<section class="chapter" id="burst">
+  <span class="era">Radio · The first interferometer was a cliff</span>
+  <h2>How do astronomers identify the source of a radio burst?</h2>
+  <p class="who">Ruby Payne-Scott, the sea-cliff interferometer, and locating the Sun's storms</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The problem</div>
+      <p>A burst of radio — from the Sun, a flare star, a fast radio burst — arrives at a single dish loud but <b>placeless</b>. With resolution $\theta\approx\lambda/D$ and metre-scale wavelengths, one antenna smears the source across whole degrees of sky. Knowing a burst happened is easy; knowing <i>where</i> is the hard part.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Interfere two antennas. The very same $\theta\approx\lambda/B$ that sharpens an image also <b>localises a source</b>: as it drifts across the sky the combined signal beats through <b>fringes</b>, and the fringe timing pins its position to a fraction of the single-dish beam. Localising a point source and imaging an extended one are the same trick read two ways.</p></div>
+    <div class="beat test"><div class="tag">The test · a cliff and the sea</div>
+      <p>In 1945–46 <b>Ruby Payne-Scott</b> (CSIRO, Sydney) built an interferometer from <i>one</i> antenna on the 85-m <b>Dover Heights</b> cliff. It received the Sun twice — directly, and reflected off the ocean — so the direct and sea-bounced rays interfered: a <b>sea-cliff</b> (Lloyd's-mirror) interferometer. The rising Sun swept the fringes past the dish, and the pattern fixed each burst's height and tied it to a <b>sunspot</b> group.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Payne-Scott — one of the first radio astronomers anywhere — classified the Sun's bursts and co-invented the <b>swept-lobe</b> interferometer to follow a moving source live. Her cliff was a direct ancestor of every interferometric array in this companion, from the VLA to the EHT.</p></div>
+  </div>
+
+  <figure style="margin:14px 0 6px">
+    <svg viewBox="0 0 600 300" style="display:block;width:100%;height:auto;background:#070a14" role="img" aria-label="A sea-cliff interferometer: the direct ray from the rising Sun and a ray reflected off the sea interfere at a cliff-top antenna.">
+      <rect x="0" y="232" width="600" height="68" fill="#10243a"/>
+      <line x1="0" y1="232" x2="515" y2="232" stroke="rgba(120,160,210,0.45)" stroke-width="1.5"/>
+      <rect x="515" y="108" width="85" height="124" fill="#241c14" stroke="rgba(140,160,230,0.25)"/>
+      <line x1="550" y1="108" x2="550" y2="72" stroke="#cfd6f5" stroke-width="3"/>
+      <circle cx="550" cy="66" r="10" fill="none" stroke="#cfd6f5" stroke-width="3"/>
+      <circle cx="66" cy="150" r="20" fill="#ffb24a"/>
+      <g stroke="#ffb24a" stroke-width="2"><line x1="66" y1="120" x2="66" y2="110"/><line x1="36" y1="150" x2="26" y2="150"/><line x1="45" y1="129" x2="38" y2="122"/></g>
+      <line x1="84" y1="142" x2="540" y2="68" stroke="#3fd0ff" stroke-width="2"/>
+      <line x1="80" y1="166" x2="290" y2="232" stroke="#ffb24a" stroke-width="2"/>
+      <line x1="290" y1="232" x2="544" y2="72" stroke="#ffb24a" stroke-width="2"/>
+      <circle cx="290" cy="232" r="3.5" fill="#ffe2ad"/>
+      <text x="66" y="196" fill="#ffd9a0" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">Sun (rising)</text>
+      <text x="300" y="96" fill="#3fd0ff" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">direct ray</text>
+      <text x="168" y="214" fill="#ffb24a" font-size="13" text-anchor="middle" font-family="-apple-system,sans-serif">reflected off the sea</text>
+      <text x="120" y="270" fill="#9fb4d6" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">the sea — nature's mirror</text>
+      <text x="598" y="40" fill="#cfd6f5" font-size="13" text-anchor="end" font-family="-apple-system,sans-serif">cliff-top antenna</text>
+      <text x="557" y="178" fill="#cfd6f5" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">Dover</text>
+      <text x="557" y="193" fill="#cfd6f5" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">Heights</text>
+    </svg>
+    <figcaption><b>Payne-Scott's sea-cliff interferometer.</b> One antenna, two paths: the direct ray and the sea-bounced ray behave like two antennas separated in height — a baseline built from a cliff and the ocean. The rising Sun sweeps the fringes past the dish, and their timing fixes the burst's height and pins it to a sunspot group.</figcaption>
+  </figure>
+
+  <div class="mathnote">
+    <h4>From fringe to position</h4>
+    <p>Two antennas a baseline $B$ apart see a source's wavefront arrive with a path difference $B\sin\theta$. Each time that difference grows by one wavelength the combined signal passes through a full <b>fringe</b>. Counting fringes as the source moves measures $\theta$ to a precision $\sim\lambda/B$ — and for Payne-Scott's vertical "baseline" (the antenna and its mirror image below the sea surface), the rising Sun did the scanning for free.</p>
+  </div>
+
+  <div class="mathnote">
+    <h4>What the burst's drift then tells you</h4>
+    <p>Once located, a solar burst's <b>drift in frequency</b> reveals its origin: the corona thins with height, ionised gas radiates at its <b>plasma frequency</b>, so a disturbance climbing outward emits at an ever-lower frequency. A fast drift is an electron beam from a flare (a Type III burst); a slow drift is a coronal-mass-ejection shock (Type II). The physics of these solar storms — and the backyard "Itty Bitty Telescope" that hears the Sun — is laid out in the <a class="inline" href="https://vmon5589.github.io/astronomyCompanions/radio_companion.html#sun" target="_blank" rel="noopener">radio astronomy companion</a>.</p>
   </div>
 </section>
 
