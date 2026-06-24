@@ -320,6 +320,8 @@
       <a href="#cosmic">Galaxies &amp; time</a>
       <a href="#sun">The Sun</a>
       <a href="#moon">The Moon</a>
+      <a href="#doppler">Doppler &amp; spin</a>
+      <a href="#mercury">Ice on Mercury</a>
       <a href="#jove" class="amateur">Radio Jove</a>
       <a href="#quiz">Test yourself</a>
     </div>
@@ -897,6 +899,288 @@
 </section>
 
 <!-- ============================================================= -->
+<!-- 6c. THE DOPPLER EFFECT + RADAR ROTATION -->
+<!-- ============================================================= -->
+<section class="chapter" id="doppler">
+  <span class="era">The physics · Hearing motion in a wave</span>
+  <h2>The Doppler effect — and how radar clocks a planet's spin</h2>
+  <p class="who">From the pitch of a passing siren to Mercury's true rotation period (Arecibo, 1965)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A wave from a moving source is squeezed ahead of the motion and stretched behind it — the <b>Doppler effect</b>. A receding source lowers the pitch you hear; an approaching one raises it. The same is true of light: a receding source is shifted to lower frequency (<b>redshift</b>), an approaching one to higher frequency (blueshift). Because a <b>spectral line</b> sits at a precisely known rest frequency, the size of its shift is a clean readout of <b>radial velocity</b> — the very trick behind the 21-cm line above.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Now point the idea at a <i>spinning</i> body. One limb is turning <b>toward</b> you while the opposite limb turns <b>away</b>. Light or radar from the approaching limb is blueshifted, from the receding limb redshifted — so a single sharp frequency comes back <b>smeared into a band</b>. The <i>width</i> of that band measures how fast the surface is moving, and therefore the <b>rotation rate</b>. Radio astronomers don't even need the body to glow: they can <b>send</b> a pure tone and read the spin off the broadened echo.</p></div>
+    <div class="beat test"><div class="tag">The test · Mercury, 1965</div>
+      <p>For decades Mercury was assumed to keep one face to the Sun, rotating once every 88-day orbit. In 1965 Gordon Pettengill and Rolf Dyce beamed a monochromatic 430 MHz signal from the <b>Arecibo</b> dish at Mercury and measured the Doppler broadening of the returned echo. The band was too wide for an 88-day spin: Mercury actually turns once every <b>≈59 days</b> — a 3:2 resonance with its orbit. The same radar technique pinned Venus's bizarre <b>243-day backward</b> rotation.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Doppler is the workhorse of all radio kinematics: gas velocities in the Galaxy, the expansion of the cosmos, the spin of planets and asteroids, and — combined with the echo <i>delay</i> — the <b>delay-Doppler</b> imaging that maps a world's surface from Earth. Every measurement in this companion that turns a frequency into a speed is the Doppler effect at work.</p></div>
+  </div>
+
+  <figure style="margin:14px 0 6px">
+    <svg viewBox="0 0 600 250" style="display:block;width:100%;height:auto;background:#070a14" role="img" aria-label="A moving wave source: wavefronts bunch up ahead of the motion (blueshift, higher frequency) and stretch out behind it (redshift, lower frequency).">
+      <!-- stretched wavefronts behind (left, red); compressed ahead (right, blue) -->
+      <g fill="none" stroke-width="1.8">
+        <circle cx="245" cy="125" r="40"  stroke="#ff6b9d"/>
+        <circle cx="270" cy="125" r="78"  stroke="#ff8fb4"/>
+        <circle cx="292" cy="125" r="116" stroke="#9fb4d6"/>
+        <circle cx="312" cy="125" r="152" stroke="#3fd0ff"/>
+      </g>
+      <!-- source -->
+      <circle cx="320" cy="125" r="7" fill="#fff"/>
+      <line x1="332" y1="125" x2="372" y2="125" stroke="#fff" stroke-width="2.5" marker-end="url(#arrowWhite)"/>
+      <text x="352" y="112" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">motion</text>
+      <!-- observers -->
+      <text x="40" y="120" fill="#ff6b9d" font-size="13" font-family="-apple-system,sans-serif">receding side</text>
+      <text x="40" y="138" fill="#ff9ec0" font-size="12" font-family="-apple-system,sans-serif">waves stretched →</text>
+      <text x="40" y="153" fill="#ff9ec0" font-size="12" font-family="-apple-system,sans-serif">lower f (redshift)</text>
+      <text x="560" y="120" fill="#3fd0ff" font-size="13" text-anchor="end" font-family="-apple-system,sans-serif">approaching side</text>
+      <text x="560" y="138" fill="#8fe0ff" font-size="12" text-anchor="end" font-family="-apple-system,sans-serif">← waves squeezed</text>
+      <text x="560" y="153" fill="#8fe0ff" font-size="12" text-anchor="end" font-family="-apple-system,sans-serif">higher f (blueshift)</text>
+      <text x="300" y="228" fill="#9aa3c7" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">each circle = one wavefront</text>
+      <defs><marker id="arrowWhite" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#fff"/></marker></defs>
+    </svg>
+    <figcaption><b>The Doppler effect.</b> A source moving to the right compresses its wavefronts ahead (shorter wavelength, higher frequency — blueshift) and stretches them behind (longer wavelength, lower frequency — redshift). Swap "source moving" for "you moving" and nothing changes: only the <i>relative</i> velocity along the line of sight matters.</figcaption>
+  </figure>
+
+  <div class="eq">$$ \frac{\Delta f}{f_0}=-\frac{\Delta\lambda}{\lambda_0}=-\frac{v_r}{c}\qquad\Longrightarrow\qquad v_r=c\,\frac{\lambda_{\rm obs}-\lambda_0}{\lambda_0} $$</div>
+
+  <figure style="margin:18px 0 6px">
+    <svg viewBox="0 0 600 400" style="display:block;width:100%;height:auto;background:#070a14" role="img" aria-label="Top-down view over Mercury's pole: a radar beam from Earth strikes the planet; the sub-radar point's spin is perpendicular to the line of sight so it gives only the orbital shift, while the approaching limb blueshifts the echo and the receding limb redshifts it. Below, the returned echo spectrum spreads from the receding edge to the approaching edge.">
+      <!-- ===== geometry (looking down on Mercury's north pole) ===== -->
+      <text x="300" y="22" fill="#cfd6f5" font-size="13.5" text-anchor="middle" font-family="-apple-system,sans-serif" font-weight="700">A radar beam off spinning Mercury</text>
+
+      <!-- Earth radar at left -->
+      <circle cx="48" cy="170" r="15" fill="#1b3a5c" stroke="rgba(120,160,210,0.6)"/>
+      <path d="M66,156 a14,18 0 1 1 0.1,0" fill="none" stroke="#cfd6f5" stroke-width="2"/>
+      <text x="48" y="205" fill="#9fb4d6" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">Earth</text>
+      <text x="48" y="219" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="-apple-system,sans-serif">radar</text>
+
+      <!-- Mercury -->
+      <circle cx="360" cy="170" r="110" fill="#5a5048" stroke="rgba(200,180,150,0.4)"/>
+      <circle cx="360" cy="170" r="110" fill="url(#mercShade2)"/>
+      <!-- spin axis (pole, pointing at us) + CCW arrow -->
+      <circle cx="360" cy="170" r="7" fill="none" stroke="rgba(220,228,255,0.7)" stroke-width="1.5"/>
+      <circle cx="360" cy="170" r="2.2" fill="rgba(220,228,255,0.9)"/>
+      <path d="M360,110 a60,60 0 0 0 -52,30" fill="none" stroke="rgba(220,228,255,0.65)" stroke-width="2" marker-end="url(#arrSpin)"/>
+      <text x="360" y="150" fill="#cdd4f0" font-size="11.5" text-anchor="middle" font-family="-apple-system,sans-serif">spin</text>
+
+      <!-- incoming radar beam -->
+      <g stroke="#ffb24a" stroke-width="2.5">
+        <line x1="90" y1="150" x2="240" y2="150" marker-end="url(#arrAmberB)"/>
+        <line x1="90" y1="170" x2="240" y2="170" marker-end="url(#arrAmberB)"/>
+        <line x1="90" y1="190" x2="240" y2="190" marker-end="url(#arrAmberB)"/>
+      </g>
+      <text x="150" y="138" fill="#ffb24a" font-size="12" text-anchor="middle" font-family="-apple-system,sans-serif">radar pulse →</text>
+      <!-- echo back -->
+      <line x1="246" y1="208" x2="92" y2="200" stroke="#9aa3c7" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#arrGreyB)"/>
+      <text x="168" y="224" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="-apple-system,sans-serif">echo back to Earth</text>
+
+      <!-- sub-radar point -->
+      <circle cx="250" cy="170" r="5" fill="#fff"/>
+      <text x="250" y="262" fill="#e8ecff" font-size="11.5" text-anchor="middle" font-family="-apple-system,sans-serif">sub-radar point</text>
+      <text x="250" y="277" fill="#9aa3c7" font-size="10.5" text-anchor="middle" font-family="-apple-system,sans-serif">spin ⊥ sight → orbital shift only</text>
+      <line x1="250" y1="175" x2="250" y2="248" stroke="rgba(232,236,255,0.4)" stroke-width="1" stroke-dasharray="3 3"/>
+
+      <!-- approaching (top) limb: velocity toward Earth -->
+      <circle cx="360" cy="62" r="5" fill="#3fd0ff"/>
+      <line x1="360" y1="62" x2="300" y2="62" stroke="#3fd0ff" stroke-width="2.5" marker-end="url(#arrCyanB)"/>
+      <text x="372" y="52" fill="#3fd0ff" font-size="12" text-anchor="start" font-family="-apple-system,sans-serif">approaching limb</text>
+      <text x="372" y="67" fill="#8fe0ff" font-size="11" text-anchor="start" font-family="-apple-system,sans-serif">blueshift (↑ f)</text>
+
+      <!-- receding (bottom) limb: velocity away -->
+      <circle cx="360" cy="278" r="5" fill="#ff6b9d"/>
+      <line x1="360" y1="278" x2="420" y2="278" stroke="#ff6b9d" stroke-width="2.5" marker-end="url(#arrRoseB)"/>
+      <text x="372" y="296" fill="#ff6b9d" font-size="12" text-anchor="start" font-family="-apple-system,sans-serif">receding limb</text>
+      <text x="372" y="311" fill="#ff9ec0" font-size="11" text-anchor="start" font-family="-apple-system,sans-serif">redshift (↓ f)</text>
+
+      <!-- ===== returned echo spectrum strip ===== -->
+      <text x="300" y="338" fill="#cfd6f5" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">returned echo spectrum — its width is the spin</text>
+      <path d="M150,388 Q300,330 450,388 Z" fill="url(#echoBand)" stroke="none"/>
+      <line x1="120" y1="388" x2="480" y2="388" stroke="rgba(140,160,230,0.4)" stroke-width="1.2"/>
+      <line x1="300" y1="350" x2="300" y2="392" stroke="rgba(232,236,255,0.5)" stroke-width="1" stroke-dasharray="3 3"/>
+      <text x="300" y="402" fill="#9aa3c7" font-size="10.5" text-anchor="middle" font-family="-apple-system,sans-serif">sub-radar (orbital)</text>
+      <text x="150" y="378" fill="#ff9ec0" font-size="10.5" text-anchor="middle" font-family="-apple-system,sans-serif">↓ f</text>
+      <text x="450" y="378" fill="#8fe0ff" font-size="10.5" text-anchor="middle" font-family="-apple-system,sans-serif">↑ f</text>
+
+      <defs>
+        <radialGradient id="mercShade2" cx="0.3" cy="0.35" r="0.85"><stop offset="0" stop-color="rgba(255,240,210,0.22)"/><stop offset="1" stop-color="rgba(0,0,0,0.5)"/></radialGradient>
+        <linearGradient id="echoBand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="rgba(255,107,157,0.55)"/><stop offset="0.5" stop-color="rgba(154,163,199,0.35)"/><stop offset="1" stop-color="rgba(63,208,255,0.55)"/></linearGradient>
+        <marker id="arrAmberB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ffb24a"/></marker>
+        <marker id="arrGreyB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        <marker id="arrCyanB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#3fd0ff"/></marker>
+        <marker id="arrRoseB" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ff6b9d"/></marker>
+        <marker id="arrSpin" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="rgba(220,228,255,0.8)"/></marker>
+      </defs>
+    </svg>
+    <figcaption><b>Reading the spin off the echo.</b> Looking down on Mercury's pole, with Earth to the left: the radar beam floods the disk, but the <b>sub-radar point</b> (the spot facing us) spins <i>across</i> the line of sight, so its echo carries only the planet's orbital shift — the band's centre. The <b>approaching limb</b> turns toward us and blueshifts its echo; the <b>receding limb</b> turns away and redshifts it. The single transmitted tone therefore returns spread into a band whose width measures how fast Mercury spins — exactly the spectrum you tune below.</figcaption>
+  </figure>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Clock Mercury's spin from its radar echo</h3>
+    <p class="hint">Bounce a single pure 430 MHz tone (70-cm waves) off Mercury, as Arecibo did in 1965. The planet's approaching limb blueshifts the echo and the receding limb redshifts it, so the monochromatic tone returns smeared into a band. Drag the assumed rotation period and watch the echo widen or narrow — then find the period whose echo width the radar actually measured. The old "88-day, one-face-to-the-Sun" picture predicts too narrow a band.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Assumed rotation period <b><span id="dop_pl">58.6 days</span></b></label>
+        <input id="dop_p" type="range" min="35" max="200" step="0.4" value="58.6">
+        <label style="margin-top:2px"><span style="font-size:11px">slide toward 88 days for the old synchronous guess, or 35 for a fast spinner</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Equatorial speed</div><div class="v"><span id="dop_v">3.0</span> <small>m/s</small></div></div>
+      <div class="stat"><div class="k">Echo bandwidth</div><div class="v"><span id="dop_b">17.3</span> <small>Hz</small></div></div>
+      <div class="stat"><div class="k">Limb-to-limb shift</div><div class="v" id="dop_lim" style="font-size:14px">±8.6 Hz</div></div>
+      <div class="stat"><div class="k">Verdict</div><div class="v" id="dop_verdict" style="font-size:13px">matches Mercury</div></div>
+    </div>
+    <div id="dop_plot" class="plot"></div>
+    <div class="eq">$$ B \;=\; \frac{4\,v_{\rm eq}}{\lambda} \;=\; \frac{8\pi R}{\lambda\,P}\qquad(\text{two-way radar, equator-on}) $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why the echo's <i>width</i> is the spin</h4>
+      <p class="lead">A transmitted radar tone is a single frequency. What comes back is a band — and its width is set entirely by how fast the limbs move.</p>
+      <ol>
+        <li>A point on the equator moves at $v_{\rm eq}=2\pi R/P$. The sub-radar approaching limb has line-of-sight speed $+v_{\rm eq}$; the receding limb, $-v_{\rm eq}$.</li>
+        <li>Radar is a <b>two-way</b> measurement (the surface both receives and re-emits a shifted wave), so each limb's Doppler shift is doubled: $\pm 2v_{\rm eq}/\lambda$. Edge to edge, the echo spans $B=4v_{\rm eq}/\lambda=8\pi R/(\lambda P)$.</li>
+        <li>For Mercury ($R=2440$ km, $\lambda=0.70$ m) a 59-day spin gives $B\approx17$ Hz; an 88-day spin gives only $\approx12$ Hz. The 1965 echo was unmistakably the wider one — Mercury is <i>not</i> locked to the Sun.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> you never see the limbs move — you hear them, as the two edges of a smeared echo. The faster the spin, the wider the band, so the echo's width <i>is</i> the rotation rate.</div>
+    </div>
+
+    <div class="mathnote">
+      <h4>Separating spin from orbit — the sub-radar trick</h4>
+      <p>Mercury's echo carries <i>two</i> Doppler shifts: its whole-planet <b>orbital</b> motion toward or away from Earth, and its <b>rotation</b>. The two are untangled by timing. The pulse spreads to cover the whole disk, but it strikes the <b>sub-radar point</b> — the spot dead-centre on the Earth–Mercury line — first, with the rest of the planet answering a few microseconds later from further back. At that sub-radar point the surface's spin is moving <i>across</i> the line of sight, so its echo is shifted by the orbital velocity <b>alone</b> — that fixes the zero point. Echoes returning microseconds later come from nearer the limbs, where rotation <i>does</i> lie along the line of sight: the approaching edge adds a little blueshift, the receding edge a little redshift, fanning the single tone into the band you measured above. Combining the round-trip <b>delay</b> with the <b>Doppler</b> shift this way — "delay-Doppler" — is the same method that maps Venus through its clouds and gauges the rings of the giant planets and the spin of asteroids.</p>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Reference: the Doppler primer at the <a class="inline" href="https://britastro.org/2022/the-doppler-effect-in-astronomy" target="_blank" rel="noopener">British Astronomical Association</a>, and the radar-rotation lab by L. DeWarf (Villanova University); G. H. Pettengill &amp; R. B. Dyce, “A Radar Determination of the Rotation of the Planet Mercury,” <i>Nature</i> <b>206</b>, 1240 (1965).</p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6d. RADAR, POLARIZATION & ICE ON MERCURY -->
+<!-- ============================================================= -->
+<section class="chapter" id="mercury">
+  <span class="era">Application · Radar finds ice in the dark</span>
+  <h2>How radio waves found ice at Mercury's poles</h2>
+  <p class="who">Bouncing radar off the Solar System's hottest planet — and reading the echo's polarization</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Mercury is the planet closest to the Sun, with daytime ground hot enough to melt lead — the last place you'd look for ice. But Mercury's spin axis is almost perfectly upright, so the floors of craters near its poles <b>never see the Sun at all</b>. Those permanently shadowed traps can stay below −170 °C for billions of years. Could anything frozen be hiding inside, where no telescope can see down?</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Radio waves don't need sunlight. <b>Radar</b> works by beaming a radio signal at a world and reading the part that <b>bounces back</b> — and crucially, ice and rock bounce it back <i>differently</i>. Water ice is nearly transparent to radio, so the wave rattles around inside it and returns unusually bright and with a tell-tale <b>polarization</b> signature that ordinary rocky ground cannot fake.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In 1991 the <b>Arecibo</b> and <b>Goldstone</b> radars found the polar crater floors blazing back radar-bright, with the same odd polarization seen from the icy moons of Jupiter and the Martian ice caps. NASA's <b>MESSENGER</b> orbiter later confirmed it from neutron and thermal data, and a 2022 study combined 2019 Arecibo radar with MESSENGER laser maps to gauge how <b>pure</b> the ice is.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Water ice on the innermost planet — delivered by comets and asteroids and preserved in cold traps for aeons. The polarization-radar method is now the template for hunting ice in the permanently shadowed craters of <b>the Moon</b>, where it could one day supply water for a lunar base.</p></div>
+  </div>
+
+  <h3 class="subhead"><span class="n">A.</span> Radio waves reflect — that's radar</h3>
+  <p class="leadin">The whole technique rests on one everyday fact: a radio wave that meets a surface partly <b>bounces off it</b>, just like light off a mirror or sound off a canyon wall. Time the round trip and you get distance; read the echo's strength and character and you get the surface.</p>
+
+  <figure style="margin:14px 0 6px">
+    <svg viewBox="0 0 600 300" style="display:block;width:100%;height:auto;background:#070a14" role="img" aria-label="A radar telescope on Earth transmits a radio pulse to Mercury; the pulse reflects off the planet and a faint echo returns, with ice in a permanently shadowed polar crater glowing brightly.">
+      <!-- Earth + dish -->
+      <circle cx="62" cy="150" r="34" fill="#1b3a5c" stroke="rgba(120,160,210,0.5)"/>
+      <text x="62" y="205" fill="#9fb4d6" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">Earth radar</text>
+      <text x="62" y="220" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="-apple-system,sans-serif">Arecibo / Goldstone</text>
+      <path d="M90,132 a16,22 0 1 1 0.1,0" fill="none" stroke="#cfd6f5" stroke-width="2.5"/>
+      <!-- Mercury -->
+      <circle cx="500" cy="150" r="60" fill="#5a5048" stroke="rgba(200,180,150,0.4)"/>
+      <circle cx="500" cy="150" r="60" fill="url(#mercShade)"/>
+      <!-- polar shadowed crater w/ ice -->
+      <path d="M476,96 a26,12 0 0 1 48,0 z" fill="#0a0d16"/>
+      <ellipse cx="500" cy="96" rx="24" ry="6" fill="#7fe9ff" opacity="0.9"/>
+      <text x="500" y="78" fill="#7fe9ff" font-size="11.5" text-anchor="middle" font-family="-apple-system,sans-serif">shadowed polar crater · ice</text>
+      <text x="500" y="232" fill="#cdbfa6" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">Mercury</text>
+      <!-- transmit beam -->
+      <line x1="100" y1="142" x2="438" y2="138" stroke="#ffb24a" stroke-width="3" marker-end="url(#arrowAmber2)"/>
+      <text x="250" y="128" fill="#ffb24a" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">transmitted pulse →</text>
+      <!-- echo -->
+      <line x1="438" y1="166" x2="104" y2="170" stroke="#3fd0ff" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#arrowCyan2)"/>
+      <text x="255" y="190" fill="#3fd0ff" font-size="12.5" text-anchor="middle" font-family="-apple-system,sans-serif">← faint echo (round trip ~9 min)</text>
+      <defs>
+        <radialGradient id="mercShade" cx="0.35" cy="0.4" r="0.8"><stop offset="0" stop-color="rgba(255,240,210,0.25)"/><stop offset="1" stop-color="rgba(0,0,0,0.55)"/></radialGradient>
+        <marker id="arrowAmber2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ffb24a"/></marker>
+        <marker id="arrowCyan2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#3fd0ff"/></marker>
+      </defs>
+    </svg>
+    <figcaption><b>Planetary radar.</b> A dish on Earth beams a powerful radio pulse at Mercury; a tiny fraction scatters back and is caught minutes later. The round-trip time gives distance, the Doppler spread gives spin (previous section), and — the key here — the <i>polarization</i> of the echo reveals what the surface is made of.</figcaption>
+  </figure>
+
+  <h3 class="subhead"><span class="n">B.</span> Polarization — the handedness of the wave</h3>
+  <p class="leadin">A radio wave's electric field oscillates in a particular orientation; that orientation is its <b>polarization</b>. Radar astronomers transmit a <b>circularly polarized</b> wave, whose field corkscrews around the line of travel with a definite handedness (left or right). What that handedness does on reflection is the fingerprint that gives ice away.</p>
+
+  <figure style="margin:14px 0 6px;background:rgba(0,0,0,0.35);padding:16px clamp(10px,2.5vw,20px)">
+    <div style="text-align:center;color:#cfd6f5;font-size:13.5px;font-weight:700;margin-bottom:14px">Transmit one handedness — what returns after the bounce?</div>
+
+    <!-- ROCK: single bounce flips the twist -->
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px;margin-bottom:16px">
+      <div style="text-align:center;flex:0 0 auto">
+        <img src="lefthand.png" loading="lazy" alt="A left-handed circularly polarized wave: pink electric-field arrows spiral in a left-handed corkscrew around the propagation axis (x, y, z axes labelled)." style="display:block;width:200px;max-width:42vw;height:auto;background:#fff;border-radius:10px">
+        <div style="font-size:11.5px;color:#ffb24a;margin-top:5px;font-weight:600">you send &middot; left-handed (LCP, &#8634;)</div>
+      </div>
+      <div style="text-align:center;color:#9aa3c7;font-size:12px;line-height:1.4;min-width:84px">
+        <div style="font-size:22px;color:#ff8fb4;line-height:1">&#10230;</div>
+        one bounce off<br><b style="color:#ff8fb4">rough rock</b>
+      </div>
+      <div style="text-align:center;flex:0 0 auto">
+        <img src="righthand.png" loading="lazy" alt="A right-handed circularly polarized wave: the mirror-image corkscrew of the left-handed case, spiralling the opposite way." style="display:block;width:200px;max-width:42vw;height:auto;background:#fff;border-radius:10px">
+        <div style="font-size:11.5px;color:#ff6b9d;margin-top:5px;font-weight:600">returns &middot; right-handed (RCP, &#8635;) &mdash; twist FLIPPED</div>
+      </div>
+      <div style="flex:1 1 130px;max-width:170px;text-align:left;font-size:12.5px;line-height:1.5">
+        <b style="color:#ff6b9d">opposite-sense (OC)</b><br><span style="color:#9aa3c7">bright like ordinary rock</span>
+      </div>
+    </div>
+
+    <!-- ICE: volume scattering keeps the twist -->
+    <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 14px">
+      <div style="text-align:center;flex:0 0 auto">
+        <img src="lefthand.png" loading="lazy" alt="The same left-handed circularly polarized wave transmitted toward the ice." style="display:block;width:200px;max-width:42vw;height:auto;background:#fff;border-radius:10px">
+        <div style="font-size:11.5px;color:#ffb24a;margin-top:5px;font-weight:600">you send &middot; left-handed (LCP, &#8634;)</div>
+      </div>
+      <div style="text-align:center;color:#9aa3c7;font-size:12px;line-height:1.4;min-width:84px">
+        <div style="font-size:22px;color:#7fe9ff;line-height:1">&#10230;</div>
+        into <b style="color:#7fe9ff">clear ice</b><br>(scatters inside)
+      </div>
+      <div style="text-align:center;flex:0 0 auto">
+        <img src="lefthand.png" loading="lazy" alt="The returned wave from ice is still left-handed: volume scattering preserves the original handedness." style="display:block;width:200px;max-width:42vw;height:auto;background:#fff;border-radius:10px">
+        <div style="font-size:11.5px;color:#3fd0ff;margin-top:5px;font-weight:600">returns &middot; left-handed (LCP, &#8634;) &mdash; twist KEPT</div>
+      </div>
+      <div style="flex:1 1 130px;max-width:170px;text-align:left;font-size:12.5px;line-height:1.5">
+        <b style="color:#5ee6a8">same-sense (SC)</b><br><span style="color:#9aa3c7">the fingerprint of ice</span>
+      </div>
+    </div>
+
+    <figcaption style="margin-top:6px"><b>Why polarization betrays ice.</b> A circularly polarized wave is a corkscrew of electric field with a definite twist &mdash; here left-handed (&#8634;). A single mirror-like bounce off rock <i>reverses</i> that twist, so rocky ground returns mostly the <b>opposite</b> sense (RCP, &#8635;). But radio passes <i>into</i> clear ice and scatters many times before escaping (the coherent-backscatter effect), returning the corkscrew with its original twist intact &mdash; the <b>same</b> sense (still LCP, &#8634;). A high same-sense-to-opposite-sense ratio, &mu;<sub>c</sub> = SC/OC, is the radar fingerprint of ice. <span style="color:#7c8099">Wave illustrations: <a class="inline" href="https://jemengineering.com/blog-intro-to-antenna-polarization/" target="_blank" rel="noopener">JEM Engineering &mdash; Intro to Antenna Polarization</a>.</span></figcaption>
+  </figure>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Read the polarization ratio — rock or ice?</h3>
+    <p class="hint">Radar astronomers quote the <b>circular-polarization ratio</b> $\mu_c = \text{SC}/\text{OC}$ — same-sense echo power divided by opposite-sense. Dry rocky regolith flips the handedness, so $\mu_c\approx0.2$–0.4. Thick clean ice scatters internally and returns the same sense, pushing $\mu_c$ above 1, like Europa, Ganymede and the Martian caps. Slide from bare regolith to clean ice and watch which sense dominates — and where the verdict tips.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Crater-floor material <b><span id="ice_ml">clean water ice</span></b></label>
+        <input id="ice_x" type="range" min="0" max="100" step="1" value="78">
+        <label style="margin-top:2px"><span style="font-size:11px">0 = dry silicate regolith · 100 = thick clean water ice</span><b></b></label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Polarization ratio μ<sub>c</sub></div><div class="v"><span id="ice_mu">1.18</span></div></div>
+      <div class="stat"><div class="k">Dominant echo sense</div><div class="v" id="ice_sense" style="font-size:14px">same-sense</div></div>
+      <div class="stat"><div class="k">Radar brightness</div><div class="v" id="ice_bright" style="font-size:14px">high</div></div>
+      <div class="stat"><div class="k">Verdict</div><div class="v" id="ice_verdict" style="font-size:14px">ice</div></div>
+    </div>
+    <div id="ice_plot" class="plot"></div>
+    <div class="eq">$$ \mu_c=\frac{\text{SC}}{\text{OC}}\;\;\begin{cases}\lesssim 0.4 & \text{rough rock (single bounce, sense flipped)}\\[2pt]\gtrsim 1 & \text{clean ice (volume scattering, sense preserved)}\end{cases} $$</div>
+
+    <div class="mathnote">
+      <h4>Why "in the dark" matters — three clues that must agree</h4>
+      <p>A radar-bright patch alone isn't proof: a slope tilted just right, or very rough blocky ground, can also scatter strongly. Ice is claimed only when <b>three</b> things line up: the echo is bright, its polarization ratio $\mu_c$ is anomalously high (same-sense enhanced), <i>and</i> the patch sits inside a crater floor that thermal models show is <b>permanently shadowed</b> — a cold trap that never tops the frost point. Mercury's bright polar deposits passed all three; that is why the 1991 Arecibo/Goldstone result held up, and why <b>MESSENGER</b> later confirmed it from orbit.</p>
+    </div>
+    <p style="font-size:12.5px;color:var(--muted);margin-top:10px">References: J. K. Harmon &amp; M. A. Slade, “Radar Mapping of Mercury: Full-Disk Images and Polar Anomalies,” <i>Science</i> <b>258</b>, 640 (1992); phys.org, <a class="inline" href="https://phys.org/news/2022-03-deposits-ice-mercury-poles.html" target="_blank" rel="noopener">“Radio waves reveal the deposits of ice at Mercury's poles” (2022)</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================= -->
 <!-- 7. RADIO JOVE -->
 <!-- ============================================================= -->
 <section class="chapter amateur" id="jove">
@@ -1441,6 +1725,93 @@ function gauss(x,A,mu,sig){ return A*Math.exp(-0.5*Math.pow((x-mu)/sig,2)); }
 })();
 
 /* =======================================================================
+   6c. DOPPLER — radar echo broadening clocks a planet's spin  (Plotly)
+======================================================================= */
+(function(){
+  const pEl=gid('dop_p'); if(!pEl) return;
+  const plO=gid('dop_pl'), vO=gid('dop_v'), bO=gid('dop_b'),
+        limO=gid('dop_lim'), verO=gid('dop_verdict');
+  const R=2.44e6, LAM=0.70;                 // Mercury radius (m), 70-cm (430 MHz) radar
+  const F=[]; for(let f=-20; f<=20; f+=0.25) F.push(f);
+  function draw(){
+    const P=+pEl.value;                       // rotation period, days
+    plO.textContent=P.toFixed(1)+' days';
+    const Ps=P*86400;
+    const veq=2*Math.PI*R/Ps;                 // equatorial speed, m/s
+    const B=8*Math.PI*R/(LAM*Ps);             // edge-to-edge echo bandwidth, Hz
+    vO.textContent=veq.toFixed(2);
+    bO.textContent=B.toFixed(1);
+    limO.textContent='±'+(B/2).toFixed(1)+' Hz';
+    let v,col;
+    if(P>=82){ v='too narrow — would be 88-day Sun-locked'; col='#ff6b9d'; }
+    else if(Math.abs(P-58.6)<=6){ v='matches Mercury (≈59 d)'; col='#5ee6a8'; }
+    else if(P<58.6){ v='faster than Mercury'; col='#ffb24a'; }
+    else { v='slower than Mercury'; col='#ffb24a'; }
+    verO.textContent=v; verO.style.color=col;
+    // broadened echo: semi-elliptical limb-to-limb profile spanning [-B/2,+B/2]
+    const half=B/2;
+    const echo=F.map(f=>Math.abs(f)<half ? Math.sqrt(Math.max(0,1-Math.pow(f/half,2))) : 0);
+    // transmitted monochromatic tone: a tall narrow spike at 0
+    const tx=F.map(f=>1.12*Math.exp(-0.5*Math.pow(f/0.28,2)));
+    Plotly.react('dop_plot',[
+      {x:F,y:tx,mode:'lines',line:{color:'rgba(255,178,74,0.9)',width:2},name:'transmitted'},
+      {x:F,y:echo,mode:'lines',fill:'tozeroy',fillcolor:'rgba(63,208,255,0.15)',
+        line:{color:'#3fd0ff',width:2.6},name:'echo'}
+    ], baseLayout({
+      xaxis:{title:'Doppler frequency offset (Hz)', range:[-20,20]},
+      yaxis:{title:'returned power (relative)', range:[0,1.25], showticklabels:false},
+      annotations:[
+        {x:0,y:1.16,text:'transmitted tone',showarrow:false,font:{color:'#ffb24a',size:10}},
+        {x:-half,y:0.5,text:'receding limb',showarrow:true,arrowcolor:'#ff6b9d',ax:-34,ay:0,font:{color:'#ff6b9d',size:10}},
+        {x:half,y:0.5,text:'approaching limb',showarrow:true,arrowcolor:'#3fd0ff',ax:34,ay:0,font:{color:'#3fd0ff',size:10}}
+      ]
+    }), PCFG);
+  }
+  pEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   6d. MERCURY ICE — circular-polarization ratio  (Plotly)
+======================================================================= */
+(function(){
+  const xEl=gid('ice_x'); if(!xEl) return;
+  const mlO=gid('ice_ml'), muO=gid('ice_mu'), senseO=gid('ice_sense'),
+        brightO=gid('ice_bright'), verO=gid('ice_verdict');
+  function draw(){
+    const x=+xEl.value/100;
+    // material label
+    mlO.textContent = x<0.2?'dry silicate regolith':(x<0.5?'dusty / dirty ice':(x<0.8?'icy regolith':'clean water ice'));
+    const mu = 0.22 + 1.30*Math.pow(x,1.25);   // SC/OC: ~0.22 rock -> ~1.5 clean ice
+    muO.textContent=mu.toFixed(2);
+    const OC=1, SC=mu;                          // relative echo power in each sense
+    const iced = mu>1;
+    senseO.textContent = iced?'same-sense (SC)':'opposite-sense (OC)';
+    senseO.style.color = iced?'#5ee6a8':'#ff6b9d';
+    brightO.textContent = x>0.55?'high (ice-like)':(x>0.3?'moderate':'low');
+    let v,col;
+    if(mu>1.0){ v='ice'; col='#5ee6a8'; }
+    else if(mu>0.7){ v='ambiguous'; col='#ffb24a'; }
+    else { v='rock / regolith'; col='#ff6b9d'; }
+    verO.textContent=v; verO.style.color=col;
+    Plotly.react('ice_plot',[
+      {x:['Opposite-sense (OC)','Same-sense (SC)'], y:[OC,SC], type:'bar',
+        marker:{color:['rgba(255,107,157,0.65)', iced?'rgba(94,230,168,0.8)':'rgba(63,208,255,0.6)'],
+                line:{color:['#ff6b9d', iced?'#5ee6a8':'#3fd0ff'],width:1.5}},
+        width:[0.5,0.5]}
+    ], baseLayout({
+      xaxis:{title:''},
+      yaxis:{title:'echo power (relative)', range:[0,1.7]},
+      shapes:[{type:'line',x0:-0.5,x1:1.5,y0:1,y1:1,line:{color:'rgba(94,230,168,0.5)',width:1.5,dash:'dot'}}],
+      annotations:[
+        {x:1.5,y:1.02,xanchor:'right',yanchor:'bottom',text:'μ_c = 1 (ice threshold)',showarrow:false,font:{color:'#5ee6a8',size:10}},
+        {x:1,y:SC,text:'μ_c = '+mu.toFixed(2),showarrow:false,yanchor:'bottom',font:{color:iced?'#5ee6a8':'#3fd0ff',size:12}}
+      ]
+    }), PCFG);
+  }
+  xEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
    7b. JUPITER BURSTS — S-burst & L-burst dynamic spectra (canvas, static)
 ======================================================================= */
 function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
@@ -1764,7 +2135,15 @@ document.getElementById('qz_total').textContent=QS.length;
     'thermal-inertia':{label:'Thermal inertia',wiki:W+'Thermal_inertia',
       def:'How strongly a material resists temperature change. The Moon’s low thermal inertia — revealed by the small, lagged radio temperature swing — betrays an insulating dust surface.',terms:['thermal inertia']},
     'radar-astronomy':{label:'Radar astronomy',wiki:W+'Radar_astronomy',
-      def:'Bouncing a radio pulse off a Solar-System body and reading the echo (delay-Doppler) to map surface roughness, composition and distance — it charted the Moon’s firmness before Apollo.',terms:['radar']},
+      def:'Bouncing a radio pulse off a Solar-System body and reading the echo (delay-Doppler) to map surface roughness, composition and distance — it charted the Moon’s firmness before Apollo and found ice at Mercury’s poles.',terms:['radar']},
+    'doppler-effect':{label:'Doppler effect',wiki:W+'Doppler_effect',
+      def:'A wave from a moving source is squeezed ahead of the motion (higher frequency) and stretched behind it (lower frequency). The shift is proportional to the line-of-sight velocity, v_r = c·Δf/f.',terms:['Doppler effect']},
+    'polarization':{label:'Polarization',wiki:W+'Polarization_(waves)',
+      def:'The orientation in which a wave’s electric field oscillates. Radar astronomers transmit a circularly polarized wave and read how its handedness changes on reflection.',terms:['polarization']},
+    'circular-polarization':{label:'Circular polarization',wiki:W+'Circular_polarization',
+      def:'A wave whose electric field corkscrews around the line of travel with a definite handedness (left or right). A single bounce off rock flips the handedness; volume scattering in clear ice preserves it — the radar fingerprint of ice.',terms:['circularly polarized','circular-polarization ratio','circular polarization']},
+    'permanently-shadowed':{label:'Permanently shadowed region',wiki:W+'Permanently_shadowed_crater',
+      def:'A crater floor near a planet’s pole that never receives direct sunlight, staying cold enough (below ~−170 °C on Mercury) to trap water ice for billions of years.',terms:['permanently shadowed']},
     'cyclotron-maser':{label:'Cyclotron maser',wiki:W+'Electron_cyclotron_maser',
       def:'The mechanism beaming Jupiter’s (and the Sun’s) intense decametric bursts: electrons gyrating in a magnetic field amplify radio waves into narrow searchlight cones.',terms:['cyclotron maser']},
     'decametric':{label:'Decametric emission',wiki:W+'Jupiter#Radio_emissions',
