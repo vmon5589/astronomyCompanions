@@ -305,6 +305,45 @@
   .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
   .problem .ans b{color:var(--green)}
 </style>
+<style>
+/* ---- Mobile dropdown menu (added) ---- */
+nav .navToggle{ display:none; }
+@media(max-width:640px){
+  nav .wrap{ flex-wrap:wrap; align-items:center; }
+  nav .brand{ flex:1 1 auto; min-width:0; }
+  nav .navToggle{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+    margin-left:auto; flex:0 0 auto;
+    color:#fff; font-size:14px; font-weight:600; letter-spacing:.3px;
+    padding:9px 13px; border-radius:9px;
+    background:rgba(120,140,230,0.16);
+    border:1px solid rgba(120,140,230,0.45);
+  }
+  nav .navToggle-bars,
+  nav .navToggle-bars::before,
+  nav .navToggle-bars::after{
+    content:""; display:block; width:18px; height:2px; border-radius:2px;
+    background:#fff; transition:transform .2s ease, opacity .2s ease;
+  }
+  nav .navToggle-bars{ position:relative; }
+  nav .navToggle-bars::before{ position:absolute; top:-6px; left:0; }
+  nav .navToggle-bars::after{ position:absolute; top:6px; left:0; }
+  nav.open .navToggle-bars{ background:transparent; }
+  nav.open .navToggle-bars::before{ transform:translateY(6px) rotate(45deg); }
+  nav.open .navToggle-bars::after{ transform:translateY(-6px) rotate(-45deg); }
+  nav .links{
+    display:none; flex-direction:column; align-items:stretch;
+    width:100%; margin-left:0; margin-top:10px; gap:2px;
+    max-height:70vh; overflow-y:auto; overflow-x:visible;
+  }
+  nav.open .links{ display:flex; }
+  nav .links a{
+    padding:12px 12px; font-size:15px; border-radius:8px;
+    border:1px solid transparent;
+  }
+  nav .links a:active{ background:rgba(120,140,230,0.18); }
+}
+</style>
 </head>
 <body>
 <canvas id="starfield"></canvas>
@@ -312,6 +351,9 @@
 <nav>
   <div class="wrap">
     <div class="brand">Vera Rubin &amp; Galaxy Rotation <small>Interactive companion · how spinning galaxies revealed the dark universe</small></div>
+    <button class="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="navToggle-bars" aria-hidden="true"></span>Menu
+    </button>
     <div class="links">
       <a href="#vera" class="hist">Rubin</a>
       <a href="#orbits">Orbits</a>
@@ -1912,6 +1954,22 @@ window.RUBIN_QUIZ=[
   let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
   if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
   setTimeout(go, 2600);
+})();
+</script>
+<script>
+(function(){
+  var nav=document.querySelector('nav');
+  var btn=nav&&nav.querySelector('.navToggle');
+  var links=nav&&nav.querySelector('.links');
+  if(!nav||!btn||!links)return;
+  links.id=links.id||'navLinks';
+  function close(){ nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click',function(){
+    var open=nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',close); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')close(); });
 })();
 </script>
 </body>
