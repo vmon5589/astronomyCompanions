@@ -360,6 +360,7 @@ nav .navToggle{ display:none; }
       <a href="#galaxy" class="amateur">Reading the Galaxy</a>
       <a href="#absorption">Anti-aligned gas</a>
       <a href="#cosmic">Galaxies &amp; time</a>
+      <a href="#masers">Cosmic masers</a>
       <a href="#sun">The Sun</a>
       <a href="#moon">The Moon</a>
       <a href="#doppler">Doppler &amp; spin</a>
@@ -808,6 +809,174 @@ nav .navToggle{ display:none; }
     </div>
     <div id="cz_plot" class="plot"></div>
     <div class="eq">$$ f_{\rm obs}=\frac{f_0}{1+z}=\frac{1420.4\ \text{MHz}}{1+z} $$</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. COSMIC MASERS -->
+<!-- ============================================================= -->
+<section class="chapter" id="masers">
+  <span class="era">Cosmic amplifiers · Natural microwave lasers</span>
+  <h2>Cosmic masers: the Universe's natural radio lasers</h2>
+  <p class="who">Stimulated emission in space — and the beacons that pinned down the Milky Way's spiral arms</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Back in the lab, a <b>laser</b> works by <b>population inversion</b>: pump energy into a material until more atoms sit in an excited state than in the ground state, then let one passing photon trigger the whole crowd to drop in step — <b>stimulated emission</b> — releasing a flood of identical, single-frequency photons. The same trick can run on molecular lines in the microwave band, where it is called a <b>maser</b> (Microwave Amplification by Stimulated Emission of Radiation).</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Nature builds masers for free. Giant clouds of molecules — especially <b>water</b>, <b>hydroxyl</b> (OH) and <b>methanol</b> — act as the gain material. Radiation from a nearby young star or an active galactic nucleus, or collisions in the gas, keeps them pumped into inversion. A stray photon at the transition frequency then sets off a chain reaction, and the cloud lights up as a fantastically bright, needle-narrow spectral line — a cosmic <b>maser</b>.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The signature is unmistakable: brightness temperatures that reach $10^{12}$–$10^{15}$ K (far hotter than any thermal gas could ever be) packed into lines only a fraction of a km/s wide. Milky-Way masers glow in <b>star-forming regions</b> and around dying stars; whole galaxies host <b>megamasers</b> over a million times brighter, and the record-holders — the <b>gigamaser</b> galaxies — outshine a Milky-Way maser by a factor of a billion.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>Because a maser line is so narrow, its <b>Doppler shift</b> gives razor-sharp velocities, and because masers are so bright and compact they are ideal targets for <b>very long baseline interferometry</b>. Tracking maser spots with the <b>VLBA</b> let astronomers triangulate distances straight across the dusty disk — and it was those measurements that finally fixed the Milky Way as a spiral, arm by arm.</p></div>
+  </div>
+
+  <h3 class="subhead"><span class="n">A.</span> How a cloud of gas turns into a laser</h3>
+  <p class="leadin">Everything rests on one idea borrowed from the laser: get more molecules <i>up</i> than <i>down</i>, then let a single photon trigger the avalanche.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Pump a molecular cloud into a maser</h3>
+    <p class="hint">Below threshold the cloud has an ordinary thermal population and its line is a small, broad bump (or, with a source behind it, an absorption dip). Push the <b>pump</b> past inversion and the same line explodes upward and narrows to a spike — the runaway of <b>stimulated emission</b>. Lengthen the amplifying path and the brightness climbs exponentially, sweeping the maser up through the kilo-, mega- and gigamaser classes.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Pump strength (population inversion) <b><span id="ms_pl">85%</span></b></label>
+        <input id="ms_pump" type="range" min="0" max="100" step="1" value="85">
+        <label style="margin-top:2px"><span style="font-size:11px">below ~20% there is no inversion — the line only absorbs</span><b></b></label>
+      </div>
+      <div class="ctl">
+        <label>Coherent amplifying path <b><span id="ms_ll">18 AU</span></b></label>
+        <input id="ms_len" type="range" min="1" max="30" step="0.5" value="18">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Gain e<sup>τ</sup></div><div class="v" id="ms_gain" style="font-size:15px">×5×10⁵</div></div>
+      <div class="stat"><div class="k">Peak brightness temp</div><div class="v" id="ms_tb" style="font-size:15px">3×10¹³ K</div></div>
+      <div class="stat"><div class="k">Line width (FWHM)</div><div class="v"><span id="ms_fw">0.6</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Class</div><div class="v" id="ms_class" style="font-size:14px">megamaser</div></div>
+    </div>
+    <div id="ms_plot" class="plot"></div>
+    <div class="eq">$$ T_b(v)=T_{\rm seed}\,e^{\tau_0\,\phi(v)},\qquad \phi(v)=e^{-v^2/2\sigma^2},\qquad \tau_0\propto(\text{inversion})\times L $$</div>
+
+    <div class="deriv">
+      <h4><span class="ic">∴</span> The reasoning: why the line is so bright <i>and</i> so narrow</h4>
+      <p class="lead">Amplification is exponential, and exponential gain is sharpest exactly at line centre — so the maser both brightens and self-narrows.</p>
+      <ol>
+        <li><b>Inversion first.</b> With more molecules excited than in the ground state, a photon at the line frequency is more likely to <i>stimulate</i> a new photon than to be absorbed. The optical depth $\tau_0$ goes <b>negative</b> — the gas amplifies instead of dimming.</li>
+        <li><b>Runaway gain.</b> Each stimulated photon is a clone — same frequency, direction and phase — and it triggers more. Intensity grows as $e^{|\tau_0|}$ along the beam, so a modest path can multiply the seed a millionfold or more.</li>
+        <li><b>Gain narrowing.</b> The gain follows the line shape $\phi(v)$, peaking at centre. Raising $e^{\tau_0\phi(v)}$ to a large power amplifies the peak far more than the wings, so the emergent line is <b>much narrower</b> than the underlying thermal line — a fraction of a km/s.</li>
+      </ol>
+      <div class="concl"><b>Conclusion:</b> a maser converts a faint, broad molecular line into a brilliant, monochromatic beacon — the perfect thing to measure a precise velocity, and bright enough to see clear across the Galaxy or between galaxies.</div>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="n">B.</span> The maser zoo — from stellar nurseries to gigamaser galaxies</h3>
+  <p class="leadin">Different molecules mase in different places, and the isotropic luminosity sorts them into a hierarchy named by how far they outshine a standard Milky-Way maser.</p>
+
+  <div class="mathnote">
+    <h4>① Galactic masers — water &amp; methanol in star-forming regions</h4>
+    <p>In the crowded, dusty <b>star-forming regions</b> of the spiral arms, tightly packed clouds of <b>water</b> (22 GHz) and <b>methanol</b> (6.7 GHz and elsewhere) soak up radiation from newborn stars until their molecules are saturated with energy — then release it in a cascade. These are the modest but numerous masers that dot the Milky Way, and the ones used as distance beacons below.</p>
+  </div>
+  <div class="mathnote">
+    <h4>② OH masers — the 18-cm lines around stars and mergers</h4>
+    <p>The hydroxyl radical mases in its <b>1665 and 1667 MHz</b> lines (the 1667 line usually dominates in galaxies). OH masers ring the winds of evolved, dying stars, and — pumped by far-infrared light — blaze in <b>Luminous and Ultra-Luminous Infrared Galaxies</b>, most of which are galaxies caught mid-<b>merger</b>.</p>
+  </div>
+  <div class="mathnote">
+    <h4>③ Megamasers &amp; gigamasers — galaxy-scale amplifiers</h4>
+    <p>Extragalactic masers are named for their power: a <b>kilomaser</b> shines below ~10 L$_\odot$ (isotropic), a <b>megamaser</b> above it, over a million times a Milky-Way maser. The extreme <b>gigamaser</b> TXS 2226-184 pours out ~6100 L$_\odot$ of maser light; in 2026 MeerKAT found an even more luminous, gravitationally lensed OH gigamaser at redshift $z\approx1$ — the most distant maser known.</p>
+  </div>
+  <div class="mathnote">
+    <h4>④ Masers as cosmic rulers</h4>
+    <p>Where <b>water megamasers</b> sit in the accretion disk around a galaxy's central <b>supermassive black hole</b>, tracking their orbital motion weighs the black hole and — through the geometry — gives a direct, standard-candle-independent <b>distance</b> to the galaxy, feeding straight into measurements of the cosmic expansion rate.</p>
+  </div>
+
+  <h3 class="subhead"><span class="n">C.</span> Reading our Galaxy's shape with maser beacons</h3>
+  <p class="leadin">This is the payoff the whole chapter has been building toward — and the answer to a question that was surprisingly hard to settle from <i>inside</i> the Galaxy: <b>what does the Milky Way actually look like?</b></p>
+
+  <p style="font-size:14px;line-height:1.65;margin:8px 0">We have long known that many galaxies out in deep space are flat disks with bright, dusty spiral arms pinwheeling from a central core. But confirming the Milky Way is one of them is genuinely difficult: we live embedded in its disk, "like a chocolate chip in the middle of a cookie," and the very spiral arms we want to map are packed with gas and dust that acts like a blanket, blocking visible light beyond it. <b>Radio waves, though, pass straight through the dust</b> — and masers give radio astronomers a set of pinpoint beacons scattered right along the arms.</p>
+
+  <figure style="margin:14px 0 6px;background:rgba(0,0,0,0.35)">
+    <div class="svgwrap">
+    <svg class="armdiag" viewBox="0 0 600 490" role="img" aria-label="Top-down schematic of the Milky Way showing the Sun on the Local arm, the galactic centre, and water and methanol maser beacons scattered along the Sagittarius, Local, Perseus and Outer spiral arms, with VLBA parallax sightlines from the Sun to individual masers.">
+      <defs>
+        <marker id="arrowMaserMute" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9aa3c7"/></marker>
+      </defs>
+      <!-- solar circle -->
+      <circle cx="300" cy="210" r="150" fill="none" stroke="rgba(140,160,230,0.22)" stroke-width="1" stroke-dasharray="4 5"/>
+      <!-- spiral arms as arcs centred on the galactic centre -->
+      <path d="M300,80 A130,130 0 0 1 404,282" fill="none" stroke="#ffb24a" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+      <path d="M441,124 A200,200 0 0 1 300,410" fill="none" stroke="#5ee6a8" stroke-width="7" stroke-linecap="round" opacity="0.85"/>
+      <path d="M525,120 A270,270 0 0 1 300,480" fill="none" stroke="#b08cff" stroke-width="7" stroke-linecap="round" opacity="0.8"/>
+      <path d="M576,150 A330,330 0 0 1 470,470" fill="none" stroke="#ff6b9d" stroke-width="7" stroke-linecap="round" opacity="0.7"/>
+      <!-- VLBA parallax sightlines from the Sun to individual masers -->
+      <g stroke="#9aa3c7" stroke-width="1.1" stroke-dasharray="3 4" marker-end="url(#arrowMaserMute)">
+        <line x1="300" y1="360" x2="378" y2="238"/>
+        <line x1="300" y1="360" x2="470" y2="250"/>
+        <line x1="300" y1="360" x2="435" y2="330"/>
+      </g>
+      <!-- galactic centre -->
+      <circle cx="300" cy="210" r="9" fill="#ffb24a"/>
+      <circle cx="300" cy="210" r="16" fill="none" stroke="#ffb24a" stroke-width="1" opacity="0.5"/>
+      <text x="300" y="196" fill="#ffb24a" font-size="13" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Galactic centre</text>
+      <!-- maser beacons (four-point stars) along the arms -->
+      <g fill="#e8ecff">
+        <path d="M378,238 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M340,150 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M400,290 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M470,250 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M435,330 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M250,300 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+        <path d="M520,200 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z"/>
+      </g>
+      <!-- Sun -->
+      <circle cx="300" cy="360" r="7.5" fill="#3fd0ff" stroke="#05060d" stroke-width="2"/>
+      <text x="300" y="380" fill="#3fd0ff" font-size="13.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Sun</text>
+      <!-- arm labels -->
+      <text x="410" y="118" fill="#ffb24a" font-size="12.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Sagittarius arm</text>
+      <text x="238" y="286" fill="#5ee6a8" font-size="12.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Local arm</text>
+      <text x="540" y="176" fill="#b08cff" font-size="12.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Perseus arm</text>
+      <text x="510" y="440" fill="#ff6b9d" font-size="12.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Outer arm</text>
+      <!-- legend for beacons -->
+      <path d="M60,392 l3,-9 l3,9 l9,3 l-9,3 l-3,9 l-3,-9 l-9,-3 z" fill="#e8ecff"/>
+      <text x="80" y="400" fill="#9aa3c7" font-size="12" font-family="system-ui,sans-serif">water / methanol maser</text>
+    </svg>
+    </div>
+    <figcaption><b>Masers as glowsticks tracing the arms (schematic, not to scale).</b> Each ✦ is a maser in a star-forming region. Because the arms are dust-choked, optical light can't reach them — but the VLBA measures each maser's <b>trigonometric parallax</b> along the dashed sightlines, giving a true distance. Enough beacons, and the spiral pattern draws itself: the Sagittarius arm inward, the Perseus arm outward, and the Sun's own Local arm between them.</figcaption>
+  </figure>
+
+  <div class="deriv">
+    <h4><span class="ic">🧭</span> From beacons to a blueprint of the Galaxy</h4>
+    <ol>
+      <li><b>Find the beacons.</b> Water and methanol masers light up in the dense star-forming clumps that stud the spiral arms — exactly the material that traces where the arms <i>are</i>.</li>
+      <li><b>Measure true distances.</b> A maser is so compact and bright that the <b>VLBA</b> can watch it shift against background quasars as Earth orbits the Sun, giving a <b>parallax</b> — a geometric distance owing nothing to any brightness assumption.</li>
+      <li><b>Add velocities for free.</b> The same needle-narrow line delivers a precise <b>radial velocity</b> and, over years, a proper motion — the full 3-D motion of each arm.</li>
+      <li><b>Assemble the map.</b> Plot hundreds of masers at their measured distances and the pinwheel appears: the Milky Way is a spiral about <b>100,000 light-years</b> across, with the Sun nestled on the <b>Local arm</b> between the <b>Sagittarius</b> arm (toward the centre) and the <b>Perseus</b> arm (farther out).</li>
+    </ol>
+    <div class="concl"><b>Conclusion:</b> the humble maser — a cloud of water vapour behaving like a laser — is what let us step "outside" our own Galaxy in the imagination and confirm, from the inside, that we live in a spiral.</div>
+  </div>
+
+  <h3 class="subhead">Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A maser beam is amplified along a path where the (negative) optical depth reaches $\tau_0=14$. By what factor $e^{\tau_0}$ is the seed intensity multiplied?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Exponential gain.</b> The amplification factor is $e^{\tau_0}=e^{14}$.</li>
+          <li><b>Evaluate.</b> $e^{14}\approx1.2\times10^{6}$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about a <b>millionfold</b> — which is exactly why a faint molecular line becomes a beacon visible across the Galaxy.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A methanol maser sits at a trigonometric parallax of $p=0.20$ milliarcseconds, measured with the VLBA. How far away is it (in parsecs and light-years)? Use $d(\text{pc})=1/p(\text{arcsec})$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $p=0.20\ \text{mas}=2.0\times10^{-4}$ arcsec.</li>
+          <li><b>Distance.</b> $d=1/p=1/(2.0\times10^{-4})=5000$ pc $=5$ kpc.</li>
+          <li><b>To light-years.</b> $5000\times3.26\approx1.6\times10^{4}$ ly.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $d=5$ kpc $\approx16{,}000$ light-years — a beacon most of the way to the next arm, distance fixed by pure geometry.</div>
+      </details>
+    </div>
   </div>
 </section>
 
@@ -2005,6 +2174,72 @@ function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
   addEventListener('resize',resize); resize(); frame();
 })();
 
+/* =======================================================================
+   7. COSMIC MASER — pump a cloud into a laser  (Plotly)
+======================================================================= */
+(function(){
+  const pEl=gid('ms_pump'); if(!pEl) return;
+  const lEl=gid('ms_len'),
+        plO=gid('ms_pl'), llO=gid('ms_ll'),
+        gainO=gid('ms_gain'), tbO=gid('ms_tb'), fwO=gid('ms_fw'), clO=gid('ms_class');
+  const Tseed=50;                                   // seed brightness temperature (K)
+  const sig=1.6;                                    // underlying thermal line width (km/s)
+  const V=[]; for(let v=-8; v<=8; v+=0.05) V.push(v);
+  // format a number as m×10^e superscript string
+  function sci(val){
+    if(!isFinite(val)) return '—';
+    if(val<1000 && val>=0.01) return val.toFixed(val<10?1:0);
+    const e=Math.floor(Math.log10(val)); const m=val/Math.pow(10,e);
+    const sup='⁰¹²³⁴⁵⁶⁷⁸⁹'; const es=String(e).split('').map(d=>d==='-'?'⁻':sup[+d]).join('');
+    return m.toFixed(1)+'×10'+es;
+  }
+  function draw(){
+    const p=+pEl.value, L=+lEl.value;
+    plO.textContent=p+'%'; llO.textContent=L.toFixed(L%1?1:0)+' AU';
+    // inversion: negative below ~20% pump (thermal / absorbing), positive above
+    const inversion=(p-20)/80;                       // -0.25 .. +1.0
+    const tau0=inversion*L*1.15;                     // central optical depth (negative => amplifying)
+    // emergent line: Tb(v) = Tseed * exp(tau0 * phi(v)); tau0>0 amplifies, <0 absorbs
+    const phi=v=>Math.exp(-v*v/(2*sig*sig));
+    const Tb=V.map(v=>Tseed*Math.exp(tau0*phi(v)));
+    // thermal reference line (no inversion) for comparison
+    const Tref=V.map(v=>Tseed*(1+0.6*phi(v)));
+    const peak=Tb[Math.round(V.length/2)];
+    // FWHM of the emergent profile (numerical)
+    let fw='—';
+    if(tau0>0.05){
+      // find where the emergent line falls to half its peak (linear scale)
+      const hm=peak/2; let vEdge=null;
+      for(let i=Math.round(V.length/2); i<V.length; i++){ if(Tb[i]<hm){ vEdge=V[i]; break; } }
+      if(vEdge!=null) fw=(2*vEdge).toFixed(2);
+    }
+    fwO.textContent = (fw==='—')?'—':fw;
+    // gain + class
+    const gain = tau0>0 ? Math.exp(tau0) : Math.exp(tau0);
+    gainO.textContent = (tau0<=0? '×'+gain.toFixed(2) : '×'+sci(gain));
+    tbO.textContent = sci(Math.max(peak,1))+' K';
+    // isotropic luminosity proxy (L_sun): 1e-6 * gain
+    const Liso = 1e-6*Math.exp(Math.max(tau0,0));
+    let cls;
+    if(tau0<=0) cls='no inversion — thermal';
+    else if(Liso<1e-3) cls='galactic maser';
+    else if(Liso<10) cls='kilomaser';
+    else if(Liso<1000) cls='megamaser';
+    else cls='gigamaser';
+    clO.textContent=cls;
+    clO.style.color = tau0<=0?'#9aa3c7':(Liso>=1000?'#ff6b9d':(Liso>=10?'#ffb24a':'#5ee6a8'));
+    Plotly.react('ms_plot',[
+      {x:V,y:Tref,mode:'lines',line:{color:'rgba(154,163,199,0.55)',width:1.4,dash:'dot'},name:'thermal'},
+      {x:V,y:Tb.map(t=>Math.max(t,1)),mode:'lines',line:{color:'#3fd0ff',width:3},fill:'tozeroy',fillcolor:'rgba(63,208,255,0.12)',name:'maser'}
+    ], baseLayout({
+      xaxis:{title:'velocity offset (km/s)', gridcolor:'rgba(140,160,230,0.12)', linecolor:'rgba(140,160,230,0.3)'},
+      yaxis:{title:'brightness temperature (K)', type:'log', gridcolor:'rgba(140,160,230,0.12)', linecolor:'rgba(140,160,230,0.3)'},
+      annotations:[{x:0,y:Math.log10(Math.max(peak,Tseed)),text:tau0>0?'amplified maser line':'thermal / absorbed',showarrow:false,font:{color:tau0>0?'#3fd0ff':'#9aa3c7',size:11},yanchor:'bottom'}]
+    }), PCFG);
+  }
+  pEl.addEventListener('input',draw); lEl.addEventListener('input',draw); draw();
+})();
+
 </script>
 <script>
 (function(){
@@ -2049,6 +2284,15 @@ function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
     {q:"The redshifted 21-cm signal near 50–200 MHz today is a key probe of…",
       opts:["The Sun's surface","The Epoch of Reionization, when the first stars and galaxies lit up","Jupiter's storms","The Earth's core"],a:1,
       exp:"Neutral hydrogen from the early Universe radiates 21-cm light that is redshifted to low frequencies today — a direct window onto how the first structures formed."},
+    {q:"An astrophysical maser produces its enormous brightness by…",
+      opts:["Ordinary thermal (black-body) emission from hot gas","Stimulated emission from a population-inverted molecular cloud (a natural microwave laser)","Synchrotron radiation from magnetic fields","Nuclear fusion in the cloud"],a:1,
+      exp:"A maser needs a population inversion (more molecules excited than in the ground state); a passing photon then triggers a runaway of stimulated emission, amplifying the line to brightness temperatures no thermal gas could reach."},
+    {q:"Why are masers (water, methanol) such powerful tools for mapping the Milky Way's spiral arms?",
+      opts:["They emit visible light that pierces dust","They are bright, compact and needle-narrow, so the VLBA can measure their trigonometric parallax and velocity right through the dusty disk","They only appear between the arms","They change colour with distance"],a:1,
+      exp:"Radio passes through the dust that hides the arms optically, and a maser is a bright, point-like beacon with a razor-sharp line — ideal for VLBI parallax distances and precise velocities. Enough of them trace the spiral pattern directly."},
+    {q:"Extragalactic masers a million-plus times brighter than a Milky-Way maser (isotropic luminosity above ~10 L☉) are called…",
+      opts:["Kilomasers","Megamasers (the brightest, ~10³–10⁴ L☉, being gigamasers)","Micromasers","Pulsars"],a:1,
+      exp:"By isotropic luminosity: kilomaser (<10 L☉), megamaser (>10 L☉), and the extreme gigamasers (e.g. TXS 2226-184 at ~6100 L☉). They are often hosted by merging, infrared-luminous galaxies."},
     {q:"Jupiter's intense decametric radio bursts (~15–25 MHz) are strongly controlled by…",
       opts:["The Earth's Moon","Its moon Io moving through Jupiter's magnetosphere","Sunspots only","The rings of Saturn"],a:1,
       exp:"Io sets up a current in Jupiter's magnetosphere that triggers the strongest, most predictable storms; the Io-B window is the amateur's reliable target."},
@@ -2152,6 +2396,28 @@ document.getElementById('qz_total').textContent=QS.length;
       def:'The slope α of a radio spectrum, Sν ∝ ν^α. Steep negative α means synchrotron; flat or positive means thermal gas.',terms:['spectral index']},
     'maser':{label:'Astrophysical maser',wiki:W+'Astrophysical_maser',
       def:'A naturally occurring microwave laser — gas (OH, water, methanol) amplifying a spectral line to enormous brightness. Common in star-forming and evolved-star regions.',terms:['masers','maser']},
+    'population-inversion':{label:'Population inversion',wiki:W+'Population_inversion',
+      def:'The un-natural state, required for any laser or maser, in which more atoms or molecules sit in an excited state than in the lower state. A passing photon is then more likely to stimulate a new photon than to be absorbed, so the gas amplifies rather than dims.',terms:['population inversion','inversion']},
+    'stimulated-emission':{label:'Stimulated emission',wiki:W+'Stimulated_emission',
+      def:'A photon striking an excited atom triggers it to drop and emit a second, identical photon (same frequency, direction and phase). In an inverted medium this becomes a chain reaction — the amplification behind lasers and masers.',terms:['stimulated emission']},
+    'megamaser':{label:'Megamaser',wiki:W+'Megamaser',
+      def:'An extragalactic maser with isotropic luminosity above ~10 L☉ — over a million times a typical Milky-Way maser. Often hosted by merging, infrared-luminous galaxies (OH) or accretion disks around supermassive black holes (water).',terms:['megamasers','megamaser']},
+    'gigamaser':{label:'Gigamaser',wiki:W+'Megamaser',
+      def:'The most luminous class of maser, roughly a billion times a Milky-Way maser (~10³–10⁴ L☉). The OH gigamaser TXS 2226-184 emits ~6100 L☉; MeerKAT found an even brighter, gravitationally lensed one at redshift z≈1.',terms:['gigamaser galaxies','gigamaser']},
+    'water-maser':{label:'Water maser (22 GHz)',wiki:W+'Water_maser',
+      def:'A maser in the 22 GHz line of water vapour, common in star-forming regions and in the accretion disks of active galaxies, where it is used to weigh black holes and measure geometric distances.',terms:['water megamasers','water maser','water masers']},
+    'methanol-maser':{label:'Methanol maser',wiki:W+'Methanol_maser',
+      def:'A maser in methanol (CH₃OH) lines, notably at 6.7 GHz, found almost exclusively in regions forming massive stars — a prime beacon for mapping the spiral arms via VLBA parallax.',terms:['methanol']},
+    'star-forming-region':{label:'Star-forming region',wiki:W+'Star_formation',
+      def:'A dense, dusty clump of molecular gas collapsing to form new stars. The radiation and collisions there pump water and methanol masers, and these clumps trace where the spiral arms lie.',terms:['star-forming regions','star-forming region']},
+    'vlbi':{label:'Very long baseline interferometry',wiki:W+'Very-long-baseline_interferometry',
+      def:'Combining widely separated radio dishes (up to Earth-sized baselines) to achieve extremely fine angular resolution — sharp enough to measure the trigonometric parallax of maser spots across the Galaxy.',terms:['very long baseline interferometry']},
+    'vlba':{label:'Very Long Baseline Array',wiki:W+'Very_Long_Baseline_Array',
+      def:'A continent-spanning array of ten radio telescopes across the USA. Its pinpoint resolution measures maser parallaxes and proper motions, the data that mapped the Milky Way’s spiral structure.',terms:['VLBA']},
+    'agn':{label:'Active galactic nucleus',wiki:W+'Active_galactic_nucleus',
+      def:'The intensely luminous core of a galaxy powered by matter falling onto a supermassive black hole. Its radiation can pump powerful megamasers in the surrounding gas.',terms:['active galactic nucleus']},
+    'supermassive-black-hole':{label:'Supermassive black hole',wiki:W+'Supermassive_black_hole',
+      def:'A black hole of millions to billions of solar masses at a galaxy’s centre. Water megamasers orbiting one trace its mass and give a direct distance to the host galaxy.',terms:['supermassive black hole']},
     'recombination-line':{label:'Radio recombination line',wiki:W+'Radio_recombination_line',
       def:'A line emitted when an electron recombines into a very high atomic orbit and cascades down — e.g. the Hnα series near 1.4 GHz. Traces ionised gas.',terms:['recombination lines','recombination line']},
     'oh-line':{label:'OH 18-cm lines',wiki:W+'Hydroxyl_radical',
