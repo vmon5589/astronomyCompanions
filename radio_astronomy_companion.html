@@ -361,6 +361,7 @@ nav .navToggle{ display:none; }
       <a href="#absorption">Anti-aligned gas</a>
       <a href="#cosmic">Galaxies &amp; time</a>
       <a href="#masers">Cosmic masers</a>
+      <a href="#pulsars">Pulsars</a>
       <a href="#sun">The Sun</a>
       <a href="#moon">The Moon</a>
       <a href="#doppler">Doppler &amp; spin</a>
@@ -977,6 +978,160 @@ nav .navToggle{ display:none; }
         <div class="ans"><b>Answer:</b> $d=5$ kpc $\approx16{,}000$ light-years — a beacon most of the way to the next arm, distance fixed by pure geometry.</div>
       </details>
     </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5b. PULSARS · A LIGHTHOUSE IN THE NOISE -->
+<!-- ============================================================= -->
+<section class="chapter" id="pulsars">
+  <span class="era">February 1968 · A lighthouse in the noise</span>
+  <h2>The discovery of pulsars</h2>
+  <p class="who">Jocelyn Bell &amp; Antony Hewish, the "bit of scruff" — and how a single pulse width weighed a star to death</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>In 1967 a Cambridge graduate student, <b>Jocelyn Bell</b>, was hunting <b>quasars</b> by <b>interplanetary scintillation</b> — the twinkling a compact radio source shows as the solar wind blows across it. With several others she had spent two years building her advisor <b>Antony Hewish</b>'s telescope: over 1000 posts, 2000 dipoles, 120 miles of wire strung across four and a half acres near the Mullard observatory. From July 1967 she operated it and analysed the output <i>by hand</i> — nearly 100 feet of chart paper a day.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Within weeks Bell noticed a recurring smudge that was neither a scintillating source nor terrestrial interference — a "bit of <b>scruff</b>." It was a <b>regular</b> signal, always from the same patch of sky. She and Hewish ruled out radar off the Moon, television, satellites, even a corrugated metal shed by the telescope. Nothing man-made fit. The signal was a train of sharp pulses arriving every <b>1.3 seconds</b> — so fast, and so precise, they half-jokingly logged it as <b>LGM-1</b>, for "Little Green Men."</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Aliens were quickly ruled out the right way: Bell found a <i>second</i> source, pulsing every 1.2 s, in a completely different part of the sky — then two more over Christmas 1967. Two independent civilisations signalling at once from opposite directions was absurd; a new kind of <b>natural</b> object was not. By the end of January they had submitted a paper to <i>Nature</i>. Days before it appeared, Hewish announced the find in a Cambridge seminar — still not knowing what the source <i>was</i>.</p></div>
+    <div class="beat found"><div class="tag">What it founded</div>
+      <p>The pulses were too rapid to come from anything star-sized — which is exactly what let astronomers <b>size the source</b> and corner its identity. <b>Thomas Gold</b> soon showed these were rapidly rotating <b>neutron stars</b>: predicted in 1933, never seen, now caught spinning. Their misaligned magnetic fields sweep a beam of radio light past us like a <b>lighthouse</b>. By the end of 1968 dozens were known; today over a thousand. Hewish won the 1974 Nobel Prize — controversially, without Bell, who by then had finished her PhD, become Bell Burnell, and moved on to gamma- and X-ray astronomy.</p></div>
+  </div>
+
+  <h3 class="subhead"><span class="n">A.</span> "I had my photograph taken standing on a bank, sitting on a bank…"</h3>
+  <p class="leadin">The press could not resist a story that mixed possible aliens with a young woman scientist — and mostly asked her the wrong questions.</p>
+
+  <div class="mathnote">
+    <h4>The circus around the announcement</h4>
+    <p>Bell later recalled the media crush: <i>"I had my photograph taken standing on a bank, sitting on a bank, standing on a bank examining bogus records, sitting on a bank examining bogus records. Meanwhile the journalists were asking relevant questions like was I taller than or not quite as tall as Princess Margaret, and how many boyfriends did I have at a time?"</i> The physics, meanwhile, was still wide open — nobody yet knew what could flash so fast and so regularly.</p>
+  </div>
+  <div class="mathnote">
+    <h4>From "Little Green Men" to neutron stars</h4>
+    <p>The clincher against extraterrestrials was the <b>fourth</b> source: distinct sky positions, distinct periods, no Doppler drift from an orbiting transmitter. <b>Neutron stars</b> — the collapsed cores left when massive stars die in <b>supernovae</b>, packing more than a Sun's mass into a city-sized ball — had been a theorist's curiosity since 1933. Gold's rotating-beacon model tied the two together: a strong magnetic field tilted away from the spin axis channels radiation into a narrow cone that sweeps space as the star turns. We sit in the beam once per rotation, so we read a pulse. As for the little green men — <b>SETI</b> is still listening.</p>
+  </div>
+
+  <h3 class="subhead"><span class="n">B.</span> Sizing a star from a single pulse — the light-travel-time argument</h3>
+  <p class="leadin">You do not need to resolve the source to know it is tiny. The <i>sharpness</i> of the pulse alone sets a hard ceiling on its size, straight from the speed of light.</p>
+
+  <div class="deriv">
+    <h4><span class="ic">∴</span> Why a sharp pulse means a small star</h4>
+    <p class="lead">A body can only flash as one crisp unit if light can cross it in less time than the pulse lasts — otherwise the near and far sides smear the flash out.</p>
+
+    <figure style="margin:14px 0 6px;background:rgba(0,0,0,0.35)">
+      <div class="svgwrap">
+      <svg class="armdiag" viewBox="0 0 600 360" role="img" aria-label="A glowing star on the left emits toward Earth on the right. Light from the near side of the star reaches Earth first; light from the far side is delayed by the light-crossing time of the star's radius R. Below, an idealised instantaneous flash is smeared into an observed pulse of width delta-t equal to R over c.">
+        <defs>
+          <radialGradient id="ps_star" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#ff9ec4"/>
+            <stop offset="100%" stop-color="#b08cff"/>
+          </radialGradient>
+          <marker id="ps_arrAmber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="ps_arrMute" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9aa3c7"/></marker>
+          <marker id="ps_arrCyan" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#3fd0ff"/></marker>
+          <marker id="ps_arrCyanS" markerWidth="8" markerHeight="8" refX="1" refY="3" orient="auto"><path d="M6,0 L0,3 L6,6 Z" fill="#3fd0ff"/></marker>
+        </defs>
+        <!-- ===== top: geometry ===== -->
+        <circle cx="120" cy="110" r="70" fill="url(#ps_star)"/>
+        <circle cx="120" cy="110" r="70" fill="none" stroke="rgba(176,140,255,0.5)" stroke-width="1"/>
+        <!-- centre + near-side wavefront dashed lines -->
+        <line x1="120" y1="48" x2="120" y2="172" stroke="#9aa3c7" stroke-width="1.1" stroke-dasharray="3 4"/>
+        <line x1="190" y1="48" x2="190" y2="172" stroke="#ffb24a" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <!-- R bracket between centre and near edge -->
+        <line x1="120" y1="58" x2="190" y2="58" stroke="#3fd0ff" stroke-width="1.3" marker-start="url(#ps_arrCyanS)" marker-end="url(#ps_arrCyan)"/>
+        <text x="155" y="50" fill="#3fd0ff" font-size="14" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">R</text>
+        <!-- near-side ray -->
+        <line x1="190" y1="92" x2="524" y2="92" stroke="#ffb24a" stroke-width="2.2" marker-end="url(#ps_arrAmber)"/>
+        <text x="300" y="84" fill="#ffb24a" font-size="12.5" font-weight="700" font-family="system-ui,sans-serif">near side — arrives first</text>
+        <!-- far-side ray -->
+        <line x1="120" y1="132" x2="524" y2="132" stroke="#9aa3c7" stroke-width="1.6" stroke-dasharray="6 4" marker-end="url(#ps_arrMute)"/>
+        <text x="300" y="150" fill="#9aa3c7" font-size="12.5" font-family="system-ui,sans-serif">far side — later by R/c</text>
+        <!-- Earth -->
+        <circle cx="545" cy="112" r="11" fill="#3fd0ff" stroke="#05060d" stroke-width="2"/>
+        <text x="545" y="140" fill="#3fd0ff" font-size="12.5" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">Earth</text>
+        <!-- ===== bottom: pulse profile ===== -->
+        <line x1="60" y1="320" x2="545" y2="320" stroke="rgba(140,160,230,0.4)" stroke-width="1.2"/>
+        <text x="52" y="252" fill="#9aa3c7" font-size="11.5" text-anchor="end" font-family="system-ui,sans-serif" transform="rotate(-90 52 252)" style="dominant-baseline:middle">intensity</text>
+        <text x="540" y="340" fill="#9aa3c7" font-size="11.5" text-anchor="end" font-family="system-ui,sans-serif">time &#8594;</text>
+        <!-- idealised instantaneous flash -->
+        <line x1="210" y1="320" x2="210" y2="238" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="3 3"/>
+        <text x="210" y="230" fill="#9aa3c7" font-size="10.5" text-anchor="middle" font-family="system-ui,sans-serif">ideal flash</text>
+        <!-- observed, smeared pulse -->
+        <path d="M210,320 C 250,320 262,250 300,250 C 372,250 400,320 430,320 Z" fill="rgba(255,107,157,0.18)" stroke="#ff6b9d" stroke-width="2"/>
+        <!-- delta-t bracket -->
+        <line x1="210" y1="333" x2="430" y2="333" stroke="#ff6b9d" stroke-width="1.3" marker-start="url(#ps_arrCyanS)" marker-end="url(#ps_arrCyan)" style="marker-start:url(#ps_arrCyanS)"/>
+        <text x="320" y="350" fill="#ff6b9d" font-size="13" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">&#916;t = R / c</text>
+      </svg>
+      </div>
+      <figcaption><b>The light-travel-time argument (schematic).</b> Photons from the near edge of the star reach us first; those from the far side travel an extra distance of order the radius $R$, arriving a time $R/c$ later. Even an instantaneous flash is therefore <i>smeared</i> to an observed width $\Delta t \gtrsim R/c$. Turn that around and the pulse width caps the size: $R \le c\,\Delta t$.</figcaption>
+    </figure>
+
+    <ol>
+      <li><b>Causality sets the clock.</b> For the whole surface to brighten as one coherent pulse, no signal can cross the star faster than light. The far side can lag the near side by <i>at most</i> the light-crossing time $R/c$.</li>
+      <li><b>That lag <i>is</i> the pulse width.</b> The observed pulse cannot be sharper than that smearing, so $\Delta t \gtrsim R/c$ — the duration is at least how long light takes to cross the emitting region.</li>
+      <li><b>Invert for a size ceiling.</b> Rearranging, $R_{\max} \le c\,\Delta t$. For Bell Burnell's first pulsar the sharp component was $\Delta t \approx 0.04$ s, giving $R_{\max} \le (3\times10^5\,\text{km/s})(0.04\,\text{s}) \approx 12{,}000$ km — Earth-sized <i>or smaller</i>.</li>
+      <li><b>Now the spin finishes the job.</b> The Sun (700,000 km) is instantly out. A white dwarf is Earth-sized and survives step 3 — but spinning once every $1.337$ s it would fly apart: holding together needs a mean density above $3\pi/GP^2 \approx 8\times10^{10}\ \text{kg/m}^3$, far denser than any white dwarf. Only a <b>neutron star</b> (~10–15 km, ~$10^{17}\ \text{kg/m}^3$) is both small enough and dense enough.</li>
+    </ol>
+    <div class="concl"><b>Conclusion:</b> a stopwatch beats a telescope here — the pulse width alone, with no image at all, corners the source into being a neutron star. Play the constraint yourself below.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Weigh the star with a stopwatch</h3>
+    <p class="hint">Set the <b>pulse width</b> $\Delta t$ and the <b>rotation period</b> $P$. The width caps the radius through $R_{\max}=c\,\Delta t$; the period sets the minimum density needed to survive the spin. Watch the reference bodies switch from <span style="color:#5ee6a8">allowed</span> to <span style="color:#ff6b9d">ruled out</span> as you sharpen the pulse. Defaults are Bell Burnell's first pulsar.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Pulse width $\Delta t$ <b><span id="ps_dtl">0.040 s</span></b></label>
+        <input id="ps_dt" type="range" min="0.002" max="0.5" step="0.001" value="0.04">
+      </div>
+      <div class="ctl">
+        <label>Rotation period $P$ <b><span id="ps_pl">1.337 s</span></b></label>
+        <input id="ps_p" type="range" min="0.05" max="4" step="0.001" value="1.337">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Max radius R<sub>max</sub> = c·Δt</div><div class="v"><span id="ps_rmax">12,000</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">Size class</div><div class="v" id="ps_class" style="font-size:14px">Earth-sized or less</div></div>
+      <div class="stat"><div class="k">Duty cycle Δt/P</div><div class="v"><span id="ps_duty">3.0</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Beam width ≈ 360°·D</div><div class="v"><span id="ps_beam">10.8</span> <small>°</small></div></div>
+    </div>
+    <div id="ps_plot" class="plot"></div>
+    <div class="verdict good" id="ps_verdict"></div>
+    <div class="eq">$$ R_{\max}\;\le\;c\,\Delta t, \qquad \rho_{\min}\;\approx\;\frac{3\pi}{G\,P^{2}} $$</div>
+
+    <div class="mathnote">
+      <h4>Modern refinement — the beam is a cone, not the whole star blinking</h4>
+      <p>We now know the pulse is a <b>lighthouse beam</b> sweeping past, not the surface blinking. The fraction of each turn we spend inside the beam is the <b>duty cycle</b> $D=\Delta t/P$. For the first pulsar, $D = 0.04/1.337 \approx 3\%$, so the emission cone spans about $360°\times0.03 \approx 11°$ of the rotation. That angular width, folded through the geometry of the spin and magnetic axes, is what lets astronomers map the physical size of the <b>magnetic polar caps</b> where the radio beam is launched — pinning down the hot spot, not just the whole star.</p>
+    </div>
+  </div>
+
+  <h3 class="subhead"><span class="n">C.</span> The lighthouse in motion</h3>
+  <p class="leadin">Here is the picture that made the pulses make sense at last: the star is not blinking — a narrow radio <b>cone</b> is fixed to it, and the spin sweeps that cone past us. We read a pulse each time the beam points our way, and its width is just how long the cone takes to cross our line of sight.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Sweep the beam past Earth</h3>
+    <p class="hint">Looking straight <i>down the spin axis</i>: a radio cone is anchored to one magnetic pole and whirls around once per rotation. Speed it up or slow it down with the <b>period</b>, and fatten or narrow the <b>cone</b>. Watch the pulse train on the right build up in real time — a fast spin packs the pulses together; a wider cone makes each pulse broader (a bigger duty cycle). Notice too: the beam sweeps the whole sky, so a pulsar is only <i>seen</i> from the narrow band its cone happens to cross — most stay forever dark to us.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Rotation period $P$ <b><span id="lh_pl">1.34 s</span></b></label>
+        <input id="lh_p" type="range" min="0.3" max="3" step="0.01" value="1.34">
+      </div>
+      <div class="ctl">
+        <label>Beam cone full width <b><span id="lh_bwl">11°</span></b></label>
+        <input id="lh_bw" type="range" min="4" max="60" step="1" value="11">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Pulse spacing</div><div class="v"><span id="lh_sp">1.34</span> <small>s</small></div></div>
+      <div class="stat"><div class="k">Pulse width Δt</div><div class="v"><span id="lh_dt">0.041</span> <small>s</small></div></div>
+      <div class="stat"><div class="k">Duty cycle</div><div class="v"><span id="lh_duty">3.1</span> <small>%</small></div></div>
+      <div class="stat"><div class="k">Sweep rate</div><div class="v"><span id="lh_sw">269</span> <small>°/s</small></div></div>
+    </div>
+    <figure>
+      <canvas id="lh_canvas" width="900" height="360"></canvas>
+      <figcaption><b>Left:</b> the neutron star seen down its spin axis; the rose cone is the radio beam, the thin line its magnetic axis, and the cyan dot is Earth on our line of sight. The beam glows as it sweeps across us. <b>Right:</b> the signal Earth actually records — a sharp pulse each rotation, its width set entirely by the cone's angular size, not by the star switching on and off.</figcaption>
+    </figure>
   </div>
 </section>
 
@@ -2240,6 +2395,205 @@ function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
   pEl.addEventListener('input',draw); lEl.addEventListener('input',draw); draw();
 })();
 
+/* =======================================================================
+   5b. PULSARS — light-travel-time sizing of the flashing star
+======================================================================= */
+(function(){
+  const dtEl=gid('ps_dt'); if(!dtEl) return;
+  const pEl=gid('ps_p');
+  const dtL=gid('ps_dtl'), pL=gid('ps_pl'), rmaxO=gid('ps_rmax'),
+        classO=gid('ps_class'), dutyO=gid('ps_duty'), beamO=gid('ps_beam'),
+        vEl=gid('ps_verdict');
+  const cKMS=299792.458, G=6.674e-11;
+  // reference bodies: radius (km), mean density (kg/m^3), ascending in size
+  const OBJ=[
+    {n:'Neutron star', r:12,     dens:5e17},
+    {n:'Earth',        r:6371,   dens:5514},
+    {n:'White dwarf',  r:7000,   dens:1e9},
+    {n:'Sun',          r:696000, dens:1408}
+  ];
+  const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  const sup=n=>String(n).split('').map(c=>SUP[c]||c).join('');
+  const nf=v=>Math.round(v).toLocaleString('en-US');
+  function densFmt(d){ const e=Math.floor(Math.log10(d)); const m=d/Math.pow(10,e);
+    return (m<1.05?'10':m.toFixed(0)+'×10')+sup(e)+' kg/m³'; }
+  function list(a){ return a.length<2?(a[0]||''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+  function draw(){
+    const dt=+dtEl.value, P=+pEl.value;
+    dtL.textContent=dt.toFixed(3)+' s';
+    pL.textContent=P.toFixed(3)+' s';
+    const Rmax=cKMS*dt;                       // km
+    const rhoMin=3*Math.PI/(G*P*P);           // kg/m^3 to survive the spin
+    const duty=Math.min(1, dt/P);
+    rmaxO.textContent = Rmax>=1000 ? nf(Rmax) : Rmax.toFixed(0);
+    dutyO.textContent=(duty*100).toFixed(1);
+    beamO.textContent=(duty*360).toFixed(1);
+    let cls;
+    if(Rmax>=696000) cls='no size limit';
+    else if(Rmax>7000) cls='Earth-sized or less';
+    else if(Rmax>12)  cls='sub-white-dwarf';
+    else cls='neutron-star scale';
+    classO.textContent=cls;
+
+    const tooBig=OBJ.filter(o=>o.r>Rmax);
+    const spinLoss=OBJ.filter(o=>o.r<=Rmax && o.dens<rhoMin);
+    const survive=OBJ.filter(o=>o.r<=Rmax && o.dens>=rhoMin);
+    // verdict text
+    let html='<b>R<sub>max</sub> = c·Δt ≈ '+(Rmax>=1000?nf(Rmax):Rmax.toFixed(0))+' km.</b> ';
+    if(Rmax>=696000){
+      html+='A pulse this gradual is no real constraint — even the Sun (700,000 km) could brighten this slowly. Sharpen Δt to size the star.';
+      vEl.className='verdict bad';
+    } else {
+      if(tooBig.length) html+='Light-travel time rules out '+list(tooBig.map(o=>o.n))+' — too big to flash this sharply. ';
+      if(spinLoss.length) html+='Spinning once per '+P.toFixed(2)+' s needs a mean density above '+densFmt(rhoMin)+', which tears apart '+list(spinLoss.map(o=>o.n))+'. ';
+      if(survive.length===1){
+        html+='<b>Only a '+survive[0].n.toLowerCase()+' survives both tests.</b>';
+        vEl.className = survive[0].n==='Neutron star' ? 'verdict good' : 'verdict';
+      } else if(survive.length===0){
+        html+='Nothing on the list survives — no known body is that small and that dense.';
+        vEl.className='verdict good';
+      } else {
+        html+='Still standing: '+list(survive.map(o=>o.n))+'.';
+        vEl.className='verdict';
+      }
+    }
+    vEl.innerHTML=html;
+
+    Plotly.react('ps_plot',[
+      {type:'bar', orientation:'h', y:OBJ.map(o=>o.n), x:OBJ.map(o=>o.r),
+        width:0.55, marker:{color:OBJ.map(o=> o.r<=Rmax ? '#5ee6a8':'#ff6b9d'),
+          line:{width:0}},
+        hovertemplate:'%{y}: %{x:,.0f} km<extra></extra>'},
+      {x:[Rmax,Rmax], y:[-0.5, OBJ.length-0.5], mode:'lines',
+        line:{color:'#3fd0ff', width:2, dash:'dash'}, hoverinfo:'skip'}
+    ], baseLayout({
+      xaxis:{type:'log', title:'radius (km)', range:[0.7,6.3]},
+      yaxis:{automargin:true, title:''},
+      margin:{l:96,r:18,t:26,b:48},
+      annotations:[{x:Math.log10(Rmax), y:OBJ.length-0.5, xref:'x', yref:'y',
+        text:'R<sub>max</sub> = c·Δt', showarrow:false, yshift:11,
+        font:{color:'#3fd0ff', size:11}}]
+    }), PCFG);
+  }
+  dtEl.addEventListener('input',draw); pEl.addEventListener('input',draw); draw();
+})();
+
+/* =======================================================================
+   5c. PULSARS — the lighthouse beam sweeping past Earth (canvas, animated)
+======================================================================= */
+(function(){
+  const pEl=gid('lh_p'); if(!pEl) return;
+  const bwEl=gid('lh_bw'), pL=gid('lh_pl'), bwL=gid('lh_bwl'),
+        spO=gid('lh_sp'), dtO=gid('lh_dt'), dutyO=gid('lh_duty'), swO=gid('lh_sw'),
+        cv=gid('lh_canvas'), x=cv.getContext('2d');
+  const DT=0.02;                       // sim seconds advanced per frame
+  const NS=300;                        // pulse-strip history length
+  const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+  let theta=0, samples=new Array(NS).fill(0);
+  // display geometry — recomputed on resize so the figure reflows for phones
+  let W=900, H=360, dpr=1, narrow=false;
+  function fit(){
+    const cssW = cv.clientWidth || (cv.parentElement&&cv.parentElement.clientWidth) || 900;
+    narrow = cssW < 560;                                   // stack the two panels on narrow screens
+    W = cssW;
+    H = narrow ? Math.round(cssW*0.94) : Math.round(cssW*0.40);
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    cv.style.height = H+'px';                              // overrides figure's height:auto
+    cv.width  = Math.round(W*dpr);
+    cv.height = Math.round(H*dpr);
+  }
+
+  function frame(){
+    const P=+pEl.value, Wb=+bwEl.value;      // period (s), cone FULL width (deg)
+    const rho=(Wb/2)*Math.PI/180;            // cone half-width (rad)
+    const duty=Wb/360, dt=duty*P;
+    pL.textContent=P.toFixed(2)+' s'; bwL.textContent=Wb.toFixed(0)+'°';
+    spO.textContent=P.toFixed(2);
+    dtO.textContent=dt.toFixed(3);
+    dutyO.textContent=(duty*100).toFixed(1);
+    swO.textContent=(360/P).toFixed(0);
+
+    // advance spin; illumination when the cone points within rho of Earth (dir = 0)
+    theta = wrap(theta + 2*Math.PI*DT/P);
+    const d=Math.abs(wrap(theta));
+    const inten = d<rho ? Math.pow(Math.cos(d/rho*Math.PI/2),2) : 0;
+    samples.push(inten); samples.shift();
+
+    x.setTransform(dpr,0,0,dpr,0,0);         // draw in CSS px; crisp on hi-dpi phones
+    x.clearRect(0,0,W,H);
+
+    // ---- layout: side-by-side on desktop, stacked on phones ----
+    let sx,sy,sw,sh, gx0,gx1,gTop,gBase;
+    if(narrow){
+      sx=0; sy=0; sw=W; sh=Math.round(H*0.58);
+      gx0=40; gx1=W-14; gTop=sh+26; gBase=H-22;
+    } else {
+      sh=H; sw=Math.min(H*1.05, W*0.44); sx=0; sy=0;
+      gx0=sw+30; gx1=W-24; gTop=54; gBase=H-56;
+    }
+    const cx=sx+sw*0.34, cy=sy+sh*0.5;
+    const L=Math.min(sw*0.55, sh*0.44);            // beam length fits the sky panel
+    const eX=cx+L*0.99, eY=cy;                     // Earth on the +x line of sight
+    const starR=Math.max(9, Math.min(16, L*0.11));
+    const F=Math.max(10, Math.round(Math.min(W,900)*0.013));   // legible label size at any width
+    x.font=F+'px -apple-system';
+
+    /* ---------- sky view, looking down the spin axis ---------- */
+    x.strokeStyle='rgba(140,160,230,0.18)'; x.lineWidth=1.2; x.setLineDash([3,5]);
+    x.beginPath(); x.arc(cx,cy,L,0,7); x.stroke(); x.setLineDash([]);              // spin ring
+    x.strokeStyle='rgba(63,208,255,0.35)'; x.lineWidth=1.3; x.setLineDash([5,5]);
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(eX,eY); x.stroke(); x.setLineDash([]); // line of sight
+    x.strokeStyle='rgba(176,140,255,0.5)'; x.lineWidth=1.4;                         // magnetic axis
+    x.beginPath();
+    x.moveTo(cx-Math.cos(theta)*(starR+8), cy-Math.sin(theta)*(starR+8));
+    x.lineTo(cx+Math.cos(theta)*(L-4), cy+Math.sin(theta)*(L-4));
+    x.stroke();
+    const gc=x.createRadialGradient(cx,cy,starR*0.6,cx,cy,L);                        // radio cone
+    gc.addColorStop(0,'rgba(255,107,157,0.85)');
+    gc.addColorStop(1,'rgba(176,140,255,0.05)');
+    x.fillStyle=gc;
+    x.beginPath(); x.moveTo(cx,cy); x.arc(cx,cy,L,theta-rho,theta+rho); x.closePath(); x.fill();
+    x.fillStyle='#eaf0ff'; x.beginPath(); x.arc(cx,cy,starR,0,7); x.fill();          // neutron star
+    x.strokeStyle='#b08cff'; x.lineWidth=2; x.beginPath(); x.arc(cx,cy,starR,0,7); x.stroke();
+    if(inten>0.02){                                                                 // Earth glows when beamed
+      const rr=starR*0.5+6+inten*10;
+      x.strokeStyle='rgba(63,208,255,'+(0.5*inten)+')'; x.lineWidth=2;
+      x.beginPath(); x.arc(eX,eY,rr,0,7); x.stroke();
+    }
+    x.fillStyle = inten>0.02 ? '#8fe3ff' : '#2c6f8c';
+    x.beginPath(); x.arc(eX,eY,7,0,7); x.fill();
+    x.strokeStyle='#05060d'; x.lineWidth=2; x.beginPath(); x.arc(eX,eY,7,0,7); x.stroke();
+    x.fillStyle='#9aa3c7'; x.textAlign='left'; x.fillText('down the spin axis', sx+8, sy+F+6);
+    x.fillStyle='#3fd0ff'; x.textAlign='center'; x.fillText('Earth', eX, eY+starR+F+2);
+    const tipx=cx+Math.cos(theta)*(L*0.6), tipy=cy+Math.sin(theta)*(L*0.6);
+    x.fillStyle='rgba(255,107,157,0.9)'; x.fillText('beam', tipx, tipy);
+
+    /* ---------- received-signal strip ---------- */
+    const span=gx1-gx0, hgt=gBase-gTop;
+    x.strokeStyle='rgba(140,160,230,0.30)'; x.lineWidth=1.2;
+    x.beginPath(); x.moveTo(gx0,gBase); x.lineTo(gx1,gBase); x.stroke();            // time axis
+    x.beginPath(); x.moveTo(gx0,gTop-6); x.lineTo(gx0,gBase); x.stroke();           // intensity axis
+    x.beginPath(); x.moveTo(gx0,gBase);
+    for(let i=0;i<NS;i++){ const px=gx0+span*(i/(NS-1)), py=gBase-samples[i]*hgt; x.lineTo(px,py); }
+    x.lineTo(gx1,gBase); x.closePath();
+    x.fillStyle='rgba(255,107,157,0.18)'; x.fill();
+    x.beginPath();
+    for(let i=0;i<NS;i++){ const px=gx0+span*(i/(NS-1)), py=gBase-samples[i]*hgt; i?x.lineTo(px,py):x.moveTo(px,py); }
+    x.strokeStyle='#ff6b9d'; x.lineWidth=2; x.stroke();
+    x.strokeStyle='rgba(63,208,255,0.55)'; x.lineWidth=1.4; x.setLineDash([3,4]);   // "now" playhead
+    x.beginPath(); x.moveTo(gx1,gTop-6); x.lineTo(gx1,gBase); x.stroke(); x.setLineDash([]);
+    x.fillStyle='#9aa3c7'; x.textAlign='left';
+    x.fillText('signal received at Earth', gx0, gTop-10);
+    x.fillText('time →', gx0, gBase+16);
+    x.textAlign='right'; x.fillStyle='#3fd0ff'; x.fillText('now', gx1, gTop-10);
+
+    requestAnimationFrame(frame);
+  }
+  fit();
+  let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(fit,150); });
+  frame();   // slider values are read live inside frame() every tick
+})();
+
 </script>
 <script>
 (function(){
@@ -2293,6 +2647,12 @@ function _specFrame(x,ox,oy,pw,ph,fLo,fHi,tMax,tLabel){
     {q:"Extragalactic masers a million-plus times brighter than a Milky-Way maser (isotropic luminosity above ~10 L☉) are called…",
       opts:["Kilomasers","Megamasers (the brightest, ~10³–10⁴ L☉, being gigamasers)","Micromasers","Pulsars"],a:1,
       exp:"By isotropic luminosity: kilomaser (<10 L☉), megamaser (>10 L☉), and the extreme gigamasers (e.g. TXS 2226-184 at ~6100 L☉). They are often hosted by merging, infrared-luminous galaxies."},
+    {q:"When Bell and Hewish first logged the 1.3-second pulses as 'LGM-1', what finally ruled OUT little green men?",
+      opts:["The signal was too weak","They found several more pulsars at different sky positions and periods — two civilisations signalling at once was absurd","The pulses stopped","Radar off the Moon explained it"],a:1,
+      exp:"A second, third and fourth source in completely different directions, each with its own period and no orbital Doppler drift, pointed to a new class of natural object rather than deliberate signals."},
+    {q:"A pulsar's pulse width Δt caps the size of the emitting star through the light-travel-time argument. The ceiling on its radius is…",
+      opts:["R ≤ c·Δt","R ≥ c/Δt","R = c·P","R ≤ Δt/c"],a:0,
+      exp:"The far side of the star lags the near side by at most the light-crossing time R/c, so the pulse can't be sharper than that: Δt ≳ R/c, i.e. R ≤ c·Δt. For Δt ≈ 0.04 s that gives ≤ 12,000 km — Earth-sized or smaller, and (given the fast spin) only a neutron star fits."},
     {q:"Jupiter's intense decametric radio bursts (~15–25 MHz) are strongly controlled by…",
       opts:["The Earth's Moon","Its moon Io moving through Jupiter's magnetosphere","Sunspots only","The rings of Saturn"],a:1,
       exp:"Io sets up a current in Jupiter's magnetosphere that triggers the strongest, most predictable storms; the Io-B window is the amateur's reliable target."},
