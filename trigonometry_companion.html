@@ -519,14 +519,44 @@ nav .navToggle{ display:none; }
     <figcaption>How the sine enters. Pick any point $P$ on the ray. Its line to the mass (amber, length $r$) makes angle $\varphi$ with the direction of travel, and the right triangle gives the aim distance as a sine: $b=r\sin\varphi$ (green). Gravity pulls straight toward the mass, but only the slice <i>across</i> the motion bends the ray — that slice is the pull times $\sin\varphi$ (rose). Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
   </figure>
 
+  <div class="lab">
+    <h3><span class="dot"></span>Ride along the ray — slide P and watch the two sines work</h3>
+    <p class="hint">Slide the photon's position $P$ along its path and watch three things at once. <b>One:</b> $r$ and $\varphi$ both change constantly, yet their product $b=r\sin\varphi$ never moves — the aim is fixed for the whole flight. <b>Two:</b> the pull (amber) splits into an along-track piece (grey — speeds or slows, cannot turn) and an across-track piece (rose — pull $\times\sin\varphi$, the only part that bends). <b>Three:</b> the shaded area in the lower strip is the running sum of those rose tugs — by the time $P$ has flown past, the area has grown into the whole deflection.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Position of P along the path (units of b) <b><span id="lb_plbl">−2.0</span></b></label>
+        <input id="lb_pos" type="range" min="-3.6" max="3.6" step="0.05" value="-2">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">angle φ</div><div class="v"><span id="lb_phi">26.6°</span></div></div>
+      <div class="stat"><div class="k">distance r (× b)</div><div class="v"><span id="lb_r">2.24</span></div></div>
+      <div class="stat"><div class="k">b = r·sin φ</div><div class="v"><span id="lb_b">1.00</span></div></div>
+      <div class="stat"><div class="k">pull ∝ 1/r² (rel.)</div><div class="v"><span id="lb_pull">0.20</span></div></div>
+      <div class="stat"><div class="k">sideways tug = pull·sin φ</div><div class="v"><span id="lb_tug">0.09</span></div></div>
+      <div class="stat"><div class="k">bend accumulated</div><div class="v"><span id="lb_acc">5%</span></div></div>
+    </div>
+    <figure><canvas id="lb_canvas" width="900" height="400"></canvas>
+      <figcaption>Top: the geometry at the chosen $P$ — the pull (amber) resolved into its along-track (grey) and across-track (rose) pieces. Note the along-track piece points <i>forward</i> before closest approach and <i>backward</i> after: over the full flyby it cancels itself, so only the rose piece ever bends the ray. Bottom: the sideways tug $\propto\sin^3\varphi$ at each point of the path; the shaded area is the bending banked so far. Half of all the bending happens by closest approach — and most of it within about $\pm 2b$ of the mass.</figcaption></figure>
+    <div class="eq">$$ b=r\sin\varphi\ \text{(fixed)},\qquad \text{sideways tug}=\frac{GM}{r^2}\sin\varphi,\qquad \text{bend so far}=\frac{1-\cos\varphi}{2}\ \text{of Newton's total} $$</div>
+  </div>
+
   <div class="deriv">
     <h4><span class="ic">∴</span> Step by step: where the sine hides in $\alpha = 4GM/c^2b$</h4>
     <p class="lead">Two different sines do the work — one fixes the aim, the other selects the bending. Both are the plain opposite-over-hypotenuse ratio from the start of this chapter.</p>
     <ol>
       <li><b>The aim distance is a sine.</b> At any instant the photon's line to the mass makes an angle $\varphi$ with its direction of travel. Drop the perpendicular and you have a right triangle: hypotenuse $r$ (distance to the mass), opposite side $b$ (the perpendicular miss distance). So $b = r\sin\varphi$ — the impact parameter is a sine, and it stays fixed for the entire flight.</li>
-      <li><b>The sine selects the part of gravity that bends.</b> The pull $GM/r^2$ points straight at the mass, but a tug along your line of motion only speeds you up or slows you down — it cannot turn you. Only the component <i>across</i> the motion bends the ray, and projecting the pull onto that direction brings in the sine again: $\text{sideways tug}=\dfrac{GM}{r^2}\sin\varphi$. Dead ahead ($\varphi\to0$, $\sin\varphi\to0$) nothing bends; broadside at closest approach ($\varphi=90^\circ$, $\sin\varphi=1$) the bending is fiercest.</li>
-      <li><b>Add the sine-weighted tugs along the whole path.</b> Summing every tiny turn from far approach to far departure is the integral $\displaystyle\int_0^{\pi}\sin\varphi\,d\varphi = \big[-\cos\varphi\big]_0^{\pi}=2$ — the sine is literally the thing being summed. The total works out to $\alpha = \dfrac{2GM}{c^2 b}$, the bending Newton's gravity alone would give.</li>
-      <li><b>Relativity doubles it.</b> The curvature of space itself contributes an equal second half, doubling the result to Einstein's $\alpha = \dfrac{4GM}{c^2 b}$. The $b$ in the denominator is the very $\sin\varphi$ aim-distance from step 1: aim closer (smaller $b$) and the bend grows. At $b = 1.5\,R_s$ the summed turn closes into a full circle and the photon orbits the hole — the <b>photon sphere</b>.</li>
+      <li><b>Split the pull into two perpendicular pieces.</b> At $P$ gravity's pull, of strength $GM/r^2$, points along the amber line — straight at the mass. That direction is in general <i>diagonal</i> to the photon's motion, so treat the pull like any vector and resolve it into two components: one <i>along</i> the direction of travel, one <i>across</i> it (perpendicular). Nothing physical has happened yet — we have only rewritten one arrow as the sum of two.</li>
+      <li><b>Only the across piece can turn the ray.</b> Think of driving a car: the accelerator and the brake act along your motion and change your <i>speed</i>, but never your heading; only the steering wheel — a push <i>across</i> your motion — changes your direction. The same split applies here. The along-track piece of gravity (in this Newtonian picture) hurries the photon on the way in and holds it back by a matching amount on the way out, so over the whole flyby it cancels and leaves no trace. Every bit of deflection comes from the across-track piece alone. Extracting that piece is one more right triangle: the full pull is the hypotenuse and $\varphi$ is the angle it makes with the travel direction, so the across component is $\text{(hypotenuse)}\times\sin\varphi$:
+      $$\text{sideways tug}=\frac{GM}{r^2}\sin\varphi.$$
+      Check the limits and it behaves exactly as steering should: with the mass dead ahead or dead astern ($\varphi\to0°$ or $180°$, $\sin\varphi\to0$) the pull is purely along-track and turns the ray not at all; broadside at closest approach ($\varphi=90^\circ$, $\sin\varphi=1$) the <i>entire</i> pull is across-track and the bending is fiercest.</li>
+      <li><b>Add the sine-weighted tugs along the whole path.</b> Summing every tiny turn from far approach ($\varphi=0$) to far departure ($\varphi=\pi$) is the integral $\displaystyle\int_0^{\pi}\sin\varphi\,d\varphi = \big[-\cos\varphi\big]_0^{\pi}=2$ — the sine is literally the thing being summed. The total works out to $\alpha = \dfrac{2GM}{c^2 b}$, the bending Newton's gravity alone would give.</li>
+      <li><b>Relativity doubles it.</b> Everything above treated light as a fast Newtonian particle falling through flat, ordinary space, and it delivered $\alpha = 2GM/c^2b$. General relativity says a mass actually distorts its surroundings in <i>two</i> distinct ways, and our sum captured only one of them.
+        <ul>
+          <li><b>It warps time.</b> Clocks run slower the deeper you sit in the field. That gradient in clock rate deflects anything passing by, and it is precisely what the Newtonian "pull" encodes — the sine-weighted tugs we just summed are the <i>time</i>-warp half of the story.</li>
+          <li><b>It warps space.</b> The grid of distances around the mass is stretched in the radial direction, so even the "straightest possible" path drawn through that stretched grid tilts inward a little extra. This piece has no Newtonian counterpart at all.</li>
+        </ul>
+      For something moving at $c$, the two warps deflect equally, so the space half adds a second $2GM/c^2b$ on top of the first — Einstein's $\alpha = \dfrac{4GM}{c^2 b}$. (A slow planet spends its time creeping through the grid and barely samples the space warp, which is why Newton works so well for orbits; light, at full speed, feels both halves in full.) Einstein himself published the time-only value in 1911 — $0.87''$ at the Sun's limb — and only the finished theory of 1915 doubled it to $1.75''$, the number Eddington's 1919 eclipse expedition confirmed. The $b$ in the denominator is the very $\sin\varphi$ aim-distance from step 1: aim closer (smaller $b$) and the bend grows. At $b = 1.5\,R_s$ the summed turn closes into a full circle and the photon orbits the hole — the <b>photon sphere</b>.</li>
     </ol>
     <div class="concl"><b>Conclusion:</b> the deflection is nothing but a heap of sideways tugs, each one the pull times the sine of the angle to the mass. Pile them up to the limit and the heap becomes the bright ring the Event Horizon Telescope photographed around M87*.</div>
   </div>
@@ -858,14 +888,32 @@ nav .navToggle{ display:none; }
   <h3 class="subhead"><span class="n">3</span>For a star the angle is tiny — which lets us drop the "tan"</h3>
   <div class="beats">
     <div class="beat known"><div class="tag">What it is</div>
-      <p>A star is so far that the tip angle $p$ is a tiny fraction of a degree. When an angle is that small, $\tan p$ and the angle $p$ itself (measured in <b>radians</b>) are almost the same number, so $d=B/\tan p$ simplifies to just $d=B/p$. This is the <b>small-angle approximation</b>.</p></div>
+      <p>A star is so far away that its angle $p$ is a minuscule fraction of a degree. For an angle that small, $\tan p$ and $p$ itself (in <b>radians</b>) are the same number to more decimal places than any telescope can measure. So $d=B/\tan p$ simplifies to $d=B/p$. That swap is the <b>small-angle approximation</b>.</p></div>
     <div class="beat idea"><div class="tag">How it works</div>
-      <p>Why are they nearly equal? Picture the thin wedge of angle $p$. Its straight far side ($\tan p$), the curved arc it cuts ($p$, in radians) and the chord across it ($\sin p$) are three almost-identical lengths — the thinner the wedge, the closer they match. So for small angles $\sin p\approx p\approx\tan p$, and $\cos p\approx1$.</p></div>
+      <p>Why should a trig function equal a bare angle? In the wedge below, three different routes climb from the flat floor to the slanted roof: the vertical drop at the tip ($\sin p$, green), the curved rim ($p$ in radians, cyan), and the straight wall past the rim ($\tan p$, rose). They are always stacked in the order $\sin p < p < \tan p$. But squeeze the wedge shut and the roof presses toward the floor — there is simply no room left between the three routes, and they become one length.</p></div>
     <div class="beat found"><div class="tag">How it's applied</div>
-      <p>This is the single most-used shortcut in astronomy, because every celestial angle is minute. With the right units (baseline in AU, angle in arcseconds) the <b>parsec</b> is defined so cleanly that the whole calculation collapses to $d=1/p$.</p></div>
+      <p>This is the most-used shortcut in astronomy, because every angle on the sky is tiny. With the right units — baseline in AU, angle in arcseconds — the <b>parsec</b> is defined so cleanly that the whole calculation collapses to $d=1/p$.</p></div>
   </div>
-  <figure><canvas id="ill_squeeze" width="900" height="320"></canvas>
-    <figcaption>The squeeze: the chord (sin p, green), the arc (p, cyan) and the straight tangent (tan p, pink) are pinned in the order sin p &lt; p &lt; tan p. As the wedge narrows they merge into one length — which is why we may swap tan p for p.</figcaption></figure>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The squeeze: close the wedge and watch sin p, p, tan p merge</h3>
+    <p class="hint">Drag the angle toward zero. <b>Left:</b> the wedge, with the three coloured routes from floor to roof. <b>Right:</b> the same three lengths pulled out straight and laid side by side, so you can compare them without the picture in the way. At $30°$ the bars are visibly different; by a few degrees they agree digit for digit — and the readout shows what swapping $\tan p$ for $p$ would actually cost.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Angle p <b><span id="sq_albl">30.0</span>°</b></label>
+        <input id="sq_ang" type="range" min="1" max="45" step="0.5" value="30">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">p in radians</div><div class="v"><span id="sq_rad">0.5236</span></div></div>
+      <div class="stat"><div class="k">sin p</div><div class="v"><span id="sq_sin">0.5000</span></div></div>
+      <div class="stat"><div class="k">tan p</div><div class="v"><span id="sq_tan">0.5774</span></div></div>
+      <div class="stat"><div class="k">error if p replaces tan p</div><div class="v"><span id="sq_err">9.3</span>%</div></div>
+    </div>
+    <figure><canvas id="sq_canvas" width="900" height="340"></canvas>
+      <figcaption>The three routes are pinned in the order $\sin p < p < \tan p$, so the arc $p$ is squeezed between two things made of plain sines and cosines. As the wedge closes, the squeeze leaves no room: all three become the same number, which is why $d=B/\tan p$ may be written $d=B/p$.</figcaption></figure>
+    <div class="eq">$$ \sin p \;<\; p \;<\; \tan p \qquad\xrightarrow{\ p\to0\ }\qquad \sin p \approx p \approx \tan p $$</div>
+  </div>
   <div class="deriv">
     <h4><span class="ic">∴</span> How big is the error, really? (the plain-number version)</h4>
     <p class="lead">"Drop the tan" sounds reckless. Here is exactly what it costs, with no jargon — then the one jargon line decoded.</p>
@@ -1838,6 +1886,120 @@ function fmt(x,sig){ sig=sig||3; if(x===0)return '0'; if(!isFinite(x))return '�
   aEl.addEventListener('input',draw); dEl.addEventListener('input',draw); draw();
 })();
 
+/* ===== 1b. Light bending past a mass: slide P along the ray ===== */
+(function(){
+  const pEl=document.getElementById('lb_pos'); if(!pEl)return;
+  const plbl=document.getElementById('lb_plbl'),
+    phiO=document.getElementById('lb_phi'), rO=document.getElementById('lb_r'),
+    bO=document.getElementById('lb_b'), pullO=document.getElementById('lb_pull'),
+    tugO=document.getElementById('lb_tug'), accO=document.getElementById('lb_acc');
+  const cv=document.getElementById('lb_canvas');
+  // On phones the 900px canvas is shrunk to fit the screen, so draw with bigger
+  // fonts/lines when the displayed width is small — they scale back down to legible.
+  let F=1, LW=1;
+  function arrow(x,x0,y0,x1,y1,color,w){
+    x.strokeStyle=color; x.fillStyle=color; x.lineWidth=(w||2.4)*LW;
+    x.beginPath(); x.moveTo(x0,y0); x.lineTo(x1,y1); x.stroke();
+    const a=Math.atan2(y1-y0,x1-x0), h=9*LW;
+    x.beginPath(); x.moveTo(x1,y1);
+    x.lineTo(x1-h*Math.cos(a-0.42),y1-h*Math.sin(a-0.42));
+    x.lineTo(x1-h*Math.cos(a+0.42),y1-h*Math.sin(a+0.42));
+    x.closePath(); x.fill();
+  }
+  function draw(){
+    const mob=(cv.clientWidth||cv.width)<560;
+    F=mob?1.6:1; LW=mob?1.35:1;
+    const fnt=n=>Math.round(n*F)+'px -apple-system';
+    const u=+pEl.value;                       // P's position along the path, units of b (0 = closest approach)
+    plbl.textContent=(u<0?'−':'+')+Math.abs(u).toFixed(2);
+    const phi=Math.atan2(1,-u);               // angle between travel direction and line P->mass
+    const s=Math.sin(phi), c=Math.cos(phi);
+    const r=1/s;                              // r in units of b, since b = r sin(phi)
+    const pull=s*s;                           // GM/r^2 relative to its value at closest approach
+    const tug=s*s*s;                          // pull x sin(phi)
+    const acc=(1-c)/2;                        // fraction of Newton's total bend banked so far
+    phiO.textContent=(phi*180/Math.PI).toFixed(1)+'°';
+    rO.textContent=r.toFixed(2); bO.textContent=(r*s).toFixed(2)+' (fixed)';
+    pullO.textContent=pull.toFixed(3); tugO.textContent=tug.toFixed(3);
+    accO.textContent=(acc*100).toFixed(0)+'%';
+    const x=cv.getContext('2d'), W=cv.width, H=cv.height;
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    // ---- geometry panel ----
+    const rayY=70, mx=450, my=170, bpx=my-rayY, scale=100; // 1 b = 100 px both directions, so drawn angles are true
+    const px=mx+u*scale;
+    // ray (straight-line approximation; the true bend is microscopic)
+    arrow(x,60,rayY,846,rayY,'#3fd0ff',2.2);
+    x.font=fnt(12); x.textAlign='left';
+    x.fillStyle='#3fd0ff'; x.fillText('light ray →', 66, rayY-12);
+    // impact parameter b (foot of perpendicular)
+    x.strokeStyle='#5ee6a8'; x.lineWidth=2*LW; x.beginPath(); x.moveTo(mx,rayY); x.lineTo(mx,my); x.stroke();
+    x.strokeStyle='rgba(154,163,199,0.7)'; x.lineWidth=1.2*LW; x.strokeRect(mx,rayY,9,9);
+    x.fillStyle='#5ee6a8'; x.fillText('b', mx+12, (rayY+my)/2+4);
+    // mass
+    x.fillStyle='rgba(255,107,157,0.13)'; x.beginPath(); x.arc(mx,my,30,0,7); x.fill();
+    x.strokeStyle='#ff6b9d'; x.lineWidth=2.4*LW; x.beginPath(); x.arc(mx,my,17,0,7); x.stroke();
+    x.fillStyle='#000'; x.beginPath(); x.arc(mx,my,13,0,7); x.fill();
+    x.fillStyle='#ff6b9d'; x.textAlign='center'; x.fillText('mass', mx, my+44);
+    // r line P -> mass
+    x.strokeStyle='#ffb24a'; x.lineWidth=1.8*LW; x.beginPath(); x.moveTo(px,rayY); x.lineTo(mx,my); x.stroke();
+    x.fillStyle='#ffb24a'; x.fillText('r', (px+mx)/2+(u<0?14:-14), (rayY+my)/2);
+    // angle phi arc at P (between travel direction and the r line)
+    x.strokeStyle='#b08cff'; x.lineWidth=2*LW; x.beginPath(); x.arc(px,rayY,26,0,phi,false); x.stroke();
+    x.fillStyle='#b08cff'; x.font=fnt(14);
+    x.fillText('φ', px+34*Math.cos(phi/2), rayY+34*Math.sin(phi/2)+4);
+    x.font=fnt(12);
+    // pull vector at P, resolved into components
+    const L=92*pull;                          // arrow length scales with 1/r^2
+    const fx=L*((mx-px)/Math.hypot(mx-px,bpx)), fy=L*(bpx/Math.hypot(mx-px,bpx));
+    if(L>2){
+      // projection guides
+      x.strokeStyle='rgba(154,163,199,0.6)'; x.lineWidth=1; x.setLineDash([3,3]);
+      x.beginPath(); x.moveTo(px+fx,rayY+fy); x.lineTo(px,rayY+fy); x.moveTo(px+fx,rayY+fy); x.lineTo(px+fx,rayY); x.stroke();
+      x.setLineDash([]);
+      // along-track piece (cannot turn)
+      if(Math.abs(fx)>2) arrow(x,px,rayY,px+fx,rayY,'#9aa3c7',2.2);
+      // across-track piece (bends)
+      arrow(x,px,rayY,px,rayY+fy,'#ff6b9d',2.6);
+      // full pull
+      arrow(x,px,rayY,px+fx,rayY+fy,'#ffb24a',2.6);
+    }
+    // P itself
+    x.fillStyle='#3fd0ff'; x.beginPath(); x.arc(px,rayY,5*LW,0,7); x.fill();
+    x.fillStyle='#e8ecff'; x.fillText('P', px, rayY-14);
+    // component legend, kept clear of the moving arrows (shorter text on phones)
+    x.textAlign='left';
+    const lgx=mob?560:660, lgy=mob?206:214, ldy=Math.round(17*F);
+    x.fillStyle='#ffb24a'; x.fillText('pull GM/r²', lgx, lgy);
+    x.fillStyle='#9aa3c7'; x.fillText(mob?'along — no turn':'along track — speeds/slows, no turn', lgx, lgy+ldy);
+    x.fillStyle='#ff6b9d'; x.fillText(mob?'across = pull·sin φ — bends':'across track = pull × sin φ — bends', lgx, lgy+2*ldy);
+    // ---- strip chart: sideways tug along the whole path ----
+    const gy0=378, gy1=276, gx0=60, gx1=846;
+    x.strokeStyle='rgba(140,160,230,0.25)'; x.lineWidth=1;
+    x.beginPath(); x.moveTo(gx0,gy0); x.lineTo(gx1,gy0); x.stroke();
+    const uu=v=>mx+v*scale;                   // same x-scale as the geometry, so the strip sits directly beneath the ray
+    const tugAt=v=>{const p=Math.atan2(1,-v); return Math.pow(Math.sin(p),3);};
+    // shaded area up to P
+    x.fillStyle='rgba(255,107,157,0.18)'; x.beginPath(); x.moveTo(uu(-3.6),gy0);
+    for(let v=-3.6; v<=u+1e-9; v+=0.03) x.lineTo(uu(v), gy0-(gy0-gy1)*tugAt(v));
+    x.lineTo(uu(Math.min(u,3.6)),gy0); x.closePath(); x.fill();
+    // full curve
+    x.strokeStyle='#ff6b9d'; x.lineWidth=2.2*LW; x.beginPath();
+    for(let v=-3.6; v<=3.6; v+=0.03){const gx=uu(v), gyv=gy0-(gy0-gy1)*tugAt(v); v<=-3.59?x.moveTo(gx,gyv):x.lineTo(gx,gyv);}
+    x.stroke();
+    // marker directly beneath P
+    x.strokeStyle='rgba(232,236,255,0.4)'; x.lineWidth=1; x.setLineDash([3,3]);
+    x.beginPath(); x.moveTo(px,gy1-4); x.lineTo(px,gy0); x.stroke(); x.setLineDash([]);
+    x.fillStyle='#fff'; x.beginPath(); x.arc(uu(u),gy0-(gy0-gy1)*tugAt(u),4*LW,0,7); x.fill();
+    x.fillStyle='#ff6b9d'; x.fillText(mob?'sideways tug along the path':'sideways tug at each point of the path', gx0+6, gy1-8);
+    x.fillStyle='#e8ecff'; x.fillText((mob?'shaded = bend so far: ':'shaded area = bending accumulated: ')+(acc*100).toFixed(0)+'%', gx0+6, gy1+Math.round(16*F));
+    x.textAlign='center'; x.fillStyle='#6f78a0'; x.font=fnt(10);
+    for(const g of [-3,-2,-1,0,1,2,3]) x.fillText((g>0?'+':'')+g+'b', uu(g), gy0+Math.round(14*F));
+  }
+  pEl.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  draw();
+})();
+
 /* ===== 2. Unit circle + sine wave + small-angle (reused) ===== */
 (function(){
   const aEl=document.getElementById('tg_ang'); if(!aEl)return;
@@ -2003,26 +2165,75 @@ function fmt(x,sig){ sig=sig||3; if(x===0)return '0'; if(!isFinite(x))return '�
   x.fillStyle='#e8ecff'; x.font='13px -apple-system'; x.textAlign='center'; x.fillText('d = B / tan p   →   the nearer tree swings more (bigger p)', W*0.5, 26);
 })();
 
-/* ===== Illustration: the small-angle squeeze (static) ===== */
+/* ===== The small-angle squeeze: interactive wedge + length bars ===== */
 (function(){
-  const cv=document.getElementById('ill_squeeze'); if(!cv)return;
-  const x=cv.getContext('2d'), W=cv.width, H=cv.height;
-  x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
-  const cx=110, cy=H-70, R=200, a=30*Math.PI/180;
-  x.strokeStyle='rgba(140,160,230,0.3)'; x.lineWidth=1; x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+R+50,cy); x.moveTo(cx,cy); x.lineTo(cx,cy-R-10); x.stroke();
-  x.strokeStyle='rgba(140,160,230,0.45)'; x.lineWidth=1.5; x.beginPath(); x.arc(cx,cy,R,0,-Math.PI/2,true); x.stroke();
-  const Px=cx+R*Math.cos(a), Py=cy-R*Math.sin(a);
-  x.strokeStyle='rgba(232,236,255,0.8)'; x.lineWidth=2; x.beginPath(); x.moveTo(cx,cy); x.lineTo(Px,Py); x.stroke();
-  x.strokeStyle='#5ee6a8'; x.lineWidth=4; x.beginPath(); x.moveTo(Px,cy); x.lineTo(Px,Py); x.stroke();
-  x.strokeStyle='#3fd0ff'; x.lineWidth=4; x.beginPath(); x.arc(cx,cy,R,0,-a,true); x.stroke();
-  const tl=R*Math.tan(a);
-  x.strokeStyle='#ff6b9d'; x.lineWidth=4; x.beginPath(); x.moveTo(cx+R,cy); x.lineTo(cx+R,cy-tl); x.stroke();
-  x.strokeStyle='rgba(255,107,157,0.4)'; x.lineWidth=1; x.setLineDash([4,4]); x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+R,cy-tl); x.stroke(); x.setLineDash([]);
-  x.font='14px -apple-system'; x.textAlign='left';
-  x.fillStyle='#5ee6a8'; x.fillText('sin p', Px+8, (cy+Py)/2);
-  x.fillStyle='#3fd0ff'; x.fillText('arc = p', cx+R*0.5, cy-R*0.42);
-  x.fillStyle='#ff6b9d'; x.fillText('tan p', cx+R+8, cy-tl/2);
-  x.fillStyle='#e8ecff'; x.textAlign='center'; x.fillText('for small p:   sin p  ≈  p  ≈  tan p', W*0.74, H*0.42);
+  const aEl=document.getElementById('sq_ang'); if(!aEl)return;
+  const albl=document.getElementById('sq_albl'),
+    radO=document.getElementById('sq_rad'), sinO=document.getElementById('sq_sin'),
+    tanO=document.getElementById('sq_tan'), errO=document.getElementById('sq_err');
+  const cv=document.getElementById('sq_canvas');
+  function draw(){
+    const deg=+aEl.value, a=deg*Math.PI/180; albl.textContent=deg.toFixed(1);
+    const s=Math.sin(a), t=Math.tan(a);
+    radO.textContent=a.toFixed(4); sinO.textContent=s.toFixed(4); tanO.textContent=t.toFixed(4);
+    const err=(t-a)/t*100;
+    errO.textContent=err>=0.1?err.toFixed(1):err.toPrecision(2);
+    const x=cv.getContext('2d'), W=cv.width, H=cv.height;
+    const mob=(cv.clientWidth||W)<560, F=mob?1.6:1, LW=mob?1.35:1;
+    const fnt=n=>Math.round(n*F)+'px -apple-system';
+    x.fillStyle='#05060d'; x.fillRect(0,0,W,H);
+    /* ---- left: the wedge ---- */
+    const cx=64, cy=H-50, R=230;
+    const Px=cx+R*Math.cos(a), Py=cy-R*Math.sin(a), tl=R*Math.tan(a);
+    // floor and hypotenuse ("roof"), extended to the tangent wall
+    x.strokeStyle='rgba(140,160,230,0.45)'; x.lineWidth=1.4*LW;
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+R+34,cy); x.stroke();
+    x.strokeStyle='rgba(232,236,255,0.85)'; x.lineWidth=1.8*LW;
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(cx+R,cy-tl); x.stroke();
+    // the three routes, drawn thick with endpoint dots
+    x.strokeStyle='#5ee6a8'; x.lineWidth=4*LW; x.beginPath(); x.moveTo(Px,cy); x.lineTo(Px,Py); x.stroke();
+    x.strokeStyle='#3fd0ff'; x.lineWidth=4*LW; x.beginPath(); x.arc(cx,cy,R,0,-a,true); x.stroke();
+    x.strokeStyle='#ff6b9d'; x.lineWidth=4*LW; x.beginPath(); x.moveTo(cx+R,cy); x.lineTo(cx+R,cy-tl); x.stroke();
+    // right-angle mark at the sine's foot
+    x.strokeStyle='rgba(154,163,199,0.7)'; x.lineWidth=1.2*LW; x.strokeRect(Px-9,cy-9,9,9);
+    // labels — below 8° the routes crowd together, so let the bars carry the names
+    x.font=fnt(13); x.textAlign='center';
+    if(deg>=8){
+      x.fillStyle='#5ee6a8'; x.fillText('sin p', Px, cy+18*F);
+      x.fillStyle='#ff6b9d'; x.fillText('tan p', cx+R+2, cy-tl-10);
+      // arc label sits clear of the wedge, tied to the arc by a dashed leader
+      const amx=cx+R*Math.cos(a/2), amy=cy-R*Math.sin(a/2);
+      x.strokeStyle='rgba(63,208,255,0.45)'; x.lineWidth=1; x.setLineDash([2,3]);
+      x.beginPath(); x.moveTo(amx,amy); x.lineTo(cx+R+26,amy); x.stroke(); x.setLineDash([]);
+      x.textAlign='left'; x.fillStyle='#3fd0ff'; x.fillText('arc = p', cx+R+31, amy+4); x.textAlign='center';
+      x.fillStyle='#e8ecff'; x.fillText('p', cx+44*Math.cos(a/2)+4, cy-44*Math.sin(a/2)+4);
+    } else {
+      x.fillStyle='#e8ecff'; x.fillText('p', cx+56, cy-12-6*F);
+      x.fillStyle='#9aa3c7'; x.fillText('no room left — the three routes have merged', cx+R*0.62, cy+18*F);
+    }
+    x.strokeStyle='rgba(232,236,255,0.6)'; x.lineWidth=1.2*LW;
+    x.beginPath(); x.arc(cx,cy,30,0,-a,true); x.stroke();
+    /* ---- right: the same three lengths, straightened out ---- */
+    const bx=430, bw=W-bx-120, by0=84, dy=Math.round(74*Math.sqrt(F));
+    const unit=bw/t;                          // zoom to the longest, so the closing gaps stay visible
+    const bars=[['sin p',s,'#5ee6a8'],['arc p',a,'#3fd0ff'],['tan p',t,'#ff6b9d']];
+    x.textAlign='left'; x.font=fnt(13);
+    x.fillStyle='#9aa3c7'; x.fillText('the same three lengths, straightened (zoomed to fit):', bx, by0-26);
+    bars.forEach((b,i)=>{
+      const y=by0+i*dy+18;
+      x.strokeStyle=b[2]; x.lineWidth=7*LW; x.lineCap='round';
+      x.beginPath(); x.moveTo(bx,y); x.lineTo(bx+b[1]*unit,y); x.stroke(); x.lineCap='butt';
+      x.fillStyle=b[2]; x.font=fnt(13); x.fillText(b[0], bx, y-11*F);
+      x.fillStyle='#e8ecff'; x.fillText(b[1].toFixed(4), bx+b[1]*unit+10, y+4);
+    });
+    // faint guide through the shortest bar's end, to expose the gaps
+    const gx=bx+s*unit;
+    x.strokeStyle='rgba(232,236,255,0.28)'; x.lineWidth=1; x.setLineDash([3,4]);
+    x.beginPath(); x.moveTo(gx,by0-4); x.lineTo(gx,by0+2*dy+30); x.stroke(); x.setLineDash([]);
+  }
+  aEl.addEventListener('input',draw);
+  window.addEventListener('resize',draw);
+  draw();
 })();
 
 /* ===== Illustration: secant lines approaching the tangent (static) ===== */
