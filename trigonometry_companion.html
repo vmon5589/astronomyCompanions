@@ -121,7 +121,7 @@
   .plot{width:100%; height:380px}
 
   .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
-  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} .figrow.three{grid-template-columns:repeat(3,1fr)} }
   figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
   figure canvas{display:block; width:100%; height:auto; background:#000}
   figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
@@ -450,9 +450,95 @@ nav .navToggle{ display:none; }
     <div class="eq">$$ \sin\theta=\frac{\text{opp}}{\text{hyp}},\quad \cos\theta=\frac{\text{adj}}{\text{hyp}},\quad \tan\theta=\frac{\text{opp}}{\text{adj}},\qquad \text{opp}=\text{adj}\,\tan\theta $$</div>
   </div>
 
+  <div class="mathnote">
+    <h4>The pattern beneath it · sine splits every force into "along" and "across"</h4>
+    <p>Before the astrophysics payoff below, one pattern is worth naming on its own, because you will meet it in every branch of physics. A force almost never points exactly along the direction you care about. Whenever a vector sits at an angle $\theta$ to a reference direction, you may <b>resolve</b> it — rewrite the one arrow as two perpendicular arrows, one of size $\cos\theta$ times the original <i>along</i> the reference, one of size $\sin\theta$ <i>across</i> it. Nothing physical happens in that rewrite, but the two pieces then act independently, and in problem after problem <b>one of them is the whole story</b>: the piece that slides the block, steers the charge, turns the bolt.</p>
+    <p>There is even a rule for which ratio shows up where. Quantities built by asking "how much of this acts <i>through</i> that?" (work $W=Fd\cos\theta$, flux $\Phi=BA\cos\theta$ — dot products) carry a <b>cosine</b>. Quantities built by asking "how much of this acts <i>across</i> that?" (torque $\tau=rF\sin\theta$, magnetic force $F=qvB\sin\theta$, angular momentum $L=mvr\sin\theta$ — cross products) carry a <b>sine</b>. Push-through goes with cosine; twist, steer, and circulate go with sine.</p>
+    <div class="eq">$$ \vec F \text{ at angle }\theta \;\longrightarrow\; \underbrace{F\cos\theta}_{\text{along: presses, speeds, slows}} \;+\; \underbrace{F\sin\theta}_{\text{across: slides, steers, twists}} $$</div>
+    <p>The black-hole story that follows is one more specimen of exactly this move — gravity's $\sin\varphi$ piece steers the photon — and its "fixed aim" $b=r\sin\varphi$ is an old friend in disguise: it is conservation of angular momentum ($L = mvr\sin\varphi = mvb$, constant). The same impact-parameter geometry describes alpha particles scattering off nuclei in Rutherford's experiment (which is where the name comes from), comet flybys, and spacecraft gravity assists.</p>
+  </div>
+
+  <div class="figrow three">
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A block on a slope: gravity is resolved into a sine piece that slides it down the slope and a cosine piece that presses it into the slope.">
+        <defs>
+          <marker id="ahp1-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="ahp1-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+          <marker id="ahp1-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        </defs>
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">a block on a slope</text>
+        <line x1="20" y1="272" x2="280" y2="272" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="20" y1="272" x2="280" y2="134" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M66,272 A46,46 0 0,0 60.6,250.4" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="76" y="262" fill="#b08cff" font-size="13" font-weight="700">θ</text>
+        <g transform="translate(175,190) rotate(-28)"><rect x="-11" y="-14" width="22" height="14" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+        <line x1="145.2" y1="205.9" x2="175" y2="262" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="204.8" y1="246.2" x2="175" y2="262" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="175" y1="190" x2="145.2" y2="205.9" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ahp1-rose)"/>
+        <line x1="175" y1="190" x2="204.8" y2="246.2" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#ahp1-grey)"/>
+        <line x1="175" y1="190" x2="175" y2="262" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ahp1-amber)"/>
+        <text x="26" y="50" fill="#ffb24a" font-size="10.5">full force: gravity mg, straight down</text>
+        <text x="26" y="66" fill="#ff6b9d" font-size="10.5">mg·sin θ — slides it down the slope</text>
+        <text x="26" y="82" fill="#9aa3c7" font-size="10.5">mg·cos θ — presses it into the slope</text>
+      </svg>
+      <figcaption>Gravity (amber) resolved against the slope: the $\sin\theta$ piece (rose) slides the block, the $\cos\theta$ piece (grey) only presses.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A charge moving at angle theta to a magnetic field feels a force q v B sine theta pointing out of the page — pure steering that never changes its speed.">
+        <defs>
+          <marker id="ahp2-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="ahp2-cyan" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd0ff"/></marker>
+        </defs>
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">a charge in a magnetic field</text>
+        <line x1="25" y1="110" x2="265" y2="110" stroke="#ffb24a" stroke-width="1.4" opacity="0.45" marker-end="url(#ahp2-amber)"/>
+        <line x1="25" y1="150" x2="265" y2="150" stroke="#ffb24a" stroke-width="1.4" opacity="0.45" marker-end="url(#ahp2-amber)"/>
+        <line x1="25" y1="190" x2="265" y2="190" stroke="#ffb24a" stroke-width="1.4" opacity="0.45" marker-end="url(#ahp2-amber)"/>
+        <text x="30" y="97" fill="#ffb24a" font-size="11">magnetic field B</text>
+        <path d="M144,150 A34,34 0 0,0 136.8,129.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="152" y="140" fill="#b08cff" font-size="13" font-weight="700">θ</text>
+        <line x1="110" y1="150" x2="184.9" y2="91.5" stroke="#3fd0ff" stroke-width="2.6" marker-end="url(#ahp2-cyan)"/>
+        <text x="193" y="88" fill="#3fd0ff" font-size="12" font-weight="600">v</text>
+        <circle cx="110" cy="150" r="11" fill="none" stroke="#ff6b9d" stroke-width="2"/>
+        <circle cx="110" cy="150" r="4.5" fill="#3fd0ff"/>
+        <text x="145" y="224" fill="#ff6b9d" font-size="11" text-anchor="middle">force = qvB·sin θ — out of the page ⊙</text>
+        <text x="145" y="241" fill="#9aa3c7" font-size="10.5" text-anchor="middle">all steering, no speeding: charges circle</text>
+        <text x="145" y="257" fill="#9aa3c7" font-size="10.5" text-anchor="middle">θ → 0 (v along B): the force vanishes</text>
+      </svg>
+      <figcaption>The magnetic force is <i>all</i> sine — always across the motion, pure steering. That is why charges in fields move in circles at constant speed.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A force applied at angle theta to a wrench handle: only the component across the handle, F sine theta, turns the bolt, giving torque r F sine theta.">
+        <defs>
+          <marker id="ahp3-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="ahp3-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+          <marker id="ahp3-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        </defs>
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">a wrench on a bolt</text>
+        <line x1="50" y1="185" x2="235" y2="185" stroke="rgba(154,163,199,0.5)" stroke-width="8" stroke-linecap="round"/>
+        <circle cx="50" cy="185" r="13" fill="rgba(154,163,199,0.35)" stroke="#9aa3c7" stroke-width="1.5"/>
+        <text x="142" y="205" fill="#9aa3c7" font-size="10.5" text-anchor="middle">lever arm r</text>
+        <path d="M31.6,169.6 A24,24 0 0,1 68.4,169.6" fill="none" stroke="#ff6b9d" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#ahp3-rose)" opacity="0.85"/>
+        <text x="50" y="147" fill="#ff6b9d" font-size="10.5" text-anchor="middle">turns</text>
+        <line x1="235" y1="121.1" x2="279.7" y2="121.1" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+        <line x1="279.7" y1="185" x2="279.7" y2="121.1" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+        <path d="M261,185 A26,26 0 0,0 249.9,163.7" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="264" y="175" fill="#b08cff" font-size="13" font-weight="700">θ</text>
+        <line x1="235" y1="185" x2="235" y2="121.1" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ahp3-rose)"/>
+        <line x1="235" y1="185" x2="279.7" y2="185" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#ahp3-grey)"/>
+        <line x1="235" y1="185" x2="279.7" y2="121.1" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ahp3-amber)"/>
+        <text x="286" y="114" fill="#ffb24a" font-size="12" font-weight="600" text-anchor="end">F</text>
+        <text x="150" y="240" fill="#ff6b9d" font-size="10.5" text-anchor="middle">across the handle: F·sin θ — turns the bolt</text>
+        <text x="150" y="256" fill="#9aa3c7" font-size="10.5" text-anchor="middle">along the handle: F·cos θ — only tugs</text>
+        <text x="150" y="276" fill="#e8ecff" font-size="11.5" font-weight="700" text-anchor="middle">torque = r · F · sin θ</text>
+      </svg>
+      <figcaption>Only the across-the-handle piece turns the bolt. Same move a third time — and the black-hole payoff below is it a fourth: gravity's $\sin\varphi$ piece steering a photon.</figcaption>
+    </figure>
+  </div>
+
   <div class="mathnote astro">
     <h4>Astrophysics payoff · the bending of light past a black hole</h4>
-    <p>A light ray aimed near a mass is deflected by an angle that Einstein's general relativity gives as $\alpha = \dfrac{4GM}{c^2 b}$, where $b$ is the <b>impact parameter</b> — how far off-centre the ray was aimed. The formula looks like pure gravity, but a sine is doing the bookkeeping at every step: the aim distance $b$ <i>is</i> a sine of the geometry, and gravity bends the ray only through the sine of the angle to the mass.</p>
+    <p>One number sets up this whole story, so meet it first: the <b>impact parameter</b> $b$. Imagine gravity switched off. The light ray would fly dead straight, and $b$ is simply how close that straight line would pass to the centre of the mass — the perpendicular miss distance. Aim straight at the centre and $b=0$; aim well wide and $b$ is large. It is fixed the instant the ray is launched, and nothing that happens later changes it. That is all it is: a measure of the aim.</p>
+    <p>Now switch gravity back on. A ray aimed with impact parameter $b$ is deflected by an angle that Einstein's general relativity gives as $\alpha = \dfrac{4GM}{c^2 b}$ — the closer the aim, the harder the bend. The formula looks like pure gravity, but a sine is doing the bookkeeping at every step: the fixed aim distance $b$ can be read off the flying photon as a sine ($b=r\sin\varphi$, as the diagram shows), and gravity bends the ray only through the sine of the angle to the mass.</p>
     <p>The diagram and derivation below unpack exactly where each $\sin$ enters. Push $b$ inward to $1.5$ Schwarzschild radii and the summed bending closes into a full loop: that critical circle is the <b>photon sphere</b>, and it is what paints the glowing ring in the Event Horizon Telescope image of M87*. Every photon in that ring is a right triangle resolved by gravity.</p>
   </div>
 
@@ -516,12 +602,15 @@ nav .navToggle{ display:none; }
       <circle cx="300" cy="140" r="4.5" fill="#3fd0ff"/>
       <text x="282" y="131" fill="#e8ecff" font-size="12" font-weight="600">P</text>
     </svg>
-    <figcaption>How the sine enters. Pick any point $P$ on the ray. Its line to the mass (amber, length $r$) makes angle $\varphi$ with the direction of travel, and the right triangle gives the aim distance as a sine: $b=r\sin\varphi$ (green). Gravity pulls straight toward the mass, but only the slice <i>across</i> the motion bends the ray — that slice is the pull times $\sin\varphi$ (rose). Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
+    <figcaption>How the sine enters. Pick any point $P$ on the ray. Its line to the mass (amber, length $r$) makes angle $\varphi$ with the direction of travel, and the right triangle gives $b=r\sin\varphi$ (green) — the same fixed miss distance no matter which $P$ you pick, because the triangle is just re-measuring the perpendicular from the mass to the straight-line path. Gravity pulls straight toward the mass (amber arrow), but only the slice <i>across</i> the motion bends the ray — that sideways slice (rose arrow) is the pull times $\sin\varphi$. Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
   </figure>
 
   <div class="lab">
     <h3><span class="dot"></span>Ride along the ray — slide P and watch the two sines work</h3>
-    <p class="hint">Slide the photon's position $P$ along its path and watch three things at once. <b>One:</b> $r$ and $\varphi$ both change constantly, yet their product $b=r\sin\varphi$ never moves — the aim is fixed for the whole flight. <b>Two:</b> the pull (amber) splits into an along-track piece (grey — speeds or slows, cannot turn) and an across-track piece (rose — pull $\times\sin\varphi$, the only part that bends). <b>Three:</b> the shaded area in the lower strip is the running sum of those rose tugs — by the time $P$ has flown past, the area has grown into the whole deflection.</p>
+    <p class="hint">Slide the photon's position $P$ along its path and watch three things, one at a time.</p>
+    <p class="hint"><b>The aim never moves.</b> As $P$ flies, its distance to the mass $r$ and its angle to the mass $\varphi$ both change constantly — but in lock-step: $r$ grows by exactly the factor that $\sin\varphi$ shrinks. So their product $b=r\sin\varphi$ is pinned at one value for the whole flight. Nothing mysterious is being conserved; the triangle is simply re-measuring, from wherever $P$ happens to be, the same perpendicular miss distance you fixed when you aimed the ray.</p>
+    <p class="hint"><b>Only part of the pull can steer.</b> The amber arrow is gravity's full pull on the photon, pointing straight at the mass — diagonally to the flight, in general. Resolve it into two perpendicular pieces: the grey piece lies <i>along</i> the flight direction (it can speed the photon up or slow it, but never turn it), and the rose piece points <i>across</i> the flight — that sideways piece, equal to pull $\times\sin\varphi$, is the only thing that bends the ray.</p>
+    <p class="hint"><b>The bend is an area.</b> The strip below the diagram plots that rose sideways tug at every point of the path, and the shaded region is its running sum. By the time $P$ has flown past the mass, the area has grown into the full deflection $\alpha$.</p>
     <div class="controls">
       <div class="ctl">
         <label>Position of P along the path (units of b) <b><span id="lb_plbl">−2.0</span></b></label>
@@ -545,7 +634,7 @@ nav .navToggle{ display:none; }
     <h4><span class="ic">∴</span> Step by step: where the sine hides in $\alpha = 4GM/c^2b$</h4>
     <p class="lead">Two different sines do the work — one fixes the aim, the other selects the bending. Both are the plain opposite-over-hypotenuse ratio from the start of this chapter.</p>
     <ol>
-      <li><b>The aim distance is a sine.</b> At any instant the photon's line to the mass makes an angle $\varphi$ with its direction of travel. Drop the perpendicular and you have a right triangle: hypotenuse $r$ (distance to the mass), opposite side $b$ (the perpendicular miss distance). So $b = r\sin\varphi$ — the impact parameter is a sine, and it stays fixed for the entire flight.</li>
+      <li><b>The aim distance is a sine.</b> At any instant the photon's line to the mass makes an angle $\varphi$ with its direction of travel. Drop the perpendicular from the mass onto the flight line and you have a right triangle: hypotenuse $r$ (distance to the mass), opposite side $b$ (the perpendicular miss distance). Opposite over hypotenuse gives $b = r\sin\varphi$. The point of writing it this way: $r$ and $\varphi$ each change from moment to moment, but the perpendicular they combine into is the impact parameter itself — set once by the aim, identical from every point of the flight. That fixed $b$ is exactly the $b$ waiting in the denominator of Einstein's formula.</li>
       <li><b>Split the pull into two perpendicular pieces.</b> At $P$ gravity's pull, of strength $GM/r^2$, points along the amber line — straight at the mass. That direction is in general <i>diagonal</i> to the photon's motion, so treat the pull like any vector and resolve it into two components: one <i>along</i> the direction of travel, one <i>across</i> it (perpendicular). Nothing physical has happened yet — we have only rewritten one arrow as the sum of two.</li>
       <li><b>Only the across piece can turn the ray.</b> Think of driving a car: the accelerator and the brake act along your motion and change your <i>speed</i>, but never your heading; only the steering wheel — a push <i>across</i> your motion — changes your direction. The same split applies here. The along-track piece of gravity (in this Newtonian picture) hurries the photon on the way in and holds it back by a matching amount on the way out, so over the whole flyby it cancels and leaves no trace. Every bit of deflection comes from the across-track piece alone. Extracting that piece is one more right triangle: the full pull is the hypotenuse and $\varphi$ is the angle it makes with the travel direction, so the across component is $\text{(hypotenuse)}\times\sin\varphi$:
       $$\text{sideways tug}=\frac{GM}{r^2}\sin\varphi.$$
@@ -866,6 +955,82 @@ nav .navToggle{ display:none; }
       <p>Your two eyes are a fixed <b>baseline</b>; the thumb and your two lines of sight make a long thin triangle. The closer the thumb, the wider the angle at its tip. Astronomers trade eyes for Earth's place in January versus July (a baseline across the orbit) and trade the thumb for a star.</p></div>
     <div class="beat found"><div class="tag">How it's applied</div>
       <p>Measure the star's shift, halve it to get the tip angle $p$, and the triangle hands back the distance. It is rung zero of the <b>cosmic distance ladder</b> — and the way the distance to the Galactic-Centre black hole is ultimately calibrated.</p></div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The pattern beneath it · tangent is the surveyor's tool</h4>
+    <p>Before deriving the parallax equation, name the general trick it belongs to. Tangent has exactly one job: it <b>trades directly between the two perpendicular legs of a right triangle</b>, and the hypotenuse never enters. From $\tan\theta=\text{opp}/\text{adj}$ come two readings of the same fact: know the near leg and the angle, and $\text{opp}=\text{adj}\times\tan\theta$ hands you the far leg; know the far leg and the angle, and $\text{adj}=\text{opp}/\tan\theta$ hands you the near one. Every triangulation ever performed is one of these two lines.</p>
+    <p>The trick is centuries older than astrophysics — it is how surveyors measured mountain heights and river widths they could not cross, and astronomy simply inherited it. Run <i>forward</i> (known baseline + measured angle $\to$ unknown distance) it is stellar parallax, $d=B/\tan p$, with Earth's orbit as the baseline. Run <i>backward</i> (known distance + measured angle $\to$ unknown size) it is angular size, the physical length of a radio jet, the true diameter of an expanding nova shell, and the tiny orbit a star is dragged around by an unseen planet. Even friction makes a cameo: a block starts to slide when the slope steepens past $\tan\theta=\mu$.</p>
+    <div class="eq">$$ \tan\theta=\frac{\text{opp}}{\text{adj}} \;\Longrightarrow\; \underbrace{d=\frac{B}{\tan p}}_{\text{angle}\ \to\ \text{distance (parallax)}} \qquad \underbrace{L = d\,\tan\theta}_{\text{distance}\ \to\ \text{size (angular size)}} $$</div>
+    <p>And because astronomical angles are almost always minuscule, $\tan\theta$, $\sin\theta$, and $\theta$ itself become interchangeable — the <b>small-angle shortcut</b> this chapter derives — so both readings collapse to the workhorse pair $d=B/p$ and $L=d\,\theta$.</p>
+  </div>
+
+  <div class="figrow three">
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Surveying a mountain: a paced baseline and one sighted angle give the height as baseline times tangent theta.">
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">the peak you can't climb</text>
+        <line x1="20" y1="272" x2="288" y2="272" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <polygon points="165,272 225,100 283,272" fill="rgba(154,163,199,0.15)" stroke="rgba(154,163,199,0.4)" stroke-width="1.2"/>
+        <line x1="35" y1="272" x2="165" y2="272" stroke="#ffb24a" stroke-width="3"/>
+        <line x1="165" y1="272" x2="225" y2="272" stroke="#ffb24a" stroke-width="2" stroke-dasharray="4 4" opacity="0.8"/>
+        <text x="130" y="289" fill="#ffb24a" font-size="10.5" text-anchor="middle">baseline B, paced out on foot</text>
+        <line x1="35" y1="272" x2="225" y2="100" stroke="#3fd0ff" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.85"/>
+        <path d="M75,272 A40,40 0 0,0 64.6,245.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="84" y="258" fill="#b08cff" font-size="13" font-weight="700">θ</text>
+        <circle cx="35" cy="272" r="4" fill="#3fd0ff"/>
+        <text x="22" y="254" fill="#9aa3c7" font-size="10.5">you</text>
+        <line x1="225" y1="268" x2="225" y2="102" stroke="#5ee6a8" stroke-width="2" stroke-dasharray="4 4"/>
+        <text x="233" y="176" fill="#5ee6a8" font-size="10.5">height</text>
+        <text x="233" y="191" fill="#5ee6a8" font-size="10.5">= B·tan θ</text>
+      </svg>
+      <figcaption>Pace a baseline, sight one angle: the tangent hands you a height you never climbed.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Stellar parallax: Earth's orbit is the baseline, the tiny angle p at the star gives its distance as B over tangent p, approximately B over p.">
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">the star you can't visit</text>
+        <circle cx="150" cy="252" r="6" fill="#ffb24a"/>
+        <text x="150" y="272" fill="#ffb24a" font-size="10" text-anchor="middle">Sun</text>
+        <circle cx="70" cy="252" r="5" fill="#3fd0ff"/>
+        <text x="70" y="272" fill="#9aa3c7" font-size="10" text-anchor="middle">Earth · Jan</text>
+        <circle cx="230" cy="252" r="5" fill="#3fd0ff"/>
+        <text x="230" y="272" fill="#9aa3c7" font-size="10" text-anchor="middle">Earth · Jul</text>
+        <line x1="76" y1="252" x2="144" y2="252" stroke="#5ee6a8" stroke-width="2.4"/>
+        <line x1="156" y1="252" x2="224" y2="252" stroke="#5ee6a8" stroke-width="2.4"/>
+        <text x="150" y="289" fill="#5ee6a8" font-size="10.5" text-anchor="middle">baseline B = the orbit itself</text>
+        <line x1="70" y1="252" x2="150" y2="75" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
+        <line x1="230" y1="252" x2="150" y2="75" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
+        <circle cx="150" cy="75" r="5" fill="#3fd0ff"/>
+        <path d="M146,60 L150,50 L154,60 M135,71 L125,75 L135,79 M165,71 L175,75 L165,79" fill="none" stroke="#3fd0ff" stroke-width="1.2" opacity="0.7"/>
+        <path d="M137.6,102.3 A30,30 0 0,1 162.4,102.3" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="180" y="98" fill="#b08cff" font-size="10.5">parallax angle p</text>
+        <line x1="150" y1="245" x2="150" y2="90" stroke="#ffb24a" stroke-width="1.6" stroke-dasharray="2 4" opacity="0.8"/>
+        <text x="98" y="166" fill="#ffb24a" font-size="11" font-weight="700" text-anchor="end">d = B / tan p</text>
+        <text x="98" y="182" fill="#9aa3c7" font-size="10.5" text-anchor="end">≈ B / p (p is tiny)</text>
+      </svg>
+      <figcaption>The identical survey with Earth's orbit as the baseline — and $p$ is tiny enough that $\tan p$ becomes $p$ itself.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Astrometric wobble: with the star's distance known, its measured wobble angle gives the physical radius of the little loop it is dragged around by an unseen planet.">
+        <defs>
+          <marker id="ahq3-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ee6a8"/></marker>
+        </defs>
+        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">the wobble that betrays a planet</text>
+        <text x="150" y="50" fill="#5ee6a8" font-size="11" font-weight="700" text-anchor="middle">loop radius = d·tan θ ≈ d·θ</text>
+        <line x1="150" y1="78" x2="127" y2="78" stroke="#5ee6a8" stroke-width="1.6" marker-end="url(#ahq3-green)"/>
+        <line x1="150" y1="78" x2="173" y2="78" stroke="#5ee6a8" stroke-width="1.6" marker-end="url(#ahq3-green)"/>
+        <line x1="124" y1="80" x2="124" y2="94" stroke="#5ee6a8" stroke-width="1" stroke-dasharray="2 3" opacity="0.7"/>
+        <line x1="176" y1="80" x2="176" y2="94" stroke="#5ee6a8" stroke-width="1" stroke-dasharray="2 3" opacity="0.7"/>
+        <ellipse cx="150" cy="105" rx="26" ry="10" fill="none" stroke="#3fd0ff" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.8"/>
+        <circle cx="150" cy="105" r="5" fill="#3fd0ff"/>
+        <line x1="150" y1="262" x2="124" y2="105" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
+        <line x1="150" y1="262" x2="176" y2="105" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 4" opacity="0.7"/>
+        <path d="M145.4,234.4 A28,28 0 0,1 154.6,234.4" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="166" y="232" fill="#b08cff" font-size="10.5">wobble angle θ</text>
+        <circle cx="150" cy="262" r="4" fill="#9aa3c7"/>
+        <text x="150" y="282" fill="#9aa3c7" font-size="10.5" text-anchor="middle">telescope · d known (from parallax)</text>
+      </svg>
+      <figcaption>The formula run backwards: with $d$ known, a wobble angle becomes the physical size of the star's little loop — betraying the unseen planet that tugs it.</figcaption>
+    </figure>
   </div>
 
   <h3 class="subhead"><span class="n">2</span>First in a field, where a tape measure can check it</h3>
