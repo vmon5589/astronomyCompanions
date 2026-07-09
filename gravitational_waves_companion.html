@@ -385,11 +385,11 @@ nav .navToggle{ display:none; }
 
   <div class="lab">
     <h3><span class="dot"></span>The lighthouse in motion</h3>
-    <p class="hint">Looking straight down the pulsar's spin axis: the rose cone is the radio beam, whirling once per rotation, and the strip on the right is the signal Earth actually records. The default is <b>PSR B1913+16 itself</b> — a 59-millisecond rotation, 17 sweeps every second (animation slowed about 4×). Slide the period out to 1.34 s to see Jocelyn Bell's first pulsar for comparison, and widen or narrow the cone to change the pulse width. This metronome, unattended, keeps time to better than a microsecond — <i>that</i> is the instrument nature dropped into an extreme orbit.</p>
+    <p class="hint">Looking straight down the pulsar's spin axis: the rose cone is the radio beam, whirling once per rotation, and the strip on the right is the signal Earth actually records. The default is a leisurely <b>583-millisecond</b> rotation so you can follow each sweep. Now slide the period down to <b>59 ms</b> — that is <b>PSR B1913+16 itself</b>, 17 sweeps every second (animation slowed about 4×) — or out to 1.34 s to see Jocelyn Bell's first pulsar, and widen or narrow the cone to change the pulse width. This metronome, unattended, keeps time to better than a microsecond — <i>that</i> is the instrument nature dropped into an extreme orbit.</p>
     <div class="controls">
       <div class="ctl">
-        <label>Rotation period $P$ <b><span id="lh2_pl">59 ms</span></b></label>
-        <input id="lh2_p" type="range" min="0.059" max="1.4" step="0.001" value="0.059">
+        <label>Rotation period $P$ <b><span id="lh2_pl">583 ms</span></b></label>
+        <input id="lh2_p" type="range" min="0.059" max="1.4" step="0.001" value="0.583">
       </div>
       <div class="ctl">
         <label>Beam cone full width <b><span id="lh2_bwl">12°</span></b></label>
@@ -570,7 +570,11 @@ nav .navToggle{ display:none; }
 
   <p>A passing gravitational wave does something deeply strange: it alternately <b>stretches space in one direction while squeezing it in the perpendicular direction</b>, then swaps, oscillating at the wave's frequency. Free-floating objects don't feel a force — the distance <i>between</i> them changes because the space they sit in changes. The fractional change is called the <b>strain</b>, $h = \Delta L / L$, and for astrophysical sources reaching Earth it is fantastically small: $h \sim 10^{-21}$.</p>
 
-  <p>That number sets the design. Since $\Delta L = h\,L$, you want $L$ as long as possible — so LIGO is an L-shaped <b>Michelson interferometer</b> with <b>4-kilometer arms</b>. A laser is split down the two arms, bounces off mirrors suspended as free-hanging pendulums, and recombines. Normally the two returning beams are held in almost perfect destructive interference — the output port is dark. But a gravitational wave lengthens one arm while shortening the other, shifting the recombined light's phase, and the output port <b>brightens in time with the wave</b>. Fabry–Pérot cavities bounce the light ~300 times per arm (effective length ~1200 km), and even then the length change being measured is about $10^{-18}$ m — <b>a thousandth of the width of a proton</b>. Two detectors 3000 km apart (Hanford, Washington and Livingston, Louisiana) must ring in coincidence, or the signal is discarded as local noise.</p>
+  <p><b>Why that particular shape — stretch one way, squeeze the other?</b> Because of what gravity is <i>allowed</i> to radiate. Radiation, in any theory, is a changing source pattern flung outward at light speed, and the simplest patterns are ruled out one by one. Electromagnetism radiates whenever a charge sloshes back and forth — an oscillating <i>dipole</i>. Gravity's two simplest options are both forbidden by conservation laws: a pulsing <i>monopole</i> would require the total mass-energy to fluctuate (it can't — energy is conserved), and an oscillating <b>dipole</b> would require the system's center of mass to jiggle with nothing pushing back (it can't — momentum is conserved, and unlike charge there is no negative mass to slosh against positive). The first pattern nature <i>can</i> radiate is the <b>quadrupole</b>: a mass distribution changing its <i>shape</i>, like two stars wheeling around their common center. The wave carries that shape-change outward, and a quadrupole distortion is precisely "longer along one axis, shorter along the perpendicular one" — with the area unchanged, to first approximation. Half an orbit later the two stars have traded places and the pattern repeats with the axes swapped, so the stretch and squeeze trade places too (this is also why the wave's frequency is <i>twice</i> the orbital frequency). A circle of free-floating particles becomes an ellipse, then a circle, then the perpendicular ellipse — never bigger, never smaller, only rhythmically reshaped.</p>
+
+  <p>Two more properties matter for building a detector. The wave is <i>transverse</i>, like light: all the stretching and squeezing happens in the plane perpendicular to the direction the wave travels. And "stretches space" means exactly that — a free mass feels <b>no force</b>; an accelerometer bolted to it would read zero throughout. What oscillates is the metric, the rule that converts positions into distances. Put two free masses a distance $L$ apart and the round-trip <i>light-travel time</i> between them rhythmically grows and shrinks, even though neither mass has moved in any local sense. That is why LIGO's mirrors hang from pendulums — free to float with space along the beam direction — and why the ruler has to be <b>light itself</b>, whose speed is the one thing the wave cannot alter.</p>
+
+  <p>That first number — $h \sim 10^{-21}$ — sets the design. Since $\Delta L = h\,L$, you want $L$ as long as possible — so LIGO is an L-shaped <b>Michelson interferometer</b> with <b>4-kilometer arms</b>. A laser is split down the two arms, bounces off mirrors suspended as free-hanging pendulums, and recombines. Normally the two returning beams are held in almost perfect destructive interference — the output port is dark. But a gravitational wave lengthens one arm while shortening the other, shifting the recombined light's phase, and the output port <b>brightens in time with the wave</b>. Fabry–Pérot cavities bounce the light ~300 times per arm (effective length ~1200 km), and even then the length change being measured is about $10^{-18}$ m — <b>a thousandth of the width of a proton</b>. Two detectors 3000 km apart (Hanford, Washington and Livingston, Louisiana) must ring in coincidence, or the signal is discarded as local noise.</p>
 
   <figure style="margin-top:14px">
     <div class="swipehint">swipe sideways to follow the full 4-km arm →</div>
@@ -669,6 +673,30 @@ nav .navToggle{ display:none; }
     <figcaption><b>Anatomy of the measurement.</b> One laser becomes two beams at the splitter; each runs down a 4-km arm and builds up inside a Fabry–Pérot cavity between two mirrors hung as pendulums, then returns. The arm lengths are held so that the returning beams cancel at the output port — a photodetector staring at darkness. A passing gravitational wave stretches one arm while squeezing the other (amber arrows), the cancellation breaks, and light leaks through to the detector in step with the wave. That flicker of light <i>is</i> the signal.</figcaption>
   </figure>
 
+  <p>Look closely at what happens where the beams reunite, because the entire detection lives there. The two returning beams are copies of the same laser light, so where they overlap they <b>interfere</b>: crest meeting crest doubles the light, crest meeting trough erases it. The beam splitter offers the recombined light two exits — back toward the laser, or down to the photodetector — and the arm lengths are deliberately held so that, toward the photodetector, the two beams arrive exactly <i>half a wavelength out of step</i> and cancel. No light is destroyed: every photon simply leaves through the other exit, back toward the laser. The photodetector stares at engineered darkness. Now let a gravitational wave stretch the X arm while squeezing the Y arm. The X beam's round trip gets slightly longer and the Y beam's slightly shorter, so the X beam arrives slightly <i>late</i> — a phase shift. The half-wavelength cancellation is no longer exact, and light leaks onto the photodetector, brightening and dimming in rhythm with the wave. The lab below shows just this — the two light waves, their sum, and darkness breaking.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The dark port: how darkness becomes a signal</h3>
+    <p class="hint">Left: the two returning light waves on their way to the photodetector — the X-arm beam (cyan), the Y-arm beam (amber), and their <b>sum</b> (green), which is all the photodetector can see. With equal arms the beams are perfectly out of step and the sum is flat zero: darkness. Drag <b>Δ</b> — the extra path difference a wave imposes between the beams — and watch the crests slide out of alignment: a residual green wave survives, and the port brightens. Right: brightness vs. Δ, the <b>interference fringe</b>. LIGO parks at the very bottom (the dark fringe); a passing gravitational wave rocks Δ back and forth through zero. Press play and notice the port flashes <i>twice</i> per wave cycle — brightness doesn't care which arm is momentarily the long one. Here Δ is a healthy fraction of a wavelength so you can see it; the real Δ is about $10^{-11}$ of a wavelength.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Path difference Δ <b><span id="dp_dlbl">0.000</span> λ</b></label>
+        <input id="dp_d" type="range" min="0" max="0.5" step="0.005" value="0">
+      </div>
+    </div>
+    <div class="btnrow"><button class="act" id="dp_play">▶ Pass a gravitational wave</button></div>
+    <div class="readout">
+      <div class="stat"><div class="k">Beams out of step by</div><div class="v">½ <span id="dp_ph">+ 0.000</span><small> cycle</small></div></div>
+      <div class="stat"><div class="k">Output brightness</div><div class="v"><span id="dp_br">0.0</span><small> %</small></div></div>
+      <div class="stat"><div class="k">Laser wavelength</div><div class="v">1064 <small>nm</small></div></div>
+      <div class="stat"><div class="k">Real Δ</div><div class="v">~10<small>−11</small> <small>λ</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="dp_waves" class="plot"></div><figcaption>The two returning beams and their sum at the output port. Equal arms: exact cancellation, and the photodetector sees nothing. A path difference slides one beam sideways and a residual wave survives — that surviving light <i>is</i> the detection.</figcaption></figure>
+      <figure><div id="dp_fringe" class="plot"></div><figcaption>Output brightness vs. path difference — the fringe. The real shift, even after ~300 Fabry–Pérot bounces, is only ~10⁻⁸ of a wavelength up this curve; LIGO reads it by circulating enormous laser power, so even that sliver of a fringe is a measurable flicker of watts.</figcaption></figure>
+    </div>
+  </div>
+
   <div class="lab">
     <h3><span class="dot"></span>Squeeze and stretch: the interferometer responds</h3>
     <p class="hint">Left: a ring of free-floating test particles with a gravitational wave passing straight through the page — space stretches vertically while squeezing horizontally, then swaps, through the wave's cycle. The two amber bars are LIGO's arms sampling exactly those two directions. Right: the light intensity at the output port over the cycle — dark when the arms match, bright when they differ. The strain here is around $10^{20}$ times exaggerated; set it to see how the pattern (not the size) is what LIGO reads. Drag the <b>wave phase</b> slider through a full cycle, or press play.</p>
@@ -711,6 +739,10 @@ nav .navToggle{ display:none; }
 
   <p>The numbers read straight off the waveform. The frequency and its acceleration give the <b>chirp mass</b>, pinning the system at roughly <b>36 and 29 solar masses</b> — too heavy to be neutron stars, and orbiting a few hundred km apart at half the speed of light just before merger: unmistakably <b>black holes</b>. The final black hole weighed ~62 M☉. The missing <b>3 solar masses</b> were radiated as gravitational waves in a fraction of a second — a peak power greater than the light output of every star in the observable universe combined. The signal had traveled <b>1.3 billion years</b> to arrive at a strain of $1.0\times10^{-21}$.</p>
 
+  <p>Read the waveform as a story in <b>three acts</b>. The <b>inspiral</b> is the Hulse–Taylor physics in fast-forward: two objects orbiting, radiating, falling closer, every cycle slightly faster and slightly louder than the last. The <b>merger</b> is the single loudest instant — the two horizons touch and become one violently distorted black hole; this is the strongest-gravity moment ever observed, and the only part of the waveform that requires a full numerical solution of Einstein's equations rather than pen-and-paper approximations. The <b>ringdown</b> is that remnant settling: like a struck bell, the newborn black hole vibrates at a tone set by its mass and spin, radiating its distortions away in a few milliseconds until only a smooth, silent black hole remains. All three acts fit inside 0.2 seconds of data.</p>
+
+  <p>Two features of the inspiral are worth fixing in mind before you build one. First, <b>the wave frequency is twice the orbital frequency</b>. The radiation follows the <i>shape</i> of the mass distribution, and a two-body system looks identical after half an orbit — the dumbbell has simply swapped ends — so the emitted pattern repeats twice per revolution. When GW150914 entered LIGO's band at 35 Hz, the black holes were circling each other about 17 times per second. Second, <b>the sweep accelerates on purpose</b>: shrinking the orbit strengthens the radiation ($P \propto 1/a^5$), which shrinks the orbit faster still — the same runaway as Hulse–Taylor, now playing out in its final second rather than its final 300 million years. Pitch and loudness therefore climb <i>together</i>, which is exactly what makes the sound a chirp instead of a steady tone.</p>
+
   <div class="lab">
     <h3><span class="dot"></span>Build the chirp</h3>
     <p class="hint">Dial in the two masses and see the gravitational waveform of their final second. Physics to notice: the wave frequency is <b>twice</b> the orbital frequency (the mass distribution repeats every half orbit); the sweep gets faster as the orbit shrinks (runaway energy loss, the same $1/a^5$ as Hulse–Taylor); and the signal cuts off near the merger frequency, set by the total mass. <b>Heavier pairs merge at lower frequency</b> — make the black holes very heavy and the chirp barely climbs before ending; make them neutron-star light (1.4 + 1.4) and it screams up past a kilohertz. GW150914's actual masses are preset.</p>
@@ -738,13 +770,23 @@ nav .navToggle{ display:none; }
 
   <div class="deriv">
     <h4>How a waveform weighs black holes</h4>
-    <p class="lead">Three readings from one squiggle:</p>
+    <p class="lead">Everything in the announcement — masses, sizes, distance, energy — was read off one squiggle. Four readings:</p>
     <ol>
-      <li><b>The sweep rate gives the chirp mass.</b> Leading-order GR gives $\dot f \propto \mathcal{M}^{5/3} f^{11/3}$, where $\mathcal{M} = (m_1 m_2)^{3/5}/(m_1+m_2)^{1/5}$. Measure $f$ and $\dot f$ at any moment and $\mathcal{M}$ falls out: ~30 M☉ for GW150914, far above any neutron star.</li>
-      <li><b>The cutoff frequency gives the total mass — and the compactness.</b> Heavier systems merge at <i>lower</i> frequency (merger happens when the objects are separations-of-a-few-Schwarzschild-radii apart, and $f_\mathrm{merge}\propto 1/M_\mathrm{tot}$). GW150914 was still sweeping upward at 150 Hz, where Kepler's law puts two ~30 M☉ objects only ~350 km apart — closer than any pair of stars or neutron-star-plus-anything could get without already touching. Only black holes fit.</li>
-      <li><b>The amplitude gives the distance.</b> Strain falls off as $1/d$; knowing the masses fixes the intrinsic loudness, so the observed $10^{-21}$ places the source ~410 Mpc (1.3 billion light-years) away. No cosmic distance ladder required — the waveform is a <i>standard siren</i>.</li>
+      <li><b>The sweep rate gives the chirp mass.</b> How fast the pitch climbs is set by how fast the orbit is bleeding energy, and that is set by the masses: at any given frequency, a heavier binary radiates harder and so sweeps upward <i>faster</i>. Leading-order GR makes this exact:
+      $$\dot f \;=\; \frac{96}{5}\,\pi^{8/3}\!\left(\frac{G\mathcal{M}}{c^3}\right)^{5/3}\! f^{11/3},
+      \qquad \mathcal{M} \equiv \frac{(m_1 m_2)^{3/5}}{(m_1+m_2)^{1/5}}.$$
+      Notice that only <i>one combination</i> of the two masses appears — the <b>chirp mass</b> $\mathcal{M}$. So measure the frequency and its rate of climb at any single moment and $\mathcal{M}$ falls out of pure arithmetic. As GW150914 crossed 100 Hz it was climbing at roughly 3000 Hz/s, which forces $\mathcal{M} \approx 30$ M☉ — two numbers off a strip chart, no telescope, no spectrum, no distance needed, and already a verdict: neutron stars top out near 2–3 M☉. (Splitting $\mathcal{M} \approx 28$ M☉ into 36 + 29 individually is harder — the mass <i>ratio</i> enters only through subtler corrections to the waveform, which is why the individual masses carry bigger error bars than the chirp mass does.)</li>
+      <li><b>The cutoff frequency gives the total mass — and the compactness.</b> The sweep can't climb forever: it ends when the two objects touch, and how high the pitch gets before that happens depends on how <i>close</i> they can get. A black hole's size scales with its mass ($r_s = 2GM/c^2$), so a heavier pair touches while the orbit is still wide and slow: $f_\mathrm{merge} \propto 1/M_\mathrm{tot}$. Heavy pairs cut off low, light pairs scream high — try it in the lab above. The cutoff also delivers the killer compactness argument. GW150914 was still sweeping upward through 150 Hz, i.e. orbiting 75 times per second; Kepler's law then puts two ~30 M☉ bodies just ~350 km apart, center to center. Ordinary stars are millions of km across — they would have merged long before. White dwarfs are thousands of km — same problem. Neutron stars are small enough (~24 km) but can't be 30 M☉. Only black holes are simultaneously that heavy and that small.</li>
+      <li><b>The amplitude gives the distance.</b> Once the sweep rate has fixed $\mathcal{M}$, GR predicts the source's <i>intrinsic</i> loudness — how much strain it emits at each frequency. Strain falls off as $1/d$ (not $1/d^2$; strain is an amplitude, not a power), so comparing predicted loudness with the observed $1.0\times10^{-21}$ gives the distance directly: ~410 Mpc, 1.3 billion light-years. Notice what is <i>not</i> needed: no parallax, no Cepheids, no supernova calibration — none of the precarious ladder that electromagnetic astronomy climbs. The waveform is self-calibrating, a <b>standard siren</b>. (The main residual uncertainty is the orbit's tilt toward us, which mimics a change of distance.)</li>
+      <li><b>The ringdown weighs the remnant.</b> The final few milliseconds are a damped oscillation — the newborn black hole ringing like a struck bell at ~250 Hz, fading in ~4 ms. For a black hole, GR says tone and damping are set by exactly two numbers, the final mass and spin: ~62 M☉, spinning at ~2/3 of the maximum allowed. That closes the energy budget ($36 + 29 - 62 = 3$ M☉ radiated) and doubles as a test: the remnant <i>predicted</i> from the inspiral masses must ring at the observed tone. It does.</li>
     </ol>
     <div class="concl"><b>The payoff:</b> the Hulse–Taylor pulsar showed orbits decay exactly as gravitational waves demand; GW150914 is that same decay caught in its last fifth of a second — with the wave itself, not the energy bill, as the evidence. Weiss, Barish, and Thorne received the 2017 Nobel Prize.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Which black holes were these — and was there any other evidence?</h4>
+    <p>Neither black hole had ever been seen, catalogued, or suspected. They were not "known" objects that LIGO then heard — everything we will ever know about them (masses, spins, distance, fate) comes from the 0.2-second waveform itself. That is the strange new deal of gravitational-wave astronomy: the signal identifies the source by its <i>physics</i>, not by pointing at a named star. Nor could telescopes pin down the host galaxy afterward. With only two detectors, the 6.9 ms arrival-time difference constrains the direction to a broad arc of southern sky — about 600 square degrees, containing hundreds of thousands of galaxies at 410 Mpc. And two bare black holes merging carry essentially no gas, so no light, radio, or X-rays were expected; dozens of telescopes searched anyway and found nothing convincing.</p>
+    <p>So the case rests on the wave — but it is a strong case, checked three independent ways. <b>Coincidence:</b> the same waveform appeared in two detectors 3,000 km apart, within the light-travel time, while the instruments were behaving normally; the measured false-alarm rate was below one such coincidence per 200,000 years of observing (&gt;5σ). <b>Self-consistency:</b> the inspiral, read alone, predicts the mass and spin of the remnant; the ringdown, read alone, measures them — and they agree, as only Einstein's equations demand. <b>Repetition:</b> dozens more binary-black-hole chirps have been detected since, and in 2017 the neutron-star merger GW170817 arrived with a gamma-ray burst and a visible explosion at the same spot — proof that when the waveform says "two compact objects merged <i>there</i>," telescopes can go and find the wreckage.</p>
   </div>
 </section>
 
@@ -1214,6 +1256,66 @@ function keplerE(M,e){
 </script>
 
 <!-- =======================================================================
+     SECTION 3 — DARK PORT: TWO BEAMS, THEIR SUM, AND THE FRINGE
+======================================================================= -->
+<script>
+(function(){
+  const sl=document.getElementById('dp_d'), btn=document.getElementById('dp_play');
+  let timer=null, ph=0;
+  function draw(delta){
+    // delta = path difference between the returning beams, in wavelengths (signed during play)
+    document.getElementById('dp_dlbl').textContent=Math.abs(delta).toFixed(3);
+    document.getElementById('dp_ph').textContent=(delta<0?'− ':'+ ')+Math.abs(delta).toFixed(3);
+    const I=Math.pow(Math.sin(Math.PI*delta),2);
+    document.getElementById('dp_br').textContent=(100*I).toFixed(1);
+    // the two beams and their sum, over ~3 wavelengths of the output beam
+    const N=360, z=[], e1=[], e2=[], es=[];
+    for(let i=0;i<=N;i++){
+      const zz=i/N*3;
+      const a=Math.sin(2*Math.PI*zz);
+      const b=Math.sin(2*Math.PI*(zz+delta)+Math.PI);   // half-cycle offset (dark port) + the wave's shift
+      z.push(zz); e1.push(a); e2.push(b); es.push(a+b);
+    }
+    Plotly.react('dp_waves',[
+      {x:z,y:e1,mode:'lines',line:{color:COL.cyan,width:1.5},opacity:0.85,hoverinfo:'skip'},
+      {x:z,y:e2,mode:'lines',line:{color:COL.amber,width:1.5},opacity:0.85,hoverinfo:'skip'},
+      {x:z,y:es,mode:'lines',line:{color:COL.green,width:3},hovertemplate:'sum: %{y:.2f}<extra></extra>'}
+    ],baseLayout({
+      margin:{l:46,r:14,t:30,b:46},
+      xaxis:{title:'distance along the output beam (wavelengths)',range:[0,3]},
+      yaxis:{range:[-2.4,2.4],showticklabels:false,zeroline:true},
+      annotations:[
+        {xref:'paper',yref:'paper',x:0,y:1.13,text:'X-arm beam',font:{color:COL.cyan,size:11},showarrow:false,xanchor:'left'},
+        {xref:'paper',yref:'paper',x:0.33,y:1.13,text:'Y-arm beam',font:{color:COL.amber,size:11},showarrow:false,xanchor:'left'},
+        {xref:'paper',yref:'paper',x:0.66,y:1.13,text:'sum — what the detector sees',font:{color:COL.green,size:11},showarrow:false,xanchor:'left'}
+      ]
+    }),PCFG);
+    // the fringe: brightness vs path difference
+    const fx=[],fy=[];
+    for(let i=0;i<=240;i++){ const d=-0.55+1.1*i/240; fx.push(d); fy.push(Math.pow(Math.sin(Math.PI*d),2)); }
+    Plotly.react('dp_fringe',[
+      {x:fx,y:fy,mode:'lines',line:{color:COL.green,width:2.2},hovertemplate:'Δ %{x:.2f} λ: %{y:.2f}<extra></extra>'},
+      {x:[delta],y:[I],mode:'markers',marker:{color:'#fff',size:11,line:{color:COL.green,width:2}},hovertemplate:'now<extra></extra>'}
+    ],baseLayout({
+      xaxis:{title:'path difference Δ (wavelengths)',range:[-0.55,0.55]},
+      yaxis:{title:'output-port brightness',range:[-0.07,1.12]},
+      annotations:[{x:0,y:0,text:'held here: the dark fringe',font:{color:'#9aa3c7',size:11},showarrow:true,arrowcolor:'#9aa3c7',ax:0,ay:-36}]
+    }),PCFG);
+  }
+  function stop(){ if(timer){clearInterval(timer); timer=null; btn.classList.remove('on'); btn.textContent='▶ Pass a gravitational wave';} }
+  btn.addEventListener('click',()=>{
+    if(timer){stop(); draw(+sl.value); return;}
+    if(+sl.value<0.02){ sl.value=0.18; }               // give the wave a visible amplitude
+    btn.classList.add('on'); btn.textContent='⏸ Pause';
+    ph=0;
+    timer=setInterval(()=>{ ph+=0.012; draw(+sl.value*Math.cos(2*Math.PI*ph)); },40);
+  });
+  sl.addEventListener('input',()=>{stop(); draw(+sl.value);});
+  draw(0);
+})();
+</script>
+
+<!-- =======================================================================
      SECTION 3 — LIGO RING + OUTPUT PORT
 ======================================================================= -->
 <script>
@@ -1575,6 +1677,26 @@ window.GW_GLOSS={
     def:'A pair of facing mirrors that traps light into ~300 round trips, multiplying the effective arm length (4 km → ~1200 km) and with it the phase shift a wave imprints.',terms:['Fabry–Pérot cavities','Fabry–Pérot cavity','Fabry–Pérot']},
   'interference':{label:'Destructive interference',wiki:W+'Wave_interference',
     def:'Two waves canceling crest-on-trough. LIGO holds its output port dark this way, so any brightening means the arm lengths differ — that is the signal.',terms:['destructive interference','interference']},
+  'monopole':{label:'Monopole radiation',wiki:W+'Multipole_expansion',
+    def:'A source pulsing uniformly in and out, like a breathing sphere. Nature forbids it for both light and gravity: total charge is conserved, and so is total mass-energy.',terms:['monopole']},
+  'dipole':{label:'Dipole radiation',wiki:W+'Dipole',
+    def:'Radiation from something sloshing back and forth — the pattern behind virtually all light. Gravity cannot radiate it: momentum is conserved and there is no negative mass, so gravity’s simplest broadcast is the quadrupole.',terms:['dipole']},
+  'transverse':{label:'Transverse wave',wiki:W+'Transverse_wave',
+    def:'A wave whose action is entirely perpendicular to its direction of travel. Gravitational waves are transverse like light: all the stretch and squeeze lives in the plane the wave passes through.',terms:['transverse']},
+  'metric':{label:'Metric',wiki:W+'Metric_tensor_(general_relativity)',
+    def:'General relativity’s rule for turning coordinate separations into real distances and times. A gravitational wave is an oscillation of the metric itself — the ruler changes, not the objects.',terms:['metric']},
+  'phase-shift':{label:'Phase shift',wiki:W+'Phase_(waves)',
+    def:'How far one wave is displaced within its cycle relative to another. LIGO turns an arm-length difference into a phase shift between its two returning beams, and the phase shift into brightness.',terms:['phase shift']},
+  'fringe':{label:'Interference fringe',wiki:W+'Wave_interference',
+    def:'The bright–dark pattern traced as two overlapping waves slide in and out of step. LIGO parks at the very bottom of the fringe — the dark port — and a passing wave rocks it upward.',terms:['interference fringe','dark fringe','fringe']},
+  'photodetector':{label:'Photodetector',wiki:W+'Photodetector',
+    def:'A device that converts light power into electrical current — the eye staring at LIGO’s output port. Its current versus time is the gravitational-wave signal.',terms:['photodetector']},
+  'inspiral':{label:'Inspiral',wiki:W+'Binary_black_hole',
+    def:'The long spiral-in of a binary as gravitational waves drain its orbital energy — act one of the merger waveform, and the part whose sweep rate measures the chirp mass.',terms:['inspiral']},
+  'event-horizon':{label:'Event horizon',wiki:W+'Event_horizon',
+    def:'A black hole’s surface of no return, about 3 km in radius per solar mass. The inspiral ends when the two horizons touch; the merged, distorted horizon then rings itself smooth.',terms:['event horizon','horizons']},
+  'grb':{label:'Gamma-ray burst',wiki:W+'Gamma-ray_burst',
+    def:'A brief flash of the most energetic light in nature. The neutron-star merger GW170817 produced one 1.7 seconds after its chirp — the electromagnetic receipt for a gravitational-wave detection.',terms:['gamma-ray burst']},
   'coincidence':{label:'Coincidence detection',wiki:W+'LIGO',
     def:'Requiring the same waveform at both LIGO sites within the 10-ms light-travel time between them. Local noise fails the test; real waves pass it.',terms:['coincidence']},
   'polarization':{label:'Wave polarization',wiki:W+'Gravitational_wave',
