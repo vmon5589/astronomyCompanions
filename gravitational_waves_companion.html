@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gravitational Waves — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden; overflow-x:clip;
+  }
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(140,40,60,0.20), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+  nav a.hist{color:var(--amber)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:720px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  section.chapter.hist{border-color:rgba(255,178,74,0.32); box-shadow:0 20px 60px rgba(60,40,0,0.35)}
+  section.chapter.relativity{border-color:rgba(94,230,168,0.30); box-shadow:0 20px 60px rgba(0,50,30,0.35)}
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter.hist .era{color:var(--amber)}
+  .chapter.relativity .era{color:var(--green)}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* section divider banner */
+  .divider{max-width:var(--maxw); margin:60px auto 0; padding:0 22px; text-align:center}
+  .divider .rule{height:1px; background:linear-gradient(90deg,transparent,var(--line),transparent); margin:0 0 18px}
+  .divider h3{font-size:clamp(20px,3vw,26px); margin:0; color:#fff}
+  .divider h3 .grad{background:linear-gradient(90deg,var(--amber),var(--rose)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .divider p{color:var(--muted); max-width:680px; margin:8px auto 0; font-size:15px}
+
+  /* discovery-story beats / timeline */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat.fail  .tag{color:var(--rose)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+  .beat.fail{border-left-color:var(--rose)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .chapter.hist .lab h3 .dot{background:var(--amber);box-shadow:0 0 12px var(--amber)}
+  .chapter.relativity .lab h3 .dot{background:var(--green);box-shadow:0 0 12px var(--green)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  .chapter.hist input[type=range]{accent-color:var(--amber)}
+  .chapter.relativity input[type=range]{accent-color:var(--green)}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:2px 0 10px}
+  button.act{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 14px; font-size:13px; cursor:pointer; transition:border-color .12s, background .12s}
+  button.act:hover{border-color:var(--cyan)}
+  button.act.on{background:rgba(63,208,255,0.14); border-color:var(--cyan); color:#fff}
+  button.act.on.gr{background:rgba(94,230,168,0.16); border-color:var(--green)}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+  .plot.tall{height:460px}
+
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figure img.nbfig{display:block; width:100%; height:auto; background:#fff}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  /* derivation / "the reasoning" explainer block */
+  .deriv{margin-top:18px; background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:12px; padding:14px 16px 16px}
+  .deriv h4{margin:0 0 4px; font-size:12px; color:var(--violet); letter-spacing:1.2px; text-transform:uppercase; display:flex; align-items:center; gap:8px}
+  .deriv > p.lead{margin:2px 0 6px; font-size:13.5px; color:var(--muted)}
+  .deriv ol{margin:6px 0 0; padding-left:22px}
+  .deriv ol li{margin:8px 0; font-size:14px; line-height:1.6}
+  .deriv ol li b{color:#fff}
+  .deriv .concl{margin-top:12px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .deriv .concl b{color:var(--green)}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+  .fileref{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--amber); background:rgba(255,178,74,0.08); border:1px solid var(--line); border-radius:6px; padding:1px 6px}
+
+  /* svg diagrams */
+  .svgwrap{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  .svgwrap svg.armdiag{display:block; width:100%; min-width:460px; height:auto}
+  .swipehint{display:none; color:var(--muted); font-size:11px; letter-spacing:.3px; padding:7px 13px 5px}
+  .leadin{color:var(--muted); font-size:14px; margin:5px 0 0; max-width:760px}
+
+  /* data table */
+  .tablewrap{overflow-x:auto; margin-top:14px}
+  table.data.left th, table.data.left td{text-align:left}
+  table.data{width:100%; border-collapse:collapse; font-size:13.5px; font-variant-numeric:tabular-nums}
+  table.data th, table.data td{padding:7px 11px; text-align:right; border-bottom:1px solid var(--line)}
+  table.data th:first-child, table.data td:first-child{text-align:left}
+  table.data thead th{color:var(--cyan); font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; border-bottom:1px solid var(--line)}
+  table.data tr.flag td{background:rgba(94,230,168,0.10); color:#fff}
+  table.data tr.flag td:first-child{color:var(--green); font-weight:700}
+  table.data tr.total td{border-top:2px solid var(--line); font-weight:700; color:#fff}
+
+  /* math supplement */
+  .subhead{margin:28px 0 2px; font-size:17px; color:#fff; font-weight:700; line-height:1.25}
+  .subhead .n{color:var(--cyan); margin-right:9px; font-variant-numeric:tabular-nums}
+  .mathnote{margin-top:16px; background:rgba(63,208,255,0.05); border:1px solid var(--line); border-left:3px solid var(--cyan); border-radius:12px; padding:13px 16px}
+  .mathnote h4{margin:0 0 5px; font-size:12px; color:var(--cyan); letter-spacing:1.2px; text-transform:uppercase}
+  .mathnote p{margin:5px 0 0; font-size:14px; line-height:1.6}
+  .mathnote b{color:#fff}
+  .mathnote.astro{background:rgba(94,230,168,0.06); border-left-color:var(--green)}
+  .mathnote.astro h4{color:var(--green)}
+
+  /* self-test quiz */
+  .quiz-head{display:flex; flex-wrap:wrap; align-items:center; gap:12px 18px; margin:10px 0 18px}
+  .quiz-score{background:rgba(120,140,230,0.1); border:1px solid var(--line); border-radius:12px; padding:9px 16px; font-size:14px; color:var(--muted)}
+  .quiz-score b{color:#fff; font-size:18px; font-variant-numeric:tabular-nums}
+  .quiz-bar{flex:1; min-width:150px; height:8px; background:rgba(120,140,230,0.12); border-radius:99px; overflow:hidden}
+  .quiz-bar > i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--green)); transition:width .35s}
+  .quiz-reset{background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:9px; padding:8px 15px; font-size:13px; cursor:pointer}
+  .quiz-reset:hover{border-color:var(--cyan)}
+  .q-card{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:14px; padding:15px 17px; margin:13px 0}
+  .q-card .q-text{font-size:15px; line-height:1.5; margin:0 0 12px; color:var(--ink)}
+  .q-card .q-text .q-num{display:inline-block; min-width:24px; color:var(--cyan); font-weight:700}
+  .q-opts{display:grid; gap:8px}
+  .q-opt{display:block; width:100%; text-align:left; background:rgba(120,140,230,0.06); border:1px solid var(--line); border-radius:10px; padding:10px 13px; font-size:14px; color:var(--ink); cursor:pointer; transition:border-color .12s, background .12s}
+  .q-opt:hover:not(:disabled){border-color:var(--cyan)}
+  .q-opt:disabled{cursor:default}
+  .q-opt .q-mark{font-weight:700; margin-right:9px; color:var(--muted)}
+  .q-opt.correct{background:rgba(94,230,168,0.14); border-color:rgba(94,230,168,0.55)}
+  .q-opt.correct .q-mark{color:var(--green)}
+  .q-opt.wrong{background:rgba(255,107,157,0.12); border-color:rgba(255,107,157,0.5)}
+  .q-opt.wrong .q-mark{color:var(--rose)}
+  .q-exp{margin:12px 0 0; padding:10px 13px; font-size:13.5px; line-height:1.55; color:var(--muted); background:rgba(176,140,255,0.06); border:1px solid var(--line); border-left:3px solid var(--violet); border-radius:9px; display:none}
+  .q-exp.show{display:block}
+  .q-exp b{color:var(--ink)}
+
+  /* applied practice problems */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+
+  /* glossary rail + tooltips */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; overflow-x:clip; }
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{ margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px; width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px; scrollbar-width:none; }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:320px; }
+    .plot.tall{ height:380px; }
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+    .deriv ol, .problem ol{ font-size:13px; }
+    .quiz-bar{ order:3; flex-basis:100%; }
+    .swipehint{ display:block; }
+    #termTip{ max-width:calc(100vw - 20px); }
+  }
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+</style>
+<style>
+/* ---- Mobile dropdown menu (added) ---- */
+nav .navToggle{ display:none; }
+@media(max-width:640px){
+  nav .wrap{ flex-wrap:wrap; align-items:center; }
+  nav .brand{ flex:1 1 auto; min-width:0; }
+  nav .navToggle{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+    margin-left:auto; flex:0 0 auto;
+    color:#fff; font-size:14px; font-weight:600; letter-spacing:.3px;
+    padding:9px 13px; border-radius:9px;
+    background:rgba(120,140,230,0.16);
+    border:1px solid rgba(120,140,230,0.45);
+  }
+  nav .navToggle-bars,
+  nav .navToggle-bars::before,
+  nav .navToggle-bars::after{
+    content:""; display:block; width:18px; height:2px; border-radius:2px;
+    background:#fff; transition:transform .2s ease, opacity .2s ease;
+  }
+  nav .navToggle-bars{ position:relative; }
+  nav .navToggle-bars::before{ position:absolute; top:-6px; left:0; }
+  nav .navToggle-bars::after{ position:absolute; top:6px; left:0; }
+  nav.open .navToggle-bars{ background:transparent; }
+  nav.open .navToggle-bars::before{ transform:translateY(6px) rotate(45deg); }
+  nav.open .navToggle-bars::after{ transform:translateY(-6px) rotate(-45deg); }
+  nav .links{
+    display:none; flex-direction:column; align-items:stretch;
+    width:100%; margin-left:0; margin-top:10px; gap:2px;
+    max-height:70vh; overflow-y:auto; overflow-x:visible;
+  }
+  nav.open .links{ display:flex; }
+  nav .links a{
+    padding:12px 12px; font-size:15px; border-radius:8px;
+    border:1px solid transparent;
+  }
+  nav .links a:active{ background:rgba(120,140,230,0.18); }
+}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Gravitational Waves <small>Interactive companion · hearing spacetime ring</small></div>
+    <button class="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="navToggle-bars" aria-hidden="true"></span>Menu
+    </button>
+    <div class="links">
+      <a href="#pulsar" class="hist">The pulsar clock</a>
+      <a href="#decay" class="hist">Orbital decay</a>
+      <a href="#ligo">LIGO</a>
+      <a href="#chirp">GW150914</a>
+      <a href="#pta">Pulsar arrays</a>
+      <a href="#summary">Summary</a>
+      <a href="#quiz">Test yourself</a>
+      <a href="#appendix" class="hist">Appendix: the real data</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Ripples in<br><span class="grad">spacetime</span></h1>
+  <p class="sub">Newton's gravity says two stars in orbit will circle each other forever: the orbit is <b>stable</b>, energy is conserved, nothing leaks out. Einstein's gravity disagrees. Accelerating masses must radiate <b>gravitational waves</b> — ripples in spacetime itself — and the energy they carry away makes the orbit slowly <b>shrink</b>. In 1974 a pulsar in a binary system handed us a perfect clock to test which theory was right; forty years later LIGO caught the ripples directly from two colliding black holes; and today arrays of pulsars spread across the whole Galaxy are being used as a detector thousands of light-years across.</p>
+  <p class="byline">Three detectors, one phenomenon: <b>a binary pulsar</b> (the waves' energy bill), <b>LIGO</b> (the waves themselves), and <b>pulsar timing arrays</b> (the background hum of the universe).</p>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Each key term is <span style="color:var(--green);font-weight:700">highlighted</span> where it first appears — hover it for a definition, and this panel lists the terms introduced in whatever section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ===================== SECTION 1 — HULSE–TAYLOR ===================== -->
+<section class="chapter hist" id="pulsar">
+  <span class="era">1974 · the clock</span>
+  <h2>PSR B1913+16: a clock thrown into orbit</h2>
+  <p class="who">Russell Hulse &amp; Joseph Taylor, Arecibo Observatory</p>
+
+  <p>A pulsar is a spinning neutron star that sweeps a radio beam past Earth like a lighthouse — a natural clock of astonishing stability. In the summer of 1974, graduate student <b>Russell Hulse</b>, running a pulsar survey with <b>Joseph Taylor</b> at Arecibo, found one ticking every <b>59 milliseconds</b>. But this clock misbehaved: its period drifted back and forth by tens of microseconds from one day to the next, in a pattern that repeated every <b>7.75 hours</b>.</p>
+
+  <p>That is not a broken clock — it is a <b>moving</b> clock. The pulsar's ticks arrive squeezed together when it swings toward us and stretched apart when it swings away: the <b>Doppler effect</b>, exactly as in spectroscopy, but read from pulse arrival times instead of spectral lines. The 7.75-hour cycle is an orbit: the pulsar is locked in a tight binary with another neutron star, whipping around at up to <b>~300 km/s</b> in an orbit smaller than the Sun. A precise clock on an extreme orbit — the perfect laboratory for testing gravity.</p>
+
+  <h3 class="subhead"><span class="n">A.</span> What exactly is ticking? A city-sized star spinning 17 times a second</h3>
+  <p class="leadin">A pulsar is a <b>neutron star</b>: the collapsed core left behind when a massive star dies in a supernova — more than a Sun's worth of mass crushed into a ball about <b>20 km</b> across, dense as an atomic nucleus. Its magnetic field funnels radio emission into two narrow cones anchored to the magnetic poles, and because the magnetic axis is tilted from the spin axis, the cones sweep the sky like a lighthouse. We register a pulse each time a beam crosses Earth. The star is not blinking — we are being <i>swept</i>. (The full discovery story — Jocelyn Bell's "bit of scruff," and how a pulse width alone weighs a star to death — is in the <a class="inline" href="radio_astronomy_companion.html#pulsars">radio astronomy companion</a>.)</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The lighthouse in motion</h3>
+    <p class="hint">Looking straight down the pulsar's spin axis: the rose cone is the radio beam, whirling once per rotation, and the strip on the right is the signal Earth actually records. The default is <b>PSR B1913+16 itself</b> — a 59-millisecond rotation, 17 sweeps every second (animation slowed about 4×). Slide the period out to 1.34 s to see Jocelyn Bell's first pulsar for comparison, and widen or narrow the cone to change the pulse width. This metronome, unattended, keeps time to better than a microsecond — <i>that</i> is the instrument nature dropped into an extreme orbit.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Rotation period $P$ <b><span id="lh2_pl">59 ms</span></b></label>
+        <input id="lh2_p" type="range" min="0.059" max="1.4" step="0.001" value="0.059">
+      </div>
+      <div class="ctl">
+        <label>Beam cone full width <b><span id="lh2_bwl">12°</span></b></label>
+        <input id="lh2_bw" type="range" min="4" max="40" step="1" value="12">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Pulse spacing</div><div class="v"><span id="lh2_sp">59</span> <small>ms</small></div></div>
+      <div class="stat"><div class="k">Sweeps per second</div><div class="v"><span id="lh2_tps">17</span></div></div>
+      <div class="stat"><div class="k">Pulse width</div><div class="v"><span id="lh2_dt">2.0</span> <small>ms</small></div></div>
+      <div class="stat"><div class="k">Duty cycle</div><div class="v"><span id="lh2_duty">3.3</span> <small>%</small></div></div>
+    </div>
+    <figure>
+      <canvas id="lh2_canvas" width="900" height="360"></canvas>
+      <figcaption><b>Left:</b> the neutron star seen down its spin axis; the rose cone is the radio beam, the thin violet line its magnetic axis, and the cyan dot is Earth on our line of sight — it flashes as the beam crosses us. <b>Right:</b> the recorded pulse train. Every property of the signal comes from geometry: spacing = rotation period, width = how long the cone takes to cross our sight line.</figcaption>
+    </figure>
+  </div>
+
+  <h3 class="subhead"><span class="n">B.</span> The two stars: a matched pair, only one of them talking</h3>
+  <p class="leadin">PSR B1913+16 sits about 21,000 light-years away in Aquila. The system is <b>two neutron stars</b> of almost identical mass — but only one is a pulsar to us. The diagram below is drawn to scale (except the stars themselves): each star traces its own ellipse around the shared center of mass, and the entire orbit is comparable in size to the <b>Sun</b>.</p>
+
+  <figure style="margin-top:14px">
+    <div class="svgwrap">
+    <svg class="armdiag" viewBox="0 0 620 400" role="img" aria-label="Scale diagram of the PSR B1913+16 binary: two neutron stars on eccentric ellipses around their common center of mass, with the Sun drawn to the same scale for comparison. The pulsar carries two radio beam cones; the companion is a bare dot.">
+      <defs>
+        <marker id="gw_arrMute" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L7,3 L0,6 Z" fill="#9aa3c7"/></marker>
+      </defs>
+      <!-- the Sun, for scale -->
+      <circle cx="300" cy="185" r="60" fill="rgba(255,178,74,0.08)" stroke="#ffb24a" stroke-width="1.2" stroke-dasharray="5 5"/>
+      <text x="300" y="160" fill="#ffb24a" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">the Sun, drawn to scale</text>
+      <!-- orbits about the barycenter -->
+      <ellipse cx="249" cy="185" rx="82.5" ry="65" fill="none" stroke="rgba(63,208,255,0.75)" stroke-width="1.7"/>
+      <ellipse cx="352.8" cy="185" rx="85.5" ry="67.3" fill="none" stroke="rgba(176,140,255,0.75)" stroke-width="1.7"/>
+      <!-- line joining the stars through the barycenter -->
+      <line x1="225.8" y1="122.7" x2="376.9" y2="249.5" stroke="rgba(154,163,199,0.5)" stroke-width="1.1" stroke-dasharray="4 4"/>
+      <!-- barycenter -->
+      <line x1="295" y1="180" x2="305" y2="190" stroke="#e8ecff" stroke-width="1.6"/>
+      <line x1="295" y1="190" x2="305" y2="180" stroke="#e8ecff" stroke-width="1.6"/>
+      <text x="311" y="182" fill="#9aa3c7" font-size="10.5" font-family="system-ui,sans-serif">center of mass</text>
+      <!-- pulsar with beam cones -->
+      <polygon points="225.8,122.7 261.5,112.5 252.5,96.9" fill="rgba(255,107,157,0.30)" stroke="#ff6b9d" stroke-width="1"/>
+      <polygon points="225.8,122.7 199.1,148.5 190.1,132.9" fill="rgba(255,107,157,0.30)" stroke="#ff6b9d" stroke-width="1"/>
+      <circle cx="225.8" cy="122.7" r="6.5" fill="#3fd0ff" stroke="#fff" stroke-width="1.3"/>
+      <text x="170" y="78" fill="#3fd0ff" font-size="13" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">PSR B1913+16 — the pulsar</text>
+      <text x="170" y="93" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">1.44 M☉ · spins every 59 ms</text>
+      <!-- companion -->
+      <circle cx="376.9" cy="249.5" r="6.5" fill="#b08cff" stroke="#fff" stroke-width="1.3"/>
+      <text x="452" y="278" fill="#b08cff" font-size="13" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">companion neutron star</text>
+      <text x="452" y="293" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">1.39 M☉ · radio-quiet · never seen</text>
+      <!-- to Earth -->
+      <line x1="88" y1="300" x2="52" y2="340" stroke="#9aa3c7" stroke-width="1.4" marker-end="url(#gw_arrMute)"/>
+      <text x="30" y="358" fill="#9aa3c7" font-size="11" font-family="system-ui,sans-serif">to Earth</text>
+      <!-- scale annotations -->
+      <text x="310" y="352" fill="#9aa3c7" font-size="11.5" text-anchor="middle" font-family="system-ui,sans-serif">separation swings from 1.1 R☉ at periastron to 4.8 R☉ at apastron, every 7.75 hours</text>
+      <text x="310" y="368" fill="#9aa3c7" font-size="11.5" text-anchor="middle" font-family="system-ui,sans-serif">the stars are really ~20 km across — millions of times smaller than drawn</text>
+    </svg>
+    </div>
+    <figcaption><b>The system, to scale.</b> Because the two masses are nearly equal, the stars trace nearly equal ellipses ($e = 0.617$) on opposite sides of the center of mass, always facing each other across it. At closest approach both stars would sit <i>inside</i> the Sun's radius — two objects denser than an atomic nucleus, a solar diameter apart, moving at hundreds of km/s. Only the cyan one beams radio waves our way; the violet one is known purely by its gravity.</figcaption>
+  </figure>
+
+  <div class="tablewrap">
+    <table class="data left">
+      <thead><tr><th>Property</th><th>PSR B1913+16 (the pulsar)</th><th>The companion</th></tr></thead>
+      <tbody>
+        <tr><td>What it is</td><td>Neutron star — detected directly</td><td>Neutron star — inferred, never seen at any wavelength</td></tr>
+        <tr><td>Mass</td><td>1.4398 ± 0.0002 M☉</td><td>1.3886 ± 0.0002 M☉</td></tr>
+        <tr><td>Size</td><td>~20 km across</td><td>~20 km across</td></tr>
+        <tr><td>Spin</td><td>59.03 ms — 17 turns per second</td><td>Unknown</td></tr>
+        <tr><td>Radio beam</td><td>Sweeps across Earth every rotation</td><td>None reaches us — quiet, or aimed elsewhere</td></tr>
+        <tr><td>Likely history</td><td>The <i>older</i> star: "recycled" — spun up and smoothed by gas stolen from its partner</td><td>The <i>younger</i> star: born in the second supernova, which also made the orbit eccentric</td></tr>
+        <tr><td>Role in the experiment</td><td>The clock</td><td>The silent mass that swings the clock</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mathnote">
+    <h4>How nature builds a double neutron star — and why only one talks</h4>
+    <p>Start with two massive stars orbiting each other. The heavier one dies first: supernova, leaving <b>neutron star #1</b>. Ages later its partner swells and dumps gas onto that neutron star — the infalling matter <b>spins it up</b> ("recycling") to its brisk 59-ms rotation and quiets its magnetic field, turning it into an exceptionally smooth, long-lived clock (its timing age is ~100 million years). Then the partner explodes in turn: <b>neutron star #2</b>, and the kick of that second supernova wrenched the orbit into the $e = 0.617$ ellipse we observe. The recycled old star is the steady pulsar we hear; the young one either beams away from us or has already faded to radio silence.</p>
+    <p>And how do we know the unseen companion is a neutron star at all? <b>Its own gravity betrays it.</b> The relativistic timing (periastron advance plus time-dilation effects) pins both masses to three decimal places — 1.39 M☉ for the companion. A normal star of that mass would be nearly Sun-sized: at a periastron of 1.1 R☉ it would be tidally shredded and dragging on the orbit, and it would shine. A white dwarf is harder to exclude but still Earth-sized, and would raise measurable tides. Only something as compact as a neutron star lets the orbit behave as two clean point masses — which, to exquisite precision, it does.</p>
+  </div>
+
+  <h3 class="subhead"><span class="n">C.</span> Reading the orbit from the ticks</h3>
+  <p class="leadin">Now put the lighthouse in motion <i>around the companion</i>. The clock is perfect; its apparent tick rate is not — and that mismatch is pure orbital velocity, via Doppler.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Read the orbit from the ticks</h3>
+    <p class="hint">This is what Hulse saw. The plot shows the pulsar's <b>apparent pulse period</b> over one orbit: when the pulsar approaches us the ticks bunch up (period reads short), when it recedes they spread out (period reads long). The real orbit is very <b>eccentric</b> ($e = 0.617$) — drag the eccentricity slider and watch the curve go from a gentle sine wave (circular orbit) to the sharp, lopsided spike of a body that slingshots through periastron. The lopsidedness is itself data: it told Hulse and Taylor the orbit's shape and orientation before anyone saw the companion.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Eccentricity $e$ <b><span id="ht_elbl">0.617</span></b></label>
+        <input id="ht_e" type="range" min="0" max="0.85" step="0.001" value="0.617">
+      </div>
+      <div class="ctl">
+        <label>Periastron angle $\omega$ <b><span id="ht_wlbl">226</span>°</b></label>
+        <input id="ht_w" type="range" min="0" max="360" step="1" value="226">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Rest period</div><div class="v">59.03 <small>ms</small></div></div>
+      <div class="stat"><div class="k">Max shift seen</div><div class="v"><span id="ht_dp">±59</span> <small>µs</small></div></div>
+      <div class="stat"><div class="k">Orbital period</div><div class="v">7.75 <small>hr</small></div></div>
+      <div class="stat"><div class="k">Peak speed</div><div class="v"><span id="ht_vmax">300</span> <small>km/s</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="ht_plot" class="plot"></div><figcaption>Apparent pulse period vs. orbital phase. The asymmetric sawtooth at high $e$ is the signature of an eccentric orbit — fast near periastron, slow near apastron.</figcaption></figure>
+      <figure><div id="ht_orbplot" class="plot"></div><figcaption>The orbit itself (relative orbit, companion at the focus). Amber marks periastron — closest approach, ~1.1 solar radii — where the gravity test is most severe.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why a binary pulsar is a gravity laboratory</h4>
+    <p>Both objects are neutron stars — <b>~1.4 solar masses squeezed into ~20 km</b> — orbiting so tightly that their separation swings between roughly 1.1 and 4.8 solar <i>radii</i>. Orbital speeds reach a thousandth of the speed of light, and the pulsar clock lets you time the orbit to microseconds. Relativistic effects that are barely measurable for Mercury (43″/century of periastron advance) are enormous here: PSR B1913+16's periastron advances <b>4.2° per year</b> — over 35,000× Mercury's rate. If Einstein's gravity has consequences Newton's lacks, this is where they show up first.</p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>Newton says the orbit is forever. <span class="grad">Einstein says it's leaking.</span></h3>
+  <p>Two isolated stars in Newtonian gravity orbit unchanged for eternity. In general relativity the orbit itself must broadcast energy away.</p>
+</div>
+
+<!-- ===================== SECTION 2 — ORBITAL DECAY ===================== -->
+<section class="chapter hist" id="decay">
+  <span class="era">1975–1993 · the discovery</span>
+  <h2>The shrinking orbit: gravitational waves, weighed</h2>
+  <p class="who">How a timing residual became a Nobel Prize</p>
+
+  <p>Here is the fork in the road. In <b>Newtonian gravity</b> an isolated two-body orbit is perfectly stable: the orbital period of PSR B1913+16 should stay 7.75 hours forever, and the time of each periastron passage should tick forward like clockwork. In <b>general relativity</b>, two masses in orbit are a churning mass distribution, and a churning mass must radiate <b>gravitational waves</b> — ripples in spacetime that carry real energy away at the speed of light. The orbit pays that energy bill the only way it can: by <b>shrinking</b>. The stars fall closer together, and (by Kepler's third law) the orbital period gets steadily <i>shorter</i>.</p>
+
+  <p>The predicted rate is absurdly small: the 27,000-second orbit shortens by about <b>76 microseconds per year</b> ($\dot P_b = -2.4\times10^{-12}$ — about 2.4 picoseconds lost per second). No stopwatch could see that. But the effect <b>accumulates</b>: if each orbit is a hair shorter than the last, periastron arrives earlier and earlier compared to a constant-period prediction, and the offset grows as the <i>square</i> of elapsed time — a parabola. Taylor and collaborators timed periastron for decades. The data fell on the GR parabola to within a fraction of a percent.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The parabola that proved it</h3>
+    <p class="hint">This is the most famous plot in gravitational-wave astronomy, rebuilt live. The dashed line at zero is <b>Newton's prediction</b>: constant orbital period, periastron always on time. The curve is <b>general relativity's prediction</b> — periastron arriving early by an amount growing quadratically as the orbit decays. Dots are the observed periastron times. Drag the slider to extend the observing campaign and watch the two theories separate: after a few years they are indistinguishable; after thirty, Newton is ruled out by half a minute.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Years of timing data <b><span id="dk_ylbl">30</span> yr</b></label>
+        <input id="dk_y" type="range" min="4" max="40" step="1" value="30">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Cumulative shift</div><div class="v"><span id="dk_shift">−36.9</span> <small>s</small></div></div>
+      <div class="stat"><div class="k">Period change</div><div class="v">−76.5 <small>µs/yr</small></div></div>
+      <div class="stat"><div class="k">GR vs observed</div><div class="v">0.2<small>% agreement</small></div></div>
+      <div class="stat"><div class="k">Merger in</div><div class="v">~300 <small>Myr</small></div></div>
+    </div>
+    <figure><div id="dk_plot" class="plot tall"></div><figcaption>Cumulative shift of periastron time vs. year. Amber curve: general relativity, assuming the energy is lost to gravitational waves. Dashed white line: Newtonian gravity (no decay). Dots: simulated measurements matching the published Weisberg–Taylor timing data.</figcaption></figure>
+    <div id="dk_verdict" class="verdict good"><b>The verdict.</b> The observed decay matches the general-relativistic gravitational-wave prediction to about 0.2% — the first detection of gravitational radiation, made not by catching a wave but by <b>watching an orbit pay for one</b>. Hulse and Taylor received the 1993 Nobel Prize in Physics. (This plot is simulated to match the published data — the <a class="inline" href="#appendix">appendix</a> rebuilds the real thing from the raw Arecibo pulse arrival times.)</div>
+  </div>
+
+  <div class="deriv">
+    <h4>The logic, step by step</h4>
+    <p class="lead">Why a shrinking orbit counts as a detection of gravitational waves:</p>
+    <ol>
+      <li><b>GR demands radiation.</b> Einstein's 1916 quadrupole formula gives the power radiated by an orbiting pair: $$P \;=\; \frac{32}{5}\,\frac{G^4}{c^5}\,\frac{(m_1 m_2)^2 (m_1+m_2)}{a^5}\,f(e),$$ where $f(e)$ is an eccentricity enhancement factor — for $e=0.617$ the waves carry away ~12× more power than a circular orbit would. For PSR B1913+16 this is about $7\times10^{24}$ W: roughly 2% of the Sun's entire luminosity, emitted as pure spacetime ripple.</li>
+      <li><b>Radiated energy must come from the orbit.</b> The binary's orbital energy is $E=-Gm_1m_2/2a$. Losing energy makes $a$ shrink, and Kepler's third law then forces the period down at a computable rate: $\dot P_b = -2.40\times10^{-12}$, with every quantity fixed by the measured masses and orbit. <b>No free parameters.</b></li>
+      <li><b>Newton predicts exactly zero.</b> There is no gravitational radiation in Newtonian gravity — the clean null hypothesis. Any measured decay at the GR rate is direct evidence the waves exist and carry the predicted energy.</li>
+      <li><b>The measurement.</b> Decades of Arecibo timing: observed $\dot P_b$ (after correcting for the binary's acceleration in the Galaxy) agrees with the GR prediction to $\sim$0.2%.</li>
+    </ol>
+    <div class="concl"><b>The lesson:</b> the first gravitational-wave detection was <i>indirect</i> — an energy audit. The waves themselves left the system unseen; what we caught was the bill they left behind.</div>
+  </div>
+
+  <div class="mathnote">
+    <h4>The far future of the system</h4>
+    <p>The decay is relentless and self-accelerating: as the orbit shrinks, the $1/a^5$ in the power formula makes the radiation stronger, which shrinks the orbit faster. In roughly <b>300 million years</b> the two neutron stars will spiral together and merge in a final burst of gravitational waves — precisely the kind of event LIGO now detects from other galaxies (and did, for a neutron-star pair, in 2017 as GW170817).</p>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>From the energy bill to <span class="grad">the wave itself</span></h3>
+  <p>The binary pulsar proved the waves exist. Catching one in the act required measuring a length change of a thousandth of a proton.</p>
+</div>
+
+<!-- ===================== SECTION 3 — LIGO ===================== -->
+<section class="chapter" id="ligo">
+  <span class="era">the instrument</span>
+  <h2>LIGO: a ruler made of light</h2>
+  <p class="who">How you measure a distortion of space itself</p>
+
+  <p>A passing gravitational wave does something deeply strange: it alternately <b>stretches space in one direction while squeezing it in the perpendicular direction</b>, then swaps, oscillating at the wave's frequency. Free-floating objects don't feel a force — the distance <i>between</i> them changes because the space they sit in changes. The fractional change is called the <b>strain</b>, $h = \Delta L / L$, and for astrophysical sources reaching Earth it is fantastically small: $h \sim 10^{-21}$.</p>
+
+  <p>That number sets the design. Since $\Delta L = h\,L$, you want $L$ as long as possible — so LIGO is an L-shaped <b>Michelson interferometer</b> with <b>4-kilometer arms</b>. A laser is split down the two arms, bounces off mirrors suspended as free-hanging pendulums, and recombines. Normally the two returning beams are held in almost perfect destructive interference — the output port is dark. But a gravitational wave lengthens one arm while shortening the other, shifting the recombined light's phase, and the output port <b>brightens in time with the wave</b>. Fabry–Pérot cavities bounce the light ~300 times per arm (effective length ~1200 km), and even then the length change being measured is about $10^{-18}$ m — <b>a thousandth of the width of a proton</b>. Two detectors 3000 km apart (Hanford, Washington and Livingston, Louisiana) must ring in coincidence, or the signal is discarded as local noise.</p>
+
+  <figure style="margin-top:14px">
+    <div class="swipehint">swipe sideways to follow the full 4-km arm →</div>
+    <div class="svgwrap">
+    <svg class="armdiag" style="min-width:580px" viewBox="0 0 660 412" role="img" aria-label="Schematic of the LIGO Michelson interferometer: a laser beam hits a beam splitter and is sent down two perpendicular 4-km arms. Each arm is a Fabry–Pérot cavity between two mirrors hung as pendulums, where the light bounces about 300 times. The returning beams recombine at the splitter and cancel at a photodetector — the dark output port. A passing gravitational wave lengthens one arm while shortening the other, breaking the cancellation so the port brightens in time with the wave.">
+      <defs>
+        <marker id="lg_arrG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 Z" fill="#5ee6a8"/></marker>
+        <marker id="lg_arrA" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto-start-reverse"><path d="M0,0 L7,3 L0,6 Z" fill="#ffb24a"/></marker>
+        <marker id="lg_arrM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 Z" fill="#9aa3c7"/></marker>
+      </defs>
+
+      <text x="648" y="24" fill="#9aa3c7" font-size="10" text-anchor="end" font-family="system-ui,sans-serif">schematic — not to scale</text>
+
+      <!-- incoming gravitational wave symbol -->
+      <circle cx="60" cy="84" r="10" fill="none" stroke="#b08cff" stroke-width="1.5"/>
+      <circle cx="60" cy="84" r="2.5" fill="#b08cff"/>
+      <text x="60" y="110" fill="#9aa3c7" font-size="10.5" text-anchor="middle" font-family="system-ui,sans-serif">gravitational wave</text>
+      <text x="60" y="123" fill="#9aa3c7" font-size="10.5" text-anchor="middle" font-family="system-ui,sans-serif">arriving out of the page</text>
+
+      <!-- ================= Y ARM (vertical) ================= -->
+      <!-- end mirror + pendulum suspension -->
+      <line x1="163" y1="46" x2="207" y2="46" stroke="#9aa3c7" stroke-width="2.5"/>
+      <line x1="170" y1="46" x2="173" y2="58" stroke="#9aa3c7" stroke-width="1"/>
+      <line x1="200" y1="46" x2="197" y2="58" stroke="#9aa3c7" stroke-width="1"/>
+      <rect x="168" y="58" width="34" height="9" rx="1.5" fill="#3fd0ff" stroke="#fff" stroke-width="1"/>
+      <text x="215" y="66" fill="#9aa3c7" font-size="10.5" font-family="system-ui,sans-serif">end mirror (test mass)</text>
+      <!-- input mirror + pendulum suspension -->
+      <line x1="163" y1="241" x2="207" y2="241" stroke="#9aa3c7" stroke-width="2.5"/>
+      <line x1="170" y1="241" x2="173" y2="253" stroke="#9aa3c7" stroke-width="1"/>
+      <line x1="200" y1="241" x2="197" y2="253" stroke="#9aa3c7" stroke-width="1"/>
+      <rect x="168" y="253" width="34" height="9" rx="1.5" fill="#3fd0ff" stroke="#fff" stroke-width="1"/>
+      <text x="158" y="262" fill="#9aa3c7" font-size="10.5" text-anchor="end" font-family="system-ui,sans-serif">input mirror</text>
+      <!-- cavity light bouncing between the mirrors -->
+      <line x1="178" y1="248" x2="178" y2="74" stroke="#5ee6a8" stroke-width="1.6" opacity="0.9" marker-end="url(#lg_arrG)"/>
+      <line x1="185" y1="74" x2="185" y2="248" stroke="#5ee6a8" stroke-width="1.6" opacity="0.55" marker-end="url(#lg_arrG)"/>
+      <line x1="192" y1="248" x2="192" y2="74" stroke="#5ee6a8" stroke-width="1.6" opacity="0.35" marker-end="url(#lg_arrG)"/>
+      <!-- 4 km bracket -->
+      <line x1="140" y1="148" x2="140" y2="74" stroke="#9aa3c7" stroke-width="1.1" marker-end="url(#lg_arrM)"/>
+      <line x1="140" y1="178" x2="140" y2="246" stroke="#9aa3c7" stroke-width="1.1" marker-end="url(#lg_arrM)"/>
+      <text x="140" y="167" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">4 km</text>
+      <!-- squeeze annotation -->
+      <line x1="228" y1="105" x2="228" y2="145" stroke="#ffb24a" stroke-width="1.6" marker-end="url(#lg_arrA)"/>
+      <line x1="228" y1="218" x2="228" y2="178" stroke="#ffb24a" stroke-width="1.6" marker-end="url(#lg_arrA)"/>
+      <text x="240" y="158" fill="#ffb24a" font-size="11.5" font-family="system-ui,sans-serif">the wave shortens this arm…</text>
+
+      <!-- pendulum note -->
+      <text x="232" y="38" fill="#9aa3c7" font-size="10.5" font-family="system-ui,sans-serif">every mirror hangs as a free pendulum,</text>
+      <text x="232" y="52" fill="#9aa3c7" font-size="10.5" font-family="system-ui,sans-serif">floating freely with the space around it</text>
+      <line x1="230" y1="44" x2="210" y2="47" stroke="#9aa3c7" stroke-width="1"/>
+
+      <!-- ================= X ARM (horizontal) ================= -->
+      <!-- stretch annotation -->
+      <text x="432" y="258" fill="#ffb24a" font-size="11.5" text-anchor="middle" font-family="system-ui,sans-serif">…while lengthening this one — by ~10⁻¹⁸ m, a thousandth of a proton</text>
+      <line x1="432" y1="272" x2="310" y2="272" stroke="#ffb24a" stroke-width="1.6" marker-end="url(#lg_arrA)"/>
+      <line x1="432" y1="272" x2="555" y2="272" stroke="#ffb24a" stroke-width="1.6" marker-end="url(#lg_arrA)"/>
+      <!-- cavity label -->
+      <text x="432" y="292" fill="#5ee6a8" font-size="10.5" text-anchor="middle" font-family="system-ui,sans-serif" opacity="0.9">light bounces ~300 times — effective length ~1200 km</text>
+      <!-- input mirror + suspension -->
+      <line x1="243" y1="283" x2="276" y2="283" stroke="#9aa3c7" stroke-width="2.5"/>
+      <line x1="248" y1="283" x2="256" y2="293" stroke="#9aa3c7" stroke-width="1"/>
+      <line x1="271" y1="283" x2="263" y2="293" stroke="#9aa3c7" stroke-width="1"/>
+      <rect x="255" y="293" width="9" height="34" rx="1.5" fill="#3fd0ff" stroke="#fff" stroke-width="1"/>
+      <!-- end mirror + suspension -->
+      <line x1="588" y1="283" x2="621" y2="283" stroke="#9aa3c7" stroke-width="2.5"/>
+      <line x1="593" y1="283" x2="601" y2="293" stroke="#9aa3c7" stroke-width="1"/>
+      <line x1="616" y1="283" x2="608" y2="293" stroke="#9aa3c7" stroke-width="1"/>
+      <rect x="600" y="293" width="9" height="34" rx="1.5" fill="#3fd0ff" stroke="#fff" stroke-width="1"/>
+      <!-- cavity light -->
+      <line x1="268" y1="303" x2="596" y2="303" stroke="#5ee6a8" stroke-width="1.6" opacity="0.9" marker-end="url(#lg_arrG)"/>
+      <line x1="596" y1="310" x2="268" y2="310" stroke="#5ee6a8" stroke-width="1.6" opacity="0.55" marker-end="url(#lg_arrG)"/>
+      <line x1="268" y1="317" x2="596" y2="317" stroke="#5ee6a8" stroke-width="1.6" opacity="0.35" marker-end="url(#lg_arrG)"/>
+      <!-- 4 km bracket -->
+      <line x1="415" y1="344" x2="266" y2="344" stroke="#9aa3c7" stroke-width="1.1" marker-end="url(#lg_arrM)"/>
+      <line x1="450" y1="344" x2="598" y2="344" stroke="#9aa3c7" stroke-width="1.1" marker-end="url(#lg_arrM)"/>
+      <text x="432" y="348" fill="#9aa3c7" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">4 km</text>
+
+      <!-- ================= LASER, SPLITTER, DARK PORT ================= -->
+      <rect x="30" y="292" width="70" height="36" rx="6" fill="rgba(94,230,168,0.10)" stroke="#5ee6a8" stroke-width="1.2"/>
+      <text x="65" y="315" fill="#5ee6a8" font-size="12" font-weight="700" text-anchor="middle" font-family="system-ui,sans-serif">laser</text>
+      <!-- beam in, and the two split beams -->
+      <line x1="100" y1="310" x2="172" y2="310" stroke="#5ee6a8" stroke-width="2.5" marker-end="url(#lg_arrG)"/>
+      <line x1="196" y1="310" x2="253" y2="310" stroke="#5ee6a8" stroke-width="2.5"/>
+      <line x1="185" y1="299" x2="185" y2="266" stroke="#5ee6a8" stroke-width="2.5" marker-end="url(#lg_arrG)"/>
+      <!-- beam splitter -->
+      <line x1="170" y1="325" x2="200" y2="295" stroke="#e8ecff" stroke-width="3"/>
+      <text x="158" y="350" fill="#9aa3c7" font-size="10.5" text-anchor="end" font-family="system-ui,sans-serif">beam splitter</text>
+      <!-- dark port + photodetector -->
+      <line x1="185" y1="328" x2="185" y2="358" stroke="#5ee6a8" stroke-width="1.6" stroke-dasharray="4 4" opacity="0.6" marker-end="url(#lg_arrG)"/>
+      <rect x="163" y="362" width="44" height="14" rx="3" fill="rgba(255,107,157,0.25)" stroke="#ff6b9d" stroke-width="1.2"/>
+      <text x="185" y="392" fill="#ff6b9d" font-size="11" text-anchor="middle" font-family="system-ui,sans-serif">photodetector</text>
+      <text x="232" y="368" fill="#9aa3c7" font-size="11" font-family="system-ui,sans-serif">the two returning beams recombine and cancel —</text>
+      <text x="232" y="383" fill="#9aa3c7" font-size="11" font-family="system-ui,sans-serif">the output port stays dark, until a passing wave unbalances</text>
+      <text x="232" y="398" fill="#9aa3c7" font-size="11" font-family="system-ui,sans-serif">the arms and it brightens in time with the wave</text>
+    </svg>
+    </div>
+    <figcaption><b>Anatomy of the measurement.</b> One laser becomes two beams at the splitter; each runs down a 4-km arm and builds up inside a Fabry–Pérot cavity between two mirrors hung as pendulums, then returns. The arm lengths are held so that the returning beams cancel at the output port — a photodetector staring at darkness. A passing gravitational wave stretches one arm while squeezing the other (amber arrows), the cancellation breaks, and light leaks through to the detector in step with the wave. That flicker of light <i>is</i> the signal.</figcaption>
+  </figure>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Squeeze and stretch: the interferometer responds</h3>
+    <p class="hint">Left: a ring of free-floating test particles with a gravitational wave passing straight through the page — space stretches vertically while squeezing horizontally, then swaps, through the wave's cycle. The two amber bars are LIGO's arms sampling exactly those two directions. Right: the light intensity at the output port over the cycle — dark when the arms match, bright when they differ. The strain here is around $10^{20}$ times exaggerated; set it to see how the pattern (not the size) is what LIGO reads. Drag the <b>wave phase</b> slider through a full cycle, or press play.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Wave phase <b><span id="lg_plbl">0.00</span> cycles</b></label>
+        <input id="lg_p" type="range" min="0" max="1" step="0.005" value="0">
+      </div>
+      <div class="ctl">
+        <label>Strain (exaggerated) <b><span id="lg_hlbl">0.25</span></b></label>
+        <input id="lg_h" type="range" min="0.02" max="0.45" step="0.01" value="0.25">
+      </div>
+    </div>
+    <div class="btnrow"><button class="act" id="lg_play">▶ Play wave</button></div>
+    <div class="readout">
+      <div class="stat"><div class="k">Real strain</div><div class="v">10<small>−21</small></div></div>
+      <div class="stat"><div class="k">Arm length L</div><div class="v">4 <small>km</small></div></div>
+      <div class="stat"><div class="k">Real ΔL</div><div class="v">4×10<small>−18 m</small></div></div>
+      <div class="stat"><div class="k">vs. a proton</div><div class="v">~1/1000<small> of its width</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="lg_ring" class="plot"></div><figcaption>Test-particle ring under a “+”-polarized wave, with the two interferometer arms (amber). One arm lengthens exactly when the other shortens — the differential signal LIGO is built to read.</figcaption></figure>
+      <figure><div id="lg_out" class="plot"></div><figcaption>Output-port brightness through the wave cycle. With no wave the port stays dark; a passing wave modulates the arm-length <i>difference</i> and the port flickers at the wave frequency.</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="mathnote">
+    <h4>Why two (and now more) detectors</h4>
+    <p>At $10^{-18}$ m, everything is noise: trucks, surf pounding a coastline hundreds of km away, thermal jiggling of the mirror coatings, even quantum fluctuations of the laser light itself. The killer test is <b>coincidence</b>: a real gravitational wave sweeps past Earth at the speed of light and must appear in both LIGO sites within 10 milliseconds, with the same waveform. The slight arrival-time difference also gives a rough sky direction — and with Virgo (Italy) and KAGRA (Japan) added, triangulation becomes real astronomy.</p>
+  </div>
+</section>
+
+<!-- ===================== SECTION 4 — GW150914 ===================== -->
+<section class="chapter" id="chirp">
+  <span class="era">14 september 2015 · the detection</span>
+  <h2>GW150914: two black holes, heard</h2>
+  <p class="who">The chirp that opened a new astronomy</p>
+
+  <p>At 09:50:45 UTC on 14 September 2015 — during an engineering run, days before the official observing start — both LIGO detectors recorded the same 0.2-second signal, Livingston first, Hanford <b>6.9 ms later</b>. The waveform swept upward from 35 Hz to about 250 Hz while growing in amplitude, then rang down and stopped: a <b>chirp</b>. That shape is exactly what relativity predicts for the endpoint of the Hulse–Taylor story: two compact objects whose orbit has decayed all the way, spiraling together faster and faster, radiating harder and harder, until they touch and merge.</p>
+
+  <p>The numbers read straight off the waveform. The frequency and its acceleration give the <b>chirp mass</b>, pinning the system at roughly <b>36 and 29 solar masses</b> — too heavy to be neutron stars, and orbiting a few hundred km apart at half the speed of light just before merger: unmistakably <b>black holes</b>. The final black hole weighed ~62 M☉. The missing <b>3 solar masses</b> were radiated as gravitational waves in a fraction of a second — a peak power greater than the light output of every star in the observable universe combined. The signal had traveled <b>1.3 billion years</b> to arrive at a strain of $1.0\times10^{-21}$.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Build the chirp</h3>
+    <p class="hint">Dial in the two masses and see the gravitational waveform of their final second. Physics to notice: the wave frequency is <b>twice</b> the orbital frequency (the mass distribution repeats every half orbit); the sweep gets faster as the orbit shrinks (runaway energy loss, the same $1/a^5$ as Hulse–Taylor); and the signal cuts off near the merger frequency, set by the total mass. <b>Heavier pairs merge at lower frequency</b> — make the black holes very heavy and the chirp barely climbs before ending; make them neutron-star light (1.4 + 1.4) and it screams up past a kilohertz. GW150914's actual masses are preset.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Mass 1 <b><span id="ch_m1lbl">36</span> M☉</b></label>
+        <input id="ch_m1" type="range" min="1.4" max="80" step="0.5" value="36">
+      </div>
+      <div class="ctl">
+        <label>Mass 2 <b><span id="ch_m2lbl">29</span> M☉</b></label>
+        <input id="ch_m2" type="range" min="1.4" max="80" step="0.5" value="29">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Chirp mass</div><div class="v"><span id="ch_mc">28.1</span> <small>M☉</small></div></div>
+      <div class="stat"><div class="k">Merger frequency</div><div class="v"><span id="ch_fisco">220</span> <small>Hz</small></div></div>
+      <div class="stat"><div class="k">Time in band (from 30 Hz)</div><div class="v"><span id="ch_dur">0.2</span> <small>s</small></div></div>
+    </div>
+    <div class="figrow two">
+      <figure><div id="ch_wave" class="plot"></div><figcaption>Strain waveform $h(t)$ for the final moments before merger: amplitude and frequency both climb — the chirp — then the merged black hole rings down.</figcaption></figure>
+      <figure><div id="ch_freq" class="plot"></div><figcaption>Frequency vs. time for your system (cyan) and GW150914 (amber, 36+29 M☉). The curve's shape is set almost entirely by the chirp mass — that is how the masses are weighed.</figcaption></figure>
+    </div>
+    <div id="ch_verdict" class="verdict"></div>
+  </div>
+
+  <div class="deriv">
+    <h4>How a waveform weighs black holes</h4>
+    <p class="lead">Three readings from one squiggle:</p>
+    <ol>
+      <li><b>The sweep rate gives the chirp mass.</b> Leading-order GR gives $\dot f \propto \mathcal{M}^{5/3} f^{11/3}$, where $\mathcal{M} = (m_1 m_2)^{3/5}/(m_1+m_2)^{1/5}$. Measure $f$ and $\dot f$ at any moment and $\mathcal{M}$ falls out: ~30 M☉ for GW150914, far above any neutron star.</li>
+      <li><b>The cutoff frequency gives the total mass — and the compactness.</b> Heavier systems merge at <i>lower</i> frequency (merger happens when the objects are separations-of-a-few-Schwarzschild-radii apart, and $f_\mathrm{merge}\propto 1/M_\mathrm{tot}$). GW150914 was still sweeping upward at 150 Hz, where Kepler's law puts two ~30 M☉ objects only ~350 km apart — closer than any pair of stars or neutron-star-plus-anything could get without already touching. Only black holes fit.</li>
+      <li><b>The amplitude gives the distance.</b> Strain falls off as $1/d$; knowing the masses fixes the intrinsic loudness, so the observed $10^{-21}$ places the source ~410 Mpc (1.3 billion light-years) away. No cosmic distance ladder required — the waveform is a <i>standard siren</i>.</li>
+    </ol>
+    <div class="concl"><b>The payoff:</b> the Hulse–Taylor pulsar showed orbits decay exactly as gravitational waves demand; GW150914 is that same decay caught in its last fifth of a second — with the wave itself, not the energy bill, as the evidence. Weiss, Barish, and Thorne received the 2017 Nobel Prize.</div>
+  </div>
+</section>
+
+<div class="divider"><div class="rule"></div>
+  <h3>A detector <span class="grad">the size of the Galaxy</span></h3>
+  <p>LIGO hears cycles per second. For waves that take <i>years</i> per cycle, you need arms thousands of light-years long — and nature has already built them.</p>
+</div>
+
+<!-- ===================== SECTION 5 — PULSAR TIMING ARRAYS ===================== -->
+<section class="chapter relativity" id="pta">
+  <span class="era">2000s–today · the array</span>
+  <h2>Pulsar timing arrays: the Galaxy as detector</h2>
+  <p class="who">Back to pulsars — this time as the instrument, not the source</p>
+
+  <p>The story closes a loop. In 1974 a pulsar's clock revealed gravitational waves indirectly; today, pulsar clocks <b>are the detector</b>. The targets are <b>millisecond pulsars</b> — old neutron stars spun up to hundreds of rotations per second, whose long-term timing stability rivals atomic clocks. If a gravitational wave passes between a pulsar and Earth, it rhythmically stretches and squeezes the space the radio pulses cross, so the ticks arrive a few tens of <b>nanoseconds</b> early or late. One pulsar's residuals look like noise. The trick is to watch <b>dozens of pulsars all over the sky for decades</b> — an interferometer with arms thousands of light-years long.</p>
+
+  <p>This makes the Galaxy sensitive to a band no ground detector can touch: <b>nanohertz</b> waves, one cycle per <i>years to decades</i>. LIGO's band (10–1000 Hz) hears stellar-mass black holes in their final second; the nanohertz band hears <b>supermassive black hole binaries</b> — pairs of $10^8$–$10^9$ M☉ giants left orbiting each other after their host galaxies merged, each pair a Hulse–Taylor system scaled up a hundred million times, still centuries of cycles from merging. Summed over the whole universe they should produce not a chirp but a stochastic <b>background hum</b>.</p>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The Hellings–Downs smoking gun</h3>
+    <p class="hint">How do you tell a real gravitational-wave background from clock drift or Earth-atmosphere effects? By <b>correlation between pulsars</b>. A wave background makes pulsars in <i>similar</i> sky directions run early/late <i>together</i>, while pulsars ~90° apart are slightly <i>anti</i>-correlated — because the same quadrupolar stretch-one-way-squeeze-the-other pattern you saw in the LIGO ring lab is now imprinted on the sky. GR predicts the exact curve of correlation vs. angular separation: the <b>Hellings–Downs curve</b>. Clock errors would correlate every pair equally (flat line); planetary-ephemeris errors give a dipole. Add pulsar pairs and years of timing and watch the measured points converge on the quadrupolar signature.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Pulsars in the array <b><span id="pt_nlbl">25</span></b></label>
+        <input id="pt_n" type="range" min="6" max="70" step="1" value="25">
+      </div>
+      <div class="ctl">
+        <label>Timing-noise level <b><span id="pt_slbl">medium</span></b></label>
+        <input id="pt_s" type="range" min="0" max="2" step="1" value="1">
+      </div>
+    </div>
+    <div class="btnrow"><button class="act" id="pt_re">↻ New realization</button></div>
+    <div class="readout">
+      <div class="stat"><div class="k">Pulsar pairs</div><div class="v"><span id="pt_pairs">300</span></div></div>
+      <div class="stat"><div class="k">Correlation at 0°</div><div class="v">+0.5</div></div>
+      <div class="stat"><div class="k">Most negative near</div><div class="v">~82<small>°</small></div></div>
+    </div>
+    <figure><div id="pt_plot" class="plot tall"></div><figcaption>Green curve: the Hellings–Downs prediction for a gravitational-wave background. Dots: simulated measured correlations for every pulsar pair, binned by angular separation. Few pulsars → scatter; a large array over decades → the quadrupolar curve emerges.</figcaption></figure>
+    <div id="pt_verdict" class="verdict"></div>
+  </div>
+
+  <div class="mathnote astro">
+    <h4>Where this stands</h4>
+    <p>In June 2023, <b>NANOGrav</b> (15 years of data, 68 pulsars) — together with European, Australian, Indian and Chinese arrays — reported a common-spectrum signal with the Hellings–Downs correlation pattern at the <b>3–4σ</b> level: strong evidence for the nanohertz gravitational-wave background, most plausibly the combined hum of supermassive black hole binaries throughout the universe. It is the same three-act play again: find a clock, trust the clock, and let its tiny misbehavior reveal spacetime in motion.</p>
+  </div>
+</section>
+
+<!-- ===================== SUMMARY ===================== -->
+<section class="chapter" id="summary">
+  <span class="era">recap</span>
+  <h2>The arc of the story</h2>
+  <div class="beats">
+    <div class="beat known"><div class="tag">The fork · 1916</div><p>Newtonian gravity: binary orbits are stable forever. General relativity: orbiting masses must radiate <b>gravitational waves</b> and spiral inward. For decades the effect seemed hopelessly unmeasurable.</p></div>
+    <div class="beat found"><div class="tag">Indirect detection · 1974–82</div><p>Hulse &amp; Taylor find <b>PSR B1913+16</b>: a 59-ms pulsar clock in a 7.75-hour binary. Its periastron arrives early along the exact parabola GR predicts for energy lost to gravitational waves — agreement to ~0.2%. Nobel 1993.</p></div>
+    <div class="beat found"><div class="tag">Direct detection · 2015</div><p><b>LIGO</b> measures arm-length changes of $10^{-18}$ m and catches <b>GW150914</b>: the chirp of two ~30 M☉ black holes merging 1.3 billion light-years away — the binary-decay story caught in its final 0.2 seconds. Nobel 2017.</p></div>
+    <div class="beat test"><div class="tag">The frontier · 2023–</div><p><b>Pulsar timing arrays</b> turn dozens of millisecond pulsars into a Galaxy-sized detector and find strong evidence for the <b>nanohertz background</b> — the collective hum of supermassive black hole binaries, correlated across the sky along the Hellings–Downs curve.</p></div>
+  </div>
+  <div class="mathnote astro">
+    <h4>Try it yourself</h4>
+    <p>In Section 2, slide the campaign back to ~5 years and see why patience was the whole experiment — Newton and Einstein are indistinguishable at first. In Section 4, set both masses to 1.4 M☉ and watch the merger frequency leap past a kilohertz: that is GW170817, the neutron-star merger, and why its chirp lasted ~100 seconds in band instead of 0.2. In Section 5, crank the array to 70 pulsars and watch a curve emerge from what looked like noise.</p>
+  </div>
+</section>
+
+<!-- ===================== QUIZ ===================== -->
+<section class="chapter" id="quiz">
+  <span class="era">check yourself</span>
+  <h2>Test yourself</h2>
+  <div class="quiz-head">
+    <div class="quiz-score">Score <b><span id="qz_score">0</span></b> / <span id="qz_total">0</span></div>
+    <div class="quiz-bar"><i id="qz_fill"></i></div>
+    <button class="quiz-reset" id="qz_reset">Reset</button>
+  </div>
+  <div id="qz_root"></div>
+
+  <h3 class="subhead"><span class="n">§</span>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A gravitational wave with strain $h = 1.0\times10^{-21}$ passes through LIGO ($L = 4$ km). What arm-length change must be measured, and how does it compare to a proton (diameter $\sim1.7\times10^{-15}$ m)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Length change.</b> $\Delta L = h\,L = (1.0\times10^{-21})(4\times10^{3}\,\mathrm{m}) = 4\times10^{-18}$ m.</li>
+          <li><b>Compare.</b> $\Delta L / d_p = 4\times10^{-18} / 1.7\times10^{-15} \approx 1/425$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $4\times10^{-18}$ m — roughly a <b>thousandth of a proton's width</b>. This is why the arms are kilometers long and the light is folded ~300× within them.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Compute the chirp mass $\mathcal{M} = (m_1 m_2)^{3/5}/(m_1+m_2)^{1/5}$ for GW150914 ($m_1 = 36$, $m_2 = 29$ M☉), and for the Hulse–Taylor pulsar ($1.44$ and $1.39$ M☉).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>GW150914.</b> $m_1 m_2 = 1044$; $(1044)^{3/5} = e^{0.6\ln 1044} \approx 64.6$. $(65)^{1/5} \approx 2.30$. $\mathcal{M} \approx 64.6/2.30 \approx 28$ M☉.</li>
+          <li><b>Hulse–Taylor.</b> $m_1 m_2 = 2.00$; $(2.00)^{3/5} \approx 1.52$. $(2.83)^{1/5} \approx 1.23$. $\mathcal{M} \approx 1.24$ M☉.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $\mathcal{M} \approx 28$ M☉ vs. $\approx 1.2$ M☉. The chirp mass is the single number the waveform's sweep rate measures — it is why LIGO could immediately say "these are not neutron stars."</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> PSR B1913+16's orbital period ($P_b = 27{,}907$ s) shrinks at $\dot P_b = -2.40\times10^{-12}$. How much shorter is the period after one year, and roughly how early does periastron arrive after 30 years of accumulation? (Use $\Delta t \approx \tfrac12 (\dot P_b / P_b)\, T^2$.)</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Per year.</b> $\Delta P_b = \dot P_b \times 3.156\times10^{7}\,\mathrm{s} = -7.6\times10^{-5}$ s ≈ <b>−76 µs per year</b>.</li>
+          <li><b>Cumulative shift.</b> $T = 30$ yr $= 9.47\times10^{8}$ s. $\Delta t \approx \tfrac12 \times (2.40\times10^{-12}/27907) \times (9.47\times10^{8})^2 \approx 38.5$ s early.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> ~76 µs/yr of period change — invisible directly — accumulating quadratically to a periastron arriving <b>~40 seconds early after three decades</b>. Tiny rate, unmistakable integral: the entire experimental strategy in one number.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== APPENDIX — THE REAL DATA ===================== -->
+<section class="chapter hist" id="appendix">
+  <span class="era">appendix · the analysis, reproduced</span>
+  <h2>The Hulse–Taylor result, rebuilt from the raw Arecibo data</h2>
+  <p class="who">Five figures from <span class="fileref">hulse_taylor_binary_pulsar.ipynb</span> — every plot in this appendix is computed from real measurements, not formulas</p>
+
+  <p>Everything above this point is drawn live from the leading-order relativistic formulas. This appendix is different: these five figures come from re-running the actual analysis on the actual data — the <b>9,257 Arecibo pulse times of arrival</b> spanning 1981–2012, published open-access by <a class="inline" href="https://arxiv.org/abs/1606.02744" target="_blank" rel="noopener">Weisberg &amp; Huang (2016)</a> and fit with the modern pulsar-timing package <a class="inline" href="https://github.com/nanograv/PINT" target="_blank" rel="noopener">PINT</a>. Each figure is one step in a chain of hypothesis and test: what was assumed, what was proposed, why the test would be decisive, and what the data said. The chain matters — each step's <i>finding</i> becomes the next step's <i>assumption</i>, and by the last figure there are no free parameters left at all.</p>
+
+  <div class="mathnote">
+    <h4>Sidebar — what a residual is, and why everything below lives in them</h4>
+    <p><b>What a residual is.</b> The timing model is a formula that predicts, for every numbered pulse — all ~5 billion of them across 31 years — the exact instant it should arrive at the telescope. A <b>residual</b> is simply <i>observed minus predicted</i>: how early or late a pulse actually showed up. Each dot in the figures below is the model's error on one measurement. "No patterns" means the model has nothing left to explain; any structure — a slope, a wave, a curve — is physics the model is missing.</p>
+    <p><b>Why work in residuals instead of raw arrival times?</b> First, dynamic range: the raw arrival times span 31 years (~10⁹ s) but are measured to microseconds — parts in 10¹⁵. No plot, and no eye, can see a microsecond riding on a decade. Subtracting the model strips away the enormous part you already understand and leaves only the tiny part you don't, magnified to fill the whole axis. Second — and this is the real reason timing is built on them — <b>every piece of physics leaves its own signature shape</b> in the residuals: a wrong spin period tilts them into a straight line; a wrong sky position injects a one-year sine wave (Earth's orbit is being corrected for imperfectly); an unmodeled companion writes a repeating sawtooth at the orbital period; orbital decay bends them into a parabola. Fitting a pulsar <i>means</i> adjusting parameters until every one of those shapes vanishes. And the logic runs backwards too: <b>delete</b> a term from the model and its full signal reappears in the residuals, alone and uncontaminated — exactly the trick A.2 uses to exhibit the orbit and A.5 uses to exhibit the decay.</p>
+    <p><b>The null — if A.1's residuals had shown a pattern.</b> Then the model would be incomplete, and every alternative explanation would still be alive. An annual wobble would say the astrometry is wrong; extra scatter appearing only in some eras would say instrumental offsets are being mishandled; a slow random wander would say the pulsar's own clock is unstable — "timing noise," common in young pulsars. That last one is the killer: a clock that drifts on its own cannot testify about gravitational waves, because a decay signature of a few seconds accumulated over decades could then be dismissed as clock wander. The flat 17-µs band is what forecloses those escapes. It certifies clock, model, and instruments all at once — so when a pattern <i>does</i> appear after a term is deliberately removed, that pattern must belong to the removed term and nothing else.</p>
+    <p>Notice the inversion, though: patterns in residuals are not failures — <b>unexplained</b> patterns are. The discovery itself is a residual pattern: hold $\dot P_b = 0$ in the model and the residuals grow the quadratic signature of A.5. The whole game is moving structure, one piece at a time, from the unexplained column to the explained one — until what remains is noise.</p>
+  </div>
+
+  <!-- ---------- A.1 ---------- -->
+  <h3 class="subhead"><span class="n">A.1</span> First, trust the clock — the timing residuals</h3>
+  <div class="beats">
+    <div class="beat known"><div class="tag">Assumed</div><p>A pulsar is a stable rotator, so every pulse's arrival time should be fully described by a physical model: spin-down + Earth's motion + a Keplerian orbit + three general-relativistic corrections ($\dot\omega$, time dilation $\gamma$, orbital decay $\dot P_b$). Nothing else.</p></div>
+    <div class="beat idea"><div class="tag">Proposed test</div><p>Subtract that model's predicted arrival times from all 9,257 measured ones. <b>Rationale:</b> if the assumption holds, what remains (the "residuals") must be pure structureless noise — any wobble, drift, or curve left over would be physics missing from the model.</p></div>
+    <div class="beat test"><div class="tag">The test</div><p>Fit the published timing solution with PINT and plot residuals across all 31 years, colored by receiver era (the instrumentation was upgraded repeatedly from Mark&nbsp;I to WAPP).</p></div>
+  </div>
+  <figure>
+    <img class="nbfig" src="ht_figs/ht_fig1_residuals.png" alt="Timing residuals of the full relativistic model for PSR B1913+16: 9,257 points from 1981 to 2012 scattering flatly around zero within about ±100 microseconds, colored by receiver era, with weighted RMS of 17 microseconds." loading="lazy">
+    <figcaption><b>A flat band of noise — which is the triumph.</b> Thirty-one years of residuals show no structure, with a weighted RMS of <b>17.4 µs</b> (the published value: 16.3 µs). The model is predicting the arrival of pulse number ~5×10⁹ across three decades to a few parts in 10¹².</figcaption>
+  </figure>
+  <div class="beats" style="margin-top:14px">
+    <div class="beat found"><div class="tag">Found</div><p>The clock and the model are both good. This is the foundation everything else stands on: with residuals this clean, any effect deliberately <i>removed</i> from the model will reappear in the residuals at full strength, uncontaminated — which is exactly the trick the next figure plays.</p></div>
+  </div>
+
+  <!-- ---------- A.2 ---------- -->
+  <h3 class="subhead"><span class="n">A.2</span> The wandering period is an orbit — the folded Rømer delay</h3>
+  <div class="beats">
+    <div class="beat known"><div class="tag">Assumed (1974)</div><p>Hulse's problem: the new pulsar's period drifted by tens of µs from day to day. Either the clock is broken — no pulsar had ever misbehaved like this — or the clock is fine and something is <i>moving</i> it.</p></div>
+    <div class="beat idea"><div class="tag">Hypothesis</div><p>The pulsar is in a binary. Its ticks arrive early when it is on the near side of the orbit and late on the far side — light-travel time across the orbit (the <b>Rømer delay</b>), plus Doppler. <b>Rationale:</b> a real orbit is strictly periodic, so residuals folded at the orbital period should collapse onto one repeating curve — from any year, any instrument. A broken clock would never do that.</p></div>
+    <div class="beat test"><div class="tag">The test</div><p>Keep every pulse correctly numbered using the full model, then <b>delete the binary from the model entirely</b>. The orbit reappears in the residuals at full strength. Fold all 31 years on the 7.75-hour period.</p></div>
+  </div>
+  <figure>
+    <img class="nbfig" src="ht_figs/ht_fig2_folded_orbit.png" alt="Orbital delay versus orbital phase: 31 years of residuals folded on the 7.75-hour orbital period collapse onto a single smooth asymmetric curve with amplitude of about 2 seconds, colored by year, with the curve's shape drifting gradually with color." loading="lazy">
+    <figcaption><b>One 7.75-hour orbit, assembled from 31 years of pulses.</b> The fold works: three decades of data trace a single coherent delay curve with half-amplitude $a_1 \sin i/c = 2.34$ s. The sharp asymmetry <i>is</i> the eccentricity ($e = 0.617$): the pulsar tears through periastron (phase 0) and loiters at apastron. And one more thing hides in plain sight — the color.</figcaption>
+  </figure>
+  <div class="beats" style="margin-top:14px">
+    <div class="beat found"><div class="tag">Found</div><p>The orbit is real: period 7.75 hr, projected size 2.34 light-seconds, eccentricity 0.617. But the collapse is not perfect — the curve's <b>shape drifts smoothly with year</b> (the color gradient). In Newtonian gravity that should not happen. That imperfection is the next discovery.</p></div>
+  </div>
+
+  <!-- ---------- A.3 ---------- -->
+  <h3 class="subhead"><span class="n">A.3</span> The orbit itself turns — periastron advance</h3>
+  <div class="beats">
+    <div class="beat known"><div class="tag">Assumed (Newton)</div><p>Two point masses trace a closed ellipse whose orientation $\omega$ is fixed forever. Fold the orbit in 1981 or in 2012 — the curve should be identical.</p></div>
+    <div class="beat idea"><div class="tag">Hypothesis (GR)</div><p>General relativity says the ellipse itself must precess: for these masses and this orbit, $\dot\omega = 4.2°$ per year. <b>Rationale:</b> this is the same physics as Mercury's famous 43″-per-<i>century</i> perihelion advance, but ~35,000× faster — so folds from different decades should have visibly different shapes, and the size of the shift measures the total mass of the system.</p></div>
+    <div class="beat test"><div class="tag">The test</div><p>Split the folded delay curve of A.2 into two widely separated eras — 1981–84 and 2009–13 — and overplot them.</p></div>
+  </div>
+  <figure>
+    <img class="nbfig" src="ht_figs/ht_fig3_periastron_advance.png" alt="Two folded orbital delay curves overplotted: blue points from 1981-1984 and red points from 2009-2013 form clearly different curve shapes, because the orbit's periastron angle advanced by roughly 120 degrees between the two eras." loading="lazy">
+    <figcaption><b>Same orbit, different decade, different shape.</b> Blue (1981–84) and red (2009–13) are the same binary folded the same way — but in the 28 years between them the orbit's orientation swung by ~120°. B1913+16 accumulates Mercury's century of precession roughly every 100 minutes.</figcaption>
+  </figure>
+  <div class="beats" style="margin-top:14px">
+    <div class="beat found"><div class="tag">Found</div><p>Periastron advances at $4.2266°$/yr — relativistic observable #1. Combined with the time-dilation parameter $\gamma$ (observable #2), it pins both masses: <b>$m_1 = 1.438$, $m_2 = 1.390$ M☉</b>, among the most precise stellar masses ever measured. Crucially, this means the gravitational-wave prediction in A.5 will have <b>zero adjustable parameters</b>.</p></div>
+  </div>
+
+  <!-- ---------- A.4 ---------- -->
+  <h3 class="subhead"><span class="n">A.4</span> The 1975 discovery plot — the velocity curve</h3>
+  <div class="beats">
+    <div class="beat known"><div class="tag">Assumed</div><p>The spectroscopic-binary toolkit — velocity curve → orbital elements → mass function — works whenever you can measure line-of-sight velocity. Here the "spectral line" is the 59-ms pulse period itself, Doppler-shifted to $P = P_0(1 + v_r/c)$.</p></div>
+    <div class="beat idea"><div class="tag">Proposed test</div><p>The radial velocity is the time-derivative of the delay curve: $v_r = c\,\mathrm{d}\Delta_R/\mathrm{d}t$. Differentiate the folded orbit to recover the exact figure Hulse &amp; Taylor published in 1975. <b>Rationale:</b> a sanity anchor — the modern 9,257-TOA dataset should contain the original discovery result within it, and Kepler caps how fast the star may ever appear to move ($|v_r| \le K(1+e) = 325$ km/s), a built-in cross-check.</p></div>
+    <div class="beat test"><div class="tag">The test</div><p>Use only the dense 2003–04 campaigns (~1,500 TOAs) so that periastron precession doesn't smear the fold; bin the delay curve and differentiate numerically.</p></div>
+  </div>
+  <figure>
+    <img class="nbfig" src="ht_figs/ht_fig4_velocity_curve.png" alt="Two stacked panels sharing an orbital-phase axis: the top shows the binned orbital delay curve; the bottom shows the derived radial velocity swinging sharply from about +274 to -136 kilometers per second near periastron, with a secondary axis giving the equivalent apparent pulse period in milliseconds." loading="lazy">
+    <figcaption><b>The Hulse–Taylor velocity curve, from the delay's slope.</b> Top: the binned delay of one orbit. Bottom: its derivative — the pulsar's radial velocity, swinging from <b>+274 to −136 km/s</b> in a fraction of the 7.75-hour orbit. The right-hand axis is the same curve in Hulse's original units: apparent pulse period.</figcaption>
+  </figure>
+  <div class="beats" style="margin-top:14px">
+    <div class="beat found"><div class="tag">Found</div><p>A neutron star swinging by ~0.1% of the speed of light twice every eight hours (a solar-type spectroscopic binary manages tens of km/s), safely inside the Kepler cap of 325 km/s. The curve yields the mass function $f(m) = 0.132$ M☉ — the 1975 paper, recovered from the modern data, and the starting point for everything relativistic.</p></div>
+  </div>
+
+  <!-- ---------- A.5 ---------- -->
+  <h3 class="subhead"><span class="n">A.5</span> The verdict — the orbital-decay parabola</h3>
+  <div class="beats">
+    <div class="beat known"><div class="tag">The fork</div><p><b>Newton:</b> the orbital period is constant; periastron arrives on schedule forever — a flat line. <b>GR:</b> the orbit radiates gravitational waves, and the quadrupole formula with the A.3 masses plugged in predicts $\dot P_b = -2.4021\times10^{-12}$ — about 76 µs lost per year, with <b>no free parameters</b>.</p></div>
+    <div class="beat idea"><div class="tag">Proposed test</div><p>76 µs/yr on an 8-hour orbit is unmeasurable directly. <b>Rationale:</b> but if each orbit is a hair shorter than the last, periastron arrives earlier and earlier, and the offset compounds <i>quadratically</i>: $\Delta t = \tfrac12(\dot P_b/P_b)\,t^2$. Wait decades, and an invisible rate becomes an unmissable parabola — patience is the instrument.</p></div>
+    <div class="beat test"><div class="tag">The test</div><p>Split the data into observing campaigns. For each, take the model but <b>force $\dot P_b = 0$</b> and refit only the periastron time $T_0$ — so each campaign independently reports when periastron <i>actually</i> happened versus a decay-free orbit. GR never touches the measured points; it enters only as the overlaid curve.</p></div>
+  </div>
+  <figure>
+    <img class="nbfig" src="ht_figs/ht_fig5_decay_parabola.png" alt="Cumulative periastron time shift versus year from 1981 to 2012: red measured points with error bars fall along a downward-curving blue parabola labeled as the general relativity prediction for gravitational-wave emission, reaching roughly minus 45 seconds by 2012." loading="lazy">
+    <figcaption><b>The famous parabola, rebuilt from scratch.</b> Red points: measured periastron arrival shifts, one per campaign, no GR input. Blue curve: general relativity's zero-free-parameter prediction for energy carried off by gravitational waves. Three decades of measurements ride the curve.</figcaption>
+  </figure>
+  <div class="beats" style="margin-top:14px">
+    <div class="beat found"><div class="tag">Found</div><p>The notebook's simple campaign-split analysis measures $\dot P_b = -2.4233\times10^{-12}$ — matching GR at the <b>~1% level</b>; the full published analysis, after correcting for the Galaxy's differential acceleration of pulsar and Sun, gets $\dot P_b^{\rm obs}/\dot P_b^{\rm GR} = 0.9983 \pm 0.0016$. The system is radiating ~7×10²⁴ W as spacetime ripples and will merge in ~300 Myr.</p></div>
+  </div>
+
+  <div class="deriv">
+    <h4>The chain, end to end</h4>
+    <p class="lead">Why the appendix figures are one argument, not five plots:</p>
+    <ol>
+      <li><b>A.1</b> establishes the instrument: the pulsar plus its timing model predict 5 billion pulse arrivals to 17 µs — so anything removed from the model reappears in the residuals cleanly.</li>
+      <li><b>A.2</b> uses that trick to prove the period wandering is an orbit, and reads off its size, period, and eccentricity.</li>
+      <li><b>A.3</b> catches the orbit precessing at 4.2°/yr — a purely relativistic effect that, with time dilation, weighs both stars.</li>
+      <li><b>A.4</b> recovers the original 1975 velocity-curve discovery from within the modern data, cross-checked against Kepler.</li>
+      <li><b>A.5</b> plugs the A.3 masses into the quadrupole formula — no knobs left — and the measured periastron shifts land on the predicted parabola.</li>
+    </ol>
+    <div class="concl"><b>The verdict:</b> assumption by assumption, the data force the conclusion — the orbit is losing energy at exactly the rate gravitational waves would carry it away. This parabola is why, decades before LIGO fired a laser, physicists were confident the waves were there to catch.</div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>Gravitational Waves</b> — an interactive companion. The Doppler curves, decay parabola, chirp waveforms, and Hellings–Downs statistics are computed live from the leading-order general-relativistic formulas. The appendix figures are the output of <span class="fileref">hulse_taylor_binary_pulsar.ipynb</span>: the real 9,257 Arecibo TOAs of PSR B1913+16 (1981–2012; Weisberg &amp; Huang 2016, <a class="inline" href="https://doi.org/10.5281/zenodo.54764" target="_blank" rel="noopener">doi:10.5281/zenodo.54764</a>, CC0) analyzed with PINT.</p>
+  <p style="margin-top:8px"><b>Key numbers:</b> PSR B1913+16 — pulse period 59.03 ms, orbital period 7.75 hr, $e = 0.617$, periastron advance 4.2°/yr, $\dot P_b = -2.40\times10^{-12}$ (GR agreement ~0.2%), Nobel 1993. GW150914 — detected 14 Sep 2015, masses 36 + 29 → 62 M☉ (3 M☉ radiated), peak strain $1.0\times10^{-21}$, distance ~410 Mpc, Nobel 2017. NANOGrav 15-yr evidence for the nanohertz background announced June 2023. Sources: <a class="inline" href="https://en.wikipedia.org/wiki/Hulse%E2%80%93Taylor_pulsar" target="_blank" rel="noopener">Hulse–Taylor pulsar</a>; <a class="inline" href="https://en.wikipedia.org/wiki/GW150914" target="_blank" rel="noopener">GW150914</a>; <a class="inline" href="https://en.wikipedia.org/wiki/Pulsar_timing_array" target="_blank" rel="noopener">Pulsar timing arrays</a>. Siblings: the <a class="inline" href="blackholes_companion.html">black holes</a> and <a class="inline" href="mercury_vulcan_companion.html">Mercury &amp; Vulcan</a> companions.</p>
+</footer>
+
+<!-- =======================================================================
+     SHARED HELPERS
+======================================================================= -->
+<script>
+const COL={cyan:'#3fd0ff', amber:'#ffb24a', violet:'#b08cff', rose:'#ff6b9d', green:'#5ee6a8', ink:'#e8ecff', muted:'#9aa3c7', gold:'#ffd24a', navy:'#5b7cff'};
+const PCFG={responsive:true, displayModeBar:false};
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:56,r:14,t:14,b:46},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest'
+  }, extra||{});
+}
+// solve Kepler's equation E - e sin E = M  (radians)
+function keplerE(M,e){
+  let E=M;
+  for(let i=0;i<24;i++){ E = E - (E - e*Math.sin(E) - M)/(1 - e*Math.cos(E)); }
+  return E;
+}
+</script>
+
+<!-- =======================================================================
+     SECTION 1 — HULSE–TAYLOR PULSE-PERIOD CURVE
+======================================================================= -->
+<script>
+(function(){
+  const slE=document.getElementById('ht_e'), slW=document.getElementById('ht_w');
+  const P0=59.03;               // ms rest pulse period
+  const KB=158.1;               // km/s = 2π a1 sin i / Pb  (e-independent part)
+  const c=299792.458;           // km/s
+  function draw(){
+    const e=+slE.value, wDeg=+slW.value, w=wDeg*Math.PI/180;
+    document.getElementById('ht_elbl').textContent=e.toFixed(3);
+    document.getElementById('ht_wlbl').textContent=wDeg;
+    const K=KB/Math.sqrt(1-e*e);
+    // radial velocity vs orbital phase (mean anomaly)
+    const ph=[], pp=[], vr=[];
+    let vmax=0, dpmax=0;
+    for(let i=0;i<=400;i++){
+      const M=i/400*2*Math.PI;
+      const E=keplerE(M,e);
+      const nu=2*Math.atan2(Math.sqrt(1+e)*Math.sin(E/2), Math.sqrt(1-e)*Math.cos(E/2));
+      const v=K*(Math.cos(nu+w)+e*Math.cos(w));
+      const dP=P0*(v/c)*1000;   // µs
+      ph.push(i/400); vr.push(v); pp.push(dP);
+      if(Math.abs(v)>vmax)vmax=Math.abs(v);
+      if(Math.abs(dP)>dpmax)dpmax=Math.abs(dP);
+    }
+    document.getElementById('ht_dp').textContent='±'+dpmax.toFixed(0);
+    document.getElementById('ht_vmax').textContent=vmax.toFixed(0);
+    Plotly.react('ht_plot',[
+      {x:ph,y:pp,mode:'lines',line:{color:COL.amber,width:2.4},hovertemplate:'phase %{x:.2f}: %{y:+.1f} µs<extra></extra>'},
+      {x:[0,1],y:[0,0],mode:'lines',line:{color:'rgba(154,163,199,0.4)',width:1,dash:'dot'},hoverinfo:'skip'}
+    ],baseLayout({
+      xaxis:{title:'orbital phase',range:[0,1]},
+      yaxis:{title:'pulse-period shift (µs)'}
+    }),PCFG);
+    // the orbit itself (relative orbit, companion at focus)
+    const xs=[],ys=[];
+    for(let i=0;i<=360;i++){
+      const nu=i*Math.PI/180;
+      const r=(1-e*e)/(1+e*Math.cos(nu));
+      xs.push(r*Math.cos(nu+w)); ys.push(r*Math.sin(nu+w));
+    }
+    const rp=1-e;
+    const lim=(1+e)*1.15;
+    Plotly.react('ht_orbplot',[
+      {x:xs,y:ys,mode:'lines',line:{color:COL.cyan,width:2},hoverinfo:'skip'},
+      {x:[0],y:[0],mode:'markers',marker:{color:COL.violet,size:13,line:{color:'#fff',width:1}},hovertemplate:'companion neutron star<extra></extra>'},
+      {x:[rp*Math.cos(w)],y:[rp*Math.sin(w)],mode:'markers+text',marker:{color:COL.amber,size:10,line:{color:'#fff',width:1}},text:['periastron'],textposition:'top center',textfont:{size:10,color:COL.amber},hoverinfo:'skip'}
+    ],baseLayout({
+      xaxis:{scaleanchor:'y',range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'},
+      yaxis:{range:[-lim,lim],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'}
+    }),PCFG);
+  }
+  slE.addEventListener('input',draw);
+  slW.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 2 — CUMULATIVE PERIASTRON SHIFT (decay parabola)
+======================================================================= -->
+<script>
+(function(){
+  const slY=document.getElementById('dk_y');
+  const Pb=27906.98, Pbdot=-2.402e-12, SPY=3.156e7;
+  function shift(tYr){ const T=tYr*SPY; return 0.5*(Pbdot/Pb)*T*T; }   // seconds (negative = early)
+  // fixed pseudo-noise for the "data points" (stable across redraws)
+  const noise=[]; let s=12345;
+  for(let i=0;i<40;i++){ s=(s*16807)%2147483647; noise.push((s/2147483647-0.5)*0.5); }
+  function draw(){
+    const Y=+slY.value;
+    document.getElementById('dk_ylbl').textContent=Y;
+    document.getElementById('dk_shift').textContent=shift(Y).toFixed(1);
+    const gx=[],gy=[];
+    for(let t=0;t<=Y;t+=Y/200){ gx.push(1975+t); gy.push(shift(t)); }
+    const dx=[],dy=[];
+    for(let t=1;t<=Y;t+=2){ dx.push(1975+t); dy.push(shift(t)+noise[Math.floor(t/2)]*(0.3+t*0.02)); }
+    Plotly.react('dk_plot',[
+      {x:[1975,1975+Y],y:[0,0],mode:'lines',line:{color:'#fff',width:1.6,dash:'dash'},hovertemplate:'Newton: no decay<extra></extra>'},
+      {x:gx,y:gy,mode:'lines',line:{color:COL.amber,width:2.4},hovertemplate:'GR: %{y:.1f} s<extra></extra>'},
+      {x:dx,y:dy,mode:'markers',marker:{color:COL.cyan,size:6,line:{color:'#fff',width:0.8}},hovertemplate:'%{x:.0f}: %{y:.1f} s<extra></extra>'}
+    ],baseLayout({
+      xaxis:{title:'year'},
+      yaxis:{title:'cumulative periastron shift (s)'},
+      annotations:[
+        {x:1975+Y*0.75,y:0,text:'Newtonian gravity (stable orbit)',showarrow:false,yshift:12,font:{color:'#fff',size:11}},
+        {x:1975+Y*0.82,y:shift(Y*0.86),text:'general relativity',showarrow:false,xanchor:'right',xshift:-8,font:{color:COL.amber,size:11}}
+      ]
+    }),PCFG);
+    const v=document.getElementById('dk_verdict');
+    if(Y<10){ v.className='verdict bad'; v.innerHTML=`<b>Too early to tell.</b> After ${Y} years the accumulated shift is only ${Math.abs(shift(Y)).toFixed(1)} s and the data cannot cleanly separate Newton from Einstein. Keep timing.`; }
+    else { v.className='verdict good'; v.innerHTML=`<b>Newton is ruled out.</b> After ${Y} years periastron arrives ${Math.abs(shift(Y)).toFixed(1)} s early — squarely on the general-relativity parabola. The orbit is losing energy at exactly the rate gravitational waves must carry it away. Hulse and Taylor received the 1993 Nobel Prize.`; }
+  }
+  slY.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 1b — LIGHTHOUSE BEAM ANIMATION (adapted from the radio companion)
+======================================================================= -->
+<script>
+(function(){
+  const pEl=document.getElementById('lh2_p'); if(!pEl) return;
+  const bwEl=document.getElementById('lh2_bw'),
+        pL=document.getElementById('lh2_pl'), bwL=document.getElementById('lh2_bwl'),
+        spO=document.getElementById('lh2_sp'), tpsO=document.getElementById('lh2_tps'),
+        dtO=document.getElementById('lh2_dt'), dutyO=document.getElementById('lh2_duty'),
+        cv=document.getElementById('lh2_canvas'), x=cv.getContext('2d');
+  const DT=0.004;                      // sim seconds advanced per frame (~4x slow motion)
+  const NS=300;                        // pulse-strip history length
+  const wrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
+  let theta=0, samples=new Array(NS).fill(0);
+  let W=900, H=360, dpr=1, narrow=false;
+  function fit(){
+    const cssW = cv.clientWidth || (cv.parentElement&&cv.parentElement.clientWidth) || 900;
+    narrow = cssW < 560;
+    W = cssW;
+    H = narrow ? Math.round(cssW*0.94) : Math.round(cssW*0.40);
+    dpr = Math.min(window.devicePixelRatio||1, 2);
+    cv.style.height = H+'px';
+    cv.width  = Math.round(W*dpr);
+    cv.height = Math.round(H*dpr);
+  }
+
+  function frame(){
+    const P=+pEl.value, Wb=+bwEl.value;
+    const rho=(Wb/2)*Math.PI/180;
+    const duty=Wb/360, dt=duty*P;
+    pL.textContent=(P*1000).toFixed(0)+' ms'; bwL.textContent=Wb.toFixed(0)+'°';
+    spO.textContent=(P*1000).toFixed(0);
+    tpsO.textContent=(1/P).toFixed(P<0.2?0:1);
+    dtO.textContent=(dt*1000).toFixed(1);
+    dutyO.textContent=(duty*100).toFixed(1);
+
+    // advance spin with sub-steps so fast spins never skip past Earth
+    const dth=2*Math.PI*DT/P, nsub=Math.max(1,Math.ceil(dth/0.02));
+    let inten=0;
+    for(let k=1;k<=nsub;k++){
+      const d=Math.abs(wrap(theta+dth*k/nsub));
+      if(d<rho) inten=Math.max(inten, Math.pow(Math.cos(d/rho*Math.PI/2),2));
+    }
+    theta=wrap(theta+dth);
+    samples.push(inten); samples.shift();
+
+    x.setTransform(dpr,0,0,dpr,0,0);
+    x.clearRect(0,0,W,H);
+
+    let sx,sy,sw,sh, gx0,gx1,gTop,gBase;
+    if(narrow){
+      sx=0; sy=0; sw=W; sh=Math.round(H*0.58);
+      gx0=40; gx1=W-14; gTop=sh+26; gBase=H-22;
+    } else {
+      sh=H; sw=Math.min(H*1.05, W*0.44); sx=0; sy=0;
+      gx0=sw+30; gx1=W-24; gTop=54; gBase=H-56;
+    }
+    const cx=sx+sw*0.34, cy=sy+sh*0.5;
+    const L=Math.min(sw*0.55, sh*0.44);
+    const eX=cx+L*0.99, eY=cy;
+    const starR=Math.max(9, Math.min(16, L*0.11));
+    const F=Math.max(10, Math.round(Math.min(W,900)*0.013));
+    x.font=F+'px -apple-system';
+
+    /* sky view, looking down the spin axis */
+    x.strokeStyle='rgba(140,160,230,0.18)'; x.lineWidth=1.2; x.setLineDash([3,5]);
+    x.beginPath(); x.arc(cx,cy,L,0,7); x.stroke(); x.setLineDash([]);
+    x.strokeStyle='rgba(63,208,255,0.35)'; x.lineWidth=1.3; x.setLineDash([5,5]);
+    x.beginPath(); x.moveTo(cx,cy); x.lineTo(eX,eY); x.stroke(); x.setLineDash([]);
+    x.strokeStyle='rgba(176,140,255,0.5)'; x.lineWidth=1.4;
+    x.beginPath();
+    x.moveTo(cx-Math.cos(theta)*(starR+8), cy-Math.sin(theta)*(starR+8));
+    x.lineTo(cx+Math.cos(theta)*(L-4), cy+Math.sin(theta)*(L-4));
+    x.stroke();
+    const gc=x.createRadialGradient(cx,cy,starR*0.6,cx,cy,L);
+    gc.addColorStop(0,'rgba(255,107,157,0.85)');
+    gc.addColorStop(1,'rgba(176,140,255,0.05)');
+    x.fillStyle=gc;
+    x.beginPath(); x.moveTo(cx,cy); x.arc(cx,cy,L,theta-rho,theta+rho); x.closePath(); x.fill();
+    x.fillStyle='#eaf0ff'; x.beginPath(); x.arc(cx,cy,starR,0,7); x.fill();
+    x.strokeStyle='#b08cff'; x.lineWidth=2; x.beginPath(); x.arc(cx,cy,starR,0,7); x.stroke();
+    if(inten>0.02){
+      const rr=starR*0.5+6+inten*10;
+      x.strokeStyle='rgba(63,208,255,'+(0.5*inten)+')'; x.lineWidth=2;
+      x.beginPath(); x.arc(eX,eY,rr,0,7); x.stroke();
+    }
+    x.fillStyle = inten>0.02 ? '#8fe3ff' : '#2c6f8c';
+    x.beginPath(); x.arc(eX,eY,7,0,7); x.fill();
+    x.strokeStyle='#05060d'; x.lineWidth=2; x.beginPath(); x.arc(eX,eY,7,0,7); x.stroke();
+    x.fillStyle='#9aa3c7'; x.textAlign='left'; x.fillText('down the spin axis', sx+8, sy+F+6);
+    x.fillStyle='#3fd0ff'; x.textAlign='center'; x.fillText('Earth', eX, eY+starR+F+2);
+    const tipx=cx+Math.cos(theta)*(L*0.6), tipy=cy+Math.sin(theta)*(L*0.6);
+    x.fillStyle='rgba(255,107,157,0.9)'; x.fillText('beam', tipx, tipy);
+
+    /* received-signal strip */
+    const span=gx1-gx0, hgt=gBase-gTop;
+    x.strokeStyle='rgba(140,160,230,0.30)'; x.lineWidth=1.2;
+    x.beginPath(); x.moveTo(gx0,gBase); x.lineTo(gx1,gBase); x.stroke();
+    x.beginPath(); x.moveTo(gx0,gTop-6); x.lineTo(gx0,gBase); x.stroke();
+    x.beginPath(); x.moveTo(gx0,gBase);
+    for(let i=0;i<NS;i++){ const px=gx0+span*(i/(NS-1)), py=gBase-samples[i]*hgt; x.lineTo(px,py); }
+    x.lineTo(gx1,gBase); x.closePath();
+    x.fillStyle='rgba(255,107,157,0.18)'; x.fill();
+    x.beginPath();
+    for(let i=0;i<NS;i++){ const px=gx0+span*(i/(NS-1)), py=gBase-samples[i]*hgt; i?x.lineTo(px,py):x.moveTo(px,py); }
+    x.strokeStyle='#ff6b9d'; x.lineWidth=2; x.stroke();
+    x.strokeStyle='rgba(63,208,255,0.55)'; x.lineWidth=1.4; x.setLineDash([3,4]);
+    x.beginPath(); x.moveTo(gx1,gTop-6); x.lineTo(gx1,gBase); x.stroke(); x.setLineDash([]);
+    x.fillStyle='#9aa3c7'; x.textAlign='left';
+    x.fillText('signal received at Earth', gx0, gTop-10);
+    x.fillText('time →', gx0, gBase+16);
+    x.textAlign='right'; x.fillStyle='#3fd0ff'; x.fillText('now', gx1, gTop-10);
+
+    requestAnimationFrame(frame);
+  }
+  fit();
+  let rt; window.addEventListener('resize',()=>{ clearTimeout(rt); rt=setTimeout(fit,150); });
+  frame();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 3 — LIGO RING + OUTPUT PORT
+======================================================================= -->
+<script>
+(function(){
+  const slP=document.getElementById('lg_p'), slH=document.getElementById('lg_h');
+  const btn=document.getElementById('lg_play');
+  let timer=null;
+  function draw(){
+    const p=+slP.value, h=+slH.value;
+    document.getElementById('lg_plbl').textContent=p.toFixed(2);
+    document.getElementById('lg_hlbl').textContent=h.toFixed(2);
+    const c=Math.cos(2*Math.PI*p);
+    // ring of test particles under + polarization
+    const rx=[],ry=[],r0x=[],r0y=[];
+    for(let i=0;i<=72;i++){
+      const th=i/72*2*Math.PI;
+      const x=Math.cos(th), y=Math.sin(th);
+      r0x.push(x); r0y.push(y);
+      rx.push(x*(1+h/2*c)); ry.push(y*(1-h/2*c));
+    }
+    const ax=1.35*(1+h/2*c), ay=1.35*(1-h/2*c);   // arm tips
+    Plotly.react('lg_ring',[
+      {x:r0x,y:r0y,mode:'lines',line:{color:'rgba(154,163,199,0.35)',width:1.2,dash:'dot'},hoverinfo:'skip'},
+      {x:rx,y:ry,mode:'markers',marker:{color:COL.cyan,size:6},hoverinfo:'skip'},
+      {x:[0,ax],y:[0,0],mode:'lines',line:{color:COL.amber,width:4},hoverinfo:'skip'},
+      {x:[0,0],y:[0,ay],mode:'lines',line:{color:COL.amber,width:4},hoverinfo:'skip'},
+      {x:[ax],y:[0],mode:'markers',marker:{color:COL.amber,size:9,symbol:'square'},hovertemplate:'X-arm mirror<extra></extra>'},
+      {x:[0],y:[ay],mode:'markers',marker:{color:COL.amber,size:9,symbol:'square'},hovertemplate:'Y-arm mirror<extra></extra>'},
+      {x:[0],y:[0],mode:'markers',marker:{color:'#fff',size:8},hovertemplate:'beam splitter<extra></extra>'}
+    ],baseLayout({
+      xaxis:{scaleanchor:'y',range:[-1.8,1.8],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'},
+      yaxis:{range:[-1.8,1.8],showticklabels:false,zeroline:false,gridcolor:'rgba(140,160,230,0.06)'}
+    }),PCFG);
+    // output port brightness through the cycle: I ∝ sin²(k·ΔL) ~ (h cos)² here
+    const px=[],py=[];
+    for(let i=0;i<=200;i++){
+      const q=i/200;
+      const d=h*Math.cos(2*Math.PI*q)/0.45;    // normalized differential
+      px.push(q); py.push(d*d);
+    }
+    const dNow=h*c/0.45;
+    Plotly.react('lg_out',[
+      {x:px,y:py,mode:'lines',line:{color:COL.green,width:2.2},hovertemplate:'phase %{x:.2f}: %{y:.2f}<extra></extra>'},
+      {x:[p],y:[dNow*dNow],mode:'markers',marker:{color:'#fff',size:11,line:{color:COL.green,width:2}},hovertemplate:'now<extra></extra>'}
+    ],baseLayout({
+      xaxis:{title:'wave phase (cycles)',range:[0,1]},
+      yaxis:{title:'output-port brightness',range:[-0.05,1.1]}
+    }),PCFG);
+  }
+  function stop(){ if(timer){clearInterval(timer); timer=null; btn.classList.remove('on'); btn.textContent='▶ Play wave';} }
+  btn.addEventListener('click',()=>{
+    if(timer){stop(); return;}
+    btn.classList.add('on'); btn.textContent='⏸ Pause';
+    timer=setInterval(()=>{ let p=+slP.value+0.012; if(p>1)p-=1; slP.value=p; draw(); },40);
+  });
+  slP.addEventListener('input',()=>{stop(); draw();});
+  slH.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 4 — CHIRP BUILDER
+======================================================================= -->
+<script>
+(function(){
+  const sl1=document.getElementById('ch_m1'), sl2=document.getElementById('ch_m2');
+  const TSUN=4.925e-6;          // GM☉/c³ in seconds
+  function chirpMass(m1,m2){ return Math.pow(m1*m2,0.6)/Math.pow(m1+m2,0.2); }
+  function tauOfF(f,Mc){ const tm=Mc*TSUN; return (5/256)*Math.pow(tm,-5/3)*Math.pow(Math.PI*f,-8/3); }
+  function fOfTau(tau,Mc){ const tm=Mc*TSUN; return Math.pow((5/256)/tau,3/8)*Math.pow(tm,-5/8)/Math.PI; }
+  function fMerge(mtot){ return 11600/mtot; }     // ≈ GW frequency at peak amplitude
+  function draw(){
+    const m1=+sl1.value, m2=+sl2.value, mt=m1+m2, Mc=chirpMass(m1,m2);
+    document.getElementById('ch_m1lbl').textContent=m1.toFixed(1);
+    document.getElementById('ch_m2lbl').textContent=m2.toFixed(1);
+    document.getElementById('ch_mc').textContent=Mc.toFixed(1);
+    const fm=fMerge(mt);
+    document.getElementById('ch_fisco').textContent=fm.toFixed(0);
+    const f0=30;
+    const tBand=fm>f0 ? tauOfF(f0,Mc)-tauOfF(fm,Mc) : 0;
+    document.getElementById('ch_dur').textContent= fm>f0 ? (tBand<10?tBand.toFixed(2):tBand.toFixed(0)) : '—';
+    // waveform: integrate phase from τ0 down to τ_merge, then ringdown
+    const tauM=Math.max(tauOfF(fm,Mc),1e-4);
+    const fStart=Math.max(f0, fOfTau(Math.min(tauOfF(f0,Mc),0.6),Mc));  // show at most last ~0.6 s
+    const tau0=tauOfF(fStart,Mc);
+    const N=1600, wx=[], wy=[];
+    let phi=0;
+    for(let i=0;i<=N;i++){
+      const tau=tau0-(tau0-tauM)*i/N;
+      const f=fOfTau(tau,Mc);
+      phi+=2*Math.PI*f*((tau0-tauM)/N);
+      const A=Math.pow(f/fStart,2/3);
+      wx.push(-(tau)); wy.push(A*Math.cos(phi));
+    }
+    // ringdown: damped oscillation after merger
+    const Ard=Math.pow(fm/fStart,2/3), frd=fm*1.3, tauRD=0.05*tauM+0.004;
+    for(let i=1;i<=220;i++){
+      const t=i/220*6*tauRD;
+      wx.push(-tauM+t); wy.push(Ard*Math.exp(-t/tauRD)*Math.cos(2*Math.PI*frd*t+phi));
+    }
+    Plotly.react('ch_wave',[
+      {x:wx,y:wy,mode:'lines',line:{color:COL.cyan,width:1.6},hoverinfo:'skip'}
+    ],baseLayout({
+      xaxis:{title:'time before merger (s)'},
+      yaxis:{title:'strain (arbitrary)',showticklabels:false}
+    }),PCFG);
+    // frequency vs time: user system + GW150914 reference
+    function fCurve(McX,mtX){
+      const fmX=fMerge(mtX), xa=[],ya=[];
+      const t0=tauOfF(Math.max(f0,10),McX), tM=tauOfF(fmX,McX);
+      for(let i=0;i<=200;i++){
+        const tau=t0-(t0-tM)*Math.pow(i/200,1.5);
+        xa.push(-tau); ya.push(fOfTau(tau,McX));
+      }
+      return {xa,ya};
+    }
+    const u=fCurve(Mc,mt), g=fCurve(chirpMass(36,29),65);
+    Plotly.react('ch_freq',[
+      {x:g.xa,y:g.ya,mode:'lines',line:{color:COL.amber,width:1.8,dash:'dot'},hovertemplate:'GW150914: %{y:.0f} Hz<extra></extra>'},
+      {x:u.xa,y:u.ya,mode:'lines',line:{color:COL.cyan,width:2.4},hovertemplate:'yours: %{y:.0f} Hz<extra></extra>'}
+    ],baseLayout({
+      xaxis:{title:'time before merger (s)'},
+      yaxis:{title:'GW frequency (Hz)',type:'log'}
+    }),PCFG);
+    const v=document.getElementById('ch_verdict');
+    if(Math.abs(Mc-28.1)<2.5){ v.className='verdict good'; v.innerHTML=`<b>Chirp mass ${Mc.toFixed(1)} M☉ — this is GW150914's regime.</b> A sweep this slow ending this low in frequency can only come from tens of solar masses in a region a few hundred km across: two black holes.`; }
+    else if(Mc<3){ v.className='verdict good'; v.innerHTML=`<b>Chirp mass ${Mc.toFixed(1)} M☉ — neutron-star territory.</b> Light systems chirp slowly but climb far past a kilohertz and spend ~a minute in LIGO's band. GW170817 looked like this, and ended with a flash of light as well as gravity.`; }
+    else { v.className='verdict bad'; v.innerHTML=`<b>Chirp mass ${Mc.toFixed(1)} M☉.</b> Compare your cyan curve with GW150914's amber one: heavier means a lower merger frequency and less time in band; lighter means a long, high-pitched chirp.`; }
+  }
+  sl1.addEventListener('input',draw);
+  sl2.addEventListener('input',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     SECTION 5 — HELLINGS–DOWNS
+======================================================================= -->
+<script>
+(function(){
+  const slN=document.getElementById('pt_n'), slS=document.getElementById('pt_s');
+  const btn=document.getElementById('pt_re');
+  const SLBL=['low (long campaign)','medium','high (short campaign)'];
+  const SVAL=[0.10,0.22,0.42];
+  function hd(th){ if(th<1e-6) return 0.5; const x=(1-Math.cos(th))/2; return 1.5*x*Math.log(x)-x/4+0.5; }
+  function draw(){
+    const N=+slN.value, si=+slS.value, sig=SVAL[si];
+    document.getElementById('pt_nlbl').textContent=N;
+    document.getElementById('pt_slbl').textContent=SLBL[si];
+    document.getElementById('pt_pairs').textContent=N*(N-1)/2;
+    // random pulsars on the sphere
+    const ps=[];
+    for(let i=0;i<N;i++){
+      const z=2*Math.random()-1, ph=Math.random()*2*Math.PI, r=Math.sqrt(1-z*z);
+      ps.push([r*Math.cos(ph), r*Math.sin(ph), z]);
+    }
+    const ang=[],cor=[];
+    for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+      const d=ps[i][0]*ps[j][0]+ps[i][1]*ps[j][1]+ps[i][2]*ps[j][2];
+      const th=Math.acos(Math.max(-1,Math.min(1,d)));
+      // Box–Muller noise
+      const g=Math.sqrt(-2*Math.log(Math.random()+1e-12))*Math.cos(2*Math.PI*Math.random());
+      ang.push(th*180/Math.PI); cor.push(hd(th)+sig*g);
+    }
+    // bin
+    const NB=12, bx=[],by=[],be=[];
+    for(let b=0;b<NB;b++){
+      const lo=b*180/NB, hi=(b+1)*180/NB, vals=[];
+      for(let k=0;k<ang.length;k++) if(ang[k]>=lo&&ang[k]<hi) vals.push(cor[k]);
+      if(vals.length){
+        const m=vals.reduce((a,v)=>a+v,0)/vals.length;
+        const sd=Math.sqrt(vals.reduce((a,v)=>a+(v-m)*(v-m),0)/vals.length)/Math.sqrt(vals.length);
+        bx.push((lo+hi)/2); by.push(m); be.push(sd||sig);
+      }
+    }
+    const cx=[],cy=[];
+    for(let t=0;t<=180;t++){ cx.push(t); cy.push(hd(t*Math.PI/180)); }
+    Plotly.react('pt_plot',[
+      {x:ang,y:cor,mode:'markers',marker:{color:'rgba(63,208,255,0.28)',size:4},hoverinfo:'skip'},
+      {x:cx,y:cy,mode:'lines',line:{color:COL.green,width:2.6},hovertemplate:'HD: %{y:.3f}<extra></extra>'},
+      {x:bx,y:by,error_y:{type:'data',array:be,color:'rgba(255,178,74,0.7)',thickness:1.2,width:3},mode:'markers',marker:{color:COL.amber,size:8,line:{color:'#fff',width:1}},hovertemplate:'%{x:.0f}°: %{y:.3f}<extra></extra>'},
+      {x:[0,180],y:[0,0],mode:'lines',line:{color:'rgba(154,163,199,0.4)',width:1,dash:'dot'},hoverinfo:'skip'}
+    ],baseLayout({
+      xaxis:{title:'angular separation between pulsars (°)',range:[0,180]},
+      yaxis:{title:'timing-residual correlation',range:[-0.6,1.0]}
+    }),PCFG);
+    // how well do the binned points track the curve?
+    let chi2=0,n=0;
+    for(let b=0;b<bx.length;b++){ const r=(by[b]-hd(bx[b]*Math.PI/180))/(be[b]||sig); chi2+=r*r; n++; }
+    const red=chi2/Math.max(n,1);
+    const v=document.getElementById('pt_verdict');
+    if(N>=35 && si<2){ v.className='verdict good'; v.innerHTML=`<b>The quadrupolar signature emerges.</b> With ${N} pulsars (${N*(N-1)/2} pairs) the binned correlations (amber) trace the Hellings–Downs curve: positive for nearby pairs, dipping negative near ~82°, rising again toward 180°. No clock error or Solar-System glitch produces this shape — only a gravitational-wave background does.`; }
+    else if(N<15){ v.className='verdict bad'; v.innerHTML=`<b>Too few pulsars.</b> With only ${N} pulsars (${N*(N-1)/2} pairs) the scatter swamps the curve — you could not distinguish a GW background from noise. This is why arrays spent two decades adding pulsars and observing time.`; }
+    else { v.className='verdict bad'; v.innerHTML=`<b>Suggestive, not decisive.</b> The binned points lean toward the Hellings–Downs shape but the errors are still large — roughly where the field stood before the 2023 announcements. More pulsars and lower noise sharpen it.`; }
+  }
+  slN.addEventListener('input',draw);
+  slS.addEventListener('input',draw);
+  btn.addEventListener('click',draw);
+  draw();
+})();
+</script>
+
+<!-- =======================================================================
+     QUIZ
+======================================================================= -->
+<script>
+(function(){
+  const QUIZ=[
+    {q:'What tipped off Russell Hulse that PSR B1913+16 was in a binary system?',
+     opts:['Its radio brightness varied','Its 59-ms pulse period drifted back and forth on a 7.75-hour cycle — a Doppler shift','It disappeared once per orbit','A visible companion star'],
+     a:1, e:'The pulsar clock is steady; the apparent period shifts because the pulsar alternately approaches and recedes at up to ~300 km/s. The 7.75-hour repeat is the orbital period, and the lopsided shape of the curve reveals the orbit\'s high eccentricity (e = 0.617).'},
+    {q:'What do Newtonian gravity and general relativity each predict for an isolated binary\'s orbital period over time?',
+     opts:['Both predict slow decay','Newton: constant forever; Einstein: slowly shrinking, because the orbit radiates gravitational waves','Newton: shrinking; Einstein: constant','Both predict the orbit grows'],
+     a:1, e:'This is the crucial fork. Newtonian orbits conserve energy — stable for eternity. In GR an orbiting pair radiates gravitational waves; the lost energy makes the orbit shrink and the period decrease. For PSR B1913+16 the predicted rate is −76 µs/yr, confirmed to ~0.2%.'},
+    {q:'How did a −76 µs/yr period change become measurable?',
+     opts:['With a faster stopwatch','It accumulates: each shorter orbit brings periastron earlier, and the offset grows as time squared — ~40 s early after 30 years','The pulsar brightened','It was measured in a single orbit'],
+     a:1, e:'The rate is tiny but integrates quadratically. Decades of timing produced the famous parabola of cumulative periastron shift — the general relativity prediction with no free parameters — and earned Hulse and Taylor the 1993 Nobel Prize.'},
+    {q:'What does a passing gravitational wave do to LIGO\'s two perpendicular arms?',
+     opts:['Heats them','Stretches one while squeezing the other, oscillating at the wave frequency','Pushes both the same way','Bends the laser beam'],
+     a:1, e:'The wave\'s quadrupolar strain lengthens one direction of space while shortening the perpendicular one, then swaps. The interferometer reads the arm-length difference as a brightening of its normally dark output port — for real strains of 10⁻²¹, a ΔL of ~10⁻¹⁸ m.'},
+    {q:'How did LIGO know GW150914 came from two black holes rather than neutron stars?',
+     opts:['It saw them in a telescope','The chirp mass (~30 M☉) was far above neutron-star masses, and the orbit was only ~350 km wide near merger — only black holes are that heavy and compact','Neutron stars cannot emit gravitational waves','The signal lasted too long'],
+     a:1, e:'The sweep rate of the chirp gives the chirp mass directly (~30 M☉; neutron stars top out near 2). And at 150 Hz the pair was a few hundred km apart — anything but black holes would already have merged or been torn apart.'},
+    {q:'What is the Hellings–Downs curve, and why does it matter to pulsar timing arrays?',
+     opts:['A pulsar\'s spin-down curve','The predicted correlation of timing residuals vs. angular separation between pulsar pairs — the quadrupolar fingerprint of a gravitational-wave background','A galaxy rotation curve','LIGO\'s noise spectrum'],
+     a:1, e:'A GW background correlates nearby pulsars positively, ~82°-separated pairs slightly negatively, and antipodal pairs positively again. Clock errors (flat) or ephemeris errors (dipole) cannot mimic it. NANOGrav and partner arrays reported this pattern at 3–4σ in June 2023.'},
+    {q:'Why do pulsar timing arrays hear supermassive black hole binaries when LIGO cannot?',
+     opts:['PTAs are more sensitive overall','Supermassive binaries emit at nanohertz frequencies — one cycle per years — far below LIGO\'s ~10 Hz floor, but matched to decades-long pulsar campaigns','LIGO only detects neutron stars','Radio waves travel farther'],
+     a:1, e:'Wave frequency is set by the orbit. Billion-solar-mass binaries orbit with periods of years, so their waves take years per cycle (nanohertz). No km-scale instrument can follow that; a Galaxy-sized array of pulsar clocks watched for decades can.'}
+  ];
+  const root=document.getElementById('qz_root');
+  let total=0, score=0;
+  document.getElementById('qz_total').textContent=QUIZ.length;
+  function render(){
+    root.innerHTML=''; total=0; score=0; updateBar();
+    QUIZ.forEach((item,qi)=>{
+      const card=document.createElement('div'); card.className='q-card';
+      const marks='ABCD';
+      card.innerHTML=`<p class="q-text"><span class="q-num">${qi+1}.</span>${item.q}</p>`;
+      const opts=document.createElement('div'); opts.className='q-opts';
+      item.opts.forEach((o,oi)=>{
+        const b=document.createElement('button'); b.className='q-opt';
+        b.innerHTML=`<span class="q-mark">${marks[oi]}</span>${o}`;
+        b.addEventListener('click',()=>{
+          if(card.dataset.done)return; card.dataset.done='1';
+          total++;
+          opts.querySelectorAll('.q-opt').forEach(x=>x.disabled=true);
+          opts.querySelectorAll('.q-opt')[item.a].classList.add('correct');
+          if(oi===item.a){ score++; } else { b.classList.add('wrong'); }
+          exp.classList.add('show'); updateBar();
+        });
+        opts.appendChild(b);
+      });
+      card.appendChild(opts);
+      const exp=document.createElement('div'); exp.className='q-exp'; exp.innerHTML='<b>Why:</b> '+item.e;
+      card.appendChild(exp);
+      root.appendChild(card);
+    });
+  }
+  function updateBar(){
+    document.getElementById('qz_score').textContent=score;
+    document.getElementById('qz_fill').style.width=(score/QUIZ.length*100)+'%';
+  }
+  document.getElementById('qz_reset').addEventListener('click',render);
+  render();
+})();
+</script>
+
+<!-- =======================================================================
+     Background starfield + mobile nav
+======================================================================= -->
+<script>
+(function(){
+  const cv=document.getElementById('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280, (innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2,
+      tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+<script>
+(function(){
+  var nav=document.querySelector('nav');
+  var btn=nav&&nav.querySelector('.navToggle');
+  var links=nav&&nav.querySelector('.links');
+  if(!nav||!btn||!links)return;
+  links.id=links.id||'navLinks';
+  function close(){ nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click',function(){
+    var open=nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',close); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')close(); });
+})();
+</script>
+
+<!-- =======================================================================
+   GLOSSARY DATA  (consumed by the glossary engine)
+======================================================================= -->
+<script>
+const W='https://en.wikipedia.org/wiki/';
+window.GW_GLOSS={
+  'gravitational-wave':{label:'Gravitational wave',wiki:W+'Gravitational_wave',
+    def:'A ripple in spacetime itself, radiated by accelerating masses and traveling at the speed of light. As it passes, it alternately stretches and squeezes the distances between free objects.',terms:['gravitational waves','gravitational wave','gravitational radiation']},
+  'pulsar':{label:'Pulsar',wiki:W+'Pulsar',
+    def:'A spinning neutron star whose radio beam sweeps past Earth once per rotation — a natural clock. The steadiest ones rival atomic clocks over decades.',terms:['pulsar','pulsars']},
+  'neutron-star':{label:'Neutron star',wiki:W+'Neutron_star',
+    def:'The collapsed core left by a massive star’s supernova: more than a Sun’s worth of mass packed into a ~20 km ball, dense as an atomic nucleus.',terms:['neutron star','neutron stars']},
+  'periastron':{label:'Periastron & apastron',wiki:W+'Apsis',
+    def:'The closest (peri-) and farthest (ap-) points of an eccentric orbit around a star. Timing exactly when periastron occurs is the heart of the Hulse–Taylor experiment.',terms:['periastron','apastron']},
+  'periastron-advance':{label:'Periastron advance',wiki:W+'Apsidal_precession',
+    def:'The slow swing of the orbital ellipse’s orientation ω. GR predicts 4.2°/yr for B1913+16 — the same physics as Mercury’s 43″-per-century perihelion advance, ~35,000× faster.',terms:['periastron advance','periastron advances','precess','precesses','precession']},
+  'eccentricity':{label:'Eccentricity',wiki:W+'Orbital_eccentricity',
+    def:'How stretched an orbit is: e = 0 is a circle, e → 1 a sliver. B1913+16’s e = 0.617 makes the pulsar tear through periastron and loiter at apastron.',terms:['eccentricity','eccentric']},
+  'doppler':{label:'Doppler effect',wiki:W+'Doppler_effect',
+    def:'Motion along the line of sight compresses (approach) or stretches (recession) any periodic signal — spectral lines and pulsar ticks alike. Inverted, it turns arrival times into a speedometer.',terms:['Doppler effect','Doppler']},
+  'radial-velocity':{label:'Radial velocity',wiki:W+'Radial_velocity',
+    def:'The component of velocity along the line of sight — the only part a Doppler measurement records. B1913+16’s swings from −136 to +274 km/s every 7.75 hours.',terms:['radial velocity','line-of-sight velocity']},
+  'residuals':{label:'Timing residuals',wiki:W+'Errors_and_residuals',
+    def:'Observed minus predicted pulse arrival times — the part the model does not explain. Flat noise means the model is complete; any pattern is missing physics. See the appendix sidebar for the full story.',terms:['timing residuals','timing residual','residuals','residual']},
+  'toa':{label:'Time of arrival (TOA)',wiki:W+'Pulsar',
+    def:'The precisely timestamped arrival of a pulse at the telescope (in practice an average over many pulses) — the raw datum of pulsar timing. The appendix uses 9,257 of them.',terms:['pulse times of arrival','times of arrival','TOAs','TOA']},
+  'romer':{label:'Rømer delay',wiki:W+'R%C3%B8mer%27s_determination_of_the_speed_of_light',
+    def:'Light-travel time across an orbit: pulses from the far side arrive late, from the near side early — a ±2.34 s swing for B1913+16. Rømer used the same effect with Jupiter’s moons in 1676.',terms:['Rømer delay']},
+  'mass-function':{label:'Mass function',wiki:W+'Binary_mass_function',
+    def:'The mass combination a single velocity curve pins down: f(m) = (a₁ sin i)³·4π²/(G P_b²). One equation on the way to weighing both stars.',terms:['mass function']},
+  'time-dilation':{label:'Time dilation (γ)',wiki:W+'Time_dilation',
+    def:'Clocks run slow when moving fast or sitting deep in a gravity well. The pulsar’s tick rate breathes with its eccentric orbit — relativistic observable #2, which with ω̇ yields both masses.',terms:['time dilation','time-dilation']},
+  'orbital-decay':{label:'Orbital decay',wiki:W+'Orbital_decay',
+    def:'The shrinking of an orbit as it loses energy — here, to gravitational waves. B1913+16’s period drops 76 µs per year, so periastron arrives quadratically earlier.',terms:['orbital decay']},
+  'quadrupole':{label:'Quadrupole formula',wiki:W+'Quadrupole_formula',
+    def:'Einstein’s 1916 formula for the gravitational-wave power radiated by a churning mass distribution. With both masses measured, it predicts B1913+16’s decay with zero free parameters.',terms:['quadrupole formula','quadrupolar','quadrupole']},
+  'barycenter':{label:'Center of mass (barycenter)',wiki:W+'Barycenter',
+    def:'The balance point two stars orbit around. Near-equal masses trace near-equal ellipses on opposite sides of it, always facing each other across it.',terms:['center of mass','barycenter']},
+  'kepler3':{label:'Kepler’s third law',wiki:W+'Kepler%27s_laws_of_planetary_motion',
+    def:'Orbital period² ∝ orbit size³, for a given total mass. It converts an energy loss into a period change — and a wave frequency into a separation.',terms:["Kepler's third law","Kepler's law"]},
+  'recycled':{label:'Recycled pulsar',wiki:W+'Millisecond_pulsar',
+    def:'An old neutron star spun up and magnetically quieted by gas dumped on it by its companion — leaving an exceptionally smooth, long-lived clock. B1913+16’s pulsar is one.',terms:['recycled','recycling']},
+  'supernova':{label:'Supernova',wiki:W+'Supernova',
+    def:'The explosion that ends a massive star’s life, leaving a neutron star or black hole. The kick of the second supernova is what made B1913+16’s orbit so eccentric.',terms:['supernova','supernovae']},
+  'white-dwarf':{label:'White dwarf',wiki:W+'White_dwarf',
+    def:'The Earth-sized ember left by a Sun-like star — compact, but ~1000× larger than a neutron star, and excluded as B1913+16’s companion by the clean point-mass orbit.',terms:['white dwarf']},
+  'strain':{label:'Strain (h)',wiki:W+'Gravitational_wave',
+    def:'The fractional length change a passing wave imposes: h = ΔL/L. Astrophysical waves reach Earth at h ~ 10⁻²¹ — a thousandth of a proton’s width across LIGO’s 4 km.',terms:['strain']},
+  'michelson':{label:'Michelson interferometer',wiki:W+'Michelson_interferometer',
+    def:'An instrument that splits one light beam down two perpendicular arms and recombines it, converting any arm-length difference into brightness at the output. LIGO is one, 4 km on a side.',terms:['Michelson interferometer','interferometer']},
+  'beam-splitter':{label:'Beam splitter',wiki:W+'Beam_splitter',
+    def:'The half-mirror that divides the laser between the two arms and recombines the returning beams — the crossroads where the interference happens.',terms:['beam splitter']},
+  'fabry-perot':{label:'Fabry–Pérot cavity',wiki:W+'Fabry%E2%80%93P%C3%A9rot_interferometer',
+    def:'A pair of facing mirrors that traps light into ~300 round trips, multiplying the effective arm length (4 km → ~1200 km) and with it the phase shift a wave imprints.',terms:['Fabry–Pérot cavities','Fabry–Pérot cavity','Fabry–Pérot']},
+  'interference':{label:'Destructive interference',wiki:W+'Wave_interference',
+    def:'Two waves canceling crest-on-trough. LIGO holds its output port dark this way, so any brightening means the arm lengths differ — that is the signal.',terms:['destructive interference','interference']},
+  'coincidence':{label:'Coincidence detection',wiki:W+'LIGO',
+    def:'Requiring the same waveform at both LIGO sites within the 10-ms light-travel time between them. Local noise fails the test; real waves pass it.',terms:['coincidence']},
+  'polarization':{label:'Wave polarization',wiki:W+'Gravitational_wave',
+    def:'The orientation of a wave’s stretch–squeeze pattern. The “+” mode stretches space vertically while squeezing horizontally, then swaps, each half-cycle.',terms:['polarized','polarization']},
+  'chirp':{label:'Chirp',wiki:W+'Chirp',
+    def:'A signal sweeping upward in frequency and amplitude — the sound of an orbit’s runaway final moments as it shrinks and radiates ever harder.',terms:['chirp']},
+  'chirp-mass':{label:'Chirp mass',wiki:W+'Chirp_mass',
+    def:'The mass combination ℳ = (m₁m₂)^(3/5)/(m₁+m₂)^(1/5) that the chirp’s sweep rate measures directly. GW150914: ~28 M☉ — instantly “not neutron stars.”',terms:['chirp mass']},
+  'black-hole':{label:'Black hole',wiki:W+'Black_hole',
+    def:'Mass so compact not even light escapes; described entirely by mass and spin. The only objects that can orbit a few hundred km apart at half the speed of light without touching.',terms:['black holes','black hole']},
+  'schwarzschild':{label:'Schwarzschild radius',wiki:W+'Schwarzschild_radius',
+    def:'The point-of-no-return size of a black hole: about 3 km per solar mass. Merger happens when the pair closes to within a few of these.',terms:['Schwarzschild-radii','Schwarzschild radius','Schwarzschild']},
+  'ringdown':{label:'Ringdown',wiki:W+'Binary_black_hole',
+    def:'The final damped oscillations of the just-merged black hole settling into a smooth horizon — the last gasp of the waveform after the chirp cuts off.',terms:['rings down','rang down','ringdown']},
+  'standard-siren':{label:'Standard siren',wiki:W+'Standard_siren',
+    def:'A source whose waveform reveals its intrinsic loudness, so the observed amplitude gives the distance directly — no cosmic distance ladder required.',terms:['standard siren']},
+  'millisecond-pulsar':{label:'Millisecond pulsar',wiki:W+'Millisecond_pulsar',
+    def:'A neutron star recycled up to hundreds of rotations per second, with long-term timing stability rivaling atomic clocks — the instruments of the timing arrays.',terms:['millisecond pulsars','millisecond pulsar']},
+  'pta':{label:'Pulsar timing array',wiki:W+'Pulsar_timing_array',
+    def:'Dozens of millisecond pulsars watched across the sky for decades, turning the whole Galaxy into a detector for nanohertz gravitational waves.',terms:['pulsar timing arrays','pulsar timing array']},
+  'nanohertz':{label:'Nanohertz band',wiki:W+'Pulsar_timing_array',
+    def:'Gravitational waves with one cycle per years to decades (~10⁻⁹ Hz) — far below any ground detector’s band, the realm of supermassive black hole binaries.',terms:['nanohertz']},
+  'hellings-downs':{label:'Hellings–Downs curve',wiki:W+'Pulsar_timing_array',
+    def:'GR’s predicted correlation between pulsar pairs as a function of their sky separation — the quadrupolar smoking gun that separates a wave background from clock or ephemeris errors.',terms:['Hellings–Downs curve','Hellings–Downs']},
+  'smbh':{label:'Supermassive black hole',wiki:W+'Supermassive_black_hole',
+    def:'The 10⁶–10⁹ M☉ giants at galaxy centers. Galaxy mergers leave pairs of them in orbit — Hulse–Taylor systems scaled up a hundred-million-fold.',terms:['supermassive black hole binaries','supermassive black hole']},
+  'ephemeris':{label:'Ephemeris',wiki:W+'Ephemeris',
+    def:'The table of computed Solar-System positions used to reference pulse timing to the barycenter. Its errors mimic a dipole correlation — distinguishable from a wave background.',terms:['planetary-ephemeris','ephemeris']},
+  'arecibo':{label:'Arecibo Observatory',wiki:W+'Arecibo_Telescope',
+    def:'The 305-m radio dish in Puerto Rico (1963–2020) that discovered B1913+16 in 1974 and timed it for the following decades.',terms:['Arecibo']},
+  'spectroscopic-binary':{label:'Spectroscopic binary',wiki:W+'Binary_star',
+    def:'A binary detected by periodic Doppler shifts rather than by resolving two stars. B1913+16 is one in which the “spectral line” is a pulse period.',terms:['spectroscopic binary','spectroscopy']},
+  'solar-mass':{label:'Solar mass (M☉)',wiki:W+'Solar_mass',
+    def:'The Sun’s mass — astronomy’s unit for weighing stars: 2 × 10³⁰ kg.',terms:['solar masses','solar mass']},
+  'light-year':{label:'Light-year',wiki:W+'Light-year',
+    def:'The distance light travels in one year, about 9.5 × 10¹² km. GW150914’s waves traveled 1.3 billion of them.',terms:['light-years','light-year']},
+  'mpc':{label:'Megaparsec (Mpc)',wiki:W+'Parsec',
+    def:'One million parsecs ≈ 3.26 million light-years — the yardstick of extragalactic distances. GW150914: ~410 Mpc away.',terms:['Mpc']}
+};
+</script>
+
+<!-- =======================================================================
+     GLOSSARY ENGINE — inline hover terms + dynamic left rail
+     (each term is wrapped only at its FIRST occurrence in the document)
+======================================================================= -->
+<script>
+(function(){
+  const GLOSS=window.GW_GLOSS||{};
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase(); let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z0-9]/.test(b)&&/[^A-Za-z0-9]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm==='code'||nm==='pre'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    const done=new Set();   // document-global: each term is defined once, at first appearance
+    sections.forEach(sec=>{
+      const containers=sec.querySelectorAll('p, li, figcaption');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">Introduced here <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No new terms in this section — every term is defined once, where it first appears.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+</body>
+</html>
