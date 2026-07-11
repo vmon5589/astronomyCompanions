@@ -451,38 +451,64 @@ nav .navToggle{ display:none; }
   </div>
 
   <div class="mathnote">
-    <h4>The pattern beneath it · sine splits every force into "along" and "across"</h4>
-    <p>Before the astrophysics payoff below, one pattern is worth naming on its own, because you will meet it in every branch of physics. A force almost never points exactly along the direction you care about. Whenever a vector sits at an angle $\theta$ to a reference direction, you may <b>resolve</b> it — rewrite the one arrow as two perpendicular arrows, one of size $\cos\theta$ times the original <i>along</i> the reference, one of size $\sin\theta$ <i>across</i> it. Nothing physical happens in that rewrite, but the two pieces then act independently, and in problem after problem <b>one of them is the whole story</b>: the piece that slides the block, steers the charge, turns the bolt.</p>
-    <p>There is even a rule for which ratio shows up where. Quantities built by asking "how much of this acts <i>through</i> that?" (work $W=Fd\cos\theta$, flux $\Phi=BA\cos\theta$ — dot products) carry a <b>cosine</b>. Quantities built by asking "how much of this acts <i>across</i> that?" (torque $\tau=rF\sin\theta$, magnetic force $F=qvB\sin\theta$, angular momentum $L=mvr\sin\theta$ — cross products) carry a <b>sine</b>. Push-through goes with cosine; twist, steer, and circulate go with sine.</p>
-    <div class="eq">$$ \vec F \text{ at angle }\theta \;\longrightarrow\; \underbrace{F\cos\theta}_{\text{along: presses, speeds, slows}} \;+\; \underbrace{F\sin\theta}_{\text{across: slides, steers, twists}} $$</div>
-    <p>The black-hole story that follows is one more specimen of exactly this move — gravity's $\sin\varphi$ piece steers the photon — and its "fixed aim" $b=r\sin\varphi$ is an old friend in disguise: it is conservation of angular momentum ($L = mvr\sin\varphi = mvb$, constant). The same impact-parameter geometry describes alpha particles scattering off nuclei in Rutherford's experiment (which is where the name comes from), comet flybys, and spacecraft gravity assists.</p>
+    <h4>The pattern beneath it · one force, two jobs: the block on a slope</h4>
+    <p>Before the astrophysics payoff below, one pattern is worth building slowly, because you will meet it in every branch of physics — and the black-hole story underneath uses it move for move. A force almost never points along the direction you care about. Set a block on a hill tilted at angle $\theta$: gravity pulls it straight down with force $mg$, but the block cannot move straight down — it can only slide <i>along the slope</i>. So treat gravity like any vector and <b>resolve</b> it: redraw the one arrow as two perpendicular arrows that add back up to it, one along the slope and one pressing square into it. Nothing physical happens in the redraw — $mg$ is still $mg$ — but the two components can now be dealt with one at a time.</p>
+    <p><b>Where the sine comes from.</b> The two lengths fall out of the right triangle in the figure. Gravity's full arrow $mg$ is the <b>hypotenuse</b>. The hill's tilt reappears at the block: tilt a floor by $\theta$ and the direction "square into the floor" leans away from "straight down" by that same $\theta$ — so the angle between $mg$ and the pressing direction is $\theta$ too (the violet arc at the block). From there it is plain SOH-CAH-TOA: the side <i>adjacent</i> to $\theta$ is the pressing piece, $mg\cos\theta$, and the side <i>opposite</i> $\theta$ is the sliding piece, $mg\sin\theta$.</p>
+    <p><b>Why the cosine piece doesn't matter.</b> The $mg\cos\theta$ component presses the block into the hill — and the hill presses straight back, equal and opposite (the green arrow; physicists call that push-back the normal force). Press and press-back cancel exactly, so the cosine piece produces no motion at all; its only job is to set how hard the two surfaces grip (friction). The $mg\sin\theta$ component points along the slope, where <i>nothing opposes it</i> — so that one piece is the entire story of the motion. Check the limits: flatten the hill ($\theta=0$, $\sin\theta=0$) and nothing slides; tip it vertical ($\theta=90°$, $\sin\theta=1$) and the block simply free-falls. The sine sweeps smoothly between the two.</p>
+    <div class="eq">$$ mg \;\longrightarrow\; \underbrace{mg\cos\theta}_{\text{presses in: cancelled}} \;+\; \underbrace{mg\sin\theta}_{\text{slides: the whole story}} $$</div>
+    <p>Once you see the move, it is everywhere. The two panels after the figure run it in different costumes: the magnetic force on a charge is <i>all</i> sine — always across the motion, pure steering — and a wrench turns a bolt only through the across-the-handle piece, $F\sin\theta$. The rule of thumb: <b>across goes with sine, along goes with cosine</b> (in vector language: cross products carry the sine, dot products the cosine).</p>
   </div>
 
-  <div class="figrow three">
+  <div class="figrow">
     <figure>
-      <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A block on a slope: gravity is resolved into a sine piece that slides it down the slope and a cosine piece that presses it into the slope.">
+      <svg viewBox="0 0 640 360" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A block on a slope tilted at angle theta. Gravity mg points straight down and is the hypotenuse of a right triangle; its component mg cosine theta presses into the slope and is cancelled by the slope's push-back, while its component mg sine theta points along the slope, unopposed, and slides the block.">
         <defs>
           <marker id="ahp1-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
           <marker id="ahp1-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
           <marker id="ahp1-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+          <marker id="ahp1-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ee6a8"/></marker>
         </defs>
-        <text x="150" y="26" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">a block on a slope</text>
-        <line x1="20" y1="272" x2="280" y2="272" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
-        <line x1="20" y1="272" x2="280" y2="134" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
-        <path d="M66,272 A46,46 0 0,0 60.6,250.4" fill="none" stroke="#b08cff" stroke-width="2"/>
-        <text x="76" y="262" fill="#b08cff" font-size="13" font-weight="700">θ</text>
-        <g transform="translate(175,190) rotate(-28)"><rect x="-11" y="-14" width="22" height="14" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
-        <line x1="145.2" y1="205.9" x2="175" y2="262" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
-        <line x1="204.8" y1="246.2" x2="175" y2="262" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
-        <line x1="175" y1="190" x2="145.2" y2="205.9" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ahp1-rose)"/>
-        <line x1="175" y1="190" x2="204.8" y2="246.2" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#ahp1-grey)"/>
-        <line x1="175" y1="190" x2="175" y2="262" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ahp1-amber)"/>
-        <text x="26" y="50" fill="#ffb24a" font-size="10.5">full force: gravity mg, straight down</text>
-        <text x="26" y="66" fill="#ff6b9d" font-size="10.5">mg·sin θ — slides it down the slope</text>
-        <text x="26" y="82" fill="#9aa3c7" font-size="10.5">mg·cos θ — presses it into the slope</text>
+        <text x="320" y="24" fill="#e8ecff" font-size="14" font-weight="700" text-anchor="middle">gravity on a slope — one force, two jobs</text>
+
+        <!-- legend -->
+        <text x="26" y="52" fill="#ffb24a" font-size="13">full force: gravity mg, straight down — the hypotenuse</text>
+        <text x="26" y="71" fill="#ff6b9d" font-size="13">mg·sin θ (opposite θ) — slides the block; nothing opposes it</text>
+        <text x="26" y="90" fill="#9aa3c7" font-size="13">mg·cos θ (adjacent to θ) — presses the block into the hill</text>
+
+        <!-- ground and slope -->
+        <line x1="40" y1="320" x2="600" y2="320" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="60" y1="320" x2="560" y2="87" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M106,320 A46,46 0 0,0 101.7,300.6" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="114" y="308" fill="#b08cff" font-size="15" font-weight="700">θ</text>
+
+        <!-- block -->
+        <g transform="translate(304.7,205.9) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+
+        <!-- parallelogram / triangle construction (dashed) -->
+        <line x1="257.1" y1="217" x2="300" y2="309" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <line x1="342.9" y1="289" x2="300" y2="309" stroke="#ff6b9d" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.6"/>
+        <path d="M335.7,292.4 L332.3,285.1 L339.5,281.8" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.8"/>
+
+        <!-- theta at the block, between mg and the pressing direction -->
+        <path d="M300,237 A40,40 0 0,0 316.9,233.3" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="306" y="258" fill="#b08cff" font-size="15" font-weight="700">θ</text>
+
+        <!-- forces -->
+        <line x1="300" y1="197" x2="257.1" y2="217" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ahp1-rose)"/>
+        <line x1="300" y1="197" x2="342.9" y2="289" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#ahp1-grey)"/>
+        <line x1="300" y1="197" x2="300" y2="309" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ahp1-amber)"/>
+        <line x1="300" y1="197" x2="259.9" y2="110.9" stroke="#5ee6a8" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#ahp1-green)"/>
+        <text x="253" y="132" fill="#5ee6a8" font-size="13" text-anchor="end">the hill's push-back —</text>
+        <text x="253" y="150" fill="#5ee6a8" font-size="13" text-anchor="end">cancels mg·cos θ exactly</text>
+
+        <!-- footnote -->
+        <text x="320" y="346" fill="#9aa3c7" font-size="12" text-anchor="middle">the same θ appears twice — the hill's tilt and the force triangle's lean (violet arcs)</text>
       </svg>
-      <figcaption>Gravity (amber) resolved against the slope: the $\sin\theta$ piece (rose) slides the block, the $\cos\theta$ piece (grey) only presses.</figcaption>
+      <figcaption>Gravity (amber) resolved against the slope. The right triangle — amber hypotenuse, grey adjacent leg, dashed rose opposite leg — hands over the two pieces by SOH-CAH-TOA. The $\cos\theta$ piece (grey) presses into the hill and is cancelled by the hill's push-back (green); only the $\sin\theta$ piece (rose) survives to move the block. The payoff below plays the identical game with a photon.</figcaption>
     </figure>
+  </div>
+
+  <div class="figrow two">
     <figure>
       <svg viewBox="0 0 300 310" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A charge moving at angle theta to a magnetic field feels a force q v B sine theta pointing out of the page — pure steering that never changes its speed.">
         <defs>
@@ -533,6 +559,12 @@ nav .navToggle{ display:none; }
       </svg>
       <figcaption>Only the across-the-handle piece turns the bolt. Same move a third time — and the black-hole payoff below is it a fourth: gravity's $\sin\varphi$ piece steering a photon.</figcaption>
     </figure>
+  </div>
+
+  <div class="mathnote">
+    <h4>From the slope to the black hole</h4>
+    <p>The astrophysics payoff below repeats the slope argument beat for beat, with one substitution: the block becomes a photon flying past a black hole, and "along the slope" becomes "along the photon's flight". Gravity pulls the photon straight toward the mass — diagonally to its flight, in general. Resolve that pull into the same two pieces. The piece <i>along</i> the flight cancels out over the flyby, just as the cosine piece was cancelled by the hill: it hurries the photon on the way in and holds it back by the same amount on the way out. The piece <i>across</i> the flight — the pull times $\sin\varphi$, where $\varphi$ is the angle between the flight direction and the line to the mass — has nothing to cancel it. That lone surviving sine piece is what bends the ray.</p>
+    <p>One more character to meet before the payoff: as the photon flies, its distance to the mass $r$ and its angle $\varphi$ both change constantly, but the product $b=r\sin\varphi$ stays frozen at the value set when the ray was aimed — it is simply the perpendicular miss distance, called the impact parameter. (If you have met conservation of angular momentum, this is it in disguise: $L=mvr\sin\varphi=mvb$, and with $m$ and $v$ fixed, constant $L$ <i>means</i> constant $b$. If you haven't, no matter — the payoff derives the constancy from a right triangle alone.) The name comes from Rutherford's alpha-particle scattering experiments; the same aim-distance geometry steers comet flybys and spacecraft gravity assists.</p>
   </div>
 
   <div class="mathnote astro">
@@ -3028,7 +3060,61 @@ function fmt(x,sig){ sig=sig||3; if(x===0)return '0'; if(!isFinite(x))return '�
     'differential-equation':{label:'Differential equation',wiki:W+'Differential_equation',
       def:'An equation relating a quantity to its own rate of change; solving it turns a rule for change into a history in time.',terms:['differential equation']},
     'primordial-bh':{label:'Primordial black hole',wiki:W+'Primordial_black_hole',
-      def:'A black hole formed in the Big Bang, not from a star. One of ~10¹¹ kg would be evaporating in a final gamma flash today.',terms:['primordial black hole']}
+      def:'A black hole formed in the Big Bang, not from a star. One of ~10¹¹ kg would be evaporating in a final gamma flash today.',terms:['primordial black hole']},
+    'hypotenuse':{label:'Hypotenuse',wiki:W+'Hypotenuse',
+      def:'The longest side of a right triangle, opposite the 90° corner — the denominator in both sine and cosine.',terms:['hypotenuse']},
+    'similar-triangles':{label:'Similar triangles',wiki:W+'Similarity_(geometry)',
+      def:'Triangles with the same angles and proportional sides — the same shape at different scales. They are why a trig ratio depends only on the angle, never on the triangle’s size.',terms:['similar triangles']},
+    'pythagorean':{label:'Pythagorean theorem',wiki:W+'Pythagorean_theorem',
+      def:'opp² + adj² = hyp² in any right triangle. Divided through by hyp², it becomes the unit-circle identity sin²θ + cos²θ = 1.',terms:['Pythagorean identity','Pythagoras']},
+    'impact-parameter':{label:'Impact parameter',wiki:W+'Impact_parameter',
+      def:'The perpendicular miss distance b — how close a ray would pass to the centre if it flew dead straight. Fixed by the aim alone, it is the b in Einstein’s deflection α = 4GM/c²b.',terms:['impact parameter']},
+    'vector-component':{label:'Vector components',wiki:W+'Euclidean_vector',
+      def:'Any arrow at angle θ to a reference direction can be rewritten as two perpendicular pieces — cos θ of it along, sin θ of it across — which then act independently.',terms:['vector','components','component']},
+    'dot-product':{label:'Dot product',wiki:W+'Dot_product',
+      def:'The “how much acts through” combination of two vectors, of size |a||b|cos θ — the cosine-carrying product behind work and flux.',terms:['dot products','dot product']},
+    'cross-product':{label:'Cross product',wiki:W+'Cross_product',
+      def:'The “how much acts across” combination of two vectors, of size |a||b|sin θ — the sine-carrying product behind torque and the magnetic force.',terms:['cross products','cross product']},
+    'angular-momentum':{label:'Angular momentum',wiki:W+'Angular_momentum',
+      def:'The turning quantity L = mvr sin θ, conserved in orbits — the reason a photon’s aim distance b = r sin φ never changes in flight.',terms:['angular momentum']},
+    'period':{label:'Period',wiki:W+'Frequency',
+      def:'The time one full cycle takes, T = 1/f — one lap of the generating circle for a wave, one orbit for a planet.',terms:['period']},
+    'angular-frequency':{label:'Angular frequency',wiki:W+'Angular_frequency',
+      def:'The spin rate counted in radians per second, ω = 2πf — how fast the angle of the generating circle grows with time.',terms:['angular frequency','angular speed']},
+    'baseline':{label:'Baseline',wiki:W+'Baseline_(surveying)',
+      def:'The known separation between two vantage points in a triangulation — your two eyes, or Earth’s position in January versus July.',terms:['baseline']},
+    'triangulation':{label:'Triangulation',wiki:W+'Triangulation',
+      def:'Fixing an unreachable distance from a measured baseline and sighted angles — the surveyor’s trick that parallax points at the stars.',terms:['triangulation']},
+    'au':{label:'Astronomical unit',wiki:W+'Astronomical_unit',
+      def:'The mean Earth–Sun distance, about 1.5×10¹¹ m — the baseline of stellar parallax and the unit that makes d = 1/p come out clean.',terms:['astronomical unit','AU']},
+    'angular-resolution':{label:'Resolving power',wiki:W+'Angular_resolution',
+      def:'The finest angle a telescope can distinguish, θ ≈ 1.22 λ/A for aperture A — set by diffraction, and the reason the EHT had to be Earth-sized.',terms:['resolving power','angular resolution','resolution','diffraction']},
+    'polar-coordinates':{label:'Polar coordinates',wiki:W+'Polar_coordinate_system',
+      def:'Locating a point by distance from a centre and angle, (r, θ), instead of x and y — the natural language of orbits.',terms:['polar coordinates','polar form']},
+    'focus-ellipse':{label:'Focus (of an ellipse)',wiki:W+'Focus_(geometry)',
+      def:'One of the two interior points whose distances to the ellipse sum to the constant 2a. Gravity seats the orbited mass at one focus — not the centre.',terms:['focus','foci']},
+    'apsis':{label:'Perihelion & aphelion',wiki:W+'Apsis',
+      def:'The nearest and farthest points of an orbit from the focus, at a(1−e) and a(1+e). S2 swings between 120 and 1880 AU from Sgr A*.',terms:['perihelion','aphelion']},
+    'equal-area':{label:'Equal-area law (Kepler’s 2nd)',wiki:W+'Kepler%27s_laws_of_planetary_motion',
+      def:'The line from focus to body sweeps equal areas in equal times, so an orbiting star moves fastest at perihelion — conservation of angular momentum in disguise.',terms:['equal areas','equal-area law']},
+    'centripetal':{label:'Centripetal force',wiki:W+'Centripetal_force',
+      def:'The inward force mv²/r needed to hold a body on a circle. Equating it to gravity’s pull is the one line Kepler’s third law drops out of.',terms:['centripetal']},
+    'secant-line':{label:'Secant line',wiki:W+'Secant_line',
+      def:'A straight line through two points of a curve; its slope is the average rate of change. Slide the points together and it becomes the tangent — the derivative.',terms:['secant']},
+    'power-rule':{label:'Power rule',wiki:W+'Power_rule',
+      def:'d/dx xⁿ = n xⁿ⁻¹: bring the exponent down in front, subtract one from it. Run backwards for integrals: raise the exponent by one and divide by the new one.',terms:['power rule']},
+    'gradient':{label:'Gradient',wiki:W+'Gradient',
+      def:'How steeply a quantity changes across space — the spatial derivative. The tide is the gradient of gravity, dg/dr, falling as 1/r³.',terms:['gradient']},
+    'power-law':{label:'Power law',wiki:W+'Power_law',
+      def:'A relation y = A xⁿ. Taking logs gives log y = log A + n log x — a straight line of slope n on log–log axes, the astronomer’s first diagnostic.',terms:['power law','power laws']},
+    'separation-of-variables':{label:'Separation of variables',wiki:W+'Separation_of_variables',
+      def:'Solving a differential equation by herding each variable to its own side of the equals sign, then integrating both — how dM/dt ∝ −1/M² becomes a finite evaporation time.',terms:['separating variables','separation of variables']},
+    'exponential-decay':{label:'Exponential decay',wiki:W+'Exponential_decay',
+      def:'N(t) = N₀e^(−λt): what a quantity does when its loss rate is proportional to itself — half-lives, cooling, damping. It fades forever without quite reaching zero.',terms:['exponential decay']},
+    'kinetic-energy':{label:'Kinetic energy',wiki:W+'Kinetic_energy',
+      def:'The energy of motion, ½mv². Matching it to the integral of gravity’s pull over distance is what hands back the escape velocity.',terms:['kinetic energy']},
+    'strain-gw':{label:'Strain (gravitational wave)',wiki:W+'Gravitational_wave',
+      def:'The fractional stretch of space ΔL/L as a gravitational wave passes — a dimensionless cosine, amplitude ~10⁻²¹ for LIGO’s first detection.',terms:['strain']}
   };
   const ORDER=Object.keys(GLOSS).sort((a,b)=>{
     const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
@@ -3083,7 +3169,7 @@ function fmt(x,sig){ sig=sig||3; if(x===0)return '0'; if(!isFinite(x))return '�
     sections=document.querySelectorAll('section.chapter');
     sections.forEach(sec=>{
       const done=new Set();
-      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd, .step');
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd, .step, .leadin, .mathnote p, .deriv .lead, .deriv li');
       containers.forEach(c=>{
         ORDER.forEach(slug=>{
           if(done.has(slug)) return;
