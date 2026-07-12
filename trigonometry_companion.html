@@ -452,59 +452,114 @@ nav .navToggle{ display:none; }
 
   <div class="mathnote">
     <h4>The pattern beneath it · one force, two jobs: the block on a slope</h4>
-    <p>Before the astrophysics payoff below, one pattern is worth building slowly, because you will meet it in every branch of physics — and the black-hole story underneath uses it move for move. A force almost never points along the direction you care about. Set a block on a hill tilted at angle $\theta$: gravity pulls it straight down with force $mg$, but the block cannot move straight down — it can only slide <i>along the slope</i>. So treat gravity like any vector and <b>resolve</b> it: redraw the one arrow as two perpendicular arrows that add back up to it, one along the slope and one pressing square into it. Nothing physical happens in the redraw — $mg$ is still $mg$ — but the two components can now be dealt with one at a time.</p>
-    <p><b>Where the sine comes from.</b> The two lengths fall out of the right triangle in the figure. Gravity's full arrow $mg$ is the <b>hypotenuse</b>. The hill's tilt reappears at the block: tilt a floor by $\theta$ and the direction "square into the floor" leans away from "straight down" by that same $\theta$ — so the angle between $mg$ and the pressing direction is $\theta$ too (the violet arc at the block). From there it is plain SOH-CAH-TOA: the side <i>adjacent</i> to $\theta$ is the pressing piece, $mg\cos\theta$, and the side <i>opposite</i> $\theta$ is the sliding piece, $mg\sin\theta$.</p>
-    <p><b>Why the cosine piece doesn't matter.</b> The $mg\cos\theta$ component presses the block into the hill — and the hill presses straight back, equal and opposite (the green arrow; physicists call that push-back the normal force). Press and press-back cancel exactly, so the cosine piece produces no motion at all; its only job is to set how hard the two surfaces grip (friction). The $mg\sin\theta$ component points along the slope, where <i>nothing opposes it</i> — so that one piece is the entire story of the motion. Check the limits: flatten the hill ($\theta=0$, $\sin\theta=0$) and nothing slides; tip it vertical ($\theta=90°$, $\sin\theta=1$) and the block simply free-falls. The sine sweeps smoothly between the two.</p>
+    <p>Before the astrophysics payoff below, one pattern is worth building slowly, because you will meet it in every branch of physics — and the black-hole story underneath uses it move for move. A force almost never points along the direction you care about. Set a block on a hill tilted at angle $\theta$: gravity pulls it straight down with force $mg$, but the block can only slide <i>along the slope</i>. The four panels below rebuild the whole argument one move at a time — resolve the force into two perpendicular arrows, name the pieces by SOH-CAH-TOA, and watch everything except $mg\sin\theta$ cancel away.</p>
     <div class="eq">$$ mg \;\longrightarrow\; \underbrace{mg\cos\theta}_{\text{presses in: cancelled}} \;+\; \underbrace{mg\sin\theta}_{\text{slides: the whole story}} $$</div>
-    <p>Once you see the move, it is everywhere. The two panels after the figure run it in different costumes: the magnetic force on a charge is <i>all</i> sine — always across the motion, pure steering — and a wrench turns a bolt only through the across-the-handle piece, $F\sin\theta$. The rule of thumb: <b>across goes with sine, along goes with cosine</b> (in vector language: cross products carry the sine, dot products the cosine).</p>
+    <p>Once you see the move, it is everywhere. The two smaller panels below the sequence run it in different costumes: the magnetic force on a charge is <i>all</i> sine — always across the motion, pure steering — and a wrench turns a bolt only through the across-the-handle piece, $F\sin\theta$. The rule of thumb: <b>across goes with sine, along goes with cosine</b> (in vector language: cross products carry the sine, dot products the cosine).</p>
   </div>
 
-  <div class="figrow">
+  <div class="figrow two">
     <figure>
-      <svg viewBox="0 0 640 360" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="A block on a slope tilted at angle theta. Gravity mg points straight down and is the hypotenuse of a right triangle; its component mg cosine theta presses into the slope and is cancelled by the slope's push-back, while its component mg sine theta points along the slope, unopposed, and slides the block.">
+      <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 1 of 4. A block rests on a slope tilted at angle theta. Gravity mg points straight down, but the only motion available to the block is along the slope, marked by dashed arrows.">
         <defs>
-          <marker id="ahp1-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
-          <marker id="ahp1-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
-          <marker id="ahp1-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
-          <marker id="ahp1-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ee6a8"/></marker>
+          <marker id="sq1-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="sq1-cyan" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd0ff"/></marker>
         </defs>
-        <text x="320" y="24" fill="#e8ecff" font-size="14" font-weight="700" text-anchor="middle">gravity on a slope — one force, two jobs</text>
-
-        <!-- legend -->
-        <text x="26" y="52" fill="#ffb24a" font-size="13">full force: gravity mg, straight down — the hypotenuse</text>
-        <text x="26" y="71" fill="#ff6b9d" font-size="13">mg·sin θ (opposite θ) — slides the block; nothing opposes it</text>
-        <text x="26" y="90" fill="#9aa3c7" font-size="13">mg·cos θ (adjacent to θ) — presses the block into the hill</text>
-
-        <!-- ground and slope -->
-        <line x1="40" y1="320" x2="600" y2="320" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
-        <line x1="60" y1="320" x2="560" y2="87" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
-        <path d="M106,320 A46,46 0 0,0 101.7,300.6" fill="none" stroke="#b08cff" stroke-width="2"/>
-        <text x="114" y="308" fill="#b08cff" font-size="15" font-weight="700">θ</text>
-
-        <!-- block -->
-        <g transform="translate(304.7,205.9) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
-
-        <!-- parallelogram / triangle construction (dashed) -->
-        <line x1="257.1" y1="217" x2="300" y2="309" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
-        <line x1="342.9" y1="289" x2="300" y2="309" stroke="#ff6b9d" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.6"/>
-        <path d="M335.7,292.4 L332.3,285.1 L339.5,281.8" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.8"/>
-
-        <!-- theta at the block, between mg and the pressing direction -->
-        <path d="M300,237 A40,40 0 0,0 316.9,233.3" fill="none" stroke="#b08cff" stroke-width="2"/>
-        <text x="306" y="258" fill="#b08cff" font-size="15" font-weight="700">θ</text>
-
-        <!-- forces -->
-        <line x1="300" y1="197" x2="257.1" y2="217" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#ahp1-rose)"/>
-        <line x1="300" y1="197" x2="342.9" y2="289" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#ahp1-grey)"/>
-        <line x1="300" y1="197" x2="300" y2="309" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#ahp1-amber)"/>
-        <line x1="300" y1="197" x2="259.9" y2="110.9" stroke="#5ee6a8" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#ahp1-green)"/>
-        <text x="253" y="132" fill="#5ee6a8" font-size="13" text-anchor="end">the hill's push-back —</text>
-        <text x="253" y="150" fill="#5ee6a8" font-size="13" text-anchor="end">cancels mg·cos θ exactly</text>
-
-        <!-- footnote -->
-        <text x="320" y="346" fill="#9aa3c7" font-size="12" text-anchor="middle">the same θ appears twice — the hill's tilt and the force triangle's lean (violet arcs)</text>
+        <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">1 · one force, pointing the wrong way</text>
+        <line x1="20" y1="252" x2="285" y2="252" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="35" y1="252" x2="275" y2="140" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M75,252 A40,40 0 0,0 71.3,235.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="80" y="243" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <g transform="translate(155,196) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+        <line x1="128" y1="198" x2="97" y2="212" stroke="#3fd0ff" stroke-width="1.6" stroke-dasharray="4 3" opacity="0.6" marker-end="url(#sq1-cyan)"/>
+        <line x1="174" y1="176" x2="205" y2="162" stroke="#3fd0ff" stroke-width="1.6" stroke-dasharray="4 3" opacity="0.6" marker-end="url(#sq1-cyan)"/>
+        <line x1="151" y1="187" x2="151" y2="271" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#sq1-amber)"/>
+        <text x="159" y="242" fill="#ffb24a" font-size="13" font-weight="600">mg</text>
+        <text x="150" y="292" fill="#9aa3c7" font-size="10.5" text-anchor="middle">gravity pulls straight down with force mg —</text>
+        <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">but the only motion allowed is along the slope (dashed)</text>
       </svg>
-      <figcaption>Gravity (amber) resolved against the slope. The right triangle — amber hypotenuse, grey adjacent leg, dashed rose opposite leg — hands over the two pieces by SOH-CAH-TOA. The $\cos\theta$ piece (grey) presses into the hill and is cancelled by the hill's push-back (green); only the $\sin\theta$ piece (rose) survives to move the block. The payoff below plays the identical game with a photon.</figcaption>
+      <figcaption>Gravity pulls the block straight down with force $mg$ (amber) — but a block on a hill cannot move straight down. The only direction open to it is <i>along the slope</i> (dashed cyan), which the force does not point along.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 2 of 4. The gravity arrow mg is redrawn as two perpendicular arrows, one along the slope and one pressing into it, forming a right triangle. The hill's tilt angle theta reappears at the block between mg and the pressing direction.">
+        <defs>
+          <marker id="sq2-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="sq2-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+          <marker id="sq2-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        </defs>
+        <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">2 · redraw it as two perpendicular arrows</text>
+        <line x1="20" y1="252" x2="285" y2="252" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="35" y1="252" x2="275" y2="140" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M75,252 A40,40 0 0,0 71.3,235.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="80" y="243" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <g transform="translate(155,196) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+        <line x1="119" y1="202" x2="151" y2="271" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <line x1="183" y1="256" x2="151" y2="271" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <path d="M179.6,248.7 L172.4,252.1 L175.8,259.4" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.8"/>
+        <path d="M151,219 A32,32 0 0,0 164.5,216" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="156" y="236" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <line x1="151" y1="187" x2="119" y2="202" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#sq2-rose)"/>
+        <line x1="151" y1="187" x2="183" y2="256" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#sq2-grey)"/>
+        <line x1="151" y1="187" x2="151" y2="271" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#sq2-amber)"/>
+        <text x="150" y="292" fill="#9aa3c7" font-size="10.5" text-anchor="middle">the two arrows add back up to mg — nothing changed</text>
+        <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">and the tilt θ reappears at the block (violet arcs)</text>
+      </svg>
+      <figcaption><b>Resolve</b> the force: redraw the one arrow as two perpendicular arrows that add back up to it — one along the slope (rose), one pressing square into it (grey).</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 3 of 4. The right triangle's sides are named by SOH-CAH-TOA: gravity mg is the hypotenuse, the side opposite theta is the sliding piece mg sine theta, and the side adjacent to theta is the pressing piece mg cosine theta.">
+        <defs>
+          <marker id="sq3-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="sq3-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+          <marker id="sq3-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+        </defs>
+        <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">3 · SOH-CAH-TOA names the two pieces</text>
+        <text x="14" y="48" fill="#ffb24a" font-size="11">hypotenuse = mg</text>
+        <text x="14" y="64" fill="#ff6b9d" font-size="11">opposite θ = mg·sin θ (slides)</text>
+        <text x="14" y="80" fill="#9aa3c7" font-size="11">adjacent = mg·cos θ (presses)</text>
+        <line x1="20" y1="252" x2="285" y2="252" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="35" y1="252" x2="275" y2="140" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M75,252 A40,40 0 0,0 71.3,235.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="80" y="243" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <g transform="translate(155,196) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+        <line x1="119" y1="202" x2="151" y2="271" stroke="#ff6b9d" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.6"/>
+        <line x1="183" y1="256" x2="151" y2="271" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+        <path d="M179.6,248.7 L172.4,252.1 L175.8,259.4" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.8"/>
+        <path d="M151,219 A32,32 0 0,0 164.5,216" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="156" y="236" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <line x1="151" y1="187" x2="119" y2="202" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#sq3-rose)"/>
+        <line x1="151" y1="187" x2="183" y2="256" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#sq3-grey)"/>
+        <line x1="151" y1="187" x2="151" y2="271" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#sq3-amber)"/>
+        <text x="150" y="292" fill="#9aa3c7" font-size="10.5" text-anchor="middle">SOH: opposite = hyp·sin θ = mg·sin θ</text>
+        <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">CAH: adjacent = hyp·cos θ = mg·cos θ</text>
+      </svg>
+      <figcaption>Plain SOH-CAH-TOA reads off the two lengths: $mg$ is the <b>hypotenuse</b>, so the side <i>opposite</i> $\theta$ — the sliding piece (rose) — is $mg\sin\theta$, and the side <i>adjacent</i> — the pressing piece (grey) — is $mg\cos\theta$.</figcaption>
+    </figure>
+    <figure>
+      <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 4 of 4. The hill pushes back on the pressing piece mg cosine theta, cancelling it exactly, so only mg sine theta survives, pointing along the slope and sliding the block downhill.">
+        <defs>
+          <marker id="sq4-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+          <marker id="sq4-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+          <marker id="sq4-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+          <marker id="sq4-green" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ee6a8"/></marker>
+        </defs>
+        <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">4 · the hill cancels one — mg·sin θ remains</text>
+        <line x1="20" y1="252" x2="285" y2="252" stroke="#9aa3c7" stroke-width="1.2" opacity="0.35"/>
+        <line x1="35" y1="252" x2="275" y2="140" stroke="#9aa3c7" stroke-width="2" opacity="0.8"/>
+        <path d="M75,252 A40,40 0 0,0 71.3,235.1" fill="none" stroke="#b08cff" stroke-width="2"/>
+        <text x="80" y="243" fill="#b08cff" font-size="14" font-weight="700">θ</text>
+        <g transform="translate(95,224) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.3" rx="2"/></g>
+        <g transform="translate(155,196) rotate(-25)"><rect x="-16" y="-20" width="32" height="20" fill="#3fd0ff" opacity="0.9" rx="2"/></g>
+        <line x1="151" y1="187" x2="151" y2="271" stroke="#ffb24a" stroke-width="2.2" opacity="0.3" marker-end="url(#sq4-amber)"/>
+        <line x1="151" y1="187" x2="183" y2="256" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#sq4-grey)"/>
+        <line x1="151" y1="187" x2="119" y2="118" stroke="#5ee6a8" stroke-width="2.2" stroke-dasharray="5 3" marker-end="url(#sq4-green)"/>
+        <text x="130" y="112" fill="#5ee6a8" font-size="10.5">the hill's push-back —</text>
+        <text x="130" y="126" fill="#5ee6a8" font-size="10.5">cancels mg·cos θ exactly</text>
+        <line x1="151" y1="187" x2="101" y2="210" stroke="#ff6b9d" stroke-width="3.2" marker-end="url(#sq4-rose)"/>
+        <text x="197" y="248" fill="#9aa3c7" font-size="10.5">mg·cos θ</text>
+        <text x="150" y="292" fill="#ff6b9d" font-size="10.5" text-anchor="middle">only mg·sin θ survives — it slides the block downhill</text>
+        <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">θ=0: sin θ=0, nothing slides · θ→90°: sin θ→1, free-fall</text>
+      </svg>
+      <figcaption>The $mg\cos\theta$ piece presses into the hill and the hill presses straight back, equal and opposite (green — the normal force): press and press-back cancel exactly. Nothing opposes $mg\sin\theta$, so that one piece is the entire story of the motion. The payoff below plays the identical game with a photon.</figcaption>
     </figure>
   </div>
 
@@ -564,12 +619,12 @@ nav .navToggle{ display:none; }
   <div class="mathnote">
     <h4>From the slope to the black hole</h4>
     <p>The astrophysics payoff below repeats the slope argument beat for beat, with one substitution: the block becomes a photon flying past a black hole, and "along the slope" becomes "along the photon's flight". Gravity pulls the photon straight toward the mass — diagonally to its flight, in general. Resolve that pull into the same two pieces. The piece <i>along</i> the flight cancels out over the flyby, just as the cosine piece was cancelled by the hill: it hurries the photon on the way in and holds it back by the same amount on the way out. The piece <i>across</i> the flight — the pull times $\sin\varphi$, where $\varphi$ is the angle between the flight direction and the line to the mass — has nothing to cancel it. That lone surviving sine piece is what bends the ray.</p>
-    <p>One more character to meet before the payoff: as the photon flies, its distance to the mass $r$ and its angle $\varphi$ both change constantly, but the product $b=r\sin\varphi$ stays frozen at the value set when the ray was aimed — it is simply the perpendicular miss distance, called the impact parameter. (If you have met conservation of angular momentum, this is it in disguise: $L=mvr\sin\varphi=mvb$, and with $m$ and $v$ fixed, constant $L$ <i>means</i> constant $b$. If you haven't, no matter — the payoff derives the constancy from a right triangle alone.) The name comes from Rutherford's alpha-particle scattering experiments; the same aim-distance geometry steers comet flybys and spacecraft gravity assists.</p>
+    <p>One more character to meet before the payoff: as the photon flies, its distance to the mass $r$ and its angle $\varphi$ both change constantly, but the product $b=r\sin\varphi$ stays frozen at the value set when the ray was aimed — it is simply the miss distance (how close the straight-line aim would come to the mass), called the impact parameter. (If you have met conservation of angular momentum, this is it in disguise: $L=mvr\sin\varphi=mvb$, and with $m$ and $v$ fixed, constant $L$ <i>means</i> constant $b$. If you haven't, no matter — the payoff derives the constancy from a right triangle alone.) The name comes from Rutherford's alpha-particle scattering experiments; the same aim-distance geometry steers comet flybys and spacecraft gravity assists.</p>
   </div>
 
   <div class="mathnote astro">
     <h4>Astrophysics payoff · the bending of light past a black hole</h4>
-    <p>One number sets up this whole story, so meet it first: the <b>impact parameter</b> $b$. Imagine gravity switched off. The light ray would fly dead straight, and $b$ is simply how close that straight line would pass to the centre of the mass — the perpendicular miss distance. Aim straight at the centre and $b=0$; aim well wide and $b$ is large. It is fixed the instant the ray is launched, and nothing that happens later changes it. That is all it is: a measure of the aim.</p>
+    <p>One number sets up this whole story, so meet it first: the <b>impact parameter</b> $b$. Imagine gravity switched off. The light ray would fly dead straight, and $b$ is simply how close that straight line would pass to the centre of the mass — the miss distance at closest approach. Aim straight at the centre and $b=0$; aim well wide and $b$ is large. It is fixed the instant the ray is launched, and nothing that happens later changes it. That is all it is: a measure of the aim.</p>
     <p>Now switch gravity back on. A ray aimed with impact parameter $b$ is deflected by an angle that Einstein's general relativity gives as $\alpha = \dfrac{4GM}{c^2 b}$ — the closer the aim, the harder the bend. The formula looks like pure gravity, but a sine is doing the bookkeeping at every step: the fixed aim distance $b$ can be read off the flying photon as a sine ($b=r\sin\varphi$, as the diagram shows), and gravity bends the ray only through the sine of the angle to the mass.</p>
     <p>The diagram and derivation below unpack exactly where each $\sin$ enters. Push $b$ inward to $1.5$ Schwarzschild radii and the summed bending closes into a full loop: that critical circle is the <b>photon sphere</b>, and it is what paints the glowing ring in the Event Horizon Telescope image of M87*. Every photon in that ring is a right triangle resolved by gravity.</p>
   </div>
@@ -634,13 +689,13 @@ nav .navToggle{ display:none; }
       <circle cx="300" cy="140" r="4.5" fill="#3fd0ff"/>
       <text x="282" y="131" fill="#e8ecff" font-size="12" font-weight="600">P</text>
     </svg>
-    <figcaption>How the sine enters. Pick any point $P$ on the ray. Its line to the mass (amber, length $r$) makes angle $\varphi$ with the direction of travel, and the right triangle gives $b=r\sin\varphi$ (green) — the same fixed miss distance no matter which $P$ you pick, because the triangle is just re-measuring the perpendicular from the mass to the straight-line path. Gravity pulls straight toward the mass (amber arrow), but only the slice <i>across</i> the motion bends the ray — that sideways slice (rose arrow) is the pull times $\sin\varphi$. Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
+    <figcaption>How the sine enters. Pick any point $P$ on the ray, then make a right triangle with the flight line as one leg, the shortest line from the mass across to the flight line as the other leg (green, length $b$ — it meets the flight line at the 90° corner), and $P$'s line to the mass as the hypotenuse (amber, length $r$). The hypotenuse makes angle $\varphi$ with the direction of travel and $b$ is the side opposite it, so $b=r\sin\varphi$ — the same fixed miss distance no matter which $P$ you pick, because every one of these triangles shares the same green leg. Gravity pulls straight toward the mass (amber arrow), but only the slice <i>across</i> the motion bends the ray — that sideways slice (rose arrow) is the pull times $\sin\varphi$. Add those sine-weighted tugs all along the path and the ray turns by $\alpha$ (violet), the angle Einstein's $\alpha=4GM/c^2b$ predicts.</figcaption>
   </figure>
 
   <div class="lab">
     <h3><span class="dot"></span>Ride along the ray — slide P and watch the two sines work</h3>
     <p class="hint">Slide the photon's position $P$ along its path and watch three things, one at a time.</p>
-    <p class="hint"><b>The aim never moves.</b> As $P$ flies, its distance to the mass $r$ and its angle to the mass $\varphi$ both change constantly — but in lock-step: $r$ grows by exactly the factor that $\sin\varphi$ shrinks. So their product $b=r\sin\varphi$ is pinned at one value for the whole flight. Nothing mysterious is being conserved; the triangle is simply re-measuring, from wherever $P$ happens to be, the same perpendicular miss distance you fixed when you aimed the ray.</p>
+    <p class="hint"><b>The aim never moves.</b> As $P$ flies, its distance to the mass $r$ and its angle to the mass $\varphi$ both change constantly — but in lock-step: $r$ grows by exactly the factor that $\sin\varphi$ shrinks. So their product $b=r\sin\varphi$ is pinned at one value for the whole flight. Nothing mysterious is being conserved; the right triangle built at each $P$ has a different hypotenuse $r$ and a different angle $\varphi$, but always the identical short leg $b$ — the miss distance you fixed when you aimed the ray.</p>
     <p class="hint"><b>Only part of the pull can steer.</b> The amber arrow is gravity's full pull on the photon, pointing straight at the mass — diagonally to the flight, in general. Resolve it into two perpendicular pieces: the grey piece lies <i>along</i> the flight direction (it can speed the photon up or slow it, but never turn it), and the rose piece points <i>across</i> the flight — that sideways piece, equal to pull $\times\sin\varphi$, is the only thing that bends the ray.</p>
     <p class="hint"><b>The bend is an area.</b> The strip below the diagram plots that rose sideways tug at every point of the path, and the shaded region is its running sum. By the time $P$ has flown past the mass, the area has grown into the full deflection $\alpha$.</p>
     <div class="controls">
@@ -664,21 +719,130 @@ nav .navToggle{ display:none; }
 
   <div class="deriv">
     <h4><span class="ic">∴</span> Step by step: where the sine hides in $\alpha = 4GM/c^2b$</h4>
-    <p class="lead">Two different sines do the work — one fixes the aim, the other selects the bending. Both are the plain opposite-over-hypotenuse ratio from the start of this chapter.</p>
-    <ol>
-      <li><b>The aim distance is a sine.</b> At any instant the photon's line to the mass makes an angle $\varphi$ with its direction of travel. Drop the perpendicular from the mass onto the flight line and you have a right triangle: hypotenuse $r$ (distance to the mass), opposite side $b$ (the perpendicular miss distance). Opposite over hypotenuse gives $b = r\sin\varphi$. The point of writing it this way: $r$ and $\varphi$ each change from moment to moment, but the perpendicular they combine into is the impact parameter itself — set once by the aim, identical from every point of the flight. That fixed $b$ is exactly the $b$ waiting in the denominator of Einstein's formula.</li>
-      <li><b>Split the pull into two perpendicular pieces.</b> At $P$ gravity's pull, of strength $GM/r^2$, points along the amber line — straight at the mass. That direction is in general <i>diagonal</i> to the photon's motion, so treat the pull like any vector and resolve it into two components: one <i>along</i> the direction of travel, one <i>across</i> it (perpendicular). Nothing physical has happened yet — we have only rewritten one arrow as the sum of two.</li>
-      <li><b>Only the across piece can turn the ray.</b> Think of driving a car: the accelerator and the brake act along your motion and change your <i>speed</i>, but never your heading; only the steering wheel — a push <i>across</i> your motion — changes your direction. The same split applies here. The along-track piece of gravity (in this Newtonian picture) hurries the photon on the way in and holds it back by a matching amount on the way out, so over the whole flyby it cancels and leaves no trace. Every bit of deflection comes from the across-track piece alone. Extracting that piece is one more right triangle: the full pull is the hypotenuse and $\varphi$ is the angle it makes with the travel direction, so the across component is $\text{(hypotenuse)}\times\sin\varphi$:
-      $$\text{sideways tug}=\frac{GM}{r^2}\sin\varphi.$$
-      Check the limits and it behaves exactly as steering should: with the mass dead ahead or dead astern ($\varphi\to0°$ or $180°$, $\sin\varphi\to0$) the pull is purely along-track and turns the ray not at all; broadside at closest approach ($\varphi=90^\circ$, $\sin\varphi=1$) the <i>entire</i> pull is across-track and the bending is fiercest.</li>
-      <li><b>Add the sine-weighted tugs along the whole path.</b> Summing every tiny turn from far approach ($\varphi=0$) to far departure ($\varphi=\pi$) is the integral $\displaystyle\int_0^{\pi}\sin\varphi\,d\varphi = \big[-\cos\varphi\big]_0^{\pi}=2$ — the sine is literally the thing being summed. The total works out to $\alpha = \dfrac{2GM}{c^2 b}$, the bending Newton's gravity alone would give.</li>
-      <li><b>Relativity doubles it.</b> Everything above treated light as a fast Newtonian particle falling through flat, ordinary space, and it delivered $\alpha = 2GM/c^2b$. General relativity says a mass actually distorts its surroundings in <i>two</i> distinct ways, and our sum captured only one of them.
-        <ul>
-          <li><b>It warps time.</b> Clocks run slower the deeper you sit in the field. That gradient in clock rate deflects anything passing by, and it is precisely what the Newtonian "pull" encodes — the sine-weighted tugs we just summed are the <i>time</i>-warp half of the story.</li>
-          <li><b>It warps space.</b> The grid of distances around the mass is stretched in the radial direction, so even the "straightest possible" path drawn through that stretched grid tilts inward a little extra. This piece has no Newtonian counterpart at all.</li>
-        </ul>
-      For something moving at $c$, the two warps deflect equally, so the space half adds a second $2GM/c^2b$ on top of the first — Einstein's $\alpha = \dfrac{4GM}{c^2 b}$. (A slow planet spends its time creeping through the grid and barely samples the space warp, which is why Newton works so well for orbits; light, at full speed, feels both halves in full.) Einstein himself published the time-only value in 1911 — $0.87''$ at the Sun's limb — and only the finished theory of 1915 doubled it to $1.75''$, the number Eddington's 1919 eclipse expedition confirmed. The $b$ in the denominator is the very $\sin\varphi$ aim-distance from step 1: aim closer (smaller $b$) and the bend grows. At $b = 1.5\,R_s$ the summed turn closes into a full circle and the photon orbits the hole — the <b>photon sphere</b>.</li>
-    </ol>
+    <p class="lead">Two different sines do the work — one fixes the aim, the other selects the bending; both are the plain opposite-over-hypotenuse ratio from the start of this chapter. The only physics input is the pull of a single body, <a href="https://en.wikipedia.org/wiki/Newton%27s_law_of_universal_gravitation" target="_blank" rel="noopener" style="color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)">$GM/r^2$</a>. The five panels below run the whole derivation.</p>
+    <div class="figrow two">
+      <figure>
+        <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 1 of 5. A right triangle made of the flight line, the shortest line from the mass up to the flight line of length b, and the photon's line to the mass of length r as the hypotenuse. Sine of phi equals b over r, so b equals r sine phi, fixed for the whole flight.">
+          <defs>
+            <marker id="dv1-cyan" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd0ff"/></marker>
+          </defs>
+          <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">1 · the aim distance is a sine</text>
+          <line x1="20" y1="120" x2="285" y2="120" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.5"/>
+          <line x1="240" y1="120" x2="278" y2="120" stroke="#3fd0ff" stroke-width="2" marker-end="url(#dv1-cyan)"/>
+          <text x="281" y="140" fill="#9aa3c7" font-size="10.5" text-anchor="end">flight line</text>
+          <circle cx="90" cy="120" r="4.5" fill="#3fd0ff"/>
+          <text x="84" y="106" fill="#3fd0ff" font-size="12" font-weight="600">P</text>
+          <circle cx="200" cy="235" r="7" fill="#ffb24a"/>
+          <text x="214" y="240" fill="#ffb24a" font-size="12" font-weight="600">M</text>
+          <line x1="90" y1="120" x2="200" y2="235" stroke="#ffb24a" stroke-width="2"/>
+          <text x="130" y="172" fill="#ffb24a" font-size="13" font-weight="600">r</text>
+          <line x1="200" y1="235" x2="200" y2="120" stroke="#5ee6a8" stroke-width="2.2"/>
+          <text x="209" y="182" fill="#5ee6a8" font-size="13" font-weight="600">b</text>
+          <path d="M200,132 L188,132 L188,120" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.8"/>
+          <path d="M120,120 A30,30 0 0,1 110.7,141.7" fill="none" stroke="#b08cff" stroke-width="2"/>
+          <text x="126" y="141" fill="#b08cff" font-size="14" font-weight="700">φ</text>
+          <text x="150" y="292" fill="#5ee6a8" font-size="10.5" text-anchor="middle">SOH: sin φ = b/r → b = r·sin φ</text>
+          <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">r and φ change as P flies — b never does</text>
+        </svg>
+        <figcaption>Pick any point $P$ of the flight and make a right triangle with the flight line as one leg, the shortest line from the mass up to the flight line as the other leg (green, length $b$, at the 90° corner), and $P$'s line to the mass as the hypotenuse (amber, length $r$). Opposite over hypotenuse: $b=r\sin\varphi$ — set once by the aim, the impact parameter waiting in Einstein's denominator.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 2 of 5. Gravity's pull GM over r squared on the photon points diagonally at the mass. It is redrawn as two perpendicular pieces: GM over r squared cosine phi along the flight and GM over r squared sine phi across it.">
+          <defs>
+            <marker id="dv2-amber" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ffb24a"/></marker>
+            <marker id="dv2-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+            <marker id="dv2-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+          </defs>
+          <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">2 · split the pull into two pieces</text>
+          <line x1="20" y1="120" x2="285" y2="120" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.5"/>
+          <circle cx="90" cy="120" r="4.5" fill="#3fd0ff"/>
+          <text x="84" y="106" fill="#3fd0ff" font-size="12" font-weight="600">P</text>
+          <circle cx="200" cy="235" r="7" fill="#ffb24a" opacity="0.8"/>
+          <text x="214" y="240" fill="#ffb24a" font-size="12" font-weight="600">M</text>
+          <line x1="143" y1="176" x2="193" y2="228" stroke="#ffb24a" stroke-width="1" stroke-dasharray="3 3" opacity="0.5"/>
+          <line x1="138" y1="120" x2="138" y2="171" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+          <line x1="90" y1="171" x2="138" y2="171" stroke="#9aa3c7" stroke-width="1" stroke-dasharray="3 3" opacity="0.45"/>
+          <path d="M114,120 A24,24 0 0,1 106.6,137.3" fill="none" stroke="#b08cff" stroke-width="2"/>
+          <text x="119" y="139" fill="#b08cff" font-size="14" font-weight="700">φ</text>
+          <line x1="90" y1="120" x2="138" y2="120" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#dv2-grey)"/>
+          <text x="146" y="112" fill="#9aa3c7" font-size="10.5">GM/r²·cos φ (along)</text>
+          <line x1="90" y1="120" x2="90" y2="171" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#dv2-rose)"/>
+          <text x="95" y="190" fill="#ff6b9d" font-size="10.5" text-anchor="middle">GM/r²·sin φ (across)</text>
+          <line x1="90" y1="120" x2="138" y2="171" stroke="#ffb24a" stroke-width="2.6" marker-end="url(#dv2-amber)"/>
+          <text x="150" y="168" fill="#ffb24a" font-size="11" font-weight="600">pull = GM/r²</text>
+          <text x="150" y="292" fill="#9aa3c7" font-size="10.5" text-anchor="middle">the two pieces add back up to the full pull</text>
+          <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">same move as the block on the slope</text>
+        </svg>
+        <figcaption>At $P$ gravity pulls with strength $GM/r^2$ straight at the mass — diagonally to the flight. Make a right triangle with the along-the-flight piece and the across-the-flight piece as the two legs and the full pull as the hypotenuse: the across leg, opposite $\varphi$, is $\tfrac{GM}{r^2}\sin\varphi$.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 3 of 5. Before closest approach the along piece points forward, after it points backward, so over the flyby it cancels. The across piece points at the mass the whole time, so its tugs accumulate and only they bend the ray.">
+          <defs>
+            <marker id="dv3-rose" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#ff6b9d"/></marker>
+            <marker id="dv3-grey" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#9aa3c7"/></marker>
+            <marker id="dv3-cyan" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#3fd0ff"/></marker>
+          </defs>
+          <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">3 · only the across piece bends the ray</text>
+          <line x1="20" y1="130" x2="285" y2="130" stroke="#9aa3c7" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.5"/>
+          <line x1="252" y1="130" x2="282" y2="130" stroke="#3fd0ff" stroke-width="2" marker-end="url(#dv3-cyan)"/>
+          <circle cx="150" cy="240" r="7" fill="#ffb24a"/>
+          <text x="164" y="245" fill="#ffb24a" font-size="12" font-weight="600">M</text>
+          <line x1="70" y1="130" x2="150" y2="240" stroke="#ffb24a" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+          <line x1="230" y1="130" x2="150" y2="240" stroke="#ffb24a" stroke-width="1" stroke-dasharray="3 3" opacity="0.4"/>
+          <circle cx="70" cy="130" r="4.5" fill="#3fd0ff"/>
+          <text x="64" y="116" fill="#3fd0ff" font-size="11" font-weight="600">in</text>
+          <circle cx="230" cy="130" r="4.5" fill="#3fd0ff"/>
+          <text x="222" y="116" fill="#3fd0ff" font-size="11" font-weight="600">out</text>
+          <line x1="70" y1="130" x2="108" y2="130" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#dv3-grey)"/>
+          <text x="94" y="148" fill="#9aa3c7" font-size="10.5" text-anchor="middle">forward</text>
+          <line x1="230" y1="130" x2="192" y2="130" stroke="#9aa3c7" stroke-width="2.2" marker-end="url(#dv3-grey)"/>
+          <text x="207" y="148" fill="#9aa3c7" font-size="10.5" text-anchor="middle">backward</text>
+          <line x1="70" y1="130" x2="70" y2="168" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#dv3-rose)"/>
+          <line x1="230" y1="130" x2="230" y2="168" stroke="#ff6b9d" stroke-width="2.6" marker-end="url(#dv3-rose)"/>
+          <text x="150" y="278" fill="#ff6b9d" font-size="10.5" text-anchor="middle">across tug = GM/r²·sin φ — piles up, never cancels</text>
+          <text x="150" y="292" fill="#9aa3c7" font-size="10.5" text-anchor="middle">along: forward in, backward out — cancels over the flyby</text>
+          <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">φ→0° or 180°: no turn · φ=90° broadside: strongest</text>
+        </svg>
+        <figcaption>The along piece (grey) hurries the photon on the way in and holds it back by the same amount on the way out — over the whole flyby it cancels itself, like an accelerator and a brake that only change speed. The across piece (rose) points at the mass the whole time — the steering wheel — so its sine-weighted tugs pile up: every bit of the bending comes from them.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 4 of 5. The curve of sine phi from zero to pi with the area beneath it shaded. That area is the integral of sine phi from zero to pi, which equals 2, giving Newton's deflection of 2 G M over c squared b.">
+          <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">4 · sum the tugs: the area under sin φ</text>
+          <line x1="30" y1="240" x2="285" y2="240" stroke="#9aa3c7" stroke-width="1.2" opacity="0.5"/>
+          <line x1="30" y1="240" x2="30" y2="90" stroke="#9aa3c7" stroke-width="1.2" opacity="0.5"/>
+          <path d="M30,240 L50,206 L70,175 L90,148 L110,127 L130,114 L150,110 L170,114 L190,127 L210,148 L230,175 L250,206 L270,240 Z" fill="#ff6b9d" opacity="0.15" stroke="none"/>
+          <polyline points="30,240 50,206 70,175 90,148 110,127 130,114 150,110 170,114 190,127 210,148 230,175 250,206 270,240" fill="none" stroke="#ff6b9d" stroke-width="2.2"/>
+          <text x="42" y="104" fill="#ff6b9d" font-size="11" font-weight="600">sin φ</text>
+          <text x="30" y="256" fill="#9aa3c7" font-size="10.5" text-anchor="middle">0</text>
+          <text x="150" y="256" fill="#9aa3c7" font-size="10.5" text-anchor="middle">π/2</text>
+          <text x="270" y="256" fill="#9aa3c7" font-size="10.5" text-anchor="middle">π</text>
+          <text x="150" y="271" fill="#9aa3c7" font-size="10.5" text-anchor="middle">angle to the mass φ, approach → departure</text>
+          <text x="150" y="185" fill="#e8ecff" font-size="11.5" font-weight="700" text-anchor="middle">area = ∫ sin φ dφ (0→π) = 2</text>
+          <text x="150" y="292" fill="#ff6b9d" font-size="10.5" text-anchor="middle">add every tiny turn: α = 2GM/c²b (Newton)</text>
+          <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">the sine is literally the thing being summed</text>
+        </svg>
+        <figcaption>Summing every tiny sideways turn from far approach ($\varphi=0$) to far departure ($\varphi=\pi$) is the integral $\int_0^{\pi}\sin\varphi\,d\varphi=\big[-\cos\varphi\big]_0^{\pi}=2$ — the shaded area. Carrying the constants through gives $\alpha=2GM/c^2b$: the bending Newton's gravity alone would predict.</figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 5 of 5. Two equal contributions stack: the time warp, which is the Newtonian sum of 2 G M over c squared b, plus the space warp of another 2 G M over c squared b, giving Einstein's total deflection of 4 G M over c squared b.">
+          <text x="150" y="24" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">5 · relativity doubles it</text>
+          <rect x="40" y="64" width="180" height="30" fill="rgba(255,178,74,0.18)" stroke="#ffb24a" stroke-width="1.5" rx="6"/>
+          <text x="130" y="83" fill="#ffb24a" font-size="11.5" font-weight="600" text-anchor="middle">time warp: 2GM/c²b</text>
+          <text x="130" y="110" fill="#9aa3c7" font-size="10.5" text-anchor="middle">slower clocks deeper in — the sum above</text>
+          <rect x="40" y="124" width="180" height="30" fill="rgba(63,208,255,0.15)" stroke="#3fd0ff" stroke-width="1.5" rx="6"/>
+          <text x="130" y="143" fill="#3fd0ff" font-size="11.5" font-weight="600" text-anchor="middle">space warp: +2GM/c²b</text>
+          <text x="130" y="170" fill="#9aa3c7" font-size="10.5" text-anchor="middle">radial distances stretched — nothing Newtonian</text>
+          <path d="M232,64 L244,64 L244,154 L232,154" fill="none" stroke="#9aa3c7" stroke-width="1.2" opacity="0.7"/>
+          <text x="150" y="205" fill="#e8ecff" font-size="14" font-weight="700" text-anchor="middle">α = 4GM/c²b — Einstein</text>
+          <text x="150" y="234" fill="#9aa3c7" font-size="10.5" text-anchor="middle">1911: time half only → 0.87″ · 1915: both → 1.75″</text>
+          <text x="150" y="248" fill="#9aa3c7" font-size="10.5" text-anchor="middle">confirmed by Eddington's 1919 eclipse expedition</text>
+          <text x="150" y="292" fill="#b08cff" font-size="10.5" text-anchor="middle">at b = 1.5 Rs the bend closes into a loop:</text>
+          <text x="150" y="306" fill="#b08cff" font-size="10.5" text-anchor="middle">the photon sphere — the EHT ring around M87*</text>
+        </svg>
+        <figcaption>Everything so far treated light as a fast particle in flat space and delivered $\alpha=2GM/c^2b$ — that is the <i>time</i>-warp half, which the Newtonian pull encodes. A mass also warps <i>space</i> (radial distances stretch), and for anything moving at $c$ the two warps deflect equally, so Einstein's total is double Newton's: $\alpha=4GM/c^2b$. Aim closer (smaller $b$) and the bend grows; at $b=1.5\,R_s$ it closes into the <b>photon sphere</b>.</figcaption>
+      </figure>
+    </div>
+    <div class="eq">$$ b=r\sin\varphi,\qquad \text{sideways tug}=\frac{GM}{r^2}\sin\varphi,\qquad \int_0^{\pi}\sin\varphi\,d\varphi=2 \;\Rightarrow\; \alpha_{\text{Newton}}=\frac{2GM}{c^2b},\qquad \alpha_{\text{Einstein}}=\frac{4GM}{c^2b} $$</div>
     <div class="concl"><b>Conclusion:</b> the deflection is nothing but a heap of sideways tugs, each one the pull times the sine of the angle to the mass. Pile them up to the limit and the heap becomes the bright ring the Event Horizon Telescope photographed around M87*.</div>
   </div>
   <h3 class="subhead"><span class="n">3</span>Practice problems</h3>
@@ -730,7 +894,7 @@ nav .navToggle{ display:none; }
   <h3 class="subhead"><span class="n">1</span>From triangle to circle to wave</h3>
   <div class="beats">
     <div class="beat known"><div class="tag">What it is</div>
-      <p>Drop the right triangle inside a circle of radius 1 with one corner pinned at the centre. The far corner sits at coordinates $(\cos\theta,\ \sin\theta)$: cosine is how far across, sine is how far up. This <b>unit circle</b> is the honest definition of the functions — it extends $\sin$ and $\cos$ to <i>any</i> angle, well past the 0–90° a triangle can hold.</p></div>
+      <p>Make a right triangle inside a circle of radius 1: the tilted radius is the hypotenuse (length 1, one end pinned at the centre), the flat run along the x-axis is one leg ($\cos\theta$), and the vertical rise up to the circle is the other leg ($\sin\theta$). So the corner on the circle sits at coordinates $(\cos\theta,\ \sin\theta)$: cosine is how far across, sine is how far up. This <b>unit circle</b> is the honest definition of the functions — it extends $\sin$ and $\cos$ to <i>any</i> angle, well past the 0–90° a triangle can hold.</p></div>
     <div class="beat idea"><div class="tag">How it works</div>
       <p>Let the radius spin at a steady rate and its height traces a smooth up-and-down curve: that curve <i>is</i> the <b>sine wave</b>, and cosine is the same wave a quarter-turn ahead. A wave is written $y=A\cos(2\pi f t+\phi)$, where $A$ is the <b>amplitude</b>, $f$ the <b>frequency</b> (turns per second), and $\phi$ the <b>phase</b>. A sine wave is, quite literally, the shadow of circular motion.</p></div>
     <div class="beat found"><div class="tag">How it's applied</div>
@@ -3068,7 +3232,7 @@ function fmt(x,sig){ sig=sig||3; if(x===0)return '0'; if(!isFinite(x))return '�
     'pythagorean':{label:'Pythagorean theorem',wiki:W+'Pythagorean_theorem',
       def:'opp² + adj² = hyp² in any right triangle. Divided through by hyp², it becomes the unit-circle identity sin²θ + cos²θ = 1.',terms:['Pythagorean identity','Pythagoras']},
     'impact-parameter':{label:'Impact parameter',wiki:W+'Impact_parameter',
-      def:'The perpendicular miss distance b — how close a ray would pass to the centre if it flew dead straight. Fixed by the aim alone, it is the b in Einstein’s deflection α = 4GM/c²b.',terms:['impact parameter']},
+      def:'The miss distance b — how close a ray would pass to the centre if it flew dead straight. Fixed by the aim alone, it is the b in Einstein’s deflection α = 4GM/c²b.',terms:['impact parameter']},
     'vector-component':{label:'Vector components',wiki:W+'Euclidean_vector',
       def:'Any arrow at angle θ to a reference direction can be rewritten as two perpendicular pieces — cos θ of it along, sin θ of it across — which then act independently.',terms:['vector','components','component']},
     'dot-product':{label:'Dot product',wiki:W+'Dot_product',
