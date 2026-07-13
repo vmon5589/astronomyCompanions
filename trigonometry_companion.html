@@ -968,9 +968,9 @@ nav .navToggle{ display:none; }
 
     <ol>
       <li><b>Put the point on the unit circle.</b> At angle θ its coordinates are $(\cos\theta,\sin\theta)$, and Pythagoras on the radius gives $\cos^2\theta+\sin^2\theta=1$ for every θ.</li>
-      <li><b>Spin at a steady rate.</b> Let the angle grow with time, $\theta=\omega t$, where ω is the angular speed in radians per second. The height is then $\sin(\omega t)$.</li>
-      <li><b>Count turns — introduce frequency.</b> One full turn is $2\pi$ radians, so $f$ turns per second means $\omega=2\pi f$, with period $T=1/f$. The height becomes $\sin(2\pi f t)$.</li>
-      <li><b>Scale and shift.</b> A real oscillation has a size $A$ (the amplitude) and may start partway round, a head-start φ (the phase): $y=A\cos(2\pi f t+\phi)$. Cosine is sine a quarter-turn ahead, since $\cos\theta=\sin(\theta+90°)$.</li>
+      <li><b>Spin at a steady rate.</b> Let the angle grow with time $t$, as $\theta=\omega t$, where ω is the angular speed in radians per second and $t$ is the elapsed time in seconds. The height is then $\sin(\omega t)$.</li>
+      <li><b>Count turns — introduce frequency.</b> One full turn is $2\pi$ radians, so $f$ turns per second means $\omega=2\pi f$. Substitute that into $\sin(\omega t)$ and the height becomes $\sin(2\pi f t)$.</li>
+      <li><b>Scale and shift.</b> A real oscillation has an amplitude $A$ and may start at any point in its cycle — the phase φ: $y=A\sin(2\pi f t+\phi)$. Physics conventionally starts the clock at the highest point. But with $\sin$, at the start ($t=0$, $\phi=0$) the argument is $0$, and $\sin(0) = 0$ — zero, not the peak; to begin at the peak you need a quarter-turn head-start, $\sin(2\pi f t+90°)$. And $\sin(\theta+90°)=\cos\theta$, so that quarter-turn is exactly what turns $\sin$ into $\cos$. Folding it in, physics writes $y=A\cos(2\pi f t+\phi)$, where $\phi=0$ now starts at the peak, since $\cos(0) = 1$.</li>
     </ol>
     <div class="concl"><b>Conclusion:</b> every periodic signal here — a light wave, a pulsar's pulse, a gravitational wave's strain — is this one construction, differing only in $A$, $f$ and φ.</div>
   </div>
