@@ -1062,7 +1062,38 @@ nav .navToggle{ display:none; }
     <ol>
       <li><b>Define the angle as arc length.</b> Sweep an angle at the centre of a circle of radius $r$; it cuts an arc $s$. The radian is $\theta=s/r$, so $s=r\theta$.</li>
       <li><b>Calibrate against a full turn.</b> A whole circle has arc $2\pi r$, so one turn is $2\pi r/r=2\pi$ rad $=360°$. Hence $1$ rad $=180/\pi=57.3°$, and splitting into seconds, $1$ rad $=206{,}265''$.</li>
-      <li><b>A far object spans a tiny arc.</b> An object of true size $D$ at distance $d$ subtends arc $D$ on a circle of radius $d$, so its angular size is simply $\theta=D/d$ in radians — no trig function needed.</li>
+      <li><b>A far object's diameter is a slice of the full circle.</b> Imagine a giant circle with <i>you</i> at the centre and a distant star sitting on the rim. The distance to the star is the radius $d$, the whole rim (circumference) is $2\pi d$, and a full circle is always $360^{\circ}$.
+        <figure style="max-width:340px;margin:12px auto 6px">
+          <svg viewBox="0 0 360 300" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="You stand at the centre of a giant circle of radius d; a star sits on the rim. The star's physical diameter D spans a tiny wedge of angle theta. The whole rim is the circumference 2 pi d and the whole turn is 2 pi radians, so D over 2 pi d equals theta over 2 pi.">
+            <text x="180" y="22" fill="#e8ecff" font-size="12.5" font-weight="700" text-anchor="middle">the full-circle baseline</text>
+            <!-- the giant circle -->
+            <circle cx="180" cy="158" r="115" fill="none" stroke="#9aa3c7" stroke-width="1.4" stroke-dasharray="5 5" opacity="0.55"/>
+            <!-- observer at the centre -->
+            <circle cx="180" cy="158" r="3.2" fill="#e8ecff"/>
+            <text x="180" y="181" fill="#9aa3c7" font-size="10.5" text-anchor="middle">you (centre)</text>
+            <!-- the wedge subtended by the star -->
+            <line x1="180" y1="158" x2="292.5" y2="134.1" stroke="#b08cff" stroke-width="1.1" opacity="0.7"/>
+            <line x1="180" y1="158" x2="277.5" y2="97.1" stroke="#b08cff" stroke-width="1.1" opacity="0.7"/>
+            <path d="M219.1,149.7 A40,40 0 0,0 213.9,136.8" fill="none" stroke="#b08cff" stroke-width="2"/>
+            <text x="228" y="140" fill="#b08cff" font-size="13" font-weight="700">θ</text>
+            <!-- radius d to the star -->
+            <line x1="180" y1="158" x2="286.6" y2="114.9" stroke="#3fd0ff" stroke-width="2"/>
+            <text x="236" y="127" fill="#3fd0ff" font-size="13" font-weight="700">d</text>
+            <!-- the star and its physical diameter D on the rim -->
+            <line x1="292.5" y1="134.1" x2="277.5" y2="97.1" stroke="#ffb24a" stroke-width="3.2"/>
+            <circle cx="286.6" cy="114.9" r="3.4" fill="#ffb24a"/>
+            <text x="302" y="116" fill="#ffb24a" font-size="13" font-weight="700">D</text>
+            <!-- baseline facts -->
+            <text x="180" y="290" fill="#9aa3c7" font-size="10.5" text-anchor="middle">whole rim = 2πd  ·  whole turn = 360° = 2π rad</text>
+          </svg>
+          <figcaption>The star's physical slice $D$ along the rim is the same fraction of the whole rim as its angular slice $\theta$ is of the whole turn. (The wedge is drawn wide to be visible; real stellar angles are minute.)</figcaption>
+        </figure>
+        <b>Set up a proportion.</b> The slice of the circle the star occupies is proportional to the slice of the angle it takes up in your field of view:
+        $$ \frac{D}{2\pi d}=\frac{\theta^{\circ}}{360^{\circ}}. $$
+        <b>Switch to radians.</b> A full circle is no longer $360^{\circ}$ — it is exactly $2\pi$ radians:
+        $$ \frac{D}{2\pi d}=\frac{\theta}{2\pi}. $$
+        Multiply both sides by $2\pi$ and the clutter cancels cleanly:
+        $$ \frac{D}{d}=\theta. $$</li>
       <li><b>The shadow's size.</b> A black hole's shadow has diameter $\approx5.2\,R_s$ (a relativistic factor times the Schwarzschild radius); dividing by distance gives the angle a telescope must resolve.</li>
     </ol>
     <div class="concl"><b>Conclusion:</b> because the radian <i>is</i> arc length, "how big does it look?" is just size ÷ distance — the equation the lab below evaluates.</div>
