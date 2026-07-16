@@ -821,7 +821,25 @@ nav .navToggle{ display:none; }
           <text x="150" y="292" fill="#ff6b9d" font-size="10.5" text-anchor="middle">add every tiny turn: α = 2GM/c²b (Newton)</text>
           <text x="150" y="306" fill="#9aa3c7" font-size="10.5" text-anchor="middle">the sine is literally the thing being summed</text>
         </svg>
-        <figcaption>Summing every tiny sideways turn from far approach ($\varphi=0$) to far departure ($\varphi=\pi$) is the integral $\int_0^{\pi}\sin\varphi\,d\varphi=\big[-\cos\varphi\big]_0^{\pi}=2$ — the shaded area. Carrying the constants through gives $\alpha=2GM/c^2b$: the bending Newton's gravity alone would predict.</figcaption>
+        <figcaption>Summing every tiny sideways turn from far approach ($\varphi=0$) to far departure ($\varphi=\pi$) is the integral $\int_0^{\pi}\sin\varphi\,d\varphi=\big[-\cos\varphi\big]_0^{\pi}=2$ — the shaded area. Carrying the constants through gives $\alpha=2GM/c^2b$: the bending Newton's gravity alone would predict.
+          <details style="margin-top:9px; border-top:1px solid var(--line); padding-top:8px">
+            <summary style="cursor:pointer; color:var(--cyan); font-size:12px; font-weight:600; letter-spacing:.3px; list-style:none">▸ what are &ldquo;the constants&rdquo;?</summary>
+            <div style="margin-top:8px; font-size:12.5px; line-height:1.65; color:var(--muted)">
+              <p style="margin:0 0 8px">The picture keeps only the <i>shape</i> — the curve $\sin\varphi$ and its area, the pure number $2$. That $2$ carries no $G$, no $M$, no units. To turn it into a real angle you put back the physical factors that were set aside. Three of them sit outside the integral:</p>
+              <ul style="margin:0 0 8px; padding-left:20px">
+                <li style="margin:4px 0"><b style="color:var(--amber)">$GM$</b> — the strength of the pull (panel 2: the full pull is $GM/r^2$).</li>
+                <li style="margin:4px 0"><b style="color:var(--amber)">$1/c^2$</b> — two factors of $c$. The deflection angle is the sideways speed the photon gains divided by its forward speed $c$ — that is one factor. The second shows up when the tugs are added along the path: the photon covers a length $dx$ in a time $dx/c$, so rewriting the sum over distance as a sum over time brings in another $1/c$. Another way to summarize the second part is summing a per-time effect along a per-distance path. If water was flowing near a sloped drain, then the first part is like asking: By what angle did the stream get deflected? And the second part is like asking: Total sideways push, added up as the water flows past the drain? In this analogy, how far off to the side the water passes would be the impact parameter $b$ and the flowing water's new direction would be the deflection angle.</li>
+                <li style="margin:4px 0"><b style="color:var(--amber)">$1/b$</b> — the impact parameter, brought in when everything is rewritten in terms of $\varphi$.</li>
+              </ul>
+              <p style="margin:0 0 8px">The bend is the total sideways velocity over $c$, with the across-tug $a_\perp=\tfrac{GM}{r^2}\sin\varphi$ from panel 2:</p>
+              <p style="margin:0 0 8px; text-align:center">$\alpha=\dfrac1c\displaystyle\int_0^\pi a_\perp\,dt.$</p>
+              <p style="margin:0 0 8px">Two facts from the earlier panels do the work: from panel 1, $\tfrac{1}{r^2}=\tfrac{\sin^2\varphi}{b^2}$, and the photon's position along its path gives $dt=\tfrac{b}{c\,\sin^2\varphi}\,d\varphi$. Put both in and the extra powers of $\sin\varphi$ cancel, leaving one:</p>
+              <p style="margin:0 0 8px; text-align:center">$a_\perp\,dt=\dfrac{GM}{b\,c}\,\sin\varphi\,d\varphi.$</p>
+              <p style="margin:0 0 8px">That lone $\sin\varphi$ is the curve above, so its area is again the $2$:</p>
+              <p style="margin:0; text-align:center">$\alpha=\dfrac{GM}{c^2 b}\displaystyle\int_0^\pi\sin\varphi\,d\varphi=\dfrac{2GM}{c^2 b}.$</p>
+            </div>
+          </details>
+        </figcaption>
       </figure>
       <figure>
         <svg viewBox="0 0 300 315" role="img" style="display:block;width:100%;height:auto;background:#060810;font-family:system-ui,-apple-system,Segoe UI,sans-serif" aria-label="Panel 5 of 5. Two equal contributions stack: the time warp, which is the Newtonian sum of 2 G M over c squared b, plus the space warp of another 2 G M over c squared b, giving Einstein's total deflection of 4 G M over c squared b.">
