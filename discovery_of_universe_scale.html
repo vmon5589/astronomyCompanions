@@ -1,0 +1,2066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Day We Found the Universe — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden; overflow-x:clip;
+  }
+  /* Starfield canvas sits behind everything */
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{ /* subtle vignette + nebula glow */
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:680px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+
+  /* visuals: canvas figures + AI-image slots */
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+  /* slot you can replace with an AI-generated image */
+  .imgslot{position:relative; min-height:200px; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:repeating-linear-gradient(45deg,rgba(120,140,230,0.05),rgba(120,140,230,0.05) 12px,transparent 12px,transparent 24px);
+    border:1px dashed rgba(140,160,230,0.35); border-radius:14px; color:var(--muted); padding:24px; font-size:13px}
+  .imgslot b{color:var(--ink)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* ---------- stellar zoo grid ---------- */
+  .zoo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:6px}
+  .zoo-card{background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center}
+  .zoo-card canvas{width:100%; height:auto; background:radial-gradient(circle at 50% 45%, #0a0c1a, #000); border-radius:10px; display:block}
+  .zoo-card .zt{font-weight:700; font-size:13.5px; margin-top:9px; color:#fff}
+  .zoo-card .zk{font-size:11px; color:var(--cyan); letter-spacing:.4px; text-transform:uppercase; margin-top:1px}
+  .zoo-card .zd{font-size:11.6px; color:var(--muted); line-height:1.5; margin-top:6px}
+
+  /* ---------- glossary layout + left rail ---------- */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; overflow-x:clip; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* Wide MathJax equations are the main mobile-overflow culprit: they force the
+       layout viewport wider than the phone, which shrink-zooms the whole page and
+       leaves interactive plots mis-scaled. Let wide math scroll inside its own box. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  /* inline hover-glossary terms */
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+<style>
+/* ---- Mobile dropdown menu (added) ---- */
+nav .navToggle{ display:none; }
+@media(max-width:640px){
+  nav .wrap{ flex-wrap:wrap; align-items:center; }
+  nav .brand{ flex:1 1 auto; min-width:0; }
+  nav .navToggle{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+    margin-left:auto; flex:0 0 auto;
+    color:#fff; font-size:14px; font-weight:600; letter-spacing:.3px;
+    padding:9px 13px; border-radius:9px;
+    background:rgba(120,140,230,0.16);
+    border:1px solid rgba(120,140,230,0.45);
+  }
+  nav .navToggle-bars,
+  nav .navToggle-bars::before,
+  nav .navToggle-bars::after{
+    content:""; display:block; width:18px; height:2px; border-radius:2px;
+    background:#fff; transition:transform .2s ease, opacity .2s ease;
+  }
+  nav .navToggle-bars{ position:relative; }
+  nav .navToggle-bars::before{ position:absolute; top:-6px; left:0; }
+  nav .navToggle-bars::after{ position:absolute; top:6px; left:0; }
+  nav.open .navToggle-bars{ background:transparent; }
+  nav.open .navToggle-bars::before{ transform:translateY(6px) rotate(45deg); }
+  nav.open .navToggle-bars::after{ transform:translateY(-6px) rotate(-45deg); }
+  nav .links{
+    display:none; flex-direction:column; align-items:stretch;
+    width:100%; margin-left:0; margin-top:10px; gap:2px;
+    max-height:70vh; overflow-y:auto; overflow-x:visible;
+  }
+  nav.open .links{ display:flex; }
+  nav .links a{
+    padding:12px 12px; font-size:15px; border-radius:8px;
+    border:1px solid transparent;
+  }
+  nav .links a:active{ background:rgba(120,140,230,0.18); }
+}
+</style>
+<style>
+  /* ---------- timeline chips in the hero ---------- */
+  .trail{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:22px auto 0; max-width:900px}
+  .trail a{display:inline-flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--muted);
+    border:1px solid var(--line); border-radius:12px; padding:7px 12px; font-size:12px; background:rgba(18,22,40,0.55); transition:all .15s}
+  .trail a b{color:var(--ink); font-size:13.5px; font-variant-numeric:tabular-nums}
+  .trail a:hover{border-color:var(--cyan); color:#fff; transform:translateY(-2px)}
+  .trail a.focus{border-color:rgba(255,178,74,0.55)}
+  .trail a.focus b{color:var(--amber)}
+
+  /* ---------- small UI bits ---------- */
+  .btn{background:rgba(120,140,230,0.14); color:var(--ink); border:1px solid rgba(120,140,230,0.4); border-radius:9px;
+    padding:7px 13px; font-size:13px; cursor:pointer; font-family:inherit}
+  .btn:hover{background:rgba(120,140,230,0.26)}
+  .btn.on{background:rgba(63,208,255,0.2); border-color:var(--cyan); color:#fff}
+  .ctl label.chk{justify-content:flex-start}
+  .chk{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; margin:3px 0}
+  .chk input{accent-color:var(--cyan); width:16px; height:16px}
+  .spotlight{border:1px solid rgba(255,178,74,0.45); background:rgba(255,178,74,0.06); border-radius:12px; padding:12px 16px; margin:16px 0; font-size:14px}
+  .spotlight b{color:var(--amber)}
+  .focus-band{display:inline-block; margin-left:8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber);
+    border:1px solid rgba(255,178,74,0.45); border-radius:999px; padding:3px 9px; vertical-align:middle}
+  blockquote.q{margin:14px 0; padding:8px 16px; border-left:3px solid var(--violet); color:#d9dcf5; font-style:italic; background:rgba(176,140,255,0.06); border-radius:0 10px 10px 0}
+  blockquote.q cite{display:block; font-style:normal; font-size:12.5px; color:var(--muted); margin-top:4px}
+
+  /* ---------- Great Debate scorecard ---------- */
+  .deb-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px; margin-top:8px}
+  .deb-card{background:rgba(0,0,0,0.32); border:1px solid var(--line); border-radius:12px; padding:12px 14px}
+  .deb-card .dq{font-weight:700; color:#fff; font-size:14px; margin-bottom:6px}
+  .deb-card .side{font-size:12.5px; color:var(--muted); margin:3px 0}
+  .deb-card .side b{color:var(--ink)}
+  .deb-card .picks{display:flex; gap:8px; margin-top:9px}
+  .deb-card .picks .btn{flex:1; padding:6px 8px; font-size:12.5px}
+  .deb-card .reveal{display:none; margin-top:9px; font-size:12.8px; border-radius:9px; padding:8px 11px; border:1px solid var(--line)}
+  .deb-card.done .reveal{display:block}
+  .deb-card.right .reveal{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .deb-card.wrong .reveal{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+  .score{font-size:14px; color:var(--muted); margin-top:12px}
+  .score b{color:var(--green)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">The Day We Found the Universe <small>Interactive companion · after Marcia Bartusiak</small></div>
+    <button class="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="navToggle-bars" aria-hidden="true"></span>Menu
+    </button>
+    <div class="links">
+      <a href="#islands">Island universes</a>
+      <a href="#leavitt">Leavitt's law</a>
+      <a href="#calibrate">Calibration</a>
+      <a href="#slipher">Slipher</a>
+      <a href="#shapley">Shapley's candles</a>
+      <a href="#halo">The halo</a>
+      <a href="#dethrone">Dethroning the Sun</a>
+      <a href="#vanmaanen">van Maanen</a>
+      <a href="#debate">Great Debate</a>
+      <a href="#hubble">VAR!</a>
+      <a href="#expansion">Expansion</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>How we found out the universe is <span class="grad">vastly bigger</span> than our galaxy</h1>
+  <p class="sub">In 1900 the Milky Way was thought to be the entire cosmos. By 1931 it was one galaxy among countless others, all flying apart. Follow the trail of clues one discovery at a time. Each chapter covers what was known, what someone dared to think, how they tested it and what the data forced them to conclude.</p>
+  <p class="byline">A fan-made, interactive companion to <b>The Day We Found the Universe</b> by <b>Marcia Bartusiak</b>. Move every slider and the plots recompute live.</p>
+  <div class="trail">
+    <a href="#islands"><b>1755–1900</b>island universes</a>
+    <a href="#leavitt"><b>1912</b>Leavitt</a>
+    <a href="#calibrate"><b>1913</b>Hertzsprung</a>
+    <a href="#slipher"><b>1912–17</b>Slipher</a>
+    <a class="focus" href="#shapley"><b>1914–18</b>Shapley's candles</a>
+    <a class="focus" href="#halo"><b>1918</b>the halo</a>
+    <a class="focus" href="#dethrone"><b>1918</b>Sun dethroned</a>
+    <a href="#vanmaanen"><b>1916–21</b>van Maanen</a>
+    <a href="#debate"><b>1920</b>Great Debate</a>
+    <a href="#hubble"><b>1923–25</b>VAR!</a>
+    <a href="#expansion"><b>1927–31</b>expansion</a>
+  </div>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the chapters. Every astronomy term in the text is <span style="color:var(--green);font-weight:700">highlighted</span>. Hover over one for a definition, and this panel fills with the terms (and Wikipedia links) for the section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. ISLAND UNIVERSES -->
+<!-- ============================================================= -->
+<section class="chapter" id="islands">
+  <span class="era">1755 – 1900 · One galaxy, or many?</span>
+  <h2>Island universes and the spiral nebulae</h2>
+  <p class="who">Immanuel Kant · William Herschel · Lord Rosse · <b>James Keeler</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>The night sky is sprinkled with faint, fuzzy patches called nebulae. In 1755 the philosopher Immanuel Kant guessed that some were whole star systems like our own, so far away that their stars blur together. These were "island universes." William Herschel counted stars in different directions and mapped the Milky Way as a flattened "grindstone" with the Sun near its middle.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>In 1845 Lord Rosse's giant 72-inch "Leviathan" telescope showed that some nebulae, like M51, had a <i>spiral</i> shape. A swirl looks like a rotating system of stars. But it could equally be a solar system forming out of gas, close by inside our own galaxy.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Around 1898–1900 James Keeler photographed the sky with the Crossley reflector at Lick Observatory. Faint spiral nebulae turned up on almost every plate. He estimated that around 120,000 of them were within reach of his telescope.</p></div>
+    <div class="beat found"><div class="tag">Where things stood</div>
+      <p>No one could measure how far away a spiral nebula was. The key question was <b>distance</b>. If Andromeda was the same size as the Milky Way, its small angular size meant it had to be unimaginably far away. If it was small, it could be a neighbor. Until someone found a way to measure distances, either answer was possible.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>If Andromeda were another Milky Way, how far would it be?</h3>
+    <p class="hint">The Andromeda nebula spans about 3.2° of sky, about six full Moons. Pick how big you think a galaxy is. The small-angle formula then tells you how far Andromeda must be. Note that the answer depends entirely on your assumption. That's why the debate went in circles for decades.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Assumed true diameter <b><span id="is_dlbl">100,000</span> ly</b></label>
+        <input id="is_diam" type="range" min="3.5" max="5.6" step="0.01" value="5">
+      </div>
+      <div class="ctl">
+        <label>Jump to a historical model</label>
+        <select id="is_preset">
+          <option value="5">Modern Milky Way: ~100,000 ly</option>
+          <option value="4.477">Kapteyn's universe (1920): ~30,000 ly</option>
+          <option value="5.477">Shapley's "Big Galaxy" (1918): ~300,000 ly</option>
+          <option value="3.7">A forming solar system: ~5,000 ly</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Angular size θ</div><div class="v">3.2<small>°</small></div></div>
+      <div class="stat"><div class="k">Implied distance</div><div class="v"><span id="is_dist">1.8 million</span> <small>ly</small></div></div>
+      <div class="stat"><div class="k">vs. modern 2.5 Mly</div><div class="v" id="is_cmp" style="font-size:15px">×0.72</div></div>
+    </div>
+    <figure><canvas id="is_canvas" width="900" height="300"></canvas>
+      <figcaption id="is_cap">Andromeda as a tilted spiral, drawn procedurally. The ruler shows the 3.2° it covers on the sky.</figcaption></figure>
+    <div class="eq">$$ d=\frac{D}{\theta}\quad(\theta\ \text{in radians}),\qquad \theta=3.2^\circ\times\frac{\pi}{180}=0.0559\ \text{rad} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Andromeda covers $\theta=3.2^\circ$. If it is the same size as the modern Milky Way, $D=100{,}000$ ly, how far away is it?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert the angle to radians.</b> $\theta=3.2\times\dfrac{\pi}{180}=0.0559$ rad.</li>
+          <li><b>Apply the small-angle formula.</b> $d=\dfrac{D}{\theta}=\dfrac{100{,}000}{0.0559}=1.79\times10^{6}$ ly.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1.8$ million light-years. That's the same order of magnitude as the true $2.5$ Mly, and far beyond anything in the Milky Way.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Now assume Kapteyn's much smaller universe, $D=30{,}000$ ly. Where must Andromeda be, and does it still lie outside Kapteyn's universe?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Same formula.</b> $d=\dfrac{30{,}000}{0.0559}=5.37\times10^{5}$ ly.</li>
+          <li><b>Compare.</b> $537{,}000$ ly is about $18\times$ the 30,000-ly diameter of the whole system.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $540{,}000$ ly, still well outside. The island-universe idea stood or fell on whether the spirals really were the same size as the Milky Way.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> In the spirit of Keeler's survey, suppose an average plate covering $1$ square degree shows $3$ faint spiral nebulae. The whole sky is $41{,}253$ square degrees. Estimate the total number in reach.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Scale by area.</b> $N=3\ \text{per deg}^2\times41{,}253\ \text{deg}^2$.</li>
+          <li><b>Evaluate.</b> $N\approx1.24\times10^{5}$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> roughly $120{,}000$, the same order as Keeler's estimate. There were far too many of them to be a curiosity.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. LEAVITT -->
+<!-- ============================================================= -->
+<section class="chapter" id="leavitt">
+  <span class="era">1908 – 1912 · A yardstick for the cosmos</span>
+  <h2>Leavitt's law: a star's rhythm reveals its true brightness</h2>
+  <p class="who"><b>Henrietta Swan Leavitt</b> · Edward Pickering · the Harvard "computers"</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A star's apparent magnitude mixes up two things: how luminous it really is and how far away it is. A faint star could be a dim one nearby or a brilliant one far away. Parallax could untangle the two, but only for stars within a few hundred light-years.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Leavitt was a Harvard "computer," paid a few cents an hour to compare photographic plates. She catalogued over 1,700 variable stars in the Magellanic Clouds. The trick was that every star in the Small Magellanic Cloud is at about the <i>same</i> distance from us. So differences in apparent brightness there are differences in true brightness.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In 1912 she plotted 25 Cepheid variables in the Small Magellanic Cloud, brightness against pulsation period. The points fell on a clean line: the longer a Cepheid takes to pulse, the brighter it is.</p></div>
+    <div class="beat found"><div class="tag">What she found</div>
+      <p>This was the period–luminosity relation, now called Leavitt's law. Time a Cepheid's period and you know its true luminosity. Compare that to how bright it looks and you get its distance. It became the first standard candle that could reach across the cosmos. It only needed calibrating.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Recreate Leavitt's plot</h3>
+    <p class="hint">Each dot is a simulated Cepheid in the Small Magellanic Cloud, built to follow the real relation with realistic scatter. Slide the period and see where a Cepheid of that period must sit. The animation shows the star pulsing at a rate scaled to its period.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Pulsation period <b><span id="lv_plbl">10.0</span> days</b></label>
+        <input id="lv_logp" type="range" min="0.1" max="2.1" step="0.01" value="1">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Absolute mag M</div><div class="v" id="lv_M">−4.05</div></div>
+      <div class="stat"><div class="k">Luminosity</div><div class="v"><span id="lv_L">3,500</span> <small>L☉</small></div></div>
+      <div class="stat"><div class="k">Apparent mag in SMC</div><div class="v" id="lv_m">15.0</div></div>
+    </div>
+    <div class="figrow two" style="margin-top:6px">
+      <div id="plot_lv" class="plot"></div>
+      <figure style="align-self:center"><canvas id="lv_canvas" width="420" height="300"></canvas>
+        <figcaption>A Cepheid breathing in and out. It's brightest and hottest just after minimum size. (Pulsation sped up for display.)</figcaption></figure>
+    </div>
+    <div class="eq">$$ M_V=-2.43\,(\log_{10}P-1)-4.05,\qquad \frac{F_1}{F_2}=10^{-0.4\,(m_1-m_2)} $$</div>
+  </div>
+
+  <div class="figrow two">
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Leavitt_aavso.jpg?width=560" alt="Henrietta Swan Leavitt" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" style="display:none;border:0;border-radius:0"><div><b>Image slot.</b><br>Portrait of Henrietta Swan Leavitt.</div></div>
+      <figcaption>Henrietta Swan Leavitt at her desk at the Harvard College Observatory (public domain).</figcaption>
+    </figure>
+    <div class="spotlight" style="margin:0"><b>Why the Small Magellanic Cloud mattered.</b> Leavitt had no idea how far the cloud was. She didn't need to know. Because all of its stars share one distance, the <i>slope</i> of her line is pure physics. Only the overall height of the line, the zero point, was unknown. Pinning that down became the next problem.</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Using $M_V=-2.43(\log_{10}P-1)-4.05$, find the absolute magnitudes of Cepheids with $P=10$ d and $P=50$ d.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>$P=10$ d.</b> $\log_{10}10=1$, so $M_V=-2.43(0)-4.05=-4.05$.</li>
+          <li><b>$P=50$ d.</b> $\log_{10}50=1.699$, so $M_V=-2.43(0.699)-4.05=-1.70-4.05=-5.75$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $-4.05$ and $-5.75$. The 50-day Cepheid is $1.7$ magnitudes (about $4.8\times$) more luminous.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> In the Small Magellanic Cloud, a $30$-day Cepheid and a $3$-day Cepheid differ by one decade in period. By how many magnitudes do they differ, and what flux ratio is that?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Magnitude difference.</b> $\Delta\log P=1$, so $\Delta m=2.43$.</li>
+          <li><b>Flux ratio.</b> $10^{0.4\times2.43}=10^{0.972}=9.4$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $2.43$ mag, so the 30-day star is about $9.4\times$ brighter. Because both are in the same cloud, that's a ratio of true luminosity.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Two Cepheids have the <i>same</i> period, but B looks $5.0$ magnitudes fainter than A. How many times farther away is B?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Flux ratio.</b> $5$ magnitudes $=10^{0.4\times5}=100\times$ fainter.</li>
+          <li><b>Inverse-square law.</b> $F\propto1/d^2$, so $d_B/d_A=\sqrt{100}=10$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $10\times$ farther. Same period means same luminosity, so any extra faintness is distance. This is the logic Shapley and Hubble would use.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. CALIBRATION -->
+<!-- ============================================================= -->
+<section class="chapter" id="calibrate">
+  <span class="era">1913 · Pinning the yardstick down</span>
+  <h2>Calibrating the Cepheids and a famous missing zero</h2>
+  <p class="who"><b>Ejnar Hertzsprung</b> · Henry Norris Russell · later Harlow Shapley</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Leavitt's law gave <i>relative</i> brightness. To turn it into distances, someone needed the absolute magnitude of at least one Cepheid. But no Cepheid was close enough for direct parallax with 1913 equipment.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Hertzsprung used statistical parallax. Nearby Cepheids drift across the sky (proper motion) because of the Sun's own motion through space. If you average many of them, the size of that drift tells you their typical distance, and therefore their luminosity.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>From about a dozen Milky Way Cepheids he set the zero point and applied it to the Small Magellanic Cloud. The published paper gave the cloud's distance as about 3,000 light-years. That was apparently a slip for a figure about ten times larger.</p></div>
+    <div class="beat found"><div class="tag">The lesson</div>
+      <p>Even the intended figure, roughly 30,000 light-years, fell well short of today's 200,000. The <b>zero point</b> is where every error in the distance ladder starts. A mistake here shifts every Cepheid distance, and later every galaxy distance, by the same factor. Shapley recalibrated it in 1917–18, and its errors carried straight into his map of the Milky Way.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Slide the zero point and watch the cosmos stretch</h3>
+    <p class="hint">A 10-day Cepheid in the Small Magellanic Cloud has apparent magnitude about 15.0. Choose what absolute magnitude you believe a 10-day Cepheid has. Every distance built on this calibration changes with your choice.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Assumed M for a 10-day Cepheid <b><span id="cb_Mlbl">−4.05</span></b></label>
+        <input id="cb_M" type="range" min="-6" max="-0.5" step="0.01" value="-4.05">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Distance modulus m−M</div><div class="v" id="cb_mu">19.05</div></div>
+      <div class="stat"><div class="k">SMC distance</div><div class="v"><span id="cb_d">210,000</span> <small>ly</small></div></div>
+      <div class="stat"><div class="k">Error factor vs. today</div><div class="v" id="cb_f">×1.00</div></div>
+    </div>
+    <div id="plot_cb" class="plot" style="height:230px"></div>
+    <div class="eq">$$ m-M=5\log_{10}\!\left(\frac{d}{10\ \text{pc}}\right)\;\Longrightarrow\; d=10^{\,(m-M+5)/5}\ \text{pc},\qquad 1\ \text{pc}=3.26\ \text{ly} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A 10-day Cepheid in the Small Magellanic Cloud has $m=15.0$ and, by today's calibration, $M=-4.05$. Ignoring dust, how far is the cloud?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance modulus.</b> $m-M=15.0-(-4.05)=19.05$.</li>
+          <li><b>Invert it.</b> $d=10^{(19.05+5)/5}=10^{4.81}=6.46\times10^{4}$ pc.</li>
+          <li><b>Convert to light-years.</b> $6.46\times10^{4}\times3.26=2.1\times10^{5}$ ly.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $210{,}000$ ly. That's seven times Hertzsprung's intended value and 70 times what the paper printed.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Suppose the zero point is wrong and Cepheids are actually $1.5$ mag <i>brighter</i> than you assumed. By what factor are all your Cepheid distances too small?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>The modulus grows by 1.5.</b> $d\propto10^{(m-M)/5}$.</li>
+          <li><b>Factor.</b> $10^{1.5/5}=10^{0.3}=2.0$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> a factor of $2$. That's almost exactly the correction Walter Baade found in 1952, which doubled the size of the known universe overnight.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The nearest bright Cepheid, Polaris, has a parallax of about $p=0.0075''$. How far is it, and why couldn't 1913 astronomers measure such parallaxes reliably (their precision was about $0.01''$)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Parallax distance.</b> $d=1/p=1/0.0075=133$ pc $\approx434$ ly.</li>
+          <li><b>Compare with precision.</b> The signal, $0.0075''$, is smaller than the measurement error of $0.01''$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $430$ ly. Even the nearest Cepheid's parallax was lost in the noise, which is why Hertzsprung had to fall back on statistics.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. SLIPHER -->
+<!-- ============================================================= -->
+<section class="chapter" id="slipher">
+  <span class="era">1912 – 1917 · The nebulae are on the move</span>
+  <h2>Slipher clocks the spirals</h2>
+  <p class="who"><b>Vesto Melvin Slipher</b> · Percival Lowell · Lowell Observatory, Flagstaff</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Stars in the Milky Way move at a few tens of km/s. The Doppler effect turns that motion into a tiny shift of spectral lines. A blueshift means the source is approaching; a redshift means it's receding.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Lowell wanted spectra of spirals because he suspected they were forming solar systems. Slipher made his spectrograph fast enough to record the faint light of a nebula, using exposures that ran over several nights.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In late 1912 Andromeda's lines turned out to be shifted toward the blue by about 300 km/s. That was the fastest speed ever measured for any celestial object. Then he found the Sombrero nebula (M104) <i>receding</i> at about 1,000 km/s.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>At the 1914 American Astronomical Society meeting he presented 15 spiral velocities and got a standing ovation. By 1917, 21 of his 25 spirals were redshifted, at an average of hundreds of km/s. Objects moving that fast seemed unlikely to be held by the Milky Way's gravity. It was the first clue to the expansion, though nobody yet knew what it meant.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Shift a spiral's spectrum</h3>
+    <p class="hint">The strip shows the calcium H and K absorption lines (393.4 and 396.8 nm) and hydrogen Hβ (486.1 nm). Dashed ticks mark the rest wavelengths. Set a velocity or pick one of Slipher's nebulae and watch the lines slide.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Radial velocity <b><span id="sl_vlbl">+1100</span> km/s</b></label>
+        <input id="sl_v" type="range" min="-1000" max="2000" step="10" value="1100">
+      </div>
+      <div class="ctl">
+        <label>Slipher's nebulae (modern values)</label>
+        <select id="sl_preset">
+          <option value="-300">Andromeda M31: −300 km/s (approaching)</option>
+          <option value="-180">Triangulum M33: −180 km/s</option>
+          <option value="1100" selected>Sombrero M104: +1,100 km/s</option>
+          <option value="1140">NGC 1068: +1,140 km/s</option>
+          <option value="600">M51 Whirlpool: +600 km/s</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">K line observed</div><div class="v"><span id="sl_k">394.81</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Shift Δλ</div><div class="v"><span id="sl_dl">+1.44</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Fraction of c</div><div class="v" id="sl_z">0.0037</div></div>
+    </div>
+    <figure><canvas id="sl_canvas" width="900" height="150"></canvas>
+      <figcaption>Simulated spectrum: dashed white ticks show the rest positions, dark bands show the observed lines.</figcaption></figure>
+    <div class="eq">$$ \frac{\Delta\lambda}{\lambda_0}=\frac{v}{c}\quad(v\ll c),\qquad \lambda_{\text{obs}}=\lambda_0\left(1+\frac{v}{c}\right) $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> In Andromeda's spectrum the calcium K line ($\lambda_0=393.37$ nm) appears at $392.98$ nm. Find the radial velocity.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Shift.</b> $\Delta\lambda=392.98-393.37=-0.39$ nm.</li>
+          <li><b>Doppler.</b> $v=c\,\dfrac{\Delta\lambda}{\lambda_0}=299{,}792\times\dfrac{-0.39}{393.37}=-297$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $-300$ km/s. Andromeda is approaching, which is exactly Slipher's 1912 result.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The Sombrero recedes at $+1100$ km/s. Where does its K line appear?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Shift.</b> $\Delta\lambda=393.37\times\dfrac{1100}{299{,}792}=1.44$ nm.</li>
+          <li><b>Observed.</b> $\lambda=393.37+1.44=394.81$ nm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $394.81$ nm, a shift of about 1.4 nm. That's small, but huge for a celestial object of that era.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The Milky Way's escape speed near the Sun is roughly $550$ km/s. Slipher's 1917 average recession speed was about $570$ km/s. What did this hint about the spirals?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Compare.</b> $570>550$ km/s, so a typical spiral is moving faster than the galaxy's gravity could hold.</li>
+          <li><b>Interpret.</b> Gravitationally bound members of the Milky Way shouldn't be racing away like this.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the spirals probably weren't bound to our galaxy. That was circumstantial support for island universes, years before anyone could measure their distances.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. SHAPLEY'S CANDLES  (focus) -->
+<!-- ============================================================= -->
+<section class="chapter" id="shapley">
+  <span class="era">1914 – 1918 · Mount Wilson</span><span class="focus-band">Focus · Shapley I</span>
+  <h2>Shapley turns globular clusters into lighthouses</h2>
+  <p class="who"><b>Harlow Shapley</b> · Mount Wilson Observatory · the 60-inch reflector</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>A globular cluster is a tight ball of hundreds of thousands of stars. About a hundred were catalogued. Solon Bailey at Harvard had found that they swarm with short-period variable stars, which Shapley called "cluster variables" and we now call RR Lyrae stars. Leavitt's law, freshly calibrated, gave a way to read distances from pulsating stars.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Shapley arrived at Mount Wilson in 1914. He reasoned that if cluster variables are all roughly equally luminous, each one is a standard candle. Time it, measure its apparent magnitude, and the distance modulus gives the distance to the whole cluster.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Using the 60-inch reflector, he measured cluster variables in the nearer clusters. He calibrated them with his own statistical-parallax zero point, treating them as short-period members of the Cepheid family. For clusters too remote for their variables to be seen, he built a ladder. Bright giant stars and then the clusters' apparent diameters stood in for the distance.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>By 1918 he had distances for 69 globular clusters, and they were enormous: tens of thousands of light-years. No other method in 1918 reached that far. He now had a 3-D sample of the galaxy's outer reaches, ready to plot.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Measure a globular cluster the way Shapley did</h3>
+    <p class="hint">Pick a real cluster. The light curve shows one of its RR Lyrae stars, and the dashed line is the mean apparent magnitude. Choose the absolute magnitude you assign to cluster variables. Shapley adopted about −0.2, while today's value is about +0.6. Then choose whether to correct for interstellar extinction from dust. Shapley didn't, because nobody yet knew the dust was there.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Globular cluster</label>
+        <select id="gc_sel"></select>
+      </div>
+      <div class="ctl">
+        <label>Adopted M of an RR Lyrae <b><span id="gc_Mlbl">+0.60</span></b></label>
+        <input id="gc_M" type="range" min="-1" max="1.5" step="0.01" value="0.6">
+      </div>
+      <div class="ctl">
+        <label>Calibration preset</label>
+        <select id="gc_cal">
+          <option value="modern" selected>Modern: M = +0.6, correct for dust</option>
+          <option value="shapley">Shapley 1918: M ≈ −0.2, no dust</option>
+        </select>
+        <label class="chk" style="margin-top:8px"><input type="checkbox" id="gc_dust" checked> Correct for dust extinction</label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Mean RR Lyrae V</div><div class="v" id="gc_m">15.65</div></div>
+      <div class="stat"><div class="k">Extinction A_V</div><div class="v" id="gc_A">0.03</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="gc_d">10.1</span> <small>kpc</small></div></div>
+      <div class="stat"><div class="k">In light-years</div><div class="v"><span id="gc_ly">33,000</span></div></div>
+      <div class="stat"><div class="k">vs. modern value</div><div class="v" id="gc_err">×1.00</div></div>
+    </div>
+    <div class="figrow two" style="margin-top:6px">
+      <div id="plot_gc" class="plot" style="height:320px"></div>
+      <figure style="align-self:center"><canvas id="gc_canvas" width="440" height="320"></canvas>
+        <figcaption>A globular cluster drawn procedurally. The circled stars are RR Lyrae variables pulsing on their roughly half-day cycle (sped up).</figcaption></figure>
+    </div>
+    <div class="eq">$$ d=10^{\,(m-M-A_V+5)/5}\ \text{pc},\qquad M_V(\text{RR Lyrae})\approx+0.6\ \ (\text{nearly the same for all}) $$</div>
+  </div>
+
+  <div class="spotlight"><b>Why RR Lyrae stars work so well.</b> Cepheids need a period to tell you their luminosity. RR Lyrae stars are simpler: they're old, low-mass stars burning helium on the horizontal branch, and nearly all have about the same luminosity, around 40–50 Suns. Find one, and you've effectively found a 45-Sun light bulb. Shapley's mistake wasn't the method. It was the wattage: his calibration made them about twice as bright as they really are.</div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The next rung: clusters too faint for variables</h3>
+    <p class="hint">For distant clusters, individual variables were too faint to time. Shapley noticed that the nearby clusters, whose distances he knew, all had roughly similar true diameters. So he used each faint cluster's angular size as the yardstick. Try it: set the assumed true size and the measured angle.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Assumed true diameter <b><span id="ad_Dlbl">30</span> pc</b></label>
+        <input id="ad_D" type="range" min="10" max="60" step="1" value="30">
+      </div>
+      <div class="ctl">
+        <label>Measured angular diameter <b><span id="ad_tlbl">6.0</span> arcmin</b></label>
+        <input id="ad_t" type="range" min="1" max="40" step="0.5" value="6">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">θ in radians</div><div class="v" id="ad_rad">1.75×10⁻³</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="ad_d">17.2</span> <small>kpc</small></div></div>
+      <div class="stat"><div class="k">In light-years</div><div class="v" id="ad_ly">56,000</div></div>
+    </div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The RR Lyrae stars in M3 have mean $V=15.65$. With today's $M_V=+0.6$ and extinction $A_V=0.03$, how far is M3?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>True distance modulus.</b> $m-M-A_V=15.65-0.6-0.03=15.02$.</li>
+          <li><b>Invert.</b> $d=10^{(15.02+5)/5}=10^{4.004}=1.01\times10^{4}$ pc.</li>
+          <li><b>Light-years.</b> $10.1\ \text{kpc}\times3262=3.3\times10^{4}$ ly.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $10.1$ kpc, or $33{,}000$ ly. M3 sits high above the galactic plane, so dust barely matters.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Redo M3 the 1918 way: $M=-0.2$, no dust correction. By what factor does the distance grow?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Modulus.</b> $15.65-(-0.2)=15.85$, so $d=10^{4.17}=1.48\times10^{4}$ pc $\approx48{,}000$ ly.</li>
+          <li><b>Ratio.</b> $14.8/10.1=1.47$, which is the same as $10^{(0.8+0.03)/5}$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1.5\times$ too far. A calibration error of $0.8$ mag stretches every cluster distance by the same factor, which is why Shapley's Milky Way came out so huge.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A distant cluster spans $6.0$ arcmin. If globular clusters are about $30$ pc across, how far away is it?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Angle in radians.</b> $\theta=\dfrac{6.0}{60}\times\dfrac{\pi}{180}=1.745\times10^{-3}$ rad.</li>
+          <li><b>Small-angle distance.</b> $d=\dfrac{30}{1.745\times10^{-3}}=1.72\times10^{4}$ pc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $17$ kpc, or $56{,}000$ ly. It's cruder than RR Lyrae, but it extended Shapley's map to clusters he couldn't otherwise reach.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. MAPPING THE HALO (focus) -->
+<!-- ============================================================= -->
+<section class="chapter" id="halo">
+  <span class="era">1917 – 1918 · A map in three dimensions</span><span class="focus-band">Focus · Shapley II</span>
+  <h2>Mapping the halo: the clusters don't surround the Sun</h2>
+  <p class="who"><b>Harlow Shapley</b> · building on Solon Bailey's and John Herschel's sky counts</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>It was an old puzzle that globular clusters aren't spread evenly over the sky. Almost all of them lie in one half of it, and about a third crowd into Sagittarius, Scorpius and Ophiuchus. Nobody had a good explanation.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>With a distance for each cluster, Shapley could do more than note the lopsided sky. He combined each cluster's galactic longitude, galactic latitude and distance to plot it in 3-D. If the clusters belong to the galaxy, the <i>centre of their swarm</i> should mark the centre of the galaxy.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>He plotted the clusters as seen from above the galactic plane and edge-on. They didn't form a shell around the Sun. They formed a roughly spherical swarm, symmetric above and below the Milky Way's plane, whose centre lay far away toward Sagittarius.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>This is the globular-cluster halo. Its centre is the galactic center. In 1918 he put it about 50,000 light-years away. The clusters were a scaffold outlining a galaxy far larger than Kapteyn's, and the Sun was nowhere near its middle.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Plot the globular clusters yourself</h3>
+    <p class="hint">About 150 clusters are shown: twelve well-known real ones (labelled, approximate catalogue values) plus a simulated population drawn from the measured halo distribution. Drag to rotate the 3-D view. The Sun is the yellow dot at the origin. Toggle the calibration to see Shapley's stretched 1918 map, and restrict to a sample of 69 like his. Note that clusters near the plane, behind the Milky Way's dust, simply drop out of view.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Distance calibration</label>
+        <select id="hl_cal">
+          <option value="modern" selected>Modern: RR Lyrae +0.6, dust corrected</option>
+          <option value="shapley">Shapley 1918: brighter calibration, no dust</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Sample</label>
+        <label class="chk"><input type="checkbox" id="hl_69"> Use only 69 clusters, like Shapley's 1918 sample</label>
+        <label class="chk"><input type="checkbox" id="hl_hidden"> Show clusters hidden by dust (grey)</label>
+      </div>
+      <div class="ctl">
+        <label>Highlight</label>
+        <label class="chk"><input type="checkbox" id="hl_centroid" checked> Mark the centre of the swarm</label>
+        <label class="chk"><input type="checkbox" id="hl_sun" checked> Draw the Sun→centre line</label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Clusters plotted</div><div class="v" id="hl_n">150</div></div>
+      <div class="stat"><div class="k">Centre of swarm</div><div class="v"><span id="hl_d">8.2</span> <small>kpc</small></div></div>
+      <div class="stat"><div class="k">= light-years</div><div class="v" id="hl_ly">26,700</div></div>
+      <div class="stat"><div class="k">Direction (l, b)</div><div class="v" id="hl_dir" style="font-size:15px">0°, 0°</div></div>
+      <div class="stat"><div class="k">Constellation</div><div class="v" id="hl_con" style="font-size:15px">Sagittarius</div></div>
+    </div>
+    <div id="plot_halo3d" class="plot" style="height:520px"></div>
+    <div class="verdict good" id="hl_verdict">The swarm's centre is about 26,700 ly away toward Sagittarius, and the Sun sits far out on the edge.</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The lopsided sky Shapley had to explain</h3>
+    <p class="hint">The same clusters, now seen as Shapley saw them on the sky. Left: galactic longitude <i>l</i> against latitude <i>b</i>, with Sagittarius at the centre (l = 0°) and the dusty band of the Milky Way shaded. Right: the number of clusters in each 30° slice of longitude. If the Sun were at the centre, the bars would be flat.</p>
+    <div class="readout">
+      <div class="stat"><div class="k">In the Sagittarius-facing half of the sky</div><div class="v" id="hl_half">85%</div></div>
+      <div class="stat"><div class="k">Within ±30° of Sagittarius</div><div class="v" id="hl_sgr">40%</div></div>
+    </div>
+    <div class="figrow two" style="margin-top:6px">
+      <div id="plot_sky" class="plot" style="height:330px"></div>
+      <div id="plot_hist" class="plot" style="height:330px"></div>
+    </div>
+    <div class="eq">$$ x=d\cos b\cos l,\quad y=d\cos b\sin l,\quad z=d\sin b,\qquad \vec r_{\text{centre}}=\frac{1}{N}\sum_{i=1}^{N}\vec r_i $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Convert M13 ($l=59.0^\circ$, $b=40.9^\circ$, $d=7.1$ kpc) into Cartesian coordinates, with $x$ pointing toward Sagittarius.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>In-plane part.</b> $d\cos b=7.1\times0.756=5.37$ kpc.</li>
+          <li><b>Components.</b> $x=5.37\cos59^\circ=2.76$, $y=5.37\sin59^\circ=4.60$, $z=7.1\sin40.9^\circ=4.65$ kpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $(x,y,z)\approx(2.8,\,4.6,\,4.6)$ kpc. M13 is well above the plane, which is part of why it's so easy to see from the north.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A toy sample: four clusters lie along the Sun–Sagittarius line at $x=+5$, $+10$, $+12$ and $-3$ kpc. Where is the centre of the swarm, and in which direction?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Average.</b> $\bar x=\dfrac{5+10+12-3}{4}=\dfrac{24}{4}=6.0$ kpc.</li>
+          <li><b>Interpret.</b> It's positive, so it lies toward Sagittarius.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $6$ kpc toward Sagittarius. With clusters on both sides of the centre, their average lands on the centre, not on us. That is the whole argument in one line.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Shapley placed the centre at about $15$ kpc; today's value is $8.2$ kpc. His RR Lyrae calibration was $0.8$ mag too bright. How much of the discrepancy does that explain, and how much dust (in magnitudes) would account for the rest?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Calibration factor.</b> $10^{0.8/5}=1.45$, so $8.2\times1.45=11.9$ kpc.</li>
+          <li><b>Remaining factor.</b> $15/11.9=1.26$, and $5\log_{10}1.26=0.50$ mag.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> the calibration explains a stretch from $8.2$ to $12$ kpc. About half a magnitude of uncorrected dust dimming, which is typical for clusters near the plane, explains the rest.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. DETHRONING THE SUN (focus) -->
+<!-- ============================================================= -->
+<section class="chapter" id="dethrone">
+  <span class="era">1918 – 1930 · Copernicus, part two</span><span class="focus-band">Focus · Shapley III</span>
+  <h2>Dethroning the Sun</h2>
+  <p class="who"><b>Harlow Shapley</b> · vs. Jacobus Kapteyn · later Robert Trumpler (1930)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Jacobus Kapteyn had spent decades counting stars in every direction. His "Kapteyn universe" was a flattened system about 30,000–40,000 light-years across, with the Sun close to its centre. Star counts thinned out evenly whichever way he looked.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Shapley's clusters told a different story. If the halo is centred 50,000 light-years away toward Sagittarius, then the Sun is far out in the galaxy's suburbs. In that case Kapteyn's star counts were being cut off by something.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The answer was dust. In 1930 Robert Trumpler showed that distant open clusters look dimmer than their size implies. Interstellar dust absorbs starlight along the galactic plane like a fog, so star counts in the plane only reach a few thousand light-years in any direction. That's why Kapteyn appeared to be at the centre. The globular clusters, which mostly lie high above or below the plane, could be seen over the fog.</p></div>
+    <div class="beat found"><div class="tag">What it meant</div>
+      <p>The Sun isn't at the centre of the universe, or even of the Milky Way. Shapley moved us out of the centre as decisively as Copernicus had moved us off it. His scale was too large: the true distance to the centre is about 26,000 light-years. But his overall picture was right. The Sun lies in a minor spur, the Orion Arm, between larger spiral arms. Those arms were mapped only in the 1950s, long after Shapley.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Why Kapteyn thought he was at the centre</h3>
+    <p class="hint">A face-on Milky Way, drawn top-down. The yellow star is the Sun, the cyan circle is how far ordinary stars can be counted, and the red cross is the true centre. Increase the dust and watch the visible region shrink into a neat bubble centred on the Sun, wherever you are. The amber dots are globular clusters, which stay visible because they're out of the plane. Switch models to compare Kapteyn's, Shapley's and the modern galaxy.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Galaxy model</label>
+        <select id="dt_model">
+          <option value="modern" selected>Modern: ~100,000 ly across, Sun at 26,000 ly</option>
+          <option value="shapley">Shapley 1918: ~300,000 ly across, Sun at ~50,000 ly</option>
+          <option value="kapteyn">Kapteyn 1920: ~30,000 ly across, Sun near centre</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Dust in the plane <b><span id="dt_alab">1.5</span> mag / kpc</b></label>
+        <input id="dt_dust" type="range" min="0" max="3" step="0.05" value="1.5">
+      </div>
+      <div class="ctl">
+        <label>Sun's orbital speed <b><span id="dt_vlab">230</span> km/s</b></label>
+        <input id="dt_v" type="range" min="150" max="300" step="5" value="230">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Star counts reach</div><div class="v"><span id="dt_vis">6,000</span> <small>ly</small></div></div>
+      <div class="stat"><div class="k">Sun → centre</div><div class="v"><span id="dt_r0">26,700</span> <small>ly</small></div></div>
+      <div class="stat"><div class="k">Sun's orbit ("galactic year")</div><div class="v"><span id="dt_P">220</span> <small>Myr</small></div></div>
+      <div class="stat"><div class="k">Mass inside orbit</div><div class="v"><span id="dt_M">1.0×10¹¹</span> <small>M☉</small></div></div>
+    </div>
+    <figure><canvas id="dt_canvas" width="900" height="560"></canvas>
+      <figcaption id="dt_cap">Top-down Milky Way (procedural).</figcaption></figure>
+    <div class="verdict good" id="dt_verdict"></div>
+    <div class="eq">$$ m=M+5\log_{10}\!\left(\frac{d}{10\,\text{pc}}\right)+a\,d,\qquad P=\frac{2\pi R_0}{v},\qquad M_{\text{enc}}=\frac{v^2R_0}{G} $$</div>
+  </div>
+
+  <blockquote class="q">Shapley realised the Sun was nowhere near the centre, and called the reorganisation of the galaxy as dramatic as Copernicus's.
+    <cite>A paraphrase of Shapley's own framing, as told in Bartusiak's account</cite></blockquote>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The Sun orbits the galactic center at $v=230$ km/s at $R_0=8.2$ kpc ($1$ kpc $=3.086\times10^{16}$ km). How long is one orbit?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Circumference.</b> $2\pi R_0=2\pi\times8.2\times3.086\times10^{16}=1.59\times10^{18}$ km.</li>
+          <li><b>Period.</b> $P=\dfrac{1.59\times10^{18}}{230}=6.91\times10^{15}$ s $=\dfrac{6.91\times10^{15}}{3.156\times10^{7}}=2.2\times10^{8}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $220$ million years. The Sun has made only about $20$ laps since it formed.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Treating the orbit as circular, $M_{\text{enc}}=v^2R_0/G$. How much mass lies inside the Sun's orbit?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>SI units.</b> $v=2.3\times10^{5}$ m/s, $R_0=8.2\times3.086\times10^{19}=2.53\times10^{20}$ m.</li>
+          <li><b>Evaluate.</b> $M=\dfrac{(2.3\times10^{5})^2(2.53\times10^{20})}{6.674\times10^{-11}}=2.0\times10^{41}$ kg $=1.0\times10^{11}\,M_\odot$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $10^{11}$ solar masses. Shapley had placed us in the outskirts of a truly vast system.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A star with $M=+1$ lies $2$ kpc away in the plane, where dust adds $a=1.5$ mag/kpc. Find its apparent magnitude with and without dust, and the dimming factor.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>No dust.</b> $m=1+5\log_{10}(2000/10)=1+11.5=12.5$.</li>
+          <li><b>With dust.</b> Add $a\,d=1.5\times2=3.0$, so $m=15.5$.</li>
+          <li><b>Dimming.</b> $10^{0.4\times3}=15.8\times$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $12.5\rightarrow15.5$, about $16\times$ fainter. Star counts run out within a few kiloparsecs in every direction, which created Kapteyn's illusion that he was at the centre.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8. VAN MAANEN -->
+<!-- ============================================================= -->
+<section class="chapter" id="vanmaanen">
+  <span class="era">1916 – 1921 · A measurement that misled</span>
+  <h2>Van Maanen's spinning spirals</h2>
+  <p class="who"><b>Adriaan van Maanen</b> · Mount Wilson · Shapley's ally</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Van Maanen was a respected expert at measuring proper motion: the tiny sideways drift of stars across the sky, found by comparing photographic plates taken years apart.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>If spiral nebulae rotate, comparing old and new plates should show knots in their arms shifting along the spiral. The angular rate, combined with the distance, gives a physical speed.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>From 1916 on he reported motions of about 0.02″ per year in M101 and other spirals. If real, a spiral millions of light-years away would have to spin faster than light. So spirals must be small and nearby.</p></div>
+    <div class="beat found"><div class="tag">The verdict</div>
+      <p>The motions weren't real. They were systematic errors at the edge of what plates and measuring engines could detect. Still, Shapley trusted his friend's numbers, and they reinforced his view that spirals were local. The episode held up acceptance of island universes for years. In 1935 Hubble's own remeasurements showed no rotation could be detected.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>How fast would M101's arms be moving?</h3>
+    <p class="hint">Set the angular drift van Maanen claimed and the distance you assume. The tangential speed follows from v = 4.74 μ d. Slide toward island-universe distances and watch the rim speed pass the speed of light.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Claimed proper motion μ <b><span id="vm_mulbl">0.020</span> ″/yr</b></label>
+        <input id="vm_mu" type="range" min="0.002" max="0.05" step="0.001" value="0.02">
+      </div>
+      <div class="ctl">
+        <label>Assumed distance <b><span id="vm_dlbl">10 kpc</span></b></label>
+        <input id="vm_d" type="range" min="2.5" max="7.2" step="0.01" value="4">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Implied speed</div><div class="v"><span id="vm_v">948</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Fraction of c</div><div class="v" id="vm_c">0.003</div></div>
+      <div class="stat"><div class="k">Rotation period (r = 11′)</div><div class="v"><span id="vm_P">207,000</span> <small>yr</small></div></div>
+    </div>
+    <div class="verdict good" id="vm_verdict"></div>
+    <div class="eq">$$ v_t\,[\text{km/s}]=4.74\,\mu\,[''/\text{yr}]\;d\,[\text{pc}],\qquad P=\frac{2\pi r}{\mu} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> M101 is actually $6.9$ Mpc away. What speed does $\mu=0.02''$/yr imply?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Formula.</b> $v=4.74\times0.02\times6.9\times10^{6}$.</li>
+          <li><b>Evaluate.</b> $v=6.5\times10^{5}$ km/s $=2.2\,c$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> more than twice the speed of light, which is impossible. So either the motions were wrong or the spirals were nearby. Shapley chose the second option.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Now assume M101 is inside the Milky Way, at $10$ kpc. What speed results?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Formula.</b> $v=4.74\times0.02\times10^{4}=948$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $950$ km/s. That's fast, but physically allowed. The measurement only seemed sensible if spirals were local.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> At a radius of $11'=660''$ with $\mu=0.02''$/yr, how long would one rotation take? Real spirals take hundreds of millions of years.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Circumference.</b> $2\pi\times660=4147''$.</li>
+          <li><b>Period.</b> $4147/0.02=2.1\times10^{5}$ yr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $200{,}000$ years, roughly a thousand times too fast. That alone hinted something was wrong.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 9. GREAT DEBATE -->
+<!-- ============================================================= -->
+<section class="chapter" id="debate">
+  <span class="era">April 26, 1920 · National Academy of Sciences</span>
+  <h2>The Great Debate: Shapley vs. Curtis</h2>
+  <p class="who"><b>Harlow Shapley</b> (Mount Wilson) · <b>Heber Curtis</b> (Lick Observatory)</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The setting</div>
+      <p>The National Academy in Washington staged a debate on "The Scale of the Universe." Shapley defended his Big Galaxy: a Milky Way 300,000 light-years across that contains everything, spirals included. Curtis defended a smaller Milky Way and argued that the spirals are island universes far beyond it.</p></div>
+    <div class="beat idea"><div class="tag">Shapley's case</div>
+      <p>Globular-cluster distances made the galaxy enormous. If the spirals were comparable galaxies, they would have to be absurdly far away. Van Maanen's rotations put them nearby. And the 1885 "nova" S Andromedae would have been impossibly luminous at an island-universe distance.</p></div>
+    <div class="beat test"><div class="tag">Curtis's case</div>
+      <p>Novae seen in spirals were far fainter than novae in the Milky Way, so the spirals must be distant. Spiral spectra look like the combined light of many stars. Slipher's enormous velocities didn't fit Milky Way objects. And the dark dust lanes seen across edge-on spirals matched the Milky Way's own.</p></div>
+    <div class="beat found"><div class="tag">The outcome</div>
+      <p>Neither side won outright. Each was right about something and wrong about something else. Shapley left for the Harvard College Observatory directorship in 1921, leaving the 100-inch telescope at Mount Wilson to Edwin Hubble.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Score the debate with hindsight</h3>
+    <p class="hint">For each question, pick who you think was right. The answer and the reason appear once you choose. Some questions have a twist.</p>
+    <div class="deb-grid" id="deb_grid"></div>
+    <div class="score" id="deb_score">Score: <b>0</b> / 0</div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 10. HUBBLE: VAR! -->
+<!-- ============================================================= -->
+<section class="chapter" id="hubble">
+  <span class="era">October 1923 – January 1, 1925 · The day we found the universe</span>
+  <h2>"VAR!": a Cepheid in Andromeda</h2>
+  <p class="who"><b>Edwin Hubble</b> · Milton Humason · the 100-inch Hooker telescope · Henry Norris Russell</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>The 100-inch Hooker telescope, the largest in the world, could resolve the outskirts of nearby spirals into individual stars. Hubble began photographing Andromeda, looking for novae.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>On plate H335H, taken on the night of October 5–6, 1923, he marked three new spots with "N" for nova. Comparing with older plates, he saw that one of them brightened and faded <i>repeatedly</i>. It wasn't a nova. It was a Cepheid.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>He crossed out the "N" and wrote "VAR!" The star had a period of about 31 days. Leavitt's law, with Shapley's own calibration, gave a distance of nearly a million light-years. That's far beyond even Shapley's huge Milky Way.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>Andromeda is a galaxy in its own right. Hubble wrote to Shapley in early 1924. On reading the letter, Shapley reportedly said: <i>"Here is the letter that has destroyed my universe."</i> Wary of van Maanen's results, Hubble held off publishing. His paper was finally read for him at the joint AAS–AAAS meeting in Washington on <b>January 1, 1925</b>. That's the day of Bartusiak's title.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Find the variable: blink the plates</h3>
+    <p class="hint">Astronomers compared plates by flipping rapidly between two of them, called blinking, so anything that changed would jump out. Press <b>Blink</b>, then click the star that changes brightness. One star in this field is a Cepheid.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px">
+      <button class="btn" id="bl_btn" type="button">▶ Blink</button>
+      <button class="btn" id="bl_reset" type="button">New field</button>
+      <span id="bl_status" style="font-size:13px; color:var(--muted); align-self:center">Plate A shown.</span>
+    </div>
+    <figure><canvas id="bl_canvas" width="900" height="380" style="cursor:crosshair"></canvas>
+      <figcaption>A simulated negative plate (dark stars on a light background), as astronomers worked with in the 1920s.</figcaption></figure>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>From period to distance: Andromeda's V1</h3>
+    <p class="hint">Hubble's star, now called V1, pulses with P = 31.4 days. Set its mean apparent magnitude and choose a calibration. The 1920s Cepheid zero point was about 1.5 mag too faint, a confusion between two Cepheid populations that Baade sorted out in 1952. Compare the result with the size of the Milky Way.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Period <b><span id="v1_Plbl">31.4</span> days</b></label>
+        <input id="v1_P" type="range" min="1" max="100" step="0.1" value="31.4">
+      </div>
+      <div class="ctl">
+        <label>Mean apparent magnitude <b><span id="v1_mlbl">19.3</span></b></label>
+        <input id="v1_m" type="range" min="15" max="24" step="0.05" value="19.3">
+      </div>
+      <div class="ctl">
+        <label>Calibration</label>
+        <select id="v1_cal">
+          <option value="modern" selected>Modern (with dust A_V = 0.2)</option>
+          <option value="old">1920s zero point (1.5 mag fainter, no dust)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Absolute mag</div><div class="v" id="v1_M">−5.26</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="v1_d">2.43</span> <small>million ly</small></div></div>
+      <div class="stat"><div class="k">× Shapley's Big Galaxy</div><div class="v" id="v1_x">8.1</div></div>
+    </div>
+    <div id="plot_v1" class="plot" style="height:300px"></div>
+    <div class="verdict good" id="v1_verdict"></div>
+  </div>
+
+  <div class="figrow two">
+    <figure class="realfig">
+      <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Studio_portrait_photograph_of_Edwin_Powell_Hubble_(cropped).JPG?width=560" alt="Edwin Hubble" loading="lazy" referrerpolicy="no-referrer" style="width:100%;display:block" onerror="this.style.display='none';this.parentElement.querySelector('.imgslot').style.display='flex';">
+      <div class="imgslot" style="display:none;border:0;border-radius:0"><div><b>Image slot.</b><br>Portrait of Edwin Hubble.</div></div>
+      <figcaption>Edwin Hubble (public domain).</figcaption>
+    </figure>
+    <div class="spotlight" style="margin:0"><b>The irony.</b> Hubble's distance used Shapley's calibration of Leavitt's law. Shapley's own yardstick, built for the globular clusters, measured the universe that replaced his. And the man who had moved the Sun from the centre of the galaxy found that the galaxy wasn't the centre of anything either.</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> V1 has $P=31.4$ d. Using $M_V=-2.43(\log_{10}P-1)-4.05$, find its absolute magnitude.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Log period.</b> $\log_{10}31.4=1.497$.</li>
+          <li><b>Apply.</b> $M_V=-2.43(0.497)-4.05=-1.21-4.05=-5.26$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $M_V\approx-5.3$, about $11{,}000$ times as luminous as the Sun. Only such a bright star could be seen at all at Andromeda's distance in 1923.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> V1's mean apparent magnitude is about $19.3$, with $A_V\approx0.2$. How far is Andromeda?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Modulus.</b> $m-M-A=19.3+5.26-0.2=24.36$.</li>
+          <li><b>Invert.</b> $d=10^{(24.36+5)/5}=10^{5.872}=7.45\times10^{5}$ pc.</li>
+          <li><b>Light-years.</b> $7.45\times10^{5}\times3.26=2.43\times10^{6}$ ly.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2.4$ million ly. Hubble's 1925 figure was roughly $900{,}000$ ly. It was too small because of the calibration, but still unmistakably outside the Milky Way.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Shapley's Big Galaxy was $300{,}000$ ly across. How many such diameters away is Andromeda, using (a) Hubble's 900,000 ly and (b) the modern 2.5 Mly?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>(a)</b> $900{,}000/300{,}000=3$.</li>
+          <li><b>(b)</b> $2.5\times10^{6}/3\times10^{5}=8.3$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $3\times$ even by the generous 1918 yardstick, and over $8\times$ today. No version of the Milky Way could contain Andromeda.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 11. EXPANSION -->
+<!-- ============================================================= -->
+<section class="chapter" id="expansion">
+  <span class="era">1917 – 1931 · The universe is not standing still</span>
+  <h2>From island universes to an expanding universe</h2>
+  <p class="who">Albert Einstein · Willem de Sitter · Alexander Friedmann · <b>Georges Lemaître</b> · <b>Edwin Hubble</b> &amp; <b>Milton Humason</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>In 1917 Einstein applied general relativity to the whole cosmos. To keep the universe static, as everyone assumed it was, he added a cosmological constant. De Sitter's alternative solution that same year predicted that distant light would be redshifted. Friedmann (1922) showed that relativity naturally allows a universe that expands or contracts.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>In 1927 Lemaître, a Belgian priest and physicist, combined an expanding solution with Slipher's redshifts and Hubble's distances. He predicted that velocity should grow in proportion to distance and estimated the rate. He published in an obscure Belgian journal, and almost no one noticed.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In 1929 Hubble plotted velocity against distance for 24 galaxies, using Cepheid and brightest-star distances and mostly Slipher's velocities. The trend was rough but clear. By 1931 Humason's far fainter spectra had pushed it out to about 20,000 km/s.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p>The redshift–distance law, now Hubble's law (formally renamed the Hubble–Lemaître law in 2018), is v = H₀ d. Space itself is expanding. When Eddington arranged an English translation of Lemaître's paper in 1931, the section with his rate estimate was left out. In 1931 Einstein visited Mount Wilson and accepted the expansion.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Rebuild Hubble's diagram, then fix its distances</h3>
+    <p class="hint">The blue points are Hubble's 1929 table as it's commonly reproduced. Add the 1931 Hubble–Humason cluster averages (approximate). Then slide the distance-scale correction: later recalibrations (Baade in 1952, Sandage in 1958, and onward) multiplied the distances about sevenfold. Watch H₀ fall and the implied age of the universe, 1/H₀, grow.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Distance-scale correction <b>× <span id="ex_flbl">1.0</span></b></label>
+        <input id="ex_f" type="range" min="1" max="8" step="0.05" value="1">
+      </div>
+      <div class="ctl">
+        <label>Data</label>
+        <label class="chk"><input type="checkbox" id="ex_31"> Add Hubble &amp; Humason 1931</label>
+        <label class="chk"><input type="checkbox" id="ex_lem" checked> Show Lemaître's 1927 rate (~600)</label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Fitted H₀</div><div class="v"><span id="ex_H">420</span> <small>km/s/Mpc</small></div></div>
+      <div class="stat"><div class="k">Age ≈ 1/H₀</div><div class="v"><span id="ex_age">2.3</span> <small>Gyr</small></div></div>
+      <div class="stat"><div class="k">vs. Earth's age (4.5 Gyr)</div><div class="v" id="ex_cmp" style="font-size:15px">too young!</div></div>
+    </div>
+    <div id="plot_ex" class="plot" style="height:400px"></div>
+    <div class="verdict bad" id="ex_verdict"></div>
+    <div class="eq">$$ v=H_0\,d,\qquad t_H=\frac{1}{H_0}=\frac{977.8}{H_0\,[\text{km/s/Mpc}]}\ \text{Gyr},\qquad H_{\text{fit}}=\frac{\sum v_i d_i}{\sum d_i^2} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Hubble's 1929 slope was about $500$ km/s/Mpc. What age does $1/H_0$ imply, and why was that a problem?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Hubble time.</b> $t_H=977.8/500=1.96$ Gyr.</li>
+          <li><b>Compare.</b> Radioactive dating of rocks in the 1930s already gave Earth an age of more than 2 billion years.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $2$ billion years, younger than the Earth. This "age paradox" stood until the distance scale was corrected.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> With today's $H_0\approx70$ km/s/Mpc, what is the Hubble time?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Hubble time.</b> $t_H=977.8/70=14.0$ Gyr.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $14$ billion years, close to the measured age of $13.8$ Gyr.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> A galaxy lies $20$ Mpc away. With $H_0=70$, find its velocity and where its calcium K line ($393.37$ nm) appears.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Velocity.</b> $v=70\times20=1400$ km/s.</li>
+          <li><b>Shift.</b> $\Delta\lambda=393.37\times\dfrac{1400}{299{,}792}=1.84$ nm, so $\lambda=395.21$ nm.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $1400$ km/s and $395.2$ nm. The same kind of measurement Slipher made in 1912 now reads out cosmic distance.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A hobby project that pairs the discovery stories in <b>Marcia Bartusiak's <i>The Day We Found the Universe</i></b> with interactive recreations of the measurements. The plots compute real formulae live. The globular-cluster map combines twelve real clusters (approximate catalogue positions) with a simulated population drawn from the measured halo distribution. Hubble's 1929 points follow his published table as commonly reproduced, and the 1931 points are approximate. Galaxy and cluster images are drawn procedurally in your browser.</p>
+  <p style="margin-top:8px">Conventions: $1$ pc $=3.26$ ly, $1$ kpc $=3.086\times10^{16}$ km, $c=299{,}792$ km/s, $G=6.674\times10^{-11}$ SI, modern $R_0=8.2$ kpc, $M_V(\text{RR Lyrae})=+0.6$, Cepheid relation $M_V=-2.43(\log P-1)-4.05$. Historical calibrations are simplified to show their effect, not to reproduce every published number. Not affiliated with the author or publisher.</p>
+</footer>
+
+<script>
+/* Phones: the figure canvases are drawn at ~900px and shrunk to ~300px, which would
+   leave 13px labels about 4px tall. Scale every canvas font up so labels stay ~10px on screen. */
+(function(){
+  const d=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'font');
+  Object.defineProperty(CanvasRenderingContext2D.prototype,'font',{configurable:true, get(){ return d.get.call(this); },
+    set(v){ const c=this.canvas, cw=c.clientWidth;
+      if(cw && cw<640 && c.id!=='starfield'){ const k=Math.min(3,Math.max(1,0.8*c.width/cw));
+        if(k>1) v=String(v).replace(/(\d+(?:\.\d+)?)px/,(m,n)=>(n*k).toFixed(1)+'px'); }
+      d.set.call(this,v); }});
+})();
+// Touch screens: one-finger drags over a chart should scroll the page, not draw a zoom box
+const COARSE=matchMedia('(pointer:coarse)').matches;
+const narrow=c=>c.clientWidth<640;   // canvas shown at phone width: drop or move secondary captions
+/* =======================================================================
+   Helpers
+======================================================================= */
+const C_KMS=299792.458, PC_LY=3.2616, KPC_KM=3.086e16, YR=3.156e7, G=6.674e-11, MSUN=1.989e30;
+function sup(n){return String(n).replace(/-/g,'−').replace(/[0-9]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]);}
+function sci(x,sig=2){
+  if(x===0) return '0';
+  if(!isFinite(x)) return '∞';
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  if(e>=-2 && e<4){ const r=x.toPrecision(sig); return parseFloat(r).toLocaleString(undefined,{maximumSignificantDigits:sig}); }
+  const m=(x/Math.pow(10,e)).toPrecision(sig);
+  return `${parseFloat(m)}×10${sup(e)}`;
+}
+function commas(x){return Math.round(x).toLocaleString();}
+function round3(x){ // round to 3 significant figures, then add commas
+  if(x<=0) return '0'; const e=Math.floor(Math.log10(x)); const p=Math.pow(10,Math.max(0,e-2)); return commas(Math.round(x/p)*p); }
+function signed(x,d){ return (x>=0?'+':'−')+Math.abs(x).toFixed(d); }
+function lyWords(ly){ return ly>=1e6 ? (ly/1e6).toPrecision(3)+' million' : round3(ly); }
+function distPc(mu){ return Math.pow(10,(mu+5)/5); }
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:62,r:18,t:18,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest', dragmode:COARSE?false:'zoom'
+  }, extra||{});
+}
+const PCFG={responsive:true, displayModeBar:false};
+function ax(extra){ return Object.assign({gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'}, extra); }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function gauss(r){ let u=0,v=0; while(u===0)u=r(); while(v===0)v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+const $=id=>document.getElementById(id);
+function cepM(P){ return -2.43*(Math.log10(P)-1)-4.05; }
+/* sawtooth-ish pulsating-star light curve: fast rise, slow decline. returns 0 (faint) .. 1 (bright) */
+function pulse(ph){ ph=ph-Math.floor(ph); return ph<0.15 ? ph/0.15 : 1-(ph-0.15)/0.85; }
+/* draw a procedural spiral galaxy */
+function drawGalaxy(x,cx,cy,R,tilt,rot,seed,n,opts){
+  opts=opts||{}; const r=mulberry32(seed);
+  const g=x.createRadialGradient(cx,cy,0,cx,cy,R*0.35);
+  g.addColorStop(0,'rgba(255,236,200,0.95)'); g.addColorStop(0.4,'rgba(255,210,150,0.35)'); g.addColorStop(1,'rgba(0,0,0,0)');
+  x.save(); x.translate(cx,cy); x.scale(1,tilt); x.fillStyle=g; x.beginPath(); x.arc(0,0,R*0.35,0,7); x.fill(); x.restore();
+  for(let i=0;i<n;i++){
+    const arm=i%2, t=r()*1, rad=0.08+0.92*Math.pow(t,0.8);
+    let th=arm*Math.PI + rot + 2.6*Math.log(rad*8+1) + gauss(r)*0.28*(1.2-rad);
+    if(r()<0.3) th+=r()*6.28; // inter-arm disk stars
+    const px=Math.cos(th)*rad*R, py=Math.sin(th)*rad*R*tilt;
+    const blue=rad>0.35 && r()<0.5;
+    const a=0.25+0.6*r();
+    x.fillStyle= blue?`rgba(170,200,255,${a})`:`rgba(255,226,190,${a*0.8})`;
+    const s=r()<0.04?1.6:0.9;
+    x.fillRect(cx+px,cy+py,s,s);
+  }
+  if(opts.dust){ x.save(); x.translate(cx,cy); x.scale(1,tilt);
+    x.strokeStyle='rgba(20,12,8,0.5)'; x.lineWidth=R*0.03;
+    for(let k=0;k<2;k++){ x.beginPath(); for(let s=0.12;s<0.9;s+=0.01){ const th=k*Math.PI+rot+2.6*Math.log(s*8+1)+0.25; const px=Math.cos(th)*s*R, py=Math.sin(th)*s*R; s<0.125?x.moveTo(px,py):x.lineTo(px,py);} x.stroke(); }
+    x.restore(); }
+}
+
+/* =======================================================================
+   1. Island universes: d = D / θ
+======================================================================= */
+(function(){
+  const sl=$('is_diam'), pre=$('is_preset'), cv=$('is_canvas'), x=cv.getContext('2d');
+  const TH=3.2*Math.PI/180;
+  const bg=document.createElement('canvas'); bg.width=cv.width; bg.height=cv.height;
+  (function(){ const b=bg.getContext('2d'); b.fillStyle='#04050b'; b.fillRect(0,0,bg.width,bg.height);
+    const r=mulberry32(7); for(let i=0;i<500;i++){ b.fillStyle=`rgba(220,228,255,${0.2+r()*0.6})`; b.fillRect(r()*bg.width,r()*bg.height,r()<0.1?1.5:0.8,r()<0.1?1.5:0.8); }
+    b.save(); b.translate(450,150); b.rotate(-0.6); drawGalaxy(b,0,0,180,0.32,0.4,11,5000,{dust:true}); b.restore(); })();
+  function upd(){
+    const D=Math.pow(10,+sl.value), d=D/TH;
+    $('is_dlbl').textContent=round3(D);
+    $('is_dist').textContent=lyWords(d);
+    $('is_cmp').textContent='×'+(d/2.5e6).toPrecision(2);
+    x.drawImage(bg,0,0);
+    // angular ruler
+    x.strokeStyle='rgba(255,178,74,0.85)'; x.lineWidth=1.5; x.beginPath();
+    x.moveTo(450-150,262); x.lineTo(450+150,262); x.moveTo(300,256); x.lineTo(300,268); x.moveTo(600,256); x.lineTo(600,268); x.stroke();
+    x.fillStyle='#ffb24a'; x.font='13px -apple-system,sans-serif'; x.textAlign='center';
+    x.fillText('θ = 3.2°  →  true size '+round3(D)+' ly  ⇒  '+lyWords(d)+' ly away',450,288);
+    x.textAlign='left'; x.fillStyle='#9aa3c7'; x.fillText('Moon for scale',22,30);
+    x.strokeStyle='rgba(230,230,240,0.6)'; x.beginPath(); x.arc(70,58,23,0,7); x.stroke(); // 0.5° = 47 px when 3.2° = 300 px
+  }
+  sl.addEventListener('input',upd);
+  pre.addEventListener('change',()=>{ sl.value=pre.value; upd(); });
+  upd();
+})();
+
+/* =======================================================================
+   2. Leavitt's law
+======================================================================= */
+(function(){
+  const r=mulberry32(1912), MU_SMC=18.96, A_SMC=0.09;
+  const pts=[]; for(let i=0;i<25;i++){ const lp=0.15+1.9*r(); pts.push({lp, m:cepM(Math.pow(10,lp))+MU_SMC+A_SMC+gauss(r)*0.22}); }
+  const sl=$('lv_logp');
+  const lineX=[0.1,2.1], lineY=lineX.map(lp=>cepM(Math.pow(10,lp))+MU_SMC+A_SMC);
+  function upd(){
+    const lp=+sl.value, P=Math.pow(10,lp), M=cepM(P), m=M+MU_SMC+A_SMC, L=Math.pow(10,0.4*(4.83-M));
+    $('lv_plbl').textContent=P<10?P.toFixed(2):P.toFixed(1);
+    $('lv_M').textContent=signed(M,2); $('lv_L').textContent=round3(L); $('lv_m').textContent=m.toFixed(2);
+    Plotly.react('plot_lv',[
+      {x:pts.map(p=>p.lp),y:pts.map(p=>p.m),mode:'markers',marker:{color:'#3fd0ff',size:8,line:{color:'#0b0f22',width:1}},name:'SMC Cepheids',hovertemplate:'log P=%{x:.2f}<br>m=%{y:.2f}<extra></extra>'},
+      {x:lineX,y:lineY,mode:'lines',line:{color:'#b08cff',dash:'dash'},hoverinfo:'skip'},
+      {x:[lp],y:[m],mode:'markers',marker:{color:'#ffb24a',size:15,symbol:'star'},hovertemplate:'your Cepheid<extra></extra>'}
+    ], baseLayout({xaxis:ax({title:'log₁₀ period (days)'}), yaxis:ax({title:'apparent magnitude (brighter ↑)',autorange:'reversed'})}), PCFG);
+    lvPeriod=P;
+  }
+  let lvPeriod=10;
+  const cv=$('lv_canvas'), x=cv.getContext('2d'); let ph=0, last=performance.now();
+  function frame(now){ const dt=(now-last)/1000; last=now;
+    ph+=dt/(0.6+lvPeriod*0.08);
+    const b=pulse(ph), rad=60+18*Math.sin(2*Math.PI*(ph-0.1)); // size lags brightness
+    x.fillStyle='#04050b'; x.fillRect(0,0,cv.width,cv.height);
+    const cx=210, cy=150, T=5200+1300*b;
+    const col=T>6000?'255,245,225':'255,222,170';
+    const g=x.createRadialGradient(cx,cy,0,cx,cy,rad*2.2); g.addColorStop(0,`rgba(${col},${0.35+0.5*b})`); g.addColorStop(1,'rgba(0,0,0,0)');
+    x.fillStyle=g; x.beginPath(); x.arc(cx,cy,rad*2.2,0,7); x.fill();
+    const g2=x.createRadialGradient(cx,cy,0,cx,cy,rad); g2.addColorStop(0,`rgba(${col},1)`); g2.addColorStop(1,`rgba(${col},${0.55+0.3*b})`);
+    x.fillStyle=g2; x.beginPath(); x.arc(cx,cy,rad,0,7); x.fill();
+    x.fillStyle='#9aa3c7'; x.font='12px -apple-system,sans-serif';
+    x.fillText('brightness',16,280); x.fillStyle='rgba(255,178,74,0.9)'; x.fillRect(90,271,200*b,10);
+    requestAnimationFrame(frame); }
+  sl.addEventListener('input',upd); upd(); requestAnimationFrame(frame);
+})();
+
+/* =======================================================================
+   3. Calibration zero point
+======================================================================= */
+(function(){
+  const sl=$('cb_M'), m10=15.0, TRUE=distPc(15.0+4.05)*PC_LY;
+  const refs=[{n:'Printed in 1913 (the slip)',d:3000,c:'#ff6b9d'},{n:'Hertzsprung intended (~30,000)',d:30000,c:'#b08cff'},{n:'Modern (~200,000)',d:200000,c:'#5ee6a8'}];
+  function upd(){
+    const M=+sl.value, mu=m10-M, d=distPc(mu)*PC_LY;
+    $('cb_Mlbl').textContent=signed(M,2); $('cb_mu').textContent=mu.toFixed(2);
+    $('cb_d').textContent=round3(d); $('cb_f').textContent='×'+(d/TRUE).toPrecision(2);
+    const tr=refs.map(o=>({x:[o.d],y:[0],mode:'markers+text',marker:{size:12,color:o.c,symbol:'diamond'},text:[o.n],textposition:'top center',textfont:{size:11,color:o.c},hoverinfo:'skip'}));
+    tr.push({x:[d],y:[0],mode:'markers+text',marker:{size:18,color:'#ffb24a',symbol:'star'},text:['your SMC'],textposition:'bottom center',textfont:{color:'#ffb24a'},hoverinfo:'skip'});
+    Plotly.react('plot_cb',tr,baseLayout({margin:{l:20,r:20,t:30,b:44},xaxis:ax({type:'log',title:'distance to the Small Magellanic Cloud (light-years)',range:[3,6.3]}),yaxis:ax({visible:false,range:[-1,1.2]})}),PCFG);
+  }
+  sl.addEventListener('input',upd); upd();
+})();
+
+/* =======================================================================
+   4. Slipher: Doppler strip
+======================================================================= */
+(function(){
+  const sl=$('sl_v'), pre=$('sl_preset'), cv=$('sl_canvas'), x=cv.getContext('2d');
+  const L0=375, L1=500, lines=[{l:393.37,n:'K',w:5},{l:396.85,n:'H',w:5},{l:486.13,n:'Hβ',w:3},{l:430.8,n:'G',w:3}];
+  if(narrow(cv)) cv.height=200;   // room for the enlarged labels
+  const LY=cv.height>150?152:134, NY=cv.height>150?192:148;
+  function wlRGB(wl){ let r=0,g=0,b=0;
+    if(wl<440){r=-(wl-440)/60;b=1;} else if(wl<490){g=(wl-440)/50;b=1;} else if(wl<510){g=1;b=-(wl-510)/20;} else {r=(wl-510)/70; g=1;}
+    let f=wl<420?0.3+0.7*(wl-380)/40:1; f=Math.max(0.25,f);
+    return `rgb(${Math.round(255*r*f)},${Math.round(255*g*f)},${Math.round(255*b*f)})`; }
+  const X=l=>(l-L0)/(L1-L0)*cv.width;
+  function upd(){
+    const v=+sl.value, z=v/C_KMS;
+    $('sl_vlbl').textContent=(v>0?'+':'')+v; $('sl_k').textContent=(393.37*(1+z)).toFixed(2);
+    $('sl_dl').textContent=signed(393.37*z,2); $('sl_z').textContent=signed(z,4);
+    x.fillStyle='#04050b'; x.fillRect(0,0,cv.width,cv.height);
+    for(let px=0;px<cv.width;px++){ x.fillStyle=wlRGB(L0+(L1-L0)*px/cv.width); x.fillRect(px,18,1,90); }
+    lines.forEach(o=>{ const lo=o.l*(1+z);
+      x.fillStyle='rgba(0,0,0,0.88)'; x.fillRect(X(lo)-o.w/2,18,o.w,90);
+      x.strokeStyle='rgba(255,255,255,0.85)'; x.setLineDash([3,3]); x.beginPath(); x.moveTo(X(o.l),6); x.lineTo(X(o.l),18); x.moveTo(X(o.l),108); x.lineTo(X(o.l),120); x.stroke(); x.setLineDash([]);
+      x.fillStyle='#e8ecff'; x.font='12px -apple-system,sans-serif'; const [al,dx]=(narrow(cv)&&o.n==='K')?['right',-4]:((narrow(cv)&&o.n==='H')?['left',4]:['center',0]); x.textAlign=al; x.fillText(o.n,X(o.l)+dx,LY); });
+    x.fillStyle='#04050b'; x.fillRect(0,0,cv.width,6);
+    x.fillStyle='#9aa3c7'; x.textAlign='left'; x.fillText('375 nm',4,NY); x.textAlign='right'; x.fillText('500 nm',cv.width-4,NY);
+    x.textAlign='center'; x.fillStyle=v<0?'#3fd0ff':'#ff6b9d';
+    x.fillText(v<0?'← blueshifted: approaching':(v>0?'redshifted: receding →':'at rest'),cv.width/2,NY);
+  }
+  sl.addEventListener('input',upd); pre.addEventListener('change',()=>{ sl.value=pre.value; upd(); }); upd();
+})();
+
+/* =======================================================================
+   5. Shapley: RR Lyrae distances to globular clusters
+======================================================================= */
+const CLUSTERS=[ // mean RR Lyrae / horizontal-branch V, extinction A_V, modern distance (kpc)
+  {n:'M3 (Canes Venatici)', V:15.65, A:0.03, d:10.2},
+  {n:'M5 (Serpens)',        V:15.07, A:0.09, d:7.5},
+  {n:'M15 (Pegasus)',       V:15.83, A:0.31, d:10.4},
+  {n:'47 Tucanae',          V:14.06, A:0.12, d:4.5},
+  {n:'M22 (Sagittarius)',   V:14.15, A:1.05, d:3.2},
+  {n:'M4 (Scorpius)',       V:13.45, A:1.15, d:2.2}
+];
+(function(){
+  const sel=$('gc_sel'), Msl=$('gc_M'), cal=$('gc_cal'), dust=$('gc_dust');
+  CLUSTERS.forEach((c,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=c.n; sel.appendChild(o); });
+  const RRP=0.55;
+  function upd(){
+    const c=CLUSTERS[+sel.value], M=+Msl.value, A=dust.checked?c.A:0;
+    const dpc=distPc(c.V-M-A), dk=dpc/1000, ref=distPc(c.V-0.6-c.A)/1000;
+    $('gc_Mlbl').textContent=signed(M,2); $('gc_m').textContent=c.V.toFixed(2); $('gc_A').textContent=A.toFixed(2);
+    $('gc_d').textContent=dk.toFixed(1); $('gc_ly').textContent=round3(dpc*PC_LY); $('gc_err').textContent='×'+(dk/ref).toFixed(2);
+    const ph=[],mag=[]; for(let i=0;i<=200;i++){ const p=i/100; ph.push(p*RRP*24); mag.push(c.V+0.45-0.9*pulse(p)); }
+    Plotly.react('plot_gc',[
+      {x:ph,y:mag,mode:'lines',line:{color:'#3fd0ff',width:2.5},hovertemplate:'t=%{x:.1f} h<br>V=%{y:.2f}<extra></extra>'},
+      {x:[0,ph[ph.length-1]],y:[c.V,c.V],mode:'lines',line:{color:'#ffb24a',dash:'dash'},hoverinfo:'skip'}
+    ], baseLayout({xaxis:ax({title:'time (hours) · period ≈ 13 h'}), yaxis:ax({title:'apparent V mag',autorange:'reversed'}),
+      annotations:[{x:ph[ph.length-1],y:c.V,xanchor:'right',yanchor:'bottom',text:'mean V = '+c.V.toFixed(2),showarrow:false,font:{color:'#ffb24a'}}]}), PCFG);
+  }
+  cal.addEventListener('change',()=>{ if(cal.value==='shapley'){ Msl.value=-0.2; dust.checked=false; } else { Msl.value=0.6; dust.checked=true; } upd(); });
+  [sel,Msl,dust].forEach(e=>e.addEventListener('input',upd)); sel.addEventListener('change',upd); dust.addEventListener('change',upd);
+  upd();
+
+  // procedural globular cluster with pulsing RR Lyrae
+  const cv=$('gc_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height, r=mulberry32(1918);
+  const stars=[]; for(let i=0;i<2600;i++){ const rr=24*Math.pow(1/Math.pow(r(),0.62)-1,0.55); if(rr>155) continue; const t=r()*6.283;
+    stars.push({x:W/2+rr*Math.cos(t), y:H/2+rr*Math.sin(t), s:r()<0.05?1.8:(r()<0.3?1.1:0.7), a:0.35+0.6*r(), red:r()<0.15}); }
+  const vars=[]; for(let i=0;i<6;i++){ const rr=30+70*r(), t=r()*6.283; vars.push({x:W/2+rr*Math.cos(t), y:H/2+rr*Math.sin(t), ph:r()}); }
+  const base=document.createElement('canvas'); base.width=W; base.height=H; const b=base.getContext('2d');
+  b.fillStyle='#04050b'; b.fillRect(0,0,W,H);
+  const gg=b.createRadialGradient(W/2,H/2,0,W/2,H/2,60); gg.addColorStop(0,'rgba(255,240,215,0.55)'); gg.addColorStop(1,'rgba(0,0,0,0)'); b.fillStyle=gg; b.fillRect(0,0,W,H);
+  stars.forEach(s=>{ b.fillStyle=s.red?`rgba(255,200,150,${s.a})`:`rgba(235,238,255,${s.a})`; b.fillRect(s.x,s.y,s.s,s.s); });
+  let t0=performance.now();
+  function frame(now){ const t=(now-t0)/1000; x.drawImage(base,0,0);
+    vars.forEach(v=>{ const br=pulse(t/2.2+v.ph); const rad=1.2+2.6*br;
+      x.fillStyle=`rgba(190,225,255,${0.4+0.6*br})`; x.beginPath(); x.arc(v.x,v.y,rad,0,7); x.fill();
+      x.strokeStyle='rgba(255,178,74,0.75)'; x.lineWidth=1; x.beginPath(); x.arc(v.x,v.y,8,0,7); x.stroke(); });
+    requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+
+  // angular-diameter rung
+  const D=$('ad_D'), T=$('ad_t');
+  function upd2(){ const th=(+T.value/60)*Math.PI/180, d=+D.value/th;
+    $('ad_Dlbl').textContent=D.value; $('ad_tlbl').textContent=(+T.value).toFixed(1);
+    $('ad_rad').textContent=sci(th,3); $('ad_d').textContent=(d/1000).toFixed(1); $('ad_ly').textContent=round3(d*PC_LY); }
+  D.addEventListener('input',upd2); T.addEventListener('input',upd2); upd2();
+})();
+
+/* =======================================================================
+   6. The halo: globular cluster population
+======================================================================= */
+const R0=8.2;
+const HALO=(function(){
+  const famous=[ // approximate Harris-catalogue values: l, b (deg), d (kpc)
+    ['M3',42.2,78.7,10.2],['M13',59.0,40.9,7.1],['M5',3.9,46.8,7.5],['M15',65.0,-27.3,10.4],['M2',53.4,-35.8,11.5],
+    ['M92',68.3,34.9,8.3],['47 Tuc',305.9,-44.9,4.5],['ω Cen',309.1,15.0,5.2],['M4',351.0,16.0,2.2],['M22',9.9,-7.6,3.2],
+    ['M80',352.7,19.5,10.0],['M10',15.1,23.1,4.4]];
+  const list=[]; const D2R=Math.PI/180;
+  famous.forEach(([n,l,b,d])=>list.push({name:n,l:l>180?l-360:l,b,d}));
+  const r=mulberry32(69);
+  while(list.length<160){
+    const rg=1.5*Math.pow(1-r()*(1-Math.sqrt(1.5/60)),-2);  // galactocentric radius, kpc: density ∝ r^-3.5 between 1.5 and 60
+    const cz=2*r()-1, ph=2*Math.PI*r(), sz=Math.sqrt(1-cz*cz);
+    const X=rg*sz*Math.cos(ph), Y=rg*sz*Math.sin(ph), Z=rg*cz;
+    const x=R0+X, y=Y, z=Z, d=Math.hypot(x,y,z);
+    list.push({name:null, l:Math.atan2(y,x)/D2R, b:Math.asin(z/d)/D2R, d});
+  }
+  list.forEach((c,i)=>{
+    c.hidden = Math.abs(c.b)<4 && c.d>3.5;                 // lost behind the plane's dust
+    c.A = Math.min(3, 0.12/Math.max(Math.sin(Math.abs(c.b)*D2R),0.04)); // simple cosecant extinction law
+    c.dS = c.d*Math.pow(10,(0.8+c.A)/5);                   // Shapley-style: bright calibration, no dust correction
+  });
+  // a 69-cluster subsample of visible ones (seeded)
+  const vis=list.map((c,i)=>i).filter(i=>!list[i].hidden); const r2=mulberry32(1918);
+  for(let i=vis.length-1;i>0;i--){ const j=Math.floor(r2()*(i+1)); [vis[i],vis[j]]=[vis[j],vis[i]]; }
+  const keep=new Set(vis.slice(0,57)); list.forEach((c,i)=>{ if(c.name) keep.add(i); });
+  list.forEach((c,i)=>c.in69=keep.has(i));
+  return list;
+})();
+function xyz(c,d){ const D2R=Math.PI/180; const cb=Math.cos(c.b*D2R); return [d*cb*Math.cos(c.l*D2R), d*cb*Math.sin(c.l*D2R), d*Math.sin(c.b*D2R)]; }
+function constellationFor(l,b){ if(Math.abs(b)<15 && Math.abs(l)<13) return 'Sagittarius'; if(l<0&&l>-30) return 'Scorpius'; if(l>=13&&l<30) return 'Scutum/Aquila'; return '—'; }
+(function(){
+  const cal=$('hl_cal'), s69=$('hl_69'), hid=$('hl_hidden'), cen=$('hl_centroid'), sun=$('hl_sun');
+  function upd(){
+    const shap=cal.value==='shapley';
+    const use=HALO.filter(c=>!c.hidden && (!s69.checked || c.in69));
+    const P=use.map(c=>xyz(c, shap?c.dS:c.d));
+    const n=P.length, m=[0,1,2].map(k=>P.reduce((s,p)=>s+p[k],0)/n);
+    const dC=Math.hypot(...m), lC=Math.atan2(m[1],m[0])*180/Math.PI, bC=Math.asin(m[2]/dC)*180/Math.PI;
+    $('hl_n').textContent=n; $('hl_d').textContent=dC.toFixed(1); $('hl_ly').textContent=round3(dC*1000*PC_LY);
+    $('hl_dir').textContent=`${lC.toFixed(0)}°, ${bC.toFixed(0)}°`; $('hl_con').textContent=constellationFor(lC,bC);
+    const v=$('hl_verdict');
+    v.textContent = shap
+      ? `Shapley's 1918 map: the swarm's centre sits about ${round3(dC*1000*PC_LY)} ly away toward ${constellationFor(lC,bC)}. The direction is right but the scale is stretched by roughly ${(dC/R0).toFixed(1)}×, from the bright calibration plus uncorrected dust.`
+      : `The swarm's centre is about ${round3(dC*1000*PC_LY)} ly away toward ${constellationFor(lC,bC)}, close to today's ${round3(R0*1000*PC_LY)} ly. The Sun sits far out on the edge.`;
+
+    const named=use.filter(c=>c.name), unn=use.filter(c=>!c.name);
+    const tr=[];
+    const mk=(arr,col,size,txt)=>{ const Q=arr.map(c=>xyz(c, shap?c.dS:c.d));
+      return {type:'scatter3d',mode:txt?'markers+text':'markers',x:Q.map(q=>q[0]),y:Q.map(q=>q[1]),z:Q.map(q=>q[2]),
+        text:txt?arr.map(c=>c.name):undefined, textfont:{color:'#ffd79a',size:11},
+        marker:{size,color:col,opacity:0.9,line:{width:0}},
+        hovertemplate:arr.map(c=>(c.name||'cluster')+`<br>l=${c.l.toFixed(0)}° b=${c.b.toFixed(0)}°<br>d=${(shap?c.dS:c.d).toFixed(1)} kpc<extra></extra>`)}; };
+    tr.push(mk(unn,'#ffb24a',3));
+    tr.push(mk(named,'#ff9d3a',5,true));
+    if(hid.checked){ const h=HALO.filter(c=>c.hidden); tr.push(Object.assign(mk(h,'rgba(150,150,170,0.6)',2.5),{hovertemplate:'hidden by dust<extra></extra>'})); }
+    tr.push({type:'scatter3d',mode:'markers+text',x:[0],y:[0],z:[0],text:['Sun'],textposition:'bottom center',textfont:{color:'#fff27a'},marker:{size:7,color:'#fff27a'},hovertemplate:'the Sun<extra></extra>'});
+    if(cen.checked) tr.push({type:'scatter3d',mode:'markers+text',x:[m[0]],y:[m[1]],z:[m[2]],text:['centre of swarm'],textposition:'top center',textfont:{color:'#5ee6a8'},marker:{size:8,color:'#5ee6a8',symbol:'diamond'},hovertemplate:'centre of swarm<extra></extra>'});
+    if(sun.checked) tr.push({type:'scatter3d',mode:'lines',x:[0,m[0]],y:[0,m[1]],z:[0,m[2]],line:{color:'#5ee6a8',width:4,dash:'dash'},hoverinfo:'skip'});
+    // galactic plane disk outline (modern ~15 kpc radius around true centre)
+    const cx=shap?R0*1.8:R0, Rd=shap?27:15, ring={x:[],y:[],z:[]};
+    for(let i=0;i<=72;i++){ const t=i/72*2*Math.PI; ring.x.push(cx+Rd*Math.cos(t)); ring.y.push(Rd*Math.sin(t)); ring.z.push(0); }
+    tr.push({type:'scatter3d',mode:'lines',x:ring.x,y:ring.y,z:ring.z,line:{color:'rgba(63,208,255,0.45)',width:3},hoverinfo:'skip'});
+    const lim=shap?45:28;
+    const A3=t=>({title:t,range:[-lim,lim],backgroundcolor:'rgba(0,0,0,0)',gridcolor:'rgba(140,160,230,0.15)',zerolinecolor:'rgba(140,160,230,0.3)',color:'#cfd6f5'});
+    Plotly.react('plot_halo3d',tr,{paper_bgcolor:'rgba(0,0,0,0)',font:{color:'#cfd6f5',size:11},margin:{l:0,r:0,t:0,b:0},showlegend:false,
+      scene:{xaxis:Object.assign(A3('x → Sagittarius (kpc)'),{range:[-lim*0.6,lim*1.4]}),yaxis:A3('y (kpc)'),zaxis:A3('z above plane (kpc)'),aspectmode:'cube',
+        camera:{eye:{x:-1.3,y:-1.5,z:0.8}}}}, PCFG);
+
+    // sky + histogram
+    const sh=use.map(c=>c.l), sb=use.map(c=>c.b);
+    Plotly.react('plot_sky',[
+      {x:sh,y:sb,mode:'markers',marker:{color:'#ffb24a',size:6,opacity:0.85},hovertemplate:'l=%{x:.0f}° b=%{y:.0f}°<extra></extra>'},
+      {x:[0],y:[0],mode:'markers+text',text:['Sagittarius'],textposition:'top right',textfont:{color:'#5ee6a8'},marker:{symbol:'x',size:12,color:'#5ee6a8'},hoverinfo:'skip'}
+    ], baseLayout({margin:{l:52,r:12,t:12,b:44},xaxis:ax({title:'galactic longitude l (°)',range:[180,-180],dtick:60}),yaxis:ax({title:'latitude b (°)',range:[-90,90],dtick:30}),
+      shapes:[{type:'rect',xref:'x',yref:'y',x0:-180,x1:180,y0:-4,y1:4,fillcolor:'rgba(120,90,60,0.35)',line:{width:0}}]}),PCFG);
+    const bins=[-180,-150,-120,-90,-60,-30,0,30,60,90,120,150], cnt=bins.map(b0=>use.filter(c=>c.l>=b0&&c.l<b0+30).length);
+    Plotly.react('plot_hist',[{type:'bar',x:bins.map(b0=>b0+15),y:cnt,marker:{color:bins.map(b0=>Math.abs(b0+15)<=45?'#5ee6a8':'#3fd0ff')},hovertemplate:'l %{x}±15°: %{y}<extra></extra>'}],
+      baseLayout({margin:{l:44,r:12,t:12,b:44},xaxis:ax({title:'galactic longitude l (°)',range:[180,-180],dtick:60}),yaxis:ax({title:'clusters per 30°'})}),PCFG);
+    const half=use.filter(c=>Math.abs(c.l)<90).length/n, sgr=use.filter(c=>Math.abs(c.l)<30).length/n;
+    $('hl_half').textContent=Math.round(half*100)+'%'; $('hl_sgr').textContent=Math.round(sgr*100)+'%';
+  }
+  [cal,s69,hid,cen,sun].forEach(e=>e.addEventListener('change',upd)); upd();
+})();
+
+/* =======================================================================
+   7. Dethroning the Sun: dust bubble + models
+======================================================================= */
+(function(){
+  const mdl=$('dt_model'), dust=$('dt_dust'), vs=$('dt_v'), cv=$('dt_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  const MODELS={ // radius and Sun–centre distance in ly
+    modern:{R:50000, r0:26700, spiral:true, label:'Modern Milky Way'},
+    shapley:{R:150000, r0:50000, spiral:false, label:"Shapley's Big Galaxy (1918)"},
+    kapteyn:{R:15000, r0:2000, spiral:false, label:'Kapteyn universe (1920)'}};
+  function visRadiusKpc(a){ // M=+0 star, plate limit m=15: solve 5log10(100 d)+a d = 15
+    let lo=0.001, hi=60; for(let i=0;i<60;i++){ const md=(lo+hi)/2; (5*Math.log10(100*md)+a*md>15)?hi=md:lo=md; } return lo; }
+  const cache={};
+  function galaxyLayer(key){ if(cache[key]) return cache[key];
+    const c=document.createElement('canvas'); c.width=W; c.height=H; const b=c.getContext('2d');
+    b.fillStyle='#04050b'; b.fillRect(0,0,W,H); const r=mulberry32(3); for(let i=0;i<260;i++){ b.fillStyle=`rgba(220,228,255,${0.15+r()*0.4})`; b.fillRect(r()*W,r()*H,0.9,0.9); }
+    const M=MODELS[key], scale=(H*0.44)/M.R, cx=W/2, cy=H/2, Rp=M.R*scale;
+    if(M.spiral) drawGalaxy(b,cx,cy,Rp,1,0.3,21,9000,{dust:true});
+    else { const g=b.createRadialGradient(cx,cy,0,cx,cy,Rp); g.addColorStop(0,'rgba(255,230,190,0.55)'); g.addColorStop(0.5,'rgba(200,190,230,0.18)'); g.addColorStop(1,'rgba(0,0,0,0)');
+      b.fillStyle=g; b.beginPath(); b.ellipse(cx,cy,Rp,Rp*(key==='kapteyn'?0.85:1),0,0,7); b.fill();
+      const rr=mulberry32(5); for(let i=0;i<5000;i++){ const t=rr()*6.283, d=Rp*Math.sqrt(rr())*0.98; b.fillStyle=`rgba(235,225,210,${0.15+rr()*0.4})`; b.fillRect(cx+d*Math.cos(t),cy+d*Math.sin(t),0.9,0.9);} }
+    cache[key]={c,scale}; return cache[key]; }
+  function upd(){
+    const key=mdl.value, M=MODELS[key], a=+dust.value, v=+vs.value;
+    $('dt_alab').textContent=a.toFixed(2); $('dt_vlab').textContent=v;
+    const visKpc=visRadiusKpc(a), visLy=visKpc*1000*PC_LY;
+    const R0km=(M.r0/PC_LY/1000)*KPC_KM, P=2*Math.PI*R0km/v/YR, Menc=(v*1e3)**2*(R0km*1e3)/G/MSUN;
+    $('dt_vis').textContent=round3(visLy); $('dt_r0').textContent=round3(M.r0);
+    $('dt_P').textContent=round3(P/1e6); $('dt_M').textContent=sci(Menc,2);
+    const L=galaxyLayer(key), s=L.scale, cx=W/2, cy=H/2, sx=cx-M.r0*s, sy=cy;
+    x.drawImage(L.c,0,0);
+    // globular clusters (modern positions, rescaled to model)
+    if(key!=='kapteyn'){ const k=(M.r0/(R0*1000*PC_LY));
+      HALO.forEach(c=>{ const p=xyz(c,c.d); const gx=(p[0]-R0)*1000*PC_LY*k, gy=p[1]*1000*PC_LY*k;
+        const px=cx+gx*s, py=cy-gy*s; if(px<0||px>W||py<0||py>H) return;
+        x.fillStyle=c.hidden?'rgba(150,150,170,0.5)':'rgba(255,178,74,0.9)'; x.beginPath(); x.arc(px,py,2.2,0,7); x.fill(); }); }
+    // visibility bubble
+    const vr=Math.max(3,visLy*s);
+    const g=x.createRadialGradient(sx,sy,0,sx,sy,vr); g.addColorStop(0,'rgba(63,208,255,0.18)'); g.addColorStop(1,'rgba(63,208,255,0.03)');
+    x.fillStyle=g; x.beginPath(); x.arc(sx,sy,vr,0,7); x.fill();
+    x.strokeStyle='rgba(63,208,255,0.9)'; x.lineWidth=1.5; x.setLineDash([6,4]); x.beginPath(); x.arc(sx,sy,vr,0,7); x.stroke(); x.setLineDash([]);
+    // centre
+    x.strokeStyle='#ff6b9d'; x.lineWidth=2.5; x.beginPath(); x.moveTo(cx-9,cy-9); x.lineTo(cx+9,cy+9); x.moveTo(cx+9,cy-9); x.lineTo(cx-9,cy+9); x.stroke();
+    // Sun
+    x.fillStyle='#fff27a'; x.beginPath(); x.arc(sx,sy,5,0,7); x.fill();
+    x.font='13px -apple-system,sans-serif'; x.fillStyle='#fff27a'; x.textAlign='center'; x.fillText('Sun',sx,sy-12);
+    x.fillStyle='#ff6b9d'; x.fillText('galactic centre',cx,cy+26);
+    x.textAlign='left'; x.fillStyle='#e8ecff'; x.fillText(M.label,16,24);
+    x.fillStyle='#9aa3c7'; x.fillText('scale bar: 10,000 ly',16,H-14);
+    const bx=16+x.measureText('scale bar: 10,000 ly').width+12;
+    x.strokeStyle='#9aa3c7'; x.beginPath(); x.moveTo(bx,H-18); x.lineTo(bx+10000*s,H-18); x.stroke();
+    $('dt_cap').textContent=`${M.label}, top-down. Cyan dashed circle: the reach of star counts with ${a.toFixed(2)} mag/kpc of dust. Amber dots: globular clusters (grey = hidden behind the plane).`;
+    const vd=$('dt_verdict'), frac=visLy/M.r0;
+    if(key==='kapteyn'){ vd.className='verdict bad'; vd.textContent="In Kapteyn's picture the Sun is near the middle of a small system. But that's just what dust-limited star counts would show from anywhere in a much bigger galaxy."; }
+    else if(frac<0.7){ vd.className='verdict good'; vd.textContent=`Star counts only reach about ${round3(visLy)} ly, a neat bubble centred on the Sun that doesn't come close to the true centre ${round3(M.r0)} ly away. That's Kapteyn's illusion. The globular clusters, above and below the dust, reveal the real centre.`; }
+    else { vd.className='verdict bad'; vd.textContent=`With this little dust, star counts would reach about ${round3(visLy)} ly, enough to see the star density pile up toward the centre. Kapteyn would have noticed he was off-centre. The real Milky Way is dustier than this.`; }
+  }
+  [mdl,dust,vs].forEach(e=>e.addEventListener('input',upd)); mdl.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   8. van Maanen
+======================================================================= */
+(function(){
+  const mu=$('vm_mu'), ds=$('vm_d');
+  function upd(){
+    const m=+mu.value, dpc=Math.pow(10,+ds.value), v=4.74*m*dpc, P=2*Math.PI*660/m;
+    $('vm_mulbl').textContent=m.toFixed(3);
+    $('vm_dlbl').textContent= dpc>=1e6?(dpc/1e6).toFixed(2)+' Mpc':(dpc>=1e3?(dpc/1e3).toPrecision(3)+' kpc':Math.round(dpc)+' pc');
+    $('vm_v').textContent=round3(v); $('vm_c').textContent=(v/C_KMS).toPrecision(2); $('vm_P').textContent=round3(P);
+    const vd=$('vm_verdict');
+    if(v>C_KMS){ vd.className='verdict bad'; vd.textContent=`Impossible: the arms would move at ${(v/C_KMS).toFixed(2)}× the speed of light. At island-universe distances, van Maanen's motions can't be real.`; }
+    else if(v>3000){ vd.className='verdict bad'; vd.textContent='Physically allowed, but far faster than any known stellar motion. This is already suspicious.'; }
+    else { vd.className='verdict good'; vd.textContent='A plausible speed, but only because the spiral is assumed to be nearby. This is the reasoning that kept Shapley convinced.'; }
+  }
+  mu.addEventListener('input',upd); ds.addEventListener('input',upd); upd();
+})();
+
+/* =======================================================================
+   9. Great Debate scorecard
+======================================================================= */
+(function(){
+  const Q=[
+    {q:'How big is the Milky Way?', s:'~300,000 ly: huge.', c:'~30,000 ly: Kapteyn-sized.', a:'S',
+     why:"Closer to Shapley. The true size, ~100,000 ly, is between the two, but Curtis's was far too small because he trusted dust-limited star counts."},
+    {q:'Where is the Sun?', s:'Far from the centre, toward the edge.', c:'Near the centre.', a:'S',
+     why:"Shapley. His globular-cluster halo is centred ~26,000 ly away toward Sagittarius. This was his lasting triumph."},
+    {q:'What are the spiral nebulae?', s:'Nearby gas clouds inside our galaxy.', c:'Island universes: separate galaxies.', a:'C',
+     why:"Curtis. Hubble's Cepheid in Andromeda settled it in 1923–25."},
+    {q:'Do the spirals visibly rotate (van Maanen)?', s:"Yes: so they're close.", c:'The measurements must be wrong.', a:'C',
+     why:"Curtis. Van Maanen's motions were systematic errors. At true distances they'd exceed the speed of light."},
+    {q:'S Andromedae (1885) outshone its whole nebula. What was it?', s:'A nova, so Andromeda must be close.', c:'An unusual outlier; ignore it.', a:'C',
+     why:"Twist: neither knew it. It was a supernova, a class of explosion not recognised until the 1930s. Curtis was closer to right by setting it aside."},
+    {q:"What do the spirals' huge velocities mean?", s:'Perhaps repelled by the Milky Way somehow.', c:'Too fast to belong to our galaxy: independent systems.', a:'C',
+     why:"Curtis on this point. And the systematic redshifts would soon reveal the expanding universe."}
+  ];
+  const grid=$('deb_grid'); let right=0, done=0;
+  Q.forEach(o=>{ const d=document.createElement('div'); d.className='deb-card';
+    d.innerHTML=`<div class="dq">${o.q}</div><div class="side"><b>Shapley:</b> ${o.s}</div><div class="side"><b>Curtis:</b> ${o.c}</div>
+      <div class="picks"><button class="btn" data-p="S" type="button">Shapley</button><button class="btn" data-p="C" type="button">Curtis</button></div><div class="reveal">${o.why}</div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{ if(d.classList.contains('done')) return;
+      const ok=b.dataset.p===o.a; d.classList.add('done', ok?'right':'wrong'); b.classList.add('on');
+      done++; if(ok) right++; $('deb_score').innerHTML=`Score: <b>${right}</b> / ${done}`+(done===Q.length?(right>=5?' — sharper than either debater!':' — the evidence took five more years to settle.'):''); }));
+    grid.appendChild(d); });
+})();
+
+/* =======================================================================
+   10. Blink comparator + V1 distance
+======================================================================= */
+(function(){
+  const cv=$('bl_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  let seed=335, stars=[], target=null, showB=false, timer=null, found=false;
+  function make(){ const r=mulberry32(seed); stars=[];
+    for(let i=0;i<420;i++) stars.push({x:20+r()*(W-40), y:20+r()*(H-40), s:0.6+Math.pow(r(),4)*4});
+    target=stars[40+Math.floor(r()*300)]; target.s=Math.max(target.s,1.3); found=false; }
+  function draw(){ x.fillStyle='#d9d4c4'; x.fillRect(0,0,W,H);
+    const g=x.createRadialGradient(W*0.7,H*0.45,0,W*0.7,H*0.45,W*0.5); g.addColorStop(0,'rgba(90,80,70,0.35)'); g.addColorStop(1,'rgba(90,80,70,0)'); x.fillStyle=g; x.fillRect(0,0,W,H);
+    stars.forEach(s=>{ let rad=s.s; if(s===target) rad=showB?s.s+2.2:s.s;
+      x.fillStyle='rgba(20,18,16,0.92)'; x.beginPath(); x.arc(s.x,s.y,rad,0,7); x.fill(); });
+    x.fillStyle='rgba(20,18,16,0.85)'; x.font='bold 15px Georgia,serif'; x.fillText(showB?'Plate B':'Plate A',14,24);
+    if(found){ x.strokeStyle='#c0152f'; x.lineWidth=2; x.beginPath(); x.arc(target.x,target.y,16,0,7); x.stroke();
+      x.fillStyle='#c0152f'; x.font='bold 26px Georgia,serif'; x.save(); x.translate(target.x+22,target.y-14); x.rotate(-0.12);
+      x.fillText('VAR!',0,0); x.restore();
+      x.font='16px Georgia,serif'; x.strokeStyle='#c0152f'; x.fillText('N',target.x+22,target.y+20); x.beginPath(); x.moveTo(target.x+18,target.y+22); x.lineTo(target.x+36,target.y+8); x.stroke(); } }
+  function stop(){ clearInterval(timer); timer=null; $('bl_btn').textContent='▶ Blink'; }
+  $('bl_btn').addEventListener('click',()=>{ if(timer){ stop(); return; } timer=setInterval(()=>{ showB=!showB; draw(); $('bl_status').textContent=showB?'Plate B shown.':'Plate A shown.'; },420); $('bl_btn').textContent='❚❚ Stop'; });
+  $('bl_reset').addEventListener('click',()=>{ seed=Math.floor(Math.random()*1e6); make(); draw(); $('bl_status').textContent='New field. Blink to compare.'; });
+  cv.addEventListener('click',e=>{ const rc=cv.getBoundingClientRect(), px=(e.clientX-rc.left)*W/rc.width, py=(e.clientY-rc.top)*H/rc.height;
+    if(Math.hypot(px-target.x,py-target.y)<14){ found=true; stop(); showB=true; draw(); $('bl_status').innerHTML='<span style="color:#5ee6a8">Found it. It\'s not a nova: it brightens and fades on a regular cycle. Cross out the N and write VAR!</span>'; }
+    else $('bl_status').textContent='Not that one. Blink again and watch closely.'; });
+  make(); draw();
+
+  const P=$('v1_P'), m=$('v1_m'), cal=$('v1_cal');
+  function upd(){
+    const p=+P.value, mm=+m.value, old=cal.value==='old', M=cepM(p)+(old?1.5:0), A=old?0:0.2;
+    const dLy=distPc(mm-M-A)*PC_LY, ratio=dLy/3e5;
+    $('v1_Plbl').textContent=p.toFixed(1); $('v1_mlbl').textContent=mm.toFixed(2); $('v1_M').textContent=signed(M,2);
+    $('v1_d').textContent=(dLy/1e6).toPrecision(3); $('v1_x').textContent=ratio.toFixed(1);
+    const vd=$('v1_verdict');
+    if(ratio>1){ vd.className='verdict good'; vd.textContent=`${(dLy/1e6).toPrecision(2)} million ly is ${ratio.toFixed(1)}× the diameter of even Shapley's 300,000-ly Milky Way. Andromeda is a separate galaxy.`; }
+    else { vd.className='verdict bad'; vd.textContent='With these values the star could still be inside a Big-Galaxy Milky Way. Restore the real period and magnitude to see why Hubble was convinced.'; }
+    const t=[],y=[]; for(let i=0;i<=300;i++){ const ph=i/150; t.push(ph*p); y.push(mm+0.4-0.8*pulse(ph)); }
+    Plotly.react('plot_v1',[{x:t,y,mode:'lines',line:{color:'#b08cff',width:2.5},hovertemplate:'day %{x:.1f}<br>m=%{y:.2f}<extra></extra>'},
+      {x:[0,2*p],y:[mm,mm],mode:'lines',line:{color:'#ffb24a',dash:'dash'},hoverinfo:'skip'}],
+      baseLayout({xaxis:ax({title:'days'}),yaxis:ax({title:'apparent mag',autorange:'reversed'})}),PCFG);
+  }
+  [P,m].forEach(e=>e.addEventListener('input',upd)); cal.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   11. Hubble diagram
+======================================================================= */
+(function(){
+  const H29=[[0.032,170],[0.034,290],[0.214,-130],[0.263,-70],[0.275,-185],[0.275,-220],[0.45,200],[0.5,290],[0.5,270],[0.63,200],[0.8,300],[0.9,-30],
+             [0.9,650],[0.9,150],[0.9,500],[1.0,920],[1.1,450],[1.1,500],[1.4,500],[1.7,960],[2.0,500],[2.0,850],[2.0,800],[2.0,1090]];
+  const H31=[[1.8,890],[7.25,3810],[7.0,4630],[9.0,4820],[11.0,5230],[13.8,7500],[22.0,11800],[32.0,19600]];
+  const f=$('ex_f'), c31=$('ex_31'), lem=$('ex_lem');
+  function upd(){
+    const k=+f.value, data=H29.concat(c31.checked?H31:[]);
+    const sxy=data.reduce((s,p)=>s+p[0]*k*p[1],0), sxx=data.reduce((s,p)=>s+(p[0]*k)**2,0), Hf=sxy/sxx, age=977.8/Hf;
+    $('ex_flbl').textContent=k.toFixed(2); $('ex_H').textContent=Math.round(Hf); $('ex_age').textContent=age.toFixed(1);
+    $('ex_cmp').textContent= age<4.5?'too young!':'older ✓';
+    const vd=$('ex_verdict');
+    if(age<4.5){ vd.className='verdict bad'; vd.textContent=`A universe only ${age.toFixed(1)} billion years old would be younger than the Earth. Something was wrong with the distances, not the expansion.`; }
+    else { vd.className='verdict good'; vd.textContent=`Stretch the distances by ${k.toFixed(1)}× and H₀ ≈ ${Math.round(Hf)} km/s/Mpc gives an age of about ${age.toFixed(0)} billion years, close to the modern 13.8.`; }
+    const xmax=Math.max(...data.map(p=>p[0]*k))*1.08;
+    const tr=[
+      {x:H29.map(p=>p[0]*k),y:H29.map(p=>p[1]),mode:'markers',marker:{color:'#3fd0ff',size:9,line:{color:'#0b0f22',width:1}},hovertemplate:'1929: %{x:.2f} Mpc, %{y} km/s<extra></extra>'},
+      {x:[0,xmax],y:[0,Hf*xmax],mode:'lines',line:{color:'#ffb24a',width:2.5},hoverinfo:'skip'}];
+    if(c31.checked) tr.push({x:H31.map(p=>p[0]*k),y:H31.map(p=>p[1]),mode:'markers',marker:{color:'#ff6b9d',size:10,symbol:'diamond'},hovertemplate:'1931: %{x:.1f} Mpc, %{y} km/s<extra></extra>'});
+    if(lem.checked) tr.push({x:[0,xmax],y:[0,600/k*xmax],mode:'lines',line:{color:'#b08cff',dash:'dot'},hoverinfo:'skip'});
+    tr.push({x:[0,xmax],y:[0,70*xmax],mode:'lines',line:{color:'#5ee6a8',dash:'dash',width:1.5},hoverinfo:'skip'});
+    const ann=[{x:xmax,y:70*xmax,text:'modern H₀ = 70',showarrow:false,xanchor:'right',yanchor:'bottom',font:{color:'#5ee6a8'}},
+               {x:xmax,y:Hf*xmax,text:'fit: '+Math.round(Hf),showarrow:false,xanchor:'right',yanchor:'top',font:{color:'#ffb24a'}}];
+    Plotly.react('plot_ex',tr,baseLayout({xaxis:ax({title:'distance (Mpc)',range:[0,xmax]}),yaxis:ax({title:'velocity (km/s)'}),annotations:ann}),PCFG);
+  }
+  f.addEventListener('input',upd); c31.addEventListener('change',upd); lem.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   Background starfield
+======================================================================= */
+(function(){
+  const cv=$('starfield'), x=cv.getContext('2d');
+  let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280,(innerWidth*innerHeight)/7000)},()=>({
+      x:Math.random()*cv.width, y:Math.random()*cv.height, r:Math.random()*1.3+0.2, tw:Math.random()*6.28, sp:0.5+Math.random()*1.5 })); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw));
+      x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+
+<!-- =======================================================================
+     GLOSSARY ENGINE — inline hover terms + dynamic left rail
+======================================================================= -->
+<script>
+(function(){
+  const W='https://en.wikipedia.org/wiki/';
+  // slug -> {label, def, wiki, terms:[phrases to match, longest/most-specific first]}
+  const GLOSS={
+    'island-universe':{label:'Island universe',wiki:W+'Island_universe',
+      def:'Kant’s 1755 idea that some nebulae are entire star systems like the Milky Way, separated by vast empty space. In modern terms: other galaxies.',terms:['island universes','island universe','island-universe']},
+    'spiral-nebula':{label:'Spiral nebula',wiki:W+'Spiral_galaxy',
+      def:'The pre-1925 name for what we now call spiral galaxies: fuzzy patches with a pinwheel shape whose nature was hotly debated.',terms:['spiral nebulae','spiral nebula','spirals']},
+    'nebula':{label:'Nebula',wiki:W+'Nebula',
+      def:'Latin for “cloud”. Historically any fuzzy, non-stellar patch of sky, a category that lumped together gas clouds, star clusters and distant galaxies.',terms:['nebulae','nebula']},
+    'andromeda':{label:'Andromeda Galaxy (M31)',wiki:W+'Andromeda_Galaxy',
+      def:'The nearest large spiral galaxy, about 2.5 million light-years away. Hubble’s Cepheid in it proved spirals are separate galaxies.',terms:['Andromeda nebula','Andromeda']},
+    'cepheid':{label:'Cepheid variable',wiki:W+'Cepheid_variable',
+      def:'A luminous supergiant star that pulsates regularly over days to months. Its period reveals its true luminosity.',terms:['Cepheid variables','Cepheid variable','Cepheids','Cepheid']},
+    'rr-lyrae':{label:'RR Lyrae variable',wiki:W+'RR_Lyrae_variable',
+      def:'An old, low-mass pulsating star with a period under a day and nearly uniform luminosity (about M_V ≈ +0.6). These are the “cluster variables” Shapley used in globular clusters.',terms:['RR Lyrae stars','RR Lyrae','cluster variables']},
+    'leavitt-law':{label:'Period–luminosity relation',wiki:W+'Period-luminosity_relation',
+      def:'Leavitt’s 1912 discovery that longer-period Cepheids are intrinsically brighter. It turns a pulsation period into a distance.',terms:['period–luminosity relation','Leavitt’s law','Leavitt\'s law']},
+    'standard-candle':{label:'Standard candle',wiki:W+'Cosmic_distance_ladder#Standard_candles',
+      def:'An object of known true brightness. Compare that with how bright it looks and you can work out its distance.',terms:['standard candles','standard candle']},
+    'apparent-mag':{label:'Apparent magnitude',wiki:W+'Apparent_magnitude',
+      def:'How bright an object looks from Earth, on a backwards logarithmic scale: 5 magnitudes fainter means 100× less light.',terms:['apparent magnitude','apparent brightness']},
+    'absolute-mag':{label:'Absolute magnitude',wiki:W+'Absolute_magnitude',
+      def:'How bright an object would look from a standard 10 parsecs away. It measures true luminosity.',terms:['absolute magnitudes','absolute magnitude']},
+    'distance-modulus':{label:'Distance modulus',wiki:W+'Distance_modulus',
+      def:'m − M = 5 log₁₀(d / 10 pc). The difference between apparent and absolute magnitude encodes distance.',terms:['distance modulus']},
+    'parallax':{label:'Stellar parallax',wiki:W+'Stellar_parallax',
+      def:'The small yearly shift of a nearby star against the background as Earth orbits the Sun. Distance in parsecs = 1 / parallax in arcseconds.',terms:['parallax']},
+    'statistical-parallax':{label:'Statistical parallax',wiki:W+'Statistical_parallax',
+      def:'A method that estimates the average distance of a group of similar stars from their combined proper motions and radial velocities, used when individual parallaxes are too small to measure.',terms:['statistical parallax','statistical-parallax']},
+    'proper-motion':{label:'Proper motion',wiki:W+'Proper_motion',
+      def:'A star’s slow angular drift across the sky, in arcseconds per year, measured by comparing plates taken years apart.',terms:['proper motion']},
+    'zero-point':{label:'Zero point (calibration)',wiki:W+'Cosmic_distance_ladder',
+      def:'The constant that converts a relative brightness scale into absolute magnitudes. An error here scales every distance built on it.',terms:['zero point']},
+    'globular-cluster':{label:'Globular cluster',wiki:W+'Globular_cluster',
+      def:'A dense, spherical ball of 100,000 to 1,000,000 old stars. About 160 orbit the Milky Way in a halo centred on the galactic centre.',terms:['globular clusters','globular cluster','globular-cluster']},
+    'halo':{label:'Galactic halo',wiki:W+'Galactic_halo',
+      def:'The roughly spherical region around a galaxy’s disk, populated by globular clusters and old stars (and dark matter).',terms:['globular-cluster halo','galactic halo','halo']},
+    'galactic-center':{label:'Galactic Center',wiki:W+'Galactic_Center',
+      def:'The rotational centre of the Milky Way, about 26,000 light-years away in the direction of Sagittarius. It hosts the black hole Sgr A*.',terms:['galactic center','galactic centre']},
+    'sagittarius':{label:'Sagittarius (constellation)',wiki:W+'Sagittarius_(constellation)',
+      def:'The constellation that lies in the direction of the Milky Way’s centre, where the galaxy’s star clouds and globular clusters are densest.',terms:['Sagittarius']},
+    'galactic-coords':{label:'Galactic coordinates',wiki:W+'Galactic_coordinate_system',
+      def:'Sky coordinates aligned with the Milky Way. Longitude l runs along the plane from the galactic centre (l = 0°), and latitude b measures the angle above or below it.',terms:['galactic longitude','galactic latitude','galactic coordinates']},
+    'extinction':{label:'Interstellar extinction',wiki:W+'Extinction_(astronomy)',
+      def:'Dimming (and reddening) of starlight by dust between the stars. Trumpler proved it in 1930. Uncorrected, it makes objects seem farther away.',terms:['interstellar extinction','extinction','interstellar dust']},
+    'kapteyn-universe':{label:'Kapteyn universe',wiki:W+'Kapteyn_Universe',
+      def:'Jacobus Kapteyn’s model, from star counts, of the Milky Way as a small flattened system about 30,000–40,000 ly across with the Sun near the centre. Dust made it misleading.',terms:['Kapteyn universe']},
+    'orion-arm':{label:'Orion Arm',wiki:W+'Orion_Arm',
+      def:'The minor spiral arm, or spur, that contains the Sun, between the larger Sagittarius and Perseus arms.',terms:['Orion Arm']},
+    'horizontal-branch':{label:'Horizontal branch',wiki:W+'Horizontal_branch',
+      def:'A stage in the life of old, low-mass stars when they burn helium in their cores. Such stars all have similar luminosity, which is why RR Lyrae stars make good standard candles.',terms:['horizontal branch']},
+    'doppler':{label:'Doppler effect',wiki:W+'Doppler_effect',
+      def:'The change in wavelength of light from a moving source: shorter (bluer) when approaching, longer (redder) when receding.',terms:['Doppler effect','Doppler']},
+    'redshift':{label:'Redshift',wiki:W+'Redshift',
+      def:'A shift of spectral lines toward longer wavelengths. For galaxies it signals recession, and on large scales the expansion of space.',terms:['redshifted','redshifts','redshift']},
+    'blueshift':{label:'Blueshift',wiki:W+'Blueshift',
+      def:'A shift of spectral lines toward shorter wavelengths, meaning the source is approaching. Andromeda is blueshifted.',terms:['blueshifted','blueshift']},
+    'spectral-line':{label:'Spectral lines',wiki:W+'Spectral_line',
+      def:'Narrow dark or bright features at wavelengths absorbed or emitted by a specific element. Their shifts reveal motion.',terms:['absorption lines','spectral lines','spectral line']},
+    'spectrograph':{label:'Spectrograph',wiki:W+'Optical_spectrometer',
+      def:'An instrument that spreads light into its spectrum and records it. Slipher’s fast spectrograph made spiral velocities measurable.',terms:['spectrograph']},
+    'radial-velocity':{label:'Radial velocity',wiki:W+'Radial_velocity',
+      def:'The component of an object’s motion directly toward or away from us, measured by the Doppler shift.',terms:['radial velocity']},
+    'nova':{label:'Nova',wiki:W+'Nova',
+      def:'A sudden, temporary brightening of a star, caused by an explosion on a white dwarf in a binary system.',terms:['novae','nova']},
+    'supernova':{label:'Supernova',wiki:W+'Supernova',
+      def:'The explosion of a star, briefly outshining a whole galaxy, millions of times brighter than a nova. Recognised as a distinct class only in the 1930s.',terms:['supernova']},
+    'magellanic':{label:'Magellanic Clouds',wiki:W+'Magellanic_Clouds',
+      def:'Two small satellite galaxies of the Milky Way visible from the southern hemisphere. Leavitt studied Cepheids in the Small Magellanic Cloud, about 200,000 ly away.',terms:['Small Magellanic Cloud','Magellanic Clouds']},
+    'mount-wilson':{label:'Mount Wilson Observatory',wiki:W+'Mount_Wilson_Observatory',
+      def:'George Ellery Hale’s observatory above Pasadena, home of the 60-inch (1908) and 100-inch Hooker (1917) telescopes.',terms:['Mount Wilson Observatory','Mount Wilson']},
+    'hooker':{label:'Hooker telescope',wiki:W+'Hooker_Telescope',
+      def:'The 100-inch reflector at Mount Wilson, the world’s largest from 1917 to 1949, used by Hubble to find Cepheids in Andromeda.',terms:['100-inch Hooker telescope','Hooker telescope','100-inch telescope']},
+    'great-debate':{label:'Great Debate',wiki:W+'Great_Debate_(astronomy)',
+      def:'The April 1920 Shapley–Curtis exchange at the National Academy of Sciences over the size of the Milky Way and the nature of spiral nebulae.',terms:['Great Debate']},
+    'hubble-law':{label:'Hubble–Lemaître law',wiki:W+'Hubble%27s_law',
+      def:'v = H₀ d: galaxies recede at speeds proportional to their distance, the signature of an expanding universe.',terms:['redshift–distance law','Hubble’s law','Hubble\'s law']},
+    'cosmological-constant':{label:'Cosmological constant',wiki:W+'Cosmological_constant',
+      def:'A term Einstein added to his equations in 1917 to keep the universe static. He dropped it after the expansion was found; it returned in 1998 as dark energy.',terms:['cosmological constant']},
+    'general-relativity':{label:'General relativity',wiki:W+'General_relativity',
+      def:'Einstein’s 1915 theory of gravity as the curvature of spacetime. Applied to the whole cosmos, it allows expanding universes.',terms:['general relativity']},
+    'blink':{label:'Blink comparator',wiki:W+'Blink_comparator',
+      def:'A device that flips rapidly between two plates of the same field, so any star that changed brightness or position appears to jump.',terms:['blinking','blink comparator']},
+    'light-year':{label:'Light-year / parsec',wiki:W+'Parsec',
+      def:'A light-year is the distance light travels in a year. A parsec is 3.26 ly, the distance at which a star shows 1″ of parallax. 1 kpc = 1,000 pc.',terms:['light-years','light-year','parsecs','parsec']}
+  };
+  // process longer phrases first so multiword terms win over their fragments
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+
+  // case-insensitive phrase find with non-letter boundaries (handles "Sgr A*")
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase();
+    let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z]/.test(b)&&/[^A-Za-z]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  // wrap first match of phrase inside container; skip math/links/already-wrapped
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+
+  /* ---- floating tooltip ---- */
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  /* ---- left rail ---- */
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    // track the most-visible section and repopulate the rail
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+
+  // run after MathJax finishes (so prose text nodes are clean), with a safe fallback
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+<script>
+(function(){
+  var nav=document.querySelector('nav');
+  var btn=nav&&nav.querySelector('.navToggle');
+  var links=nav&&nav.querySelector('.links');
+  if(!nav||!btn||!links)return;
+  links.id=links.id||'navLinks';
+  function close(){ nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click',function(){
+    var open=nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',close); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')close(); });
+})();
+</script>
+</body>
+</html>

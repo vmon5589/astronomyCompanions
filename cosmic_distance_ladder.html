@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Cosmic Distance Ladder — Interactive Companion</title>
+
+<!-- MathJax for rendered equations -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<!-- Plotly for interactive plots -->
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js" charset="utf-8"></script>
+
+<style>
+  :root{
+    --bg:#05060d; --panel:rgba(18,22,40,0.72); --panel-solid:#0e1124;
+    --ink:#e8ecff; --muted:#9aa3c7; --line:rgba(140,160,230,0.18);
+    --cyan:#3fd0ff; --amber:#ffb24a; --violet:#b08cff; --rose:#ff6b9d; --green:#5ee6a8;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65; overflow-x:hidden; overflow-x:clip;
+  }
+  /* Starfield canvas sits behind everything */
+  #starfield{position:fixed; inset:0; z-index:-2; display:block}
+  body::after{ /* subtle vignette + nebula glow */
+    content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 80% -10%, rgba(80,40,140,0.22), transparent 60%),
+      radial-gradient(900px 600px at 10% 110%, rgba(20,90,140,0.18), transparent 60%),
+      radial-gradient(1400px 900px at 50% 50%, rgba(0,0,0,0.0), rgba(5,6,13,0.65) 90%);
+  }
+
+  /* ---------- Top nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:50; backdrop-filter:blur(12px);
+    background:linear-gradient(180deg, rgba(5,6,13,0.92), rgba(5,6,13,0.55));
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{max-width:var(--maxw); margin:0 auto; padding:10px 20px; display:flex; gap:14px; align-items:center; flex-wrap:wrap}
+  nav .brand{font-weight:700; letter-spacing:.3px; color:#fff; white-space:nowrap}
+  nav .brand small{display:block; font-weight:400; color:var(--muted); font-size:11px; letter-spacing:.4px}
+  nav .links{display:flex; gap:6px; flex-wrap:wrap; margin-left:auto}
+  nav a{color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border-radius:8px; white-space:nowrap}
+  nav a:hover{color:#fff; background:rgba(120,140,230,0.12)}
+
+  /* ---------- Layout ---------- */
+  header.hero{max-width:var(--maxw); margin:0 auto; padding:70px 22px 30px; text-align:center}
+  header.hero h1{font-size:clamp(30px,5vw,52px); margin:0 0 8px; line-height:1.08; letter-spacing:-.5px}
+  header.hero h1 .grad{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--amber)); -webkit-background-clip:text; background-clip:text; color:transparent}
+  header.hero .sub{color:var(--muted); font-size:18px; max-width:680px; margin:10px auto 0}
+  header.hero .byline{margin-top:18px; font-size:13.5px; color:var(--muted)}
+  header.hero .byline b{color:var(--ink)}
+
+  main{max-width:var(--maxw); margin:0 auto; padding:10px 22px 80px}
+  section.chapter{
+    margin:46px 0; padding:26px clamp(16px,3vw,34px);
+    background:var(--panel); border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+  }
+  .era{display:inline-block; font-size:12px; letter-spacing:1.5px; text-transform:uppercase; color:var(--cyan); border:1px solid var(--line); padding:4px 10px; border-radius:999px}
+  .chapter h2{font-size:clamp(22px,3.2vw,30px); margin:14px 0 2px; line-height:1.15}
+  .chapter .who{color:var(--muted); font-size:14px; margin:0 0 8px}
+
+  /* discovery-story beats */
+  .beats{display:grid; gap:14px; margin:18px 0}
+  .beat{border-left:2px solid var(--line); padding:2px 0 2px 16px}
+  .beat .tag{font-size:11.5px; letter-spacing:1.2px; text-transform:uppercase; font-weight:700}
+  .beat.known .tag{color:var(--muted)}
+  .beat.idea  .tag{color:var(--violet)}
+  .beat.test  .tag{color:var(--amber)}
+  .beat.found .tag{color:var(--green)}
+  .beat p{margin:4px 0 0}
+  .beat.found{border-left-color:var(--green)}
+
+  .lab{
+    margin-top:22px; background:rgba(8,10,22,0.72); border:1px solid var(--line);
+    border-radius:14px; padding:18px clamp(12px,2.4vw,20px);
+  }
+  .lab h3{margin:0 0 4px; font-size:15px; letter-spacing:.4px; color:#fff; display:flex; align-items:center; gap:8px}
+  .lab h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+  .lab .hint{color:var(--muted); font-size:13px; margin:0 0 12px}
+
+  .controls{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px 22px; margin:6px 0 14px}
+  .ctl label{display:flex; justify-content:space-between; font-size:13px; color:var(--muted); margin-bottom:4px}
+  .ctl label b{color:var(--ink); font-variant-numeric:tabular-nums}
+  input[type=range]{ width:100%; accent-color:var(--cyan); height:22px}
+  select{width:100%; background:var(--panel-solid); color:var(--ink); border:1px solid var(--line); border-radius:8px; padding:7px 9px; font-size:13px}
+
+  .readout{display:flex; flex-wrap:wrap; gap:10px 18px; margin:10px 0 4px}
+  .stat{background:rgba(120,140,230,0.08); border:1px solid var(--line); border-radius:10px; padding:8px 13px; min-width:120px}
+  .stat .k{font-size:11px; color:var(--muted); letter-spacing:.4px; text-transform:uppercase}
+  .stat .v{font-size:19px; font-weight:700; font-variant-numeric:tabular-nums}
+  .stat .v small{font-size:12px; color:var(--muted); font-weight:500}
+
+  .verdict{margin-top:10px; padding:10px 14px; border-radius:10px; font-size:14px; border:1px solid var(--line)}
+  .verdict.good{background:rgba(94,230,168,0.10); border-color:rgba(94,230,168,0.4)}
+  .verdict.bad{background:rgba(255,107,157,0.10); border-color:rgba(255,107,157,0.4)}
+
+  .plot{width:100%; height:380px}
+
+  /* visuals: canvas figures + AI-image slots */
+  .figrow{display:grid; grid-template-columns:1fr; gap:16px; margin-top:18px}
+  @media(min-width:760px){ .figrow.two{grid-template-columns:1fr 1fr} }
+  figure{margin:0; background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; overflow:hidden}
+  figure canvas{display:block; width:100%; height:auto; background:#000}
+  figcaption{padding:9px 13px; font-size:12.5px; color:var(--muted)}
+  /* slot you can replace with an AI-generated image */
+  .imgslot{position:relative; min-height:200px; display:flex; align-items:center; justify-content:center; text-align:center;
+    background:repeating-linear-gradient(45deg,rgba(120,140,230,0.05),rgba(120,140,230,0.05) 12px,transparent 12px,transparent 24px);
+    border:1px dashed rgba(140,160,230,0.35); border-radius:14px; color:var(--muted); padding:24px; font-size:13px}
+  .imgslot b{color:var(--ink)}
+
+  .eq{overflow-x:auto; margin:6px 0}
+  .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
+
+  footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
+  footer b{color:var(--ink)}
+  a.inline{color:var(--cyan); text-decoration:none; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* ---------- stellar zoo grid ---------- */
+  .zoo-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; margin-top:6px}
+  .zoo-card{background:rgba(0,0,0,0.35); border:1px solid var(--line); border-radius:14px; padding:12px; text-align:center}
+  .zoo-card canvas{width:100%; height:auto; background:radial-gradient(circle at 50% 45%, #0a0c1a, #000); border-radius:10px; display:block}
+  .zoo-card .zt{font-weight:700; font-size:13.5px; margin-top:9px; color:#fff}
+  .zoo-card .zk{font-size:11px; color:var(--cyan); letter-spacing:.4px; text-transform:uppercase; margin-top:1px}
+  .zoo-card .zd{font-size:11.6px; color:var(--muted); line-height:1.5; margin-top:6px}
+
+  /* ---------- glossary layout + left rail ---------- */
+  .layout{max-width:1380px; margin:0 auto; padding:0 22px; display:grid; grid-template-columns:280px minmax(0,1fr); gap:26px; align-items:start}
+  .layout > main{max-width:none; margin:0; padding:10px 0 80px}
+  aside#glossaryPanel{position:sticky; top:74px; align-self:start; max-height:calc(100vh - 92px); overflow:auto}
+  .gp-card{background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:16px 16px 14px; box-shadow:0 14px 40px rgba(0,0,0,0.3)}
+  .gp-card .gp-sec{font-size:11px; text-transform:uppercase; letter-spacing:1.4px; color:var(--cyan)}
+  .gp-card h4{margin:3px 0 10px; font-size:14px; color:#fff; line-height:1.25}
+  .gp-empty{color:var(--muted); font-size:12.5px; line-height:1.5; margin:6px 0 0}
+  .gp-count{font-size:11px; color:var(--muted); float:right; font-weight:400; letter-spacing:.3px}
+  .gp-item{padding:10px 0; border-top:1px solid var(--line)}
+  .gp-item:first-of-type{border-top:0; padding-top:2px}
+  .gp-term{font-weight:700; color:var(--green); font-size:13px; cursor:pointer}
+  .gp-term:hover{text-decoration:underline}
+  .gp-def{color:var(--muted); font-size:11.8px; line-height:1.5; margin:3px 0 0}
+  .gp-wiki{display:inline-block; margin-top:6px; font-size:11.3px; color:var(--amber); text-decoration:none; border-bottom:1px dotted rgba(255,178,74,0.5)}
+  @media(max-width:1024px){ .layout{grid-template-columns:minmax(0,1fr); padding:0 22px} aside#glossaryPanel{display:none} }
+
+  /* ---------- Phone tier (≤640px) ---------- */
+  @media(max-width:640px){
+    html{ -webkit-text-size-adjust:100%; overflow-x:hidden; overflow-x:clip; }  /* stop iOS auto-inflating text + clip stray overflow */
+    body{ max-width:100%; }
+    :root{ --maxw:100%; }
+
+    /* Wide MathJax equations are the main mobile-overflow culprit: they force the
+       layout viewport wider than the phone, which shrink-zooms the whole page and
+       leaves interactive plots mis-scaled. Let wide math scroll inside its own box. */
+    mjx-container[jax="SVG"]{ display:inline-block; max-width:100%; overflow-x:auto; overflow-y:hidden; vertical-align:middle; }
+    mjx-container[jax="SVG"][display="true"]{ display:block; }
+    mjx-assistive-mml{ max-width:0!important; overflow:hidden!important; }
+    .eq{ max-width:100%; overflow-x:auto; }
+
+    /* nav: turn the long link list into a single swipeable row */
+    nav .wrap{ padding:8px 14px; gap:8px; flex-wrap:nowrap; align-items:flex-start; }
+    nav .brand{ font-size:14px; white-space:normal; }
+    nav .brand small{ font-size:10px; }
+    nav .links{
+      margin-left:0; flex-wrap:nowrap; overflow-x:auto; gap:4px;
+      width:100%; -webkit-overflow-scrolling:touch; padding-bottom:2px;
+      scrollbar-width:none;
+    }
+    nav .links::-webkit-scrollbar{ display:none; }
+    nav a{ padding:7px 11px; font-size:13px; }
+
+    header.hero{ padding:34px 16px 18px; }
+    header.hero .sub{ font-size:15.5px; }
+    header.hero .byline{ font-size:12.5px; }
+
+    .layout{ padding:0 14px; gap:0; }
+    .layout > main{ padding:6px 0 60px; }
+    main{ padding:6px 14px 60px; }
+
+    section.chapter{ margin:26px 0; padding:18px 15px; border-radius:14px; }
+    .divider{ margin-top:40px; padding:0 14px; }
+
+    .lab{ padding:14px 13px; }
+    .controls{ grid-template-columns:1fr; gap:12px; }
+    .plot{ height:300px; }
+    .plot.tall{ height:350px; }
+
+    .readout{ gap:8px; }
+    .stat{ min-width:0; flex:1 1 calc(50% - 8px); padding:7px 11px; }
+    .stat .v{ font-size:17px; }
+
+    pre.code{ font-size:11.3px; padding:12px 12px; }
+    .deriv ol, .problem ol, .step{ font-size:13px; }
+    #termTip{ max-width:calc(100vw - 20px); }
+    .quiz-bar{ order:3; flex-basis:100%; }
+  }
+
+  /* ---------- Very small phones (≤400px) ---------- */
+  @media(max-width:400px){
+    .stat{ flex:1 1 100%; }
+    header.hero h1{ font-size:26px; }
+  }
+
+  /* inline hover-glossary terms */
+  .term{color:var(--green); font-weight:700; cursor:help; border-bottom:1px dotted rgba(94,230,168,0.55); transition:color .12s}
+  .term:hover{color:#c9f7e2}
+  .term.flash{animation:termflash 1.2s ease}
+  @keyframes termflash{0%{background:rgba(94,230,168,0.35)}100%{background:transparent}}
+  #termTip{position:fixed; z-index:200; max-width:300px; background:#0b0f22; border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 18px 55px rgba(0,0,0,0.65); font-size:13px; line-height:1.5; color:var(--ink); opacity:0; transform:translateY(5px); pointer-events:none; transition:opacity .12s, transform .12s}
+  #termTip.show{opacity:1; transform:translateY(0); pointer-events:auto}
+  #termTip .tt-term{font-weight:700; color:var(--green); margin-bottom:5px; font-size:13.5px}
+  #termTip .tt-wiki{display:inline-block; margin-top:9px; color:var(--cyan); text-decoration:none; font-size:12.5px; border-bottom:1px dotted rgba(63,208,255,0.5)}
+
+  /* applied practice problems (collapsible solutions) */
+  .problems{margin-top:14px}
+  .problem{background:rgba(8,10,22,0.6); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin:12px 0}
+  .problem .pq{font-size:14.5px; line-height:1.6; margin:0; color:var(--ink)}
+  .problem .pq .pn{display:inline-block; min-width:24px; color:var(--amber); font-weight:700}
+  .problem .soln{margin-top:10px; border-top:1px solid var(--line); padding-top:9px}
+  .problem summary{cursor:pointer; color:var(--cyan); font-size:12.5px; font-weight:600; letter-spacing:.4px; list-style:none; padding:3px 0; user-select:none}
+  .problem summary::-webkit-details-marker{display:none}
+  .problem summary::before{content:"\25B8  "}
+  .problem details[open] summary::before{content:"\25BE  "}
+  .problem summary:hover{color:#9fe6ff}
+  .problem ol{margin:6px 0 0; padding-left:22px}
+  .problem ol li{margin:7px 0; font-size:14px; line-height:1.6}
+  .problem ol li b{color:#fff}
+  .problem .ans{margin-top:11px; padding:9px 13px; background:rgba(94,230,168,0.09); border:1px solid rgba(94,230,168,0.32); border-radius:9px; font-size:14px}
+  .problem .ans b{color:var(--green)}
+</style>
+<style>
+/* ---- Mobile dropdown menu (added) ---- */
+nav .navToggle{ display:none; }
+@media(max-width:640px){
+  nav .wrap{ flex-wrap:wrap; align-items:center; }
+  nav .brand{ flex:1 1 auto; min-width:0; }
+  nav .navToggle{
+    display:inline-flex; align-items:center; gap:9px; cursor:pointer;
+    margin-left:auto; flex:0 0 auto;
+    color:#fff; font-size:14px; font-weight:600; letter-spacing:.3px;
+    padding:9px 13px; border-radius:9px;
+    background:rgba(120,140,230,0.16);
+    border:1px solid rgba(120,140,230,0.45);
+  }
+  nav .navToggle-bars,
+  nav .navToggle-bars::before,
+  nav .navToggle-bars::after{
+    content:""; display:block; width:18px; height:2px; border-radius:2px;
+    background:#fff; transition:transform .2s ease, opacity .2s ease;
+  }
+  nav .navToggle-bars{ position:relative; }
+  nav .navToggle-bars::before{ position:absolute; top:-6px; left:0; }
+  nav .navToggle-bars::after{ position:absolute; top:6px; left:0; }
+  nav.open .navToggle-bars{ background:transparent; }
+  nav.open .navToggle-bars::before{ transform:translateY(6px) rotate(45deg); }
+  nav.open .navToggle-bars::after{ transform:translateY(-6px) rotate(-45deg); }
+  nav .links{
+    display:none; flex-direction:column; align-items:stretch;
+    width:100%; margin-left:0; margin-top:10px; gap:2px;
+    max-height:70vh; overflow-y:auto; overflow-x:visible;
+  }
+  nav.open .links{ display:flex; }
+  nav .links a{
+    padding:12px 12px; font-size:15px; border-radius:8px;
+    border:1px solid transparent;
+  }
+  nav .links a:active{ background:rgba(120,140,230,0.18); }
+}
+</style>
+<style>
+  .trail{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:22px auto 0; max-width:920px}
+  .trail a{display:inline-flex; flex-direction:column; align-items:center; text-decoration:none; color:var(--muted);
+    border:1px solid var(--line); border-radius:12px; padding:7px 12px; font-size:12px; background:rgba(18,22,40,0.55); transition:all .15s}
+  .trail a b{color:var(--ink); font-size:13.5px}
+  .trail a:hover{border-color:var(--cyan); color:#fff; transform:translateY(-2px)}
+  .trail a .rung{font-size:10.5px; color:var(--amber); letter-spacing:1px; text-transform:uppercase}
+  .rungtag{display:inline-block; margin-left:8px; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--amber);
+    border:1px solid rgba(255,178,74,0.45); border-radius:999px; padding:3px 9px; vertical-align:middle}
+  .btn{background:rgba(120,140,230,0.14); color:var(--ink); border:1px solid rgba(120,140,230,0.4); border-radius:9px;
+    padding:7px 13px; font-size:13px; cursor:pointer; font-family:inherit}
+  .btn:hover{background:rgba(120,140,230,0.26)}
+  .ctl label.chk{justify-content:flex-start}
+  .chk{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--muted); cursor:pointer; margin:3px 0}
+  .chk input{accent-color:var(--cyan); width:16px; height:16px}
+  .spotlight{border:1px solid rgba(255,178,74,0.45); background:rgba(255,178,74,0.06); border-radius:12px; padding:12px 16px; margin:16px 0; font-size:14px}
+  .spotlight b{color:var(--amber)}
+  .rests{font-size:13px; color:var(--muted); margin:14px 0 0; padding:10px 14px; border:1px dashed var(--line); border-radius:10px}
+  .rests b{color:var(--cyan)}
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">The Cosmic Distance Ladder <small>Interactive companion · after 3Blue1Brown &amp; Terence Tao</small></div>
+    <button class="navToggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">
+      <span class="navToggle-bars" aria-hidden="true"></span>Menu
+    </button>
+    <div class="links">
+      <a href="#earth">Earth</a>
+      <a href="#moon">Moon</a>
+      <a href="#sun">Sun</a>
+      <a href="#planets">Planets</a>
+      <a href="#kepler">Kepler &amp; Mars</a>
+      <a href="#au">The AU in km</a>
+      <a href="#parallax">Parallax</a>
+      <a href="#candles">Stellar candles</a>
+      <a href="#bigcandles">Galaxy candles</a>
+      <a href="#redshift">Redshift</a>
+      <a href="#ladder">The whole ladder</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <h1>Measuring the universe <span class="grad">one rung at a time</span></h1>
+  <p class="sub">Nobody has ever stretched a tape measure to a galaxy. Every cosmic distance we know rests on a chain of earlier measurements, starting from a stick's shadow in Egypt. Climb that chain here. Each rung uses the one below it, so any error made low down is carried all the way up.</p>
+  <p class="byline">A fan-made, interactive companion to <b>3Blue1Brown</b>'s video with <b>Terence Tao</b> on <b>the cosmic distance ladder</b>. Move every slider and the geometry recomputes live.</p>
+  <div class="trail">
+    <a href="#earth"><span class="rung">Rung 1</span><b>Earth</b>~240 BC</a>
+    <a href="#moon"><span class="rung">Rung 2</span><b>Moon</b>~270 BC</a>
+    <a href="#sun"><span class="rung">Rung 3</span><b>Sun</b>~270 BC</a>
+    <a href="#planets"><span class="rung">Rung 4</span><b>Planets</b>1543</a>
+    <a href="#kepler"><span class="rung">Rung 5</span><b>Mars' orbit</b>1609</a>
+    <a href="#au"><span class="rung">Rung 6</span><b>AU in km</b>1672</a>
+    <a href="#parallax"><span class="rung">Rung 7</span><b>Stars</b>1838</a>
+    <a href="#candles"><span class="rung">Rung 8a</span><b>Star candles</b>1908→</a>
+    <a href="#bigcandles"><span class="rung">Rung 8b</span><b>Galaxy candles</b>1977→</a>
+    <a href="#redshift"><span class="rung">Rung 9</span><b>Redshift</b>1929→</a>
+  </div>
+</header>
+
+<div class="layout">
+<aside id="glossaryPanel">
+  <div class="gp-card">
+    <div class="gp-sec">Glossary</div>
+    <h4>Terms in view</h4>
+    <p class="gp-empty">Scroll through the rungs. Every astronomy term in the text is <span style="color:var(--green);font-weight:700">highlighted</span>. Hover over one for a definition, and this panel fills with the terms (and Wikipedia links) for the section you're reading.</p>
+  </div>
+</aside>
+<main>
+
+<!-- ============================================================= -->
+<!-- 1. EARTH -->
+<!-- ============================================================= -->
+<section class="chapter" id="earth">
+  <span class="era">~350 – 240 BC · Alexandria</span><span class="rungtag">Rung 1 · 6,400 km</span>
+  <h2>A stick, a shadow and the size of the Earth</h2>
+  <p class="who">Aristotle · <b>Eratosthenes of Cyrene</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Aristotle had already argued that the Earth is a sphere. During a lunar eclipse, Earth's shadow on the Moon is always a circular arc, and travellers going south see new stars rise above the horizon. The Sun is so far away that its rays arrive essentially parallel.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Eratosthenes heard that at noon on the summer solstice, the Sun shone straight down a well at Syene (modern Aswan) and cast no shadow. If at that same moment a stick in Alexandria, to the north, <i>did</i> cast a shadow, the angle of that shadow must equal the angle between the two cities as seen from Earth's centre.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In Alexandria the shadow angle was about 7.2°, one-fiftieth of a full circle. The cities were about 5,000 stadia apart, a distance measured by pacing or by camel-caravan travel times.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>The circumference is 50 × 5,000 = 250,000 stadia. Depending on which stadion he used, that's about 39,000–46,000 km, against today's 40,075 km. The first rung of the ladder needs only parallel rays, one angle and one measured distance.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Re-run Eratosthenes' measurement</h3>
+    <p class="hint">Yellow lines are parallel sunbeams. The angle the Alexandria stick's shadow makes equals the angle the two cities subtend at Earth's centre. Change either measurement and see what circumference follows.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Shadow angle in Alexandria <b><span id="er_alab">7.2</span>°</b></label>
+        <input id="er_a" type="range" min="1" max="30" step="0.1" value="7.2">
+      </div>
+      <div class="ctl">
+        <label>Distance Syene → Alexandria <b><span id="er_slab">5,000</span> stadia</b></label>
+        <input id="er_s" type="range" min="1000" max="10000" step="50" value="5000">
+      </div>
+      <div class="ctl">
+        <label>Length of a stadion (debated)</label>
+        <select id="er_st">
+          <option value="157.5">Egyptian stadion: 157.5 m</option>
+          <option value="160" selected>Compromise: 160 m</option>
+          <option value="185">Attic stadion: 185 m</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Fraction of circle</div><div class="v" id="er_frac">1/50</div></div>
+      <div class="stat"><div class="k">Circumference</div><div class="v"><span id="er_C">40,000</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">Radius R⊕</div><div class="v"><span id="er_R">6,366</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">vs. true 40,075 km</div><div class="v" id="er_err">−0.2%</div></div>
+    </div>
+    <figure><canvas id="er_canvas" width="900" height="420"></canvas>
+      <figcaption>Earth with the angle exaggerated so you can see it. Parallel sunlight, a stick at each city, and the matching angle at the centre.</figcaption></figure>
+    <div class="eq">$$ \frac{\theta}{360^\circ}=\frac{s}{C}\;\Longrightarrow\; C=\frac{360^\circ}{\theta}\,s,\qquad R_\oplus=\frac{C}{2\pi} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The shadow angle is $7.2^\circ$ and the cities are $800$ km apart. Find Earth's circumference and radius.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Fraction of a circle.</b> $7.2/360=1/50$.</li>
+          <li><b>Circumference.</b> $C=50\times800=40{,}000$ km.</li>
+          <li><b>Radius.</b> $R=40{,}000/2\pi=6{,}366$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $40{,}000$ km and $6{,}370$ km. That's within a fraction of a percent of the truth, though partly by luck.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> If Eratosthenes meant the Attic stadion ($185$ m), what circumference did he find for $250{,}000$ stadia, and how far off is that?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Convert.</b> $250{,}000\times0.185=46{,}250$ km.</li>
+          <li><b>Error.</b> $46{,}250/40{,}075=1.154$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $46{,}250$ km, about $15\%$ too large. Even so, it's an astonishing result for 240 BC, and the method is flawless.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> You repeat the experiment between two towns $555$ km apart on the same meridian and find a shadow-angle difference of $5.0^\circ$. What circumference do you get?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Ratio.</b> $360/5.0=72$.</li>
+          <li><b>Circumference.</b> $C=72\times555=39{,}960$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $40{,}000$ km. The same geometry works anywhere, provided both places lie roughly north–south of each other.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 2. MOON -->
+<!-- ============================================================= -->
+<section class="chapter" id="moon">
+  <span class="era">~270 – 150 BC · Aristarchus &amp; Hipparchus</span><span class="rungtag">Rung 2 · 384,000 km</span>
+  <h2>A lunar eclipse measures the Moon</h2>
+  <p class="who"><b>Aristarchus of Samos</b> · Hipparchus</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>From the first rung we have Earth's radius. During a lunar eclipse the Moon passes through Earth's shadow. The Moon also looks about half a degree across, and the Sun looks almost exactly the same size, which is why total solar eclipses are just barely total.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Time the eclipse. The Moon moves through the sky at roughly its own diameter per hour. Compare how long it takes to cross the shadow with how long it takes to move one Moon-width, and you've measured the shadow's width in Moon diameters.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>The umbra at the Moon's distance is about 2.6 Moon diameters wide. Because the Sun isn't a point, the shadow cone tapers. Since the Sun and Moon look the same size, the cone shrinks by about one Moon diameter over the Earth–Moon distance. So Earth is about 2.6 + 1 ≈ 3.7 Moon diameters across.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p>The Moon's radius is about 1,700 km. Its 0.5° angular diameter then gives the distance: about 380,000 km, or 60 Earth radii. Hipparchus got close to this value around 150 BC. That's rung 2.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Time an eclipse, size the Moon</h3>
+    <p class="hint">The dark disc is Earth's umbra where the Moon crosses it. Set the shadow's width in Moon diameters, as you would read it off your eclipse timings, and the Moon's angular size. Turn off the taper correction to see how much it matters.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Umbra width <b><span id="mn_klab">2.65</span> Moon diameters</b></label>
+        <input id="mn_k" type="range" min="1.8" max="3.4" step="0.01" value="2.65">
+      </div>
+      <div class="ctl">
+        <label>Moon's angular diameter <b><span id="mn_tlab">0.52</span>°</b></label>
+        <input id="mn_t" type="range" min="0.4" max="0.65" step="0.005" value="0.52">
+      </div>
+      <div class="ctl">
+        <label>Geometry</label>
+        <label class="chk"><input type="checkbox" id="mn_taper" checked> Correct for the shadow's taper (+1 Moon diameter)</label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Earth ÷ Moon diameter</div><div class="v" id="mn_ratio">3.65</div></div>
+      <div class="stat"><div class="k">Moon radius</div><div class="v"><span id="mn_R">1,745</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">Moon distance</div><div class="v"><span id="mn_d">384,600</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">= Earth radii</div><div class="v" id="mn_re">60.4</div></div>
+      <div class="stat"><div class="k">Totality lasts</div><div class="v"><span id="mn_tot">1.7</span> <small>h</small></div></div>
+    </div>
+    <figure><canvas id="mn_canvas" width="900" height="300"></canvas>
+      <figcaption>The Moon drifting through Earth's umbra (animated). It turns copper inside because Earth's atmosphere bends red sunlight into the shadow.</figcaption></figure>
+    <div class="eq">$$ \frac{D_\oplus}{D_{☾}}\approx k+1,\qquad R_{☾}=\frac{R_\oplus}{k+1},\qquad d_{☾}=\frac{2R_{☾}}{\theta_{☾}} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The umbra is $2.6$ Moon diameters wide. With the taper correction, and $R_\oplus=6371$ km, what is the Moon's radius?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Earth in Moon diameters.</b> $2.6+1=3.6$.</li>
+          <li><b>Moon radius.</b> $R_{☾}=6371/3.6=1770$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $1{,}770$ km. The true value is $1{,}737$ km, a 2% error from a stopwatch and a shadow.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> The Moon spans $0.52^\circ$. Using $R_{☾}=1770$ km, how far away is it?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Angle in radians.</b> $0.52\times\pi/180=9.08\times10^{-3}$.</li>
+          <li><b>Distance.</b> $d=\dfrac{2\times1770}{9.08\times10^{-3}}=3.90\times10^{5}$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $390{,}000$ km, or $61$ Earth radii (true: $384{,}400$ km).</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The Moon circles the sky once every $27.3$ days. How many degrees does it move per hour, and how long does it take to move its own diameter ($0.52^\circ$)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Rate.</b> $\dfrac{360^\circ}{27.3\times24\text{ h}}=0.549^\circ$/h.</li>
+          <li><b>Own diameter.</b> $0.52/0.549=0.95$ h.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about one Moon-width per hour. That's the stopwatch that turns eclipse timings into a size.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 3. SUN -->
+<!-- ============================================================= -->
+<section class="chapter" id="sun">
+  <span class="era">~270 BC · Aristarchus</span><span class="rungtag">Rung 3 · 150 million km</span>
+  <h2>The half Moon and the distance to the Sun</h2>
+  <p class="who"><b>Aristarchus of Samos</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>The Moon shines by reflected sunlight. When it is exactly half lit, at first or last quarter, the Sun–Moon–Earth angle must be a perfect right angle.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>At that moment, measure the angle between the Moon and the Sun as seen from Earth. Together with the right angle at the Moon, it fixes the shape of the triangle. And we already know one side from rung 2: the Earth–Moon distance.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Aristarchus measured 87°, so the Sun is 1/cos 87° ≈ 19 times farther than the Moon. The real angle is 89.85°. It's so close to 90° that the method is extremely sensitive: a tiny error in the angle makes a huge difference in the result.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>His number was 20 times too small, but his conclusion was right. Since the Sun and Moon look the same size, the Sun must be as many times <i>larger</i> as it is farther. Even at 19×, the Sun dwarfed the Earth. Aristarchus concluded that the big Sun, not the small Earth, should sit at the centre. That was 1,800 years before Copernicus.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Aristarchus' triangle, and why it was so hard</h3>
+    <p class="hint">Slide the measured Moon–Sun angle. Watch the ratio climb slowly, then explode as you approach 90°. The bottom readout shows how much the answer changes if your angle is off by just 0.1°.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Measured Moon–Earth–Sun angle <b><span id="sn_alab">87.00</span>°</b></label>
+        <input id="sn_a" type="range" min="80" max="89.95" step="0.01" value="87">
+      </div>
+      <div class="ctl">
+        <label>Jump to</label>
+        <select id="sn_pre">
+          <option value="87">Aristarchus: 87°</option>
+          <option value="89.85">Modern truth: 89.85°</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Sun ÷ Moon distance</div><div class="v" id="sn_ratio">19.1</div></div>
+      <div class="stat"><div class="k">Sun distance</div><div class="v"><span id="sn_d">7.3 million</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">Sun radius</div><div class="v"><span id="sn_R">33,000</span> <small>km</small></div></div>
+      <div class="stat"><div class="k">Sun ÷ Earth size</div><div class="v" id="sn_x">5.2×</div></div>
+      <div class="stat"><div class="k">If angle off by 0.1°</div><div class="v" id="sn_sens" style="font-size:15px">±0.7 ratio</div></div>
+    </div>
+    <figure><canvas id="sn_canvas" width="900" height="300"></canvas>
+      <figcaption>Earth, the half-lit Moon and the Sun. The right angle is at the Moon. The triangle is not to scale, since the true one is absurdly long and thin.</figcaption></figure>
+    <div class="eq">$$ \frac{d_\odot}{d_{☾}}=\frac{1}{\cos\theta},\qquad R_\odot=R_{☾}\,\frac{d_\odot}{d_{☾}}\quad(\text{equal angular sizes}) $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> With Aristarchus' angle of $87^\circ$, how many times farther is the Sun than the Moon?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Ratio.</b> $1/\cos87^\circ=1/0.0523=19.1$.</li></ol>
+        <div class="ans"><b>Answer:</b> about $19$, which matches his famous result of "between 18 and 20."</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> With the true angle $89.85^\circ$ and $d_{☾}=384{,}400$ km, find the Sun's distance.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Cosine.</b> $\cos89.85^\circ=\sin0.15^\circ=2.62\times10^{-3}$, so the ratio is $382$.</li>
+          <li><b>Distance.</b> $382\times384{,}400=1.47\times10^{8}$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $147$ million km, close to the true 1 AU of $149.6$ million km.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Show how sensitive this is. What ratio do you get at $89.75^\circ$, only $0.1^\circ$ less?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Ratio.</b> $1/\cos89.75^\circ=1/\sin0.25^\circ=1/4.36\times10^{-3}=229$.</li></ol>
+        <div class="ans"><b>Answer:</b> $229$ instead of $382$, a 40% change from a tenth of a degree. Tao's point: the geometry was perfect, but the measurement was beyond the instruments of the day. It took telescopes and a different method (rung 6) to get it right.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 4. PLANETS -->
+<!-- ============================================================= -->
+<section class="chapter" id="planets">
+  <span class="era">1543 · De revolutionibus</span><span class="rungtag">Rung 4 · solar system in AU</span>
+  <h2>Copernicus scales the planets in AU</h2>
+  <p class="who"><b>Nicolaus Copernicus</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Mercury and Venus never stray far from the Sun. Venus is always an evening or morning "star," never seen at midnight. Mars, Jupiter and Saturn sometimes appear opposite the Sun and loop backwards across the sky.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Put the Sun at the centre and these oddities become geometry. An inner planet's greatest angle from the Sun, its maximum elongation, happens when our line of sight just grazes its orbit. That makes a right triangle with the Sun.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Venus reaches about 46° from the Sun. So its orbital radius is sin 46° ≈ 0.72 of Earth's. For outer planets, the time between oppositions (the synodic period) gives the true orbital period. Then their geometry at chosen dates gives their distances.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>Copernicus found the relative layout of the whole solar system, in units of the Earth–Sun distance, the astronomical unit. His results were close to modern values. The <i>shape</i> was solved, but its size in kilometres was still unknown.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Greatest elongation → orbit size</h3>
+    <p class="hint">Choose an inner planet and set its greatest elongation. The sightline from Earth just touches the planet's orbit, so the angle at the planet is 90°. Below, a calculator converts an outer planet's synodic period into its true year.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Inner planet</label>
+        <select id="pl_sel">
+          <option value="46.3" selected>Venus (≈ 46.3°)</option>
+          <option value="22.8">Mercury (≈ 22.8° average)</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Greatest elongation ε <b><span id="pl_elab">46.3</span>°</b></label>
+        <input id="pl_e" type="range" min="5" max="80" step="0.1" value="46.3">
+      </div>
+      <div class="ctl">
+        <label>Outer planet (synodic period)</label>
+        <select id="pl_out">
+          <option value="779.9">Mars: 780 days</option>
+          <option value="398.9" selected>Jupiter: 399 days</option>
+          <option value="378.1">Saturn: 378 days</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Orbit radius</div><div class="v"><span id="pl_r">0.723</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Kepler III period</div><div class="v"><span id="pl_T">225</span> <small>days</small></div></div>
+      <div class="stat"><div class="k">Outer planet's year</div><div class="v"><span id="pl_P">11.86</span> <small>yr</small></div></div>
+      <div class="stat"><div class="k">Its distance (Kepler III)</div><div class="v"><span id="pl_a">5.20</span> <small>AU</small></div></div>
+    </div>
+    <figure><canvas id="pl_canvas" width="900" height="440"></canvas>
+      <figcaption>Top-down solar system. The tangent sightline from Earth grazes the inner orbit at greatest elongation.</figcaption></figure>
+    <div class="eq">$$ r=\sin\varepsilon\ \text{AU},\qquad \frac{1}{P}=\frac{1}{P_\oplus}-\frac{1}{S}\ \ (\text{outer planet}),\qquad a^3=P^2\ (\text{AU, yr}) $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Venus' greatest elongation is $46.3^\circ$. What is its orbital radius?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Right triangle.</b> $r=\sin46.3^\circ=0.723$ AU.</li></ol>
+        <div class="ans"><b>Answer:</b> $0.72$ AU, exactly the modern value.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Mars returns to opposition every $780$ days. Find its true orbital period.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Synodic relation.</b> $\dfrac{1}{P}=\dfrac{1}{365.25}-\dfrac{1}{780}=0.0027379-0.0012821=0.0014558$.</li>
+          <li><b>Invert.</b> $P=687$ days.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $687$ days. That number is the key to the next rung.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Jupiter's synodic period is $399$ days. Find its period, then its distance using Kepler's third law $a^3=P^2$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Period.</b> $\dfrac{1}{P}=\dfrac{1}{365.25}-\dfrac{1}{398.9}=2.31\times10^{-4}$, so $P=4330$ d $=11.86$ yr.</li>
+          <li><b>Distance.</b> $a=11.86^{2/3}=5.20$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $11.9$ years and $5.2$ AU.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 5. KEPLER & MARS -->
+<!-- ============================================================= -->
+<section class="chapter" id="kepler">
+  <span class="era">1600 – 1619 · Prague</span><span class="rungtag">Rung 5 · true orbit shapes</span>
+  <h2>Kepler's 687-day trick: triangulating Mars</h2>
+  <p class="who">Tycho Brahe's data · <b>Johannes Kepler</b></p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Tycho Brahe left decades of naked-eye positions of Mars, accurate to about 1–2 arcminutes. Every observation is just a <i>direction</i> from a moving Earth. There's no depth. How do you turn directions into a map?</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Mars takes 687 days to orbit the Sun. So observations exactly 687 days apart show Mars at the <i>same point</i> in space, while Earth is in two different places. Two sightlines from two known Earth positions cross at Mars, the same way surveyors triangulate. Kepler also turned this around: by holding Mars fixed, he first mapped Earth's own orbit.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Pair after pair, he plotted points on Mars' orbit. They didn't lie on a circle. They missed by 8 arcminutes, an error Kepler refused to ignore because he trusted Tycho's data.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>Mars moves on an ellipse with the Sun at one focus. These are Kepler's laws: the ellipse, equal areas in equal times, and later P² = a³. The solar system now had its true shapes, scaled in AU.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Triangulate Mars yourself</h3>
+    <p class="hint">Pick a starting day. Earth (blue) is shown on that day and again 687 days later, while Mars (red) is back at the same spot. The two sightlines cross at Mars. Add pairs to trace the orbit, then compare the points with a circle centred on the Sun.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>First observation, day <b><span id="kp_tlab">0</span></b></label>
+        <input id="kp_t" type="range" min="0" max="687" step="1" value="0">
+      </div>
+      <div class="ctl">
+        <label>Collect points</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap">
+          <button class="btn" id="kp_add" type="button">+ Add this pair</button>
+          <button class="btn" id="kp_many" type="button">+ 24 random pairs</button>
+          <button class="btn" id="kp_clr" type="button">Clear</button>
+        </div>
+        <label class="chk" style="margin-top:6px"><input type="checkbox" id="kp_circ" checked> Show best Sun-centred circle</label>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Mars–Sun distance (this pair)</div><div class="v"><span id="kp_r">1.52</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Points collected</div><div class="v" id="kp_n">0</div></div>
+      <div class="stat"><div class="k">Fitted a</div><div class="v"><span id="kp_a">—</span> <small>AU</small></div></div>
+      <div class="stat"><div class="k">Fitted e</div><div class="v" id="kp_e">—</div></div>
+      <div class="stat"><div class="k">P² vs a³</div><div class="v" id="kp_k3" style="font-size:15px">3.54 vs —</div></div>
+    </div>
+    <figure><canvas id="kp_canvas" width="900" height="560"></canvas>
+      <figcaption>Earth's orbit (blue), Mars' true ellipse (faint red), the triangulated points (amber) and a Sun-centred circle (dashed) for comparison.</figcaption></figure>
+    <div class="eq">$$ \vec E_1+s\,\hat u_1=\vec E_2+t\,\hat u_2,\qquad r_{\min}=a(1-e),\ \ r_{\max}=a(1+e),\qquad P^2=a^3 $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> In $687$ days, how far around its orbit does Earth get? How far apart are the two Earth positions (the baseline)?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Orbits.</b> $687/365.25=1.881$, so Earth ends $0.881\times360^\circ=317^\circ$ around, or $43^\circ$ short of a second full lap.</li>
+          <li><b>Chord.</b> $2\sin(43^\circ/2)=2\sin21.5^\circ=0.733$ AU.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> a baseline of about $0.73$ AU. That's a solid triangle for surveying Mars.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Kepler's points give Mars' closest and farthest distances from the Sun as $1.381$ and $1.666$ AU. Find $a$ and $e$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Semi-major axis.</b> $a=(1.381+1.666)/2=1.5235$ AU.</li>
+          <li><b>Eccentricity.</b> $e=(1.666-1.381)/(1.666+1.381)=0.0935$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $a=1.52$ AU and $e=0.093$. That's small, but at Tycho's precision it was unmistakably not a circle.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Check Kepler's third law for Mars: $P=1.881$ yr, $a=1.5237$ AU.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Compare.</b> $P^2=3.538$ and $a^3=3.537$.</li></ol>
+        <div class="ans"><b>Answer:</b> they agree to 0.03%. One law connects every planet's period to its distance.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 6. AU IN KM -->
+<!-- ============================================================= -->
+<section class="chapter" id="au">
+  <span class="era">1672 – 1769 · Paris, Cayenne and the transits of Venus</span><span class="rungtag">Rung 6 · 1 AU = 149.6 million km</span>
+  <h2>Putting kilometres on the map</h2>
+  <p class="who"><b>Giovanni Cassini</b> &amp; Jean Richer · Ole Rømer · the transit-of-Venus expeditions</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>After Kepler, every planetary distance was known as a <i>ratio</i> of the AU. Measure any one of them in kilometres, and the whole solar system is scaled at once.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Use the Earth itself as a baseline. Two observers far apart on Earth see a nearby planet in slightly different directions against the stars. The baseline comes from rung 1, Earth's size. Kepler's geometry gives the planet's distance in AU. The angle gives that distance in km.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In 1672 Cassini in Paris and Richer in Cayenne (French Guiana) observed Mars at opposition, about 0.38 AU away. The shift was only about 25 arcseconds. Later, the transits of Venus in 1761 and 1769 sent expeditions across the globe to sharpen the measurement.</p></div>
+    <div class="beat found"><div class="tag">What they found</div>
+      <p>An AU of about 140 million km, within 10% of the true 149.6 million. Soon afterwards, in 1676, Rømer noticed that Jupiter's moon Io kept "running late" when Jupiter was far from Earth. The delay was the time light takes to cross the extra distance, which gave the first measurement of the speed of light. Today radar pings to Venus pin the AU to the metre.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Two observatories, one Mars</h3>
+    <p class="hint">Set the baseline between the two sites (Paris–Cayenne is about 7,100 km, measured perpendicular to the line of sight). Set the Mars distance in AU that Kepler's geometry gives for the observing date, and the parallax shift you measure. The AU in kilometres follows.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Baseline <b><span id="au_blab">7,100</span> km</b></label>
+        <input id="au_b" type="range" min="1000" max="12700" step="50" value="7100">
+      </div>
+      <div class="ctl">
+        <label>Mars distance (from Kepler) <b><span id="au_dlab">0.380</span> AU</b></label>
+        <input id="au_d" type="range" min="0.37" max="0.68" step="0.001" value="0.38">
+      </div>
+      <div class="ctl">
+        <label>Measured parallax shift <b><span id="au_plab">25.8</span>″</b></label>
+        <input id="au_p" type="range" min="10" max="40" step="0.1" value="25.8">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Mars distance</div><div class="v"><span id="au_mk">56.8</span> <small>million km</small></div></div>
+      <div class="stat"><div class="k">1 AU</div><div class="v"><span id="au_au">149</span> <small>million km</small></div></div>
+      <div class="stat"><div class="k">Solar parallax</div><div class="v"><span id="au_sp">8.8</span><small>″</small></div></div>
+      <div class="stat"><div class="k">vs. true AU</div><div class="v" id="au_err">−0.2%</div></div>
+    </div>
+    <div class="eq">$$ d_{\text{Mars}}=\frac{B}{p\,[\text{rad}]},\qquad 1\ \text{AU}=\frac{d_{\text{Mars}}}{d_{\text{Mars}}[\text{AU}]},\qquad \pi_\odot=\frac{R_\oplus}{1\ \text{AU}} $$</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Rømer's clock: Io and the speed of light</h3>
+    <p class="hint">Io's eclipses run up to about 16.7 minutes late when Earth is on the far side of its orbit from Jupiter. That's the time light needs to cross Earth's orbit, 2 AU. Rømer's own estimate of the delay was about 22 minutes.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Maximum delay of Io's eclipses <b><span id="io_lab">16.7</span> min</b></label>
+        <input id="io_t" type="range" min="10" max="25" step="0.1" value="16.7">
+      </div>
+      <div class="ctl">
+        <label>AU used</label>
+        <select id="io_au"><option value="1.496e8" selected>Modern: 149.6 million km</option><option value="1.38e8">Cassini 1672: ~138 million km</option></select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Speed of light</div><div class="v"><span id="io_c">298,600</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">vs. true c</div><div class="v" id="io_err">−0.4%</div></div>
+    </div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> The modern solar parallax is $\pi_\odot=8.794''$ (the angle Earth's radius, $6378$ km, subtends from the Sun). Find 1 AU.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Radians.</b> $8.794/206{,}265=4.263\times10^{-5}$.</li>
+          <li><b>Distance.</b> $6378/4.263\times10^{-5}=1.496\times10^{8}$ km.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $149.6$ million km.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Cassini's result corresponded to a solar parallax of about $9.5''$. What AU does that give, and what's the error?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>AU.</b> $6378/(9.5/206{,}265)=1.385\times10^{8}$ km.</li>
+          <li><b>Error.</b> $138.5/149.6=0.926$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $138$ million km, 7% low. Like Eratosthenes, a huge leap forward.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Light takes $1000$ s to cross Earth's orbit (2 AU). Find $c$. What did Rømer's 22-minute estimate imply?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Modern.</b> $c=2\times1.496\times10^{8}/1000=2.99\times10^{5}$ km/s.</li>
+          <li><b>Rømer.</b> $2\times1.496\times10^{8}/1320=2.27\times10^{5}$ km/s.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $3.0\times10^{5}$ km/s, versus about $2.3\times10^{5}$ from Rømer's numbers. That was the first proof that light has a finite speed, and it's a value we'll need at the redshift rung.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 7. PARALLAX -->
+<!-- ============================================================= -->
+<section class="chapter" id="parallax">
+  <span class="era">1838 → Gaia · Königsberg to orbit</span><span class="rungtag">Rung 7 · tens of thousands of ly</span>
+  <h2>Stellar parallax: the AU as a baseline</h2>
+  <p class="who"><b>Friedrich Bessel</b> · Thomas Henderson · Friedrich Struve · Hipparcos · Gaia</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>If Earth orbits the Sun, nearby stars should shift back and forth against distant ones each year. The ancient Greeks saw no such shift. That was one of their strongest arguments against a moving Earth. It worked only if the stars were unimaginably far away, and they turned out to be.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Use Earth's orbit as the baseline: 2 AU, now known in km from rung 6. Pick a star that's likely to be close, one with a large proper motion, and measure its position six months apart.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>In 1838 Bessel measured 61 Cygni's parallax as 0.314″. That's the width of a coin seen from about 15 km away. Henderson (α Centauri) and Struve (Vega) reported results at about the same time.</p></div>
+    <div class="beat found"><div class="tag">What he found</div>
+      <p>61 Cygni is about 10 light-years away (modern value 11.4). The parsec, the distance at which parallax equals one arcsecond, became the unit of the stars. Today the Gaia satellite measures parallaxes to about 0.02 milliarcseconds for over a billion stars, and those parallaxes calibrate every rung above.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Watch a star wobble</h3>
+    <p class="hint">Left: Earth circles the Sun, and the sightline to a nearby star swings. Right: the star traces a tiny ellipse against the fixed background each year (exaggerated so you can see it). Set the distance and see which instrument could detect the shift.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Star distance <b><span id="px_dlab">3.5</span> pc</b></label>
+        <input id="px_d" type="range" min="0" max="4.3" step="0.01" value="0.544">
+      </div>
+      <div class="ctl">
+        <label>Jump to a star</label>
+        <select id="px_pre">
+          <option value="0.114">Proxima Centauri: 1.30 pc</option>
+          <option value="0.544" selected>61 Cygni (Bessel 1838): 3.50 pc</option>
+          <option value="0.885">Vega: 7.68 pc</option>
+          <option value="2.3">Betelgeuse: ~200 pc</option>
+          <option value="3.914">Galactic centre: 8,200 pc</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Parallax</div><div class="v"><span id="px_p">0.286</span><small>″</small></div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="px_ly">11.4</span> <small>ly</small></div></div>
+      <div class="stat"><div class="k">Detectable by</div><div class="v" id="px_by" style="font-size:15px">Bessel's heliometer</div></div>
+    </div>
+    <figure><canvas id="px_canvas" width="900" height="340"></canvas>
+      <figcaption>Not to scale. The real parallax ellipses are thousands of times smaller than shown.</figcaption></figure>
+    <div class="eq">$$ d\,[\text{pc}]=\frac{1}{p\,['']},\qquad 1\ \text{pc}=\frac{1\ \text{AU}}{1''\ \text{in rad}}=206{,}265\ \text{AU}=3.26\ \text{ly} $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> 61 Cygni's modern parallax is $0.286''$. How far is it in parsecs and light-years?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Invert.</b> $d=1/0.286=3.50$ pc $=3.50\times3.26=11.4$ ly.</li></ol>
+        <div class="ans"><b>Answer:</b> $3.5$ pc, or $11.4$ ly.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Tycho Brahe could measure about $1'=60''$. How close would a star need to be for Tycho to see its parallax? What did he conclude when he saw none?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distance.</b> $d=1/60$ pc $=206{,}265/60\approx3{,}400$ AU.</li>
+          <li><b>His choice.</b> Either the stars were more than thousands of AU away, which seemed absurdly empty, or Earth didn't move.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> within about $3{,}400$ AU. Tycho chose a stationary Earth. The real answer was the "absurd" one, since the nearest star is $270{,}000$ AU away.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> Gaia's precision for a bright star is about $0.02$ mas. To measure a distance to $10\%$, the parallax must be $10\times$ that error. How far can Gaia reach at $10\%$?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Smallest usable parallax.</b> $p=0.2$ mas $=2\times10^{-4}{}''$.</li>
+          <li><b>Distance.</b> $d=1/2\times10^{-4}=5000$ pc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $5$ kpc, or $16{,}000$ ly. That's a good part of the Milky Way, and plenty of Cepheids to calibrate the next rung.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8a. STELLAR STANDARD CANDLES -->
+<!-- ============================================================= -->
+<section class="chapter" id="candles">
+  <span class="era">1908 – today · Stars of known wattage</span><span class="rungtag">Rung 8a · up to ~150 million ly</span>
+  <h2>Stellar standard candles</h2>
+  <p class="who">Ejnar Hertzsprung · <b>Henrietta Leavitt</b> · Harlow Shapley · Walter Baade · Wendy Freedman · Barry Madore</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Light spreads over a growing sphere, so brightness falls as 1/d². If you knew a star's true luminosity, its apparent brightness would give its distance. But parallax gives luminosities only for stars within a few thousand light-years.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Find kinds of stars whose luminosity can be <i>recognised</i> from far away, by their colour, their pulsation period or their place in a population. Calibrate the nearby examples with parallax, and every distant example becomes a distance marker.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Hertzsprung's colour–magnitude diagrams allowed main-sequence fitting of whole clusters. Leavitt's 1912 period–luminosity law turned Cepheids into the workhorse candle. In 1952 Baade found that "Cepheids" were really two populations, and correcting the mix-up doubled the distance scale. Modern alternatives include the tip of the red giant branch (TRGB) and carbon-rich J-region AGB stars (JAGB).</p></div>
+    <div class="beat found"><div class="tag">What they give</div>
+      <p>Several independent stellar candles that overlap. Cepheids, TRGB and JAGB all reach galaxies tens of megaparsecs away, far enough to calibrate the supernovae of the next rung. Comparing them is one of the main ways to test the Hubble tension.</p></div>
+  </div>
+
+  <div class="zoo-grid">
+    <div class="zoo-card"><div class="zt">Main-sequence fitting</div><div class="zk">M depends on colour · ≲ 200,000 ly</div><div class="zd">Plot a cluster's colour–magnitude diagram and slide its main sequence until it matches a parallax-calibrated one (Hyades, Pleiades). The shift is the distance modulus.</div></div>
+    <div class="zoo-card"><div class="zt">Red clump giants</div><div class="zk">M<sub>I</sub> ≈ −0.2 · Local Group</div><div class="zd">Helium-burning giants pile up at nearly one luminosity. They're plentiful, so they map the Galactic bulge and the Magellanic Clouds.</div></div>
+    <div class="zoo-card"><div class="zt">RR Lyrae</div><div class="zk">M<sub>V</sub> ≈ +0.6 · ≲ 3 million ly</div><div class="zd">Old horizontal-branch pulsators with half-day periods and almost identical luminosity. These are Shapley's globular-cluster candles.</div></div>
+    <div class="zoo-card"><div class="zt">Type II Cepheids</div><div class="zk">~1.5 mag fainter than classical</div><div class="zd">Old, low-mass pulsators such as W Virginis. Confusing them with classical Cepheids made 1920s distances about half as large as they should have been.</div></div>
+    <div class="zoo-card"><div class="zt">Classical Cepheids</div><div class="zk">M<sub>V</sub> −2 to −7 · ≲ 130 million ly</div><div class="zd">Young supergiants that obey Leavitt's law: a longer period means a brighter star. The backbone of the ladder since Hubble.</div></div>
+    <div class="zoo-card"><div class="zt">Mira variables</div><div class="zk">M<sub>K</sub> ≈ −7 to −8 · ≲ 100 million ly</div><div class="zd">Cool, pulsating AGB giants with periods of 100–1000 days. They follow a period–luminosity law in the infrared and can be found even in old galaxies with no Cepheids.</div></div>
+    <div class="zoo-card"><div class="zt">Tip of the red giant branch</div><div class="zk">M<sub>I</sub> ≈ −4.05 · ≲ 130 million ly</div><div class="zd">Red giants brighten until helium ignites in their cores. Then they stop brightening, so the brightest red giants in any old population share a sharp luminosity cutoff.</div></div>
+    <div class="zoo-card"><div class="zt">J-region AGB stars</div><div class="zk">M<sub>J</sub> ≈ −6.2 · ≲ 200 million ly</div><div class="zd">Carbon-rich AGB stars with a narrow range of near-infrared brightness. JWST has made them a powerful new cross-check on Cepheids.</div></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Main-sequence fitting: slide a cluster into place</h3>
+    <p class="hint">Grey dots are a parallax-calibrated main sequence in absolute magnitude. Amber dots are a distant cluster's stars in apparent magnitude. Slide your trial distance modulus until the two sequences line up. Hertzsprung and Russell's diagram becomes a distance-measuring tool.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Trial distance modulus m − M <b><span id="ms_mulab">4.00</span></b></label>
+        <input id="ms_mu" type="range" min="2" max="12" step="0.01" value="4">
+      </div>
+      <div class="ctl">
+        <label>Mystery cluster</label>
+        <select id="ms_cl">
+          <option value="5.65" selected>Cluster A (Pleiades-like)</option>
+          <option value="9.40">Cluster B (farther open cluster)</option>
+          <option value="3.33">Cluster C (Hyades-like)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Implied distance</div><div class="v"><span id="ms_d">63</span> <small>pc</small></div></div>
+      <div class="stat"><div class="k">Fit quality (rms)</div><div class="v" id="ms_rms">1.65 mag</div></div>
+    </div>
+    <div id="plot_ms" class="plot" style="height:400px"></div>
+    <div class="verdict bad" id="ms_verdict"></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Stellar candle calculator</h3>
+    <p class="hint">Pick a candle and enter its apparent magnitude in that method's own band. The distance modulus gives the distance. The bar chart shows how far each candle can be seen at the telescope limit you choose. The fainter candles run out first, which is why the ladder needs brighter ones higher up.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Candle</label>
+        <select id="cd_sel">
+          <option value="sun">Sun-like main-sequence star (M = +4.8)</option>
+          <option value="clump">Red clump giant (M ≈ −0.2)</option>
+          <option value="rr">RR Lyrae (M = +0.6)</option>
+          <option value="t2">Type II Cepheid (period-dependent)</option>
+          <option value="cep" selected>Classical Cepheid (period-dependent)</option>
+          <option value="mira">Mira, 300-day (M_K ≈ −7.6)</option>
+          <option value="trgb">Tip of the red giant branch (M_I = −4.05)</option>
+          <option value="jagb">JAGB star (M_J = −6.2)</option>
+        </select>
+      </div>
+      <div class="ctl">
+        <label>Pulsation period (Cepheids) <b><span id="cd_Plab">30</span> days</b></label>
+        <input id="cd_P" type="range" min="0" max="2" step="0.01" value="1.477">
+      </div>
+      <div class="ctl">
+        <label>Apparent magnitude m <b><span id="cd_mlab">25.0</span></b></label>
+        <input id="cd_m" type="range" min="0" max="30" step="0.05" value="25">
+      </div>
+      <div class="ctl">
+        <label>Telescope limit</label>
+        <select id="cd_lim">
+          <option value="6">Naked eye (m ≈ 6)</option>
+          <option value="19">1920s 100-inch plates (m ≈ 19)</option>
+          <option value="29" selected>Hubble / JWST (m ≈ 29)</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Absolute mag M</div><div class="v" id="cd_M">−5.3</div></div>
+      <div class="stat"><div class="k">Distance modulus</div><div class="v" id="cd_mu">30.3</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="cd_d">11.5</span> <small id="cd_du">Mpc</small></div></div>
+      <div class="stat"><div class="k">Light-years</div><div class="v" id="cd_ly">37 million</div></div>
+    </div>
+    <div id="plot_cd" class="plot" style="height:330px"></div>
+    <div class="eq">$$ F=\frac{L}{4\pi d^2},\qquad m-M=5\log_{10}\frac{d}{10\ \text{pc}},\qquad M_V^{\text{Ceph}}=-2.43(\log_{10}P-1)-4.05 $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A cluster's main sequence lines up with the calibrated one after a shift of $m-M=5.65$. How far is the cluster? Compare with Gaia's Pleiades parallax of $7.36$ mas.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Fitting.</b> $d=10^{(5.65+5)/5}=10^{2.13}=135$ pc.</li>
+          <li><b>Parallax.</b> $d=1/0.00736=136$ pc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $135$ pc either way. The two independent methods agree, and that agreement is what lets the ladder go higher.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A $10$-day classical Cepheid ($M=-4.05$) appears at $m=25.0$. How far away is its galaxy? If it were mistaken for a Type II Cepheid (about $1.5$ mag fainter), what distance would you get?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Correct.</b> $\mu=29.05$, so $d=10^{6.81}=6.5$ Mpc.</li>
+          <li><b>Mistaken.</b> $M=-2.55$ gives $\mu=27.55$, so $d=10^{6.51}=3.2$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $6.5$ Mpc, versus $3.2$ Mpc if the populations are confused. That factor of 2 is Baade's 1952 correction.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> In a galaxy's halo, the red giant branch stops sharply at $I=26.0$. Using $M_I^{\text{TRGB}}=-4.05$, find the distance.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Modulus.</b> $26.0+4.05=30.05$.</li>
+          <li><b>Distance.</b> $d=10^{(30.05+5)/5}=10^{7.01}=1.02\times10^{7}$ pc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $10$ Mpc. TRGB works in old populations with little dust, a useful check on Cepheids, which live in dusty young disks.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 8b. GALAXY-SCALE CANDLES -->
+<!-- ============================================================= -->
+<section class="chapter" id="bigcandles">
+  <span class="era">1930s – today · Candles for whole galaxies</span><span class="rungtag">Rung 8b · billions of ly</span>
+  <h2>Brighter candles: whole galaxies and exploding stars</h2>
+  <p class="who">Brent Tully &amp; Richard Fisher · Mark Phillips · the High-z and Supernova Cosmology teams · LIGO/Virgo</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>Even the brightest single stars fade from view beyond about 50–100 megaparsecs. To go further you need something far more luminous: a whole galaxy, or a star that explodes.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Look for relations that predict luminosity. A spiral galaxy that rotates faster is more massive and brighter (Tully–Fisher). Elliptical galaxies obey a "fundamental plane" linking size, brightness and velocity dispersion. And a supernova's light curve reveals its peak brightness.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>Each method is calibrated with galaxies whose distances are already known from Cepheids, TRGB or JAGB. In 1993 Mark Phillips showed that Type Ia supernovae that fade faster are intrinsically dimmer. Correcting for this makes them precise to about 5–7% each.</p></div>
+    <div class="beat found"><div class="tag">What they give</div>
+      <p>Distances to billions of light-years. In 1998 standardized Type Ia supernovae revealed that the expansion is <i>accelerating</i>, which earned the 2011 Nobel Prize. In 2017 the neutron-star merger GW170817 provided the first "standard siren," a distance from gravitational waves alone, with no ladder.</p></div>
+  </div>
+
+  <div class="zoo-grid">
+    <div class="zoo-card"><div class="zt">Classical novae</div><div class="zk">M<sub>V</sub> −6 to −10 · ≲ 100 million ly</div><div class="zd">Brighter novae fade faster (the MMRD relation). They're used historically, as Curtis did in 1917, but the scatter is large, so they're now mostly a cross-check.</div></div>
+    <div class="zoo-card"><div class="zt">Planetary nebula luminosity function</div><div class="zk">cutoff M<sub>5007</sub> ≈ −4.5 · ≲ 100 million ly</div><div class="zd">Count a galaxy's planetary nebulae by their [O III] glow. The bright end of the count cuts off sharply at a nearly universal luminosity.</div></div>
+    <div class="zoo-card"><div class="zt">Globular cluster luminosity function</div><div class="zk">peak M<sub>V</sub> ≈ −7.4 · ≲ 300 million ly</div><div class="zd">A galaxy's globular clusters have a bell-shaped brightness distribution whose peak is nearly the same everywhere.</div></div>
+    <div class="zoo-card"><div class="zt">Surface brightness fluctuations</div><div class="zk">calibrated by colour · ≲ 500 million ly</div><div class="zd">A nearby galaxy looks grainy because of its individual giant stars. A distant one looks smooth. The amount of graininess measures distance.</div></div>
+    <div class="zoo-card"><div class="zt">Tully–Fisher relation</div><div class="zk">L ∝ v<sup>4</sup> · spirals · ≲ 1 billion ly</div><div class="zd">The width of a spiral's 21-cm hydrogen line gives its rotation speed, and so its luminosity.</div></div>
+    <div class="zoo-card"><div class="zt">Fundamental plane / Faber–Jackson</div><div class="zk">ellipticals · ≲ 1.5 billion ly</div><div class="zd">Ellipticals' velocity dispersion, size and surface brightness lie on a tight plane, which predicts their true size and luminosity.</div></div>
+    <div class="zoo-card"><div class="zt">Type II-P supernovae</div><div class="zk">M ≈ −16 to −18 (standardized) · ≲ 3 billion ly</div><div class="zd">Exploding red supergiants. Their brightness on the long plateau correlates with expansion velocity, so they can be standardized.</div></div>
+    <div class="zoo-card"><div class="zt">Type Ia supernovae</div><div class="zk">M<sub>B</sub> ≈ −19.3 · ≲ 10 billion ly</div><div class="zd">Exploding white dwarfs. Corrected with the Phillips relation, they're the brightest precise candles, and they revealed dark energy.</div></div>
+    <div class="zoo-card"><div class="zt">Standard sirens</div><div class="zk">gravitational waves · ≲ 10 billion ly</div><div class="zd">A merger's gravitational-wave signal gives its distance directly from general relativity, with no calibration needed. They're a ladder-free check on H₀.</div></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Tully–Fisher: weigh a spiral by how fast it spins</h3>
+    <p class="hint">Radio telescopes measure the width of a spiral's 21-cm hydrogen line, which is twice its rotation speed as projected along our line of sight. Correct for the tilt to get the true width. Then the Tully–Fisher relation gives the luminosity, and the apparent magnitude gives the distance.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Observed line width W_obs <b><span id="tf_wlab">400</span> km/s</b></label>
+        <input id="tf_w" type="range" min="100" max="700" step="5" value="400">
+      </div>
+      <div class="ctl">
+        <label>Disk inclination i <b><span id="tf_ilab">53</span>°</b></label>
+        <input id="tf_i" type="range" min="30" max="90" step="1" value="53">
+      </div>
+      <div class="ctl">
+        <label>Apparent I magnitude <b><span id="tf_mlab">12.0</span></b></label>
+        <input id="tf_m" type="range" min="8" max="18" step="0.05" value="12">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">True width W = W<sub>obs</sub>/sin i</div><div class="v"><span id="tf_W">501</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Absolute mag M<sub>I</sub></div><div class="v" id="tf_M">−22.6</div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="tf_d">82</span> <small>Mpc</small></div></div>
+    </div>
+    <div class="figrow two" style="margin-top:6px">
+      <div id="plot_tf" class="plot" style="height:320px"></div>
+      <figure style="align-self:center"><canvas id="tf_canvas" width="440" height="300"></canvas>
+        <figcaption>The double-horned 21-cm profile. One side of the disk approaches us and the other recedes, which splits the hydrogen line in two.</figcaption></figure>
+    </div>
+    <div class="eq">$$ W=\frac{W_{\text{obs}}}{\sin i},\qquad M_I\approx-7.9\,(\log_{10}W-2.5)-21.0,\qquad L\propto v_{\text{rot}}^{\,4} $$</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Standardizing a Type Ia supernova (the Phillips relation)</h3>
+    <p class="hint">Δm₁₅ is how much the supernova fades in the 15 days after its peak. Slower faders are brighter. Set the decline rate and the observed peak, and compare the distance with and without the correction.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Decline rate Δm₁₅(B) <b><span id="ph_dlab">1.10</span> mag</b></label>
+        <input id="ph_d" type="range" min="0.8" max="1.8" step="0.01" value="1.1">
+      </div>
+      <div class="ctl">
+        <label>Observed peak B magnitude <b><span id="ph_mlab">16.0</span></b></label>
+        <input id="ph_m" type="range" min="10" max="24" step="0.05" value="16">
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Standardized M<sub>B</sub></div><div class="v" id="ph_M">−19.30</div></div>
+      <div class="stat"><div class="k">Distance (corrected)</div><div class="v"><span id="ph_dc">115</span> <small>Mpc</small></div></div>
+      <div class="stat"><div class="k">If you assume −19.3</div><div class="v"><span id="ph_du">115</span> <small>Mpc</small></div></div>
+      <div class="stat"><div class="k">Error avoided</div><div class="v" id="ph_err">0%</div></div>
+    </div>
+    <div id="plot_ph" class="plot" style="height:320px"></div>
+    <div class="eq">$$ M_B^{\max}\approx-19.3+0.78\,(\Delta m_{15}-1.1) $$</div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Every candle at once: how far each one reaches</h3>
+    <p class="hint">The approximate useful range of every standard candle on a logarithmic scale. Colour shows the family. Where the bars overlap, one method can calibrate the next. Hover over a bar to see what it's calibrated by.</p>
+    <div id="plot_allc" class="plot" style="height:560px"></div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A spiral at $i=53^\circ$ has $W_{\text{obs}}=400$ km/s and $I=12.0$. Using $M_I=-7.9(\log_{10}W-2.5)-21.0$, find its distance.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>De-project.</b> $W=400/\sin53^\circ=400/0.799=501$ km/s, so $\log W=2.70$.</li>
+          <li><b>Luminosity.</b> $M_I=-7.9(0.20)-21.0=-22.6$.</li>
+          <li><b>Distance.</b> $\mu=12.0+22.6=34.6$, so $d=10^{7.92}=8.3\times10^{7}$ pc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $83$ Mpc. It's a single radio measurement plus a photograph, with no individual stars resolved.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> A Type Ia supernova peaks at $B=16.0$ and has $\Delta m_{15}=1.5$. Find its distance with the Phillips correction, then without it ($M=-19.3$).</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Correction.</b> $M=-19.3+0.78(0.4)=-18.99$.</li>
+          <li><b>Corrected.</b> $\mu=34.99$, so $d=10^{7.998}=99.5$ Mpc.</li>
+          <li><b>Uncorrected.</b> $\mu=35.3$, so $d=10^{8.06}=115$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $100$ Mpc corrected versus $115$ Mpc uncorrected. Without the correction, a fast-declining supernova would be placed 15% too far away.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The standard siren GW170817 gave a distance of about $43.8$ Mpc. Its host galaxy's Hubble-flow velocity is about $3017$ km/s. What H₀ follows?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Hubble law.</b> $H_0=v/d=3017/43.8=68.9$ km/s/Mpc.</li></ol>
+        <div class="ans"><b>Answer:</b> about $69$ km/s/Mpc, with large error bars (about $\pm10$) from a single event. Many more sirens could settle the Hubble tension without using any rung of the ladder.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 9. REDSHIFT -->
+<!-- ============================================================= -->
+<section class="chapter" id="redshift">
+  <span class="era">1912 – today · Slipher, Hubble and the Hubble tension</span><span class="rungtag">Rung 9 · the observable universe</span>
+  <h2>Redshift: the top rung</h2>
+  <p class="who">Vesto Slipher · <b>Edwin Hubble</b> · Georges Lemaître</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">What was known</div>
+      <p>From 1912 Slipher found that most galaxies' spectral lines are shifted toward the red. Hubble then measured their distances with Cepheids, one rung down.</p></div>
+    <div class="beat idea"><div class="tag">The idea</div>
+      <p>Plot redshift velocity against candle distance. In 1929 the relation turned out to be linear: v = H₀ d. The universe is expanding. Once you've calibrated H₀ with candles, a galaxy's redshift alone gives its distance, even when there's no candle to see.</p></div>
+    <div class="beat test"><div class="tag">The test</div>
+      <p>A spectrum is easy to measure, even for a very faint galaxy. Redshift surveys now map millions of galaxies. At large distances "distance" has several meanings and the full cosmological model is needed, but for nearby galaxies d ≈ cz / H₀.</p></div>
+    <div class="beat found"><div class="tag">Where it stands</div>
+      <p>The ladder gives H₀ ≈ 73 km/s/Mpc. The cosmic microwave background, interpreted with the standard model of cosmology, gives 67.4. The gap, about 8%, is called the Hubble tension. Either some rung hides a systematic error, or there's new physics.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Read a galaxy's distance from its spectrum</h3>
+    <p class="hint">Slide the redshift. The spectral lines move together by the same fraction. Choose an H₀ and see the distance change. That difference is the Hubble tension.</p>
+    <div class="controls">
+      <div class="ctl">
+        <label>Redshift z <b><span id="rs_zlab">0.0200</span></b></label>
+        <input id="rs_z" type="range" min="0" max="0.1" step="0.0005" value="0.02">
+      </div>
+      <div class="ctl">
+        <label>Hubble constant</label>
+        <select id="rs_H">
+          <option value="73.0" selected>Distance ladder (SH0ES): 73.0</option>
+          <option value="67.4">CMB (Planck): 67.4</option>
+          <option value="500">Hubble 1929: ~500</option>
+        </select>
+      </div>
+    </div>
+    <div class="readout">
+      <div class="stat"><div class="k">Hα observed</div><div class="v"><span id="rs_ha">669.4</span> <small>nm</small></div></div>
+      <div class="stat"><div class="k">Velocity cz</div><div class="v"><span id="rs_v">5,996</span> <small>km/s</small></div></div>
+      <div class="stat"><div class="k">Distance</div><div class="v"><span id="rs_d">82.1</span> <small>Mpc</small></div></div>
+      <div class="stat"><div class="k">Light-years</div><div class="v" id="rs_ly">268 million</div></div>
+      <div class="stat"><div class="k">Ladder vs. CMB</div><div class="v" id="rs_gap" style="font-size:15px">82 vs 89 Mpc</div></div>
+    </div>
+    <figure><canvas id="rs_canvas" width="900" height="150"></canvas>
+      <figcaption>A galaxy spectrum from 380 to 720 nm. Dashed ticks show the rest wavelengths of Ca K/H, Hβ and Hα. Dark bands show where we observe them.</figcaption></figure>
+    <div class="eq">$$ z=\frac{\lambda_{\text{obs}}-\lambda_0}{\lambda_0},\qquad v\approx cz,\qquad d\approx\frac{cz}{H_0}\quad(z\ll1) $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> A galaxy's Hα line ($656.3$ nm) appears at $669.4$ nm. Find $z$, $v$ and $d$ with $H_0=70$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Redshift.</b> $z=(669.4-656.3)/656.3=0.0200$.</li>
+          <li><b>Velocity.</b> $v=cz=5{,}996$ km/s.</li>
+          <li><b>Distance.</b> $d=5996/70=85.7$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $z=0.020$, $v\approx6{,}000$ km/s, $d\approx86$ Mpc (280 million ly).</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> For that same galaxy, compare $d$ using $H_0=73.0$ and $67.4$. What is the percentage gap?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Distances.</b> $5996/73.0=82.1$ Mpc, and $5996/67.4=89.0$ Mpc.</li>
+          <li><b>Gap.</b> $89.0/82.1=1.083$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> about $8\%$, the Hubble tension in one line.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">3.</span> The Hubble time is $1/H_0=977.8/H_0$ Gyr. Compute it for $73.0$ and $67.4$.</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol><li><b>Evaluate.</b> $977.8/73.0=13.4$ Gyr, and $977.8/67.4=14.5$ Gyr.</li></ol>
+        <div class="ans"><b>Answer:</b> $13.4$ versus $14.5$ Gyr. The top rung of the ladder bears on the age of everything.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================= -->
+<!-- 10. WHOLE LADDER -->
+<!-- ============================================================= -->
+<section class="chapter" id="ladder">
+  <span class="era">Putting it together</span>
+  <h2>The whole ladder, and how errors climb it</h2>
+  <p class="who">Every rung, from a shadow in Alexandria to the edge of the observable universe</p>
+
+  <div class="beats">
+    <div class="beat known"><div class="tag">The structure</div>
+      <p>Each rung borrows its yardstick from the one below. Earth's radius gives the Moon. The Moon gives the Sun, at least in principle. Kepler gives ratios, parallax across the Earth gives kilometres, the AU gives stellar parallax, parallax calibrates Cepheids, Cepheids calibrate supernovae, and supernovae calibrate H₀.</p></div>
+    <div class="beat idea"><div class="tag">The lesson</div>
+      <p>Tao's point is that ingenuity beats instruments. Most rungs were climbed with simple geometry long before precise tools existed. But a ladder is only as strong as its weakest rung, so errors that start low are carried all the way up.</p></div>
+    <div class="beat test"><div class="tag">Cross-checks</div>
+      <p>Modern astronomy builds redundancy. Radar ranging checks the AU. Gaia checks parallaxes. Tip-of-the-red-giant-branch stars and masers cross-check Cepheids. And the CMB gives an independent route to H₀ that skips the ladder entirely.</p></div>
+    <div class="beat found"><div class="tag">What's at stake</div>
+      <p>If two independent routes disagree, as they do in the Hubble tension, either one route has a hidden systematic error or our model of the universe is incomplete.</p></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>The ladder at a glance</h3>
+    <p class="hint">Each bar shows the range of distances a method covers, on a logarithmic scale from Earth's radius to the edge of the observable universe. Hover over a bar to see which rung it borrows its yardstick from.</p>
+    <div id="plot_ladder" class="plot" style="height:480px"></div>
+  </div>
+
+  <div class="lab">
+    <h3><span class="dot"></span>Error propagation: how good is H₀?</h3>
+    <p class="hint">Set the fractional uncertainty contributed by each modern rung. If the errors are independent, they add in quadrature. If they're systematic in the same direction, they add linearly. Compare the total with the 8% gap of the Hubble tension.</p>
+    <div class="controls" id="er_ctls"></div>
+    <div class="readout">
+      <div class="stat"><div class="k">Independent (quadrature)</div><div class="v"><span id="ep_q">2.4</span><small>%</small></div></div>
+      <div class="stat"><div class="k">All systematic (linear)</div><div class="v"><span id="ep_l">4.5</span><small>%</small></div></div>
+      <div class="stat"><div class="k">Tension ÷ quadrature error</div><div class="v" id="ep_s">3.4×</div></div>
+    </div>
+    <div class="verdict good" id="ep_verdict"></div>
+    <div class="eq">$$ \frac{\sigma_{H_0}}{H_0}=\sqrt{\sum_i\left(\frac{\sigma_i}{x_i}\right)^2}\ \ (\text{independent}),\qquad \frac{\sigma_{H_0}}{H_0}\le\sum_i\frac{\sigma_i}{x_i}\ \ (\text{worst case}) $$</div>
+  </div>
+
+  <h3>Practice problems</h3>
+  <div class="problems">
+    <div class="problem">
+      <p class="pq"><span class="pn">1.</span> Gaia parallaxes contribute $1.0\%$, the Cepheid relation $1.5\%$ and the supernova calibration $2.0\%$. What is the combined uncertainty if they're independent? What if they're fully systematic?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Quadrature.</b> $\sqrt{1.0^2+1.5^2+2.0^2}=\sqrt{7.25}=2.7\%$.</li>
+          <li><b>Linear.</b> $1.0+1.5+2.0=4.5\%$.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $2.7\%$ if independent, up to $4.5\%$ if they conspire. Even the worst case is smaller than the 8% tension.</div>
+      </details>
+    </div>
+    <div class="problem">
+      <p class="pq"><span class="pn">2.</span> Eratosthenes' 15% error in Earth's radius: if a modern ladder somehow still depended on it at full strength, how would it affect a galaxy distance of $100$ Mpc?</p>
+      <details class="soln"><summary>Show solution</summary>
+        <ol>
+          <li><b>Proportional scaling.</b> A 15% error in the base yardstick scales every distance built from it by the same factor.</li>
+          <li><b>Apply.</b> $100\times1.15=115$ Mpc.</li>
+        </ol>
+        <div class="ans"><b>Answer:</b> $115$ Mpc. That's why each base rung has been re-measured independently. The AU is now known from radar to about a metre.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <p><b>About this companion.</b> A hobby project that pairs the ideas in <b>3Blue1Brown</b>'s video with <b>Terence Tao</b> on the cosmic distance ladder with interactive recreations of each rung. The geometry and physics are computed live. Mars and Earth orbits use real orbital elements and Kepler's equation. Figures are drawn procedurally in your browser. Historical values (Eratosthenes' stadion, Cassini's parallax, Rømer's delay) are representative, and some are still debated by historians. Not affiliated with 3Blue1Brown or Terence Tao.</p>
+  <p style="margin-top:8px">Constants: $R_\oplus=6371$ km, $d_{☾}=384{,}400$ km, $1$ AU $=1.496\times10^{8}$ km, $c=299{,}792$ km/s, $1$ pc $=206{,}265$ AU $=3.26$ ly, $1''=1/206{,}265$ rad.</p>
+</footer>
+
+<script>
+/* Phones: the figure canvases are drawn at ~900px and shrunk to ~300px, which would
+   leave 13px labels about 4px tall. Scale every canvas font up so labels stay ~10px on screen. */
+(function(){
+  const d=Object.getOwnPropertyDescriptor(CanvasRenderingContext2D.prototype,'font');
+  Object.defineProperty(CanvasRenderingContext2D.prototype,'font',{configurable:true, get(){ return d.get.call(this); },
+    set(v){ const c=this.canvas, cw=c.clientWidth;
+      if(cw && cw<640 && c.id!=='starfield'){ const k=Math.min(3,Math.max(1,0.8*c.width/cw));
+        if(k>1) v=String(v).replace(/(\d+(?:\.\d+)?)px/,(m,n)=>(n*k).toFixed(1)+'px'); }
+      d.set.call(this,v); }});
+})();
+// Touch screens: one-finger drags over a chart should scroll the page, not draw a zoom box
+const COARSE=matchMedia('(pointer:coarse)').matches;
+const narrow=c=>c.clientWidth<640;   // canvas shown at phone width: drop or move secondary captions
+/* =======================================================================
+   Helpers
+======================================================================= */
+const C_KMS=299792.458, AU_KM=1.496e8, RE=6371, DMOON=384400, PC_LY=3.2616, D2R=Math.PI/180, ARC=206264.8;
+function sup(n){return String(n).replace(/-/g,'−').replace(/[0-9]/g,d=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+d]);}
+function sci(x,sig=2){
+  if(x===0) return '0'; if(!isFinite(x)) return '∞';
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  if(e>=-2 && e<4){ const r=x.toPrecision(sig); return parseFloat(r).toLocaleString(undefined,{maximumSignificantDigits:sig}); }
+  const m=(x/Math.pow(10,e)).toPrecision(sig); return `${parseFloat(m)}×10${sup(e)}`;
+}
+function commas(x){return Math.round(x).toLocaleString();}
+function round3(x){ if(x<=0) return '0'; const e=Math.floor(Math.log10(x)); const p=Math.pow(10,Math.max(0,e-2)); return commas(Math.round(x/p)*p); }
+function big(x){ return x>=1e9?(x/1e9).toPrecision(3)+' billion':(x>=1e6?(x/1e6).toPrecision(3)+' million':round3(x)); }
+function pct(x){ return (x>=0?'+':'−')+Math.abs(x*100).toFixed(1)+'%'; }
+const $=id=>document.getElementById(id);
+function baseLayout(extra){
+  return Object.assign({
+    paper_bgcolor:'rgba(0,0,0,0)', plot_bgcolor:'rgba(0,0,0,0)',
+    font:{color:'#cfd6f5', size:12, family:'-apple-system,Segoe UI,Roboto,sans-serif'},
+    margin:{l:62,r:18,t:18,b:48},
+    xaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    yaxis:{gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'},
+    showlegend:false, hovermode:'closest', dragmode:COARSE?false:'zoom'
+  }, extra||{});
+}
+function ax(extra){ return Object.assign({gridcolor:'rgba(140,160,230,0.12)', zerolinecolor:'rgba(140,160,230,0.25)', linecolor:'rgba(140,160,230,0.3)'}, extra); }
+const PCFG={responsive:true, displayModeBar:false};
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function bgStars(x,W,H,n,seed){ const r=mulberry32(seed); x.fillStyle='#04050b'; x.fillRect(0,0,W,H); for(let i=0;i<n;i++){ x.fillStyle=`rgba(220,228,255,${0.15+r()*0.5})`; const s=r()<0.08?1.4:0.8; x.fillRect(r()*W,r()*H,s,s);} }
+function label(x,t,px,py,col,align){ x.fillStyle=col||'#e8ecff'; x.font='13px -apple-system,sans-serif'; x.textAlign=align||'left'; x.fillText(t,px,py); }
+function arcAng(x,cx,cy,r,a0,a1,col){ x.strokeStyle=col; x.lineWidth=1.6; x.beginPath(); x.arc(cx,cy,r,a0,a1,a1<a0); x.stroke(); }
+function wlRGB(wl){ let r=0,g=0,b=0;
+  if(wl<440){r=-(wl-440)/60;b=1;} else if(wl<490){g=(wl-440)/50;b=1;} else if(wl<510){g=1;b=-(wl-510)/20;} else if(wl<580){r=(wl-510)/70;g=1;} else if(wl<645){r=1;g=-(wl-645)/65;} else r=1;
+  let f=wl<420?0.3+0.7*(wl-380)/40:(wl>700?0.3+0.7*(780-wl)/80:1); f=Math.max(0.25,Math.min(1,f));
+  return `rgb(${Math.round(255*r*f)},${Math.round(255*g*f)},${Math.round(255*b*f)})`; }
+
+/* =======================================================================
+   1. Eratosthenes
+======================================================================= */
+(function(){
+  const A=$('er_a'), S=$('er_s'), ST=$('er_st'), cv=$('er_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  function upd(){
+    const a=+A.value, s=+S.value, st=+ST.value, C=360/a*s*st/1000, R=C/(2*Math.PI);
+    $('er_alab').textContent=a.toFixed(1); $('er_slab').textContent=commas(s);
+    const f=360/a; $('er_frac').textContent= Math.abs(f-Math.round(f))<0.02?'1/'+Math.round(f):'1/'+f.toFixed(1);
+    $('er_C').textContent=commas(C); $('er_R').textContent=commas(R); $('er_err').textContent=pct(C/40075-1);
+    // drawing
+    bgStars(x,W,H,150,4);
+    const cx=330, cy=240, Rp=165, show=Math.max(a*3,14); // exaggerate angle for display
+    const g=x.createRadialGradient(cx-50,cy-50,10,cx,cy,Rp); g.addColorStop(0,'#2f6db5'); g.addColorStop(1,'#0c2648');
+    x.fillStyle=g; x.beginPath(); x.arc(cx,cy,Rp,0,7); x.fill();
+    // cities: Syene at angle 0 (pointing toward sun = +x direction rotated up), Alexandria further north
+    const aS=-Math.PI/2+0.9, aA=aS-show*D2R;
+    const pS=[cx+Rp*Math.cos(aS),cy+Rp*Math.sin(aS)], pA=[cx+Rp*Math.cos(aA),cy+Rp*Math.sin(aA)];
+    // sun rays parallel to the Syene radial direction
+    const ux=Math.cos(aS), uy=Math.sin(aS);
+    x.strokeStyle='rgba(255,214,90,0.55)'; x.lineWidth=1.3;
+    for(let k=-6;k<=6;k++){ const o=k*30, ox=-uy*o, oy=ux*o, tEnd=Math.abs(o)<Rp?Math.sqrt(Rp*Rp-o*o):-260; x.beginPath(); x.moveTo(cx+ox+ux*430,cy+oy+uy*430); x.lineTo(cx+ox+ux*tEnd,cy+oy+uy*tEnd); x.stroke(); }
+    label(x,'parallel sunlight ↓',cx+ux*330+40,cy+uy*330+60,'#ffd65a');
+    // radii to centre
+    x.strokeStyle='rgba(255,255,255,0.55)'; x.setLineDash([5,4]); x.beginPath(); x.moveTo(cx,cy); x.lineTo(pS[0],pS[1]); x.moveTo(cx,cy); x.lineTo(pA[0],pA[1]); x.stroke(); x.setLineDash([]);
+    arcAng(x,cx,cy,46,aA,aS,'#ffb24a'); label(x,a.toFixed(1)+'°',cx+56*Math.cos((aA+aS)/2),cy+56*Math.sin((aA+aS)/2),'#ffb24a','center');
+    // sticks
+    const stick=(p,ang)=>{ const L=34; x.strokeStyle='#e8ecff'; x.lineWidth=3; x.beginPath(); x.moveTo(p[0],p[1]); x.lineTo(p[0]+L*Math.cos(ang),p[1]+L*Math.sin(ang)); x.stroke(); return [p[0]+L*Math.cos(ang),p[1]+L*Math.sin(ang)]; };
+    stick(pS,aS); const top=stick(pA,aA);
+    // shadow ray at Alexandria
+    x.strokeStyle='#ffd65a'; x.lineWidth=1.6; x.beginPath(); x.moveTo(top[0]+ux*60,top[1]+uy*60); x.lineTo(pA[0]-ux*6,pA[1]-uy*6); x.stroke();
+    arcAng(x,top[0],top[1],22,aA+Math.PI,aS+Math.PI,'#ffb24a');
+    label(x,'Syene: no shadow',pS[0]+14,pS[1]+12,'#e8ecff'); label(x,'Alexandria: shadow',pA[0]-12,pA[1]+4,'#e8ecff','right');
+    // arc between cities
+    x.strokeStyle='#5ee6a8'; x.lineWidth=3; x.beginPath(); x.arc(cx,cy,Rp+4,aA,aS); x.stroke();
+    label(x,commas(s)+' stadia',cx+(Rp+58)*Math.cos((aA+aS)/2),cy+(Rp+58)*Math.sin((aA+aS)/2),'#5ee6a8','center');
+    // text panel
+    if(!narrow(x.canvas)){
+    label(x,'C = (360° / '+a.toFixed(1)+'°) × '+commas(s)+' stadia',560,170,'#e8ecff');
+    label(x,'   = '+commas(360/a*s)+' stadia',560,194,'#e8ecff');
+    label(x,'   = '+commas(C)+' km  (stadion '+st+' m)',560,218,'#5ee6a8');
+    label(x,'Angle drawn ~'+(show/a).toFixed(1)+'× larger than '+a.toFixed(1)+'° for visibility',560,262,'#9aa3c7');
+    }
+  }
+  [A,S].forEach(e=>e.addEventListener('input',upd)); ST.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   2. Moon via eclipse
+======================================================================= */
+(function(){
+  const K=$('mn_k'), T=$('mn_t'), TP=$('mn_taper'), cv=$('mn_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  let k=2.65;
+  function upd(){
+    k=+K.value; const th=+T.value, ratio=k+(TP.checked?1:0), Rm=RE/ratio, d=2*Rm/(th*D2R);
+    $('mn_klab').textContent=k.toFixed(2); $('mn_tlab').textContent=th.toFixed(3).replace(/0$/,'');
+    $('mn_ratio').textContent=ratio.toFixed(2); $('mn_R').textContent=commas(Rm); $('mn_d').textContent=round3(d);
+    $('mn_re').textContent=(d/RE).toFixed(1); $('mn_tot').textContent=Math.max(0,(k-1)*0.95).toFixed(1);
+  }
+  const bg=document.createElement('canvas'); bg.width=W; bg.height=H; bgStars(bg.getContext('2d'),W,H,220,9);
+  let t0=performance.now();
+  function frame(now){
+    x.drawImage(bg,0,0);
+    const mr=34, cy=H/2, cx=W/2, sr=k*mr;
+    // penumbra & umbra
+    const pg=x.createRadialGradient(cx,cy,sr,cx,cy,sr+2*mr); pg.addColorStop(0,'rgba(20,10,20,0.55)'); pg.addColorStop(1,'rgba(20,10,20,0)');
+    x.fillStyle=pg; x.beginPath(); x.arc(cx,cy,sr+2*mr,0,7); x.fill();
+    x.fillStyle='rgba(8,4,10,0.85)'; x.beginPath(); x.arc(cx,cy,sr,0,7); x.fill();
+    x.strokeStyle='rgba(255,107,157,0.6)'; x.setLineDash([5,4]); x.beginPath(); x.arc(cx,cy,sr,0,7); x.stroke(); x.setLineDash([]);
+    // moon moving
+    const span=sr*2+mr*4, t=((now-t0)/9000)%1, mx=cx-sr-2*mr+span*t, my=cy+6;
+    const dist=Math.abs(mx-cx), inside=dist<sr-mr, partial=dist<sr+mr;
+    const col= inside?'#a2482a':'#d9d6cc';
+    x.fillStyle=col; x.beginPath(); x.arc(mx,my,mr,0,7); x.fill();
+    if(partial && !inside){ x.save(); x.beginPath(); x.arc(mx,my,mr,0,7); x.clip(); x.fillStyle='rgba(120,40,20,0.85)'; x.beginPath(); x.arc(cx,cy,sr,0,7); x.fill(); x.restore(); }
+    // scale: moon diameters
+    x.strokeStyle='#ffb24a'; x.lineWidth=1.5; x.beginPath(); x.moveTo(cx-sr,H-30); x.lineTo(cx+sr,H-30); x.stroke();
+    for(let i=0;i<=Math.floor(k);i++){ x.beginPath(); x.moveTo(cx-sr+i*2*mr,H-36); x.lineTo(cx-sr+i*2*mr,H-24); x.stroke(); }
+    label(x,'umbra = '+k.toFixed(2)+' Moon diameters',cx,H-10,'#ffb24a','center');
+    label(x, inside?'TOTALITY':(partial?'partial eclipse':'full Moon'),18,24,inside?'#ff8a5c':'#e8ecff');
+    requestAnimationFrame(frame);
+  }
+  [K,T].forEach(e=>e.addEventListener('input',upd)); TP.addEventListener('change',upd); upd(); requestAnimationFrame(frame);
+})();
+
+/* =======================================================================
+   3. Aristarchus
+======================================================================= */
+(function(){
+  const A=$('sn_a'), P=$('sn_pre'), cv=$('sn_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  function upd(){
+    const a=+A.value, r=1/Math.cos(a*D2R), d=r*DMOON, Rs=r*1737, rlo=1/Math.cos((a-0.1)*D2R), rhi=a+0.1<90?1/Math.cos((a+0.1)*D2R):Infinity;
+    $('sn_alab').textContent=a.toFixed(2); $('sn_ratio').textContent=r<100?r.toFixed(1):Math.round(r);
+    $('sn_d').textContent=big(d); $('sn_R').textContent=round3(Rs); $('sn_x').textContent=(Rs/RE).toFixed(1)+'×';
+    $('sn_sens').textContent= isFinite(rhi)? Math.round(rlo)+' to '+Math.round(rhi) : Math.round(rlo)+' to ∞';
+    bgStars(x,W,H,140,12);
+    const ex=70, ey=230, my=70; // Earth, Moon above Earth
+    const sunX=Math.min(W-70, ex+ (W-160)*Math.min(1,Math.log10(r)/Math.log10(400))+40);
+    // Earth
+    x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(ex,ey,16,0,7); x.fill(); label(x,'Earth',ex,ey+34,'#9aa3c7','center');
+    // Moon half lit (lit side toward sun = right)
+    x.fillStyle='#2a2a2e'; x.beginPath(); x.arc(ex,my,12,0,7); x.fill();
+    x.fillStyle='#e6e3da'; x.beginPath(); x.arc(ex,my,12,-Math.PI/2,Math.PI/2); x.fill(); label(x,'half Moon',ex+20,my-14,'#9aa3c7');
+    // Sun
+    const sg=x.createRadialGradient(sunX,my,0,sunX,my,46); sg.addColorStop(0,'#fff6c8'); sg.addColorStop(0.4,'#ffcf4a'); sg.addColorStop(1,'rgba(255,170,40,0)');
+    x.fillStyle=sg; x.beginPath(); x.arc(sunX,my,46,0,7); x.fill(); label(x,'Sun',sunX,my+56,'#ffd65a','center');
+    // triangle
+    x.strokeStyle='rgba(232,236,255,0.75)'; x.lineWidth=1.4; x.beginPath(); x.moveTo(ex,ey); x.lineTo(ex,my); x.lineTo(sunX,my); x.closePath(); x.stroke();
+    x.strokeStyle='#5ee6a8'; x.strokeRect(ex,my,12,12); label(x,'90°',ex+16,my+26,'#5ee6a8');
+    const angSun=Math.atan2(my-ey,sunX-ex);
+    arcAng(x,ex,ey,48,-Math.PI/2,angSun,'#ffb24a'); label(x,'θ = '+a.toFixed(2)+'° (measured)',ex+50,ey-50,'#ffb24a');
+    label(x,'d☉ / d☾ = 1 / cos θ = '+(r<100?r.toFixed(1):Math.round(r)),W/2,ey+10,'#e8ecff','center');
+    if(!narrow(x.canvas)) label(x,'drawn on a log scale, so the true triangle is far thinner',W/2,ey+34,'#9aa3c7','center');
+  }
+  A.addEventListener('input',upd); P.addEventListener('change',()=>{ A.value=P.value; upd(); }); upd();
+})();
+
+/* =======================================================================
+   4. Copernicus: elongation + synodic
+======================================================================= */
+(function(){
+  const S=$('pl_sel'), E=$('pl_e'), O=$('pl_out'), cv=$('pl_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  function upd(){
+    const e=+E.value, r=Math.sin(e*D2R), T=Math.pow(r,1.5)*365.25, Sy=+O.value, P=1/(1/365.25-1/Sy)/365.25, a=Math.pow(P,2/3);
+    $('pl_elab').textContent=e.toFixed(1); $('pl_r').textContent=r.toFixed(3); $('pl_T').textContent=Math.round(T);
+    $('pl_P').textContent=P.toFixed(2); $('pl_a').textContent=a.toFixed(2);
+    bgStars(x,W,H,160,21);
+    const cx=W/2-60, cy=H/2, s=190;
+    x.strokeStyle='rgba(63,208,255,0.6)'; x.lineWidth=1.3; x.beginPath(); x.arc(cx,cy,s,0,7); x.stroke();
+    x.strokeStyle='rgba(255,178,74,0.6)'; x.beginPath(); x.arc(cx,cy,s*r,0,7); x.stroke();
+    const sg=x.createRadialGradient(cx,cy,0,cx,cy,22); sg.addColorStop(0,'#fff6c8'); sg.addColorStop(1,'rgba(255,190,60,0)'); x.fillStyle=sg; x.beginPath(); x.arc(cx,cy,22,0,7); x.fill();
+    // Earth at left (angle π), tangent point
+    const Ex=cx-s, Ey=cy;
+    const phi=Math.acos(r); // angle at Sun between Earth direction and planet
+    const Px=cx+s*r*Math.cos(Math.PI-phi), Py=cy-s*r*Math.sin(Math.PI-phi);
+    x.strokeStyle='rgba(232,236,255,0.8)'; x.setLineDash([6,4]); x.beginPath(); x.moveTo(Ex,Ey); x.lineTo(cx,cy); x.stroke();
+    x.beginPath(); x.moveTo(Ex,Ey); x.lineTo(Ex+(Px-Ex)*1.6,Ey+(Py-Ey)*1.6); x.stroke(); x.setLineDash([]);
+    x.strokeStyle='rgba(94,230,168,0.9)'; x.beginPath(); x.moveTo(cx,cy); x.lineTo(Px,Py); x.stroke();
+    x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(Ex,Ey,9,0,7); x.fill(); label(x,'Earth',Ex-12,Ey+24,'#9aa3c7','center');
+    x.fillStyle='#ffd79a'; x.beginPath(); x.arc(Px,Py,7,0,7); x.fill(); label(x,S.selectedOptions[0].text.split(' ')[0],Px+12,Py-8,'#ffd79a');
+    arcAng(x,Ex,Ey,50,-Math.atan2(Ey-Py,Px-Ex),0,'#ffb24a'); label(x,'ε = '+e.toFixed(1)+'°',Ex+56,Ey-14,'#ffb24a');
+    // right angle marker at planet
+    const ux=(cx-Px)/(s*r), uy=(cy-Py)/(s*r), vx=(Ex-Px), vy=(Ey-Py), vl=Math.hypot(vx,vy), wx=vx/vl, wy=vy/vl, q=10;
+    x.strokeStyle='#5ee6a8'; x.beginPath(); x.moveTo(Px+ux*q,Py+uy*q); x.lineTo(Px+ux*q+wx*q,Py+uy*q+wy*q); x.lineTo(Px+wx*q,Py+wy*q); x.stroke();
+    label(x,'r = sin ε = '+r.toFixed(3)+' AU',cx+s*0.2,cy+s+28,'#5ee6a8','center');
+    label(x,'1 AU',cx-s/2,cy+18,'#9aa3c7','center');
+  }
+  S.addEventListener('change',()=>{ E.value=S.value; upd(); }); E.addEventListener('input',upd); O.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   5. Kepler: triangulating Mars
+======================================================================= */
+(function(){
+  const PE=365.256, PM=686.98;
+  const EARTH={a:1.0, e:0.0167, w:102.9*D2R, M0:0}, MARS={a:1.5237, e:0.0934, w:336.0*D2R, M0:2.1};
+  function pos(o,P,t){ const M=o.M0+2*Math.PI*t/P; let E=M; for(let i=0;i<8;i++) E-=(E-o.e*Math.sin(E)-M)/(1-o.e*Math.cos(E));
+    const xp=o.a*(Math.cos(E)-o.e), yp=o.a*Math.sqrt(1-o.e*o.e)*Math.sin(E);
+    return [xp*Math.cos(o.w)-yp*Math.sin(o.w), xp*Math.sin(o.w)+yp*Math.cos(o.w)]; }
+  function tri(t){ const E1=pos(EARTH,PE,t), E2=pos(EARTH,PE,t+PM), M=pos(MARS,PM,t);
+    // directions observed from Earth (what Tycho recorded), then intersect
+    const u1=[M[0]-E1[0],M[1]-E1[1]], u2=[M[0]-E2[0],M[1]-E2[1]];
+    const det=u1[0]*(-u2[1])-u1[1]*(-u2[0]); const bx=E2[0]-E1[0], by=E2[1]-E1[1];
+    const s=(bx*(-u2[1])-by*(-u2[0]))/det; return {E1,E2,P:[E1[0]+s*u1[0],E1[1]+s*u1[1]]}; }
+  const T=$('kp_t'), CI=$('kp_circ'), cv=$('kp_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height, sc=145, cx=W/2, cy=H/2;
+  const X=p=>cx+p[0]*sc, Y=p=>cy-p[1]*sc;
+  let pts=[];
+  const bg=document.createElement('canvas'); bg.width=W; bg.height=H; const b=bg.getContext('2d'); bgStars(b,W,H,180,33);
+  function orbitPath(o,P){ b.beginPath(); for(let i=0;i<=200;i++){ const p=pos(o,P,P*i/200); i?b.lineTo(X(p),Y(p)):b.moveTo(X(p),Y(p)); } b.stroke(); }
+  b.strokeStyle='rgba(63,208,255,0.55)'; b.lineWidth=1.3; orbitPath(EARTH,PE);
+  b.strokeStyle='rgba(255,107,157,0.25)'; orbitPath(MARS,PM);
+  function fit(){ if(pts.length<3) return null; const rs=pts.map(p=>Math.hypot(p[0],p[1])); const mn=Math.min(...rs), mx=Math.max(...rs); return {a:(mn+mx)/2, e:(mx-mn)/(mx+mn), mean:rs.reduce((s,v)=>s+v,0)/rs.length}; }
+  function draw(){
+    const t=+T.value, o=tri(t), r=Math.hypot(o.P[0],o.P[1]);
+    $('kp_tlab').textContent=t; $('kp_r').textContent=r.toFixed(3); $('kp_n').textContent=pts.length;
+    const f=fit(); $('kp_a').textContent=f?f.a.toFixed(3):'—'; $('kp_e').textContent=f?f.e.toFixed(3):'—';
+    $('kp_k3').textContent='3.54 vs '+(f?Math.pow(f.a,3).toFixed(2):'—');
+    x.drawImage(bg,0,0);
+    const sg=x.createRadialGradient(cx,cy,0,cx,cy,20); sg.addColorStop(0,'#fff6c8'); sg.addColorStop(1,'rgba(255,190,60,0)'); x.fillStyle=sg; x.beginPath(); x.arc(cx,cy,20,0,7); x.fill();
+    if(CI.checked && f){ x.strokeStyle='rgba(232,236,255,0.6)'; x.setLineDash([5,5]); x.beginPath(); x.arc(cx,cy,f.mean*sc,0,7); x.stroke(); x.setLineDash([]); }
+    pts.forEach(p=>{ x.fillStyle='#ffb24a'; x.beginPath(); x.arc(X(p),Y(p),3.6,0,7); x.fill(); });
+    // sightlines
+    x.strokeStyle='rgba(255,214,90,0.85)'; x.lineWidth=1.4;
+    [o.E1,o.E2].forEach(E=>{ x.beginPath(); x.moveTo(X(E),Y(E)); x.lineTo(X(E)+(X(o.P)-X(E))*1.15,Y(E)+(Y(o.P)-Y(E))*1.15); x.stroke(); });
+    x.strokeStyle='rgba(94,230,168,0.8)'; x.setLineDash([4,4]); x.beginPath(); x.moveTo(X(o.E1),Y(o.E1)); x.lineTo(X(o.E2),Y(o.E2)); x.stroke(); x.setLineDash([]);
+    [[o.E1,'Earth, day '+t],[o.E2,'Earth, day '+(t+687)]].forEach(([E,l],i)=>{ x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(X(E),Y(E),7,0,7); x.fill(); label(x,l,X(E)+10,Y(E)+(i?16:-8),'#9fd4ff'); });
+    x.fillStyle='#ff6b6b'; x.beginPath(); x.arc(X(o.P),Y(o.P),7,0,7); x.fill(); label(x,'Mars (both dates)',X(o.P)+10,Y(o.P)-10,'#ff9d9d');
+    label(x,'Sun',cx+14,cy+4,'#ffd65a');
+    if(f){ label(x,`max deviation from circle: ${(Math.max(...pts.map(p=>Math.abs(Math.hypot(p[0],p[1])-f.mean)))/f.mean*100).toFixed(1)}% of radius`,16,H-14,'#9aa3c7'); }
+  }
+  $('kp_add').addEventListener('click',()=>{ pts.push(tri(+T.value).P); draw(); });
+  $('kp_many').addEventListener('click',()=>{ for(let i=0;i<24;i++) pts.push(tri(Math.random()*PM).P); draw(); });
+  $('kp_clr').addEventListener('click',()=>{ pts=[]; draw(); });
+  T.addEventListener('input',draw); CI.addEventListener('change',draw); draw();
+})();
+
+/* =======================================================================
+   6. AU in km + Rømer
+======================================================================= */
+(function(){
+  const B=$('au_b'), D=$('au_d'), P=$('au_p');
+  function upd(){ const b=+B.value, dau=+D.value, p=+P.value/ARC, dm=b/p, au=dm/dau, sp=6378/au*ARC;
+    $('au_blab').textContent=commas(b); $('au_dlab').textContent=dau.toFixed(3); $('au_plab').textContent=(+P.value).toFixed(1);
+    $('au_mk').textContent=(dm/1e6).toFixed(1); $('au_au').textContent=(au/1e6).toFixed(1); $('au_sp').textContent=sp.toFixed(2); $('au_err').textContent=pct(au/AU_KM-1); }
+  [B,D,P].forEach(e=>e.addEventListener('input',upd)); upd();
+  const I=$('io_t'), IA=$('io_au');
+  function upd2(){ const t=+I.value*60, c=2*(+IA.value)/t; $('io_lab').textContent=(+I.value).toFixed(1); $('io_c').textContent=round3(c); $('io_err').textContent=pct(c/C_KMS-1); }
+  I.addEventListener('input',upd2); IA.addEventListener('change',upd2); upd2();
+})();
+
+/* =======================================================================
+   7. Stellar parallax
+======================================================================= */
+(function(){
+  const D=$('px_d'), PR=$('px_pre'), cv=$('px_canvas'), x=cv.getContext('2d'), W=cv.width, H=cv.height;
+  let dpc=3.5;
+  function who(p){ if(p>=60) return 'Tycho Brahe (1′)'; if(p>=0.1) return "Bessel's heliometer"; if(p>=0.002) return 'Hipparcos (1989–93)'; if(p>=0.00002) return 'Gaia (2013–25)'; return 'nobody yet'; }
+  function upd(){ dpc=Math.pow(10,+D.value); const p=1/dpc;
+    $('px_dlab').textContent= dpc<100?dpc.toFixed(2):round3(dpc);
+    $('px_p').textContent= p>=0.01?p.toFixed(3):sci(p,2); $('px_ly').textContent= big(dpc*PC_LY); $('px_by').textContent=who(p); }
+  const bgL=document.createElement('canvas'); bgL.width=W; bgL.height=H; bgStars(bgL.getContext('2d'),W,H,200,44);
+  const rs=mulberry32(5), field=Array.from({length:70},()=>({x:520+rs()*360,y:20+rs()*300,s:rs()<0.1?1.6:0.9}));
+  let t0=performance.now();
+  function frame(now){ const ph=(now-t0)/4000*2*Math.PI; x.drawImage(bgL,0,0);
+    // left: top view
+    const cx=150, cy=200, R=70, ex=cx+R*Math.cos(ph), ey=cy+R*Math.sin(ph), sx=cx, sy=40;
+    x.strokeStyle='rgba(63,208,255,0.5)'; x.beginPath(); x.arc(cx,cy,R,0,7); x.stroke();
+    x.fillStyle='#ffd65a'; x.beginPath(); x.arc(cx,cy,9,0,7); x.fill();
+    x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(ex,ey,6,0,7); x.fill();
+    x.fillStyle='#fff'; x.beginPath(); x.arc(sx,sy,4,0,7); x.fill(); label(x,'nearby star',sx+10,sy+4,'#e8ecff');
+    x.strokeStyle='rgba(255,214,90,0.7)'; x.beginPath(); x.moveTo(ex,ey); x.lineTo(sx+(sx-ex)*0.6,sy+(sy-ey)*0.6); x.stroke();
+    label(x,narrow(x.canvas)?'top view':'top view: Earth\'s orbit (2 AU baseline)',20,H-16,'#9aa3c7');
+    x.strokeStyle='rgba(140,160,230,0.3)'; x.beginPath(); x.moveTo(480,10); x.lineTo(480,H-10); x.stroke();
+    // right: sky view
+    field.forEach(f=>{ x.fillStyle='rgba(220,228,255,0.7)'; x.fillRect(f.x,f.y,f.s,f.s); });
+    const p=1/dpc, amp=Math.max(2,110*Math.min(1,Math.pow(p/0.8,0.45)));
+    const px=700-amp*Math.cos(ph), py=170-amp*0.45*Math.sin(ph);
+    x.strokeStyle='rgba(255,178,74,0.4)'; x.beginPath(); x.ellipse(700,170,amp,amp*0.45,0,0,7); x.stroke();
+    x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,4.5,0,7); x.fill();
+    label(x,narrow(x.canvas)?'sky view (exaggerated)':'sky view: yearly parallax ellipse (exaggerated)',500,H-16,'#9aa3c7');
+    label(x,'p = '+(p>=0.01?p.toFixed(3):sci(p,2))+'″',700,170+amp*0.45+24,'#ffb24a','center');
+    requestAnimationFrame(frame); }
+  D.addEventListener('input',upd); PR.addEventListener('change',()=>{ D.value=PR.value; upd(); }); upd(); requestAnimationFrame(frame);
+})();
+
+/* =======================================================================
+   8a. Stellar candles: main-sequence fitting + calculator
+======================================================================= */
+const cepM=P=>-2.43*(Math.log10(P)-1)-4.05;
+(function(){
+  // calibrated main sequence: absolute V vs B−V (approximate, Hyades/Gaia-like)
+  const MS=[[-0.1,-0.5],[0,0.6],[0.2,2.1],[0.4,3.2],[0.6,4.4],[0.65,4.8],[0.8,5.7],[1.0,6.4],[1.2,7.5],[1.4,8.8],[1.6,10.5]];
+  const ms=c=>{ for(let i=1;i<MS.length;i++) if(c<=MS[i][0]){ const [x0,y0]=MS[i-1],[x1,y1]=MS[i]; return y0+(y1-y0)*(c-x0)/(x1-x0); } return MS[MS.length-1][1]; };
+  const r=mulberry32(1847), ref=[]; for(let i=0;i<45;i++){ const c=-0.05+1.6*r(); ref.push([c,ms(c)+gaussR(r)*0.08]); }
+  function gaussR(r){ let u=0,v=0; while(!u)u=r(); while(!v)v=r(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+  const clusters={}; ['5.65','9.40','3.33'].forEach((k,j)=>{ const rr=mulberry32(77+j), a=[]; for(let i=0;i<70;i++){ const c=-0.02+1.5*rr(); let M=ms(c)+gaussR(rr)*0.1; if(rr()<0.15) M-=0.5; a.push([c,M+(+k)]); } clusters[k]=a; });
+  const MU=$('ms_mu'), CL=$('ms_cl');
+  function upd(){
+    const mu=+MU.value, key=CL.value, cl=clusters[key], d=Math.pow(10,(mu+5)/5);
+    const rms=Math.sqrt(cl.reduce((s,p)=>s+Math.pow(p[1]-mu-ms(p[0]),2),0)/cl.length);
+    $('ms_mulab').textContent=mu.toFixed(2); $('ms_d').textContent=d<1000?Math.round(d):commas(d); $('ms_rms').textContent=rms.toFixed(2)+' mag';
+    const vd=$('ms_verdict'), off=mu-(+key);
+    if(Math.abs(off)<0.15){ vd.className='verdict good'; vd.textContent=`Locked in: the sequences overlap (rms ${rms.toFixed(2)} mag, mostly from binaries and scatter). The cluster is about ${d<1000?Math.round(d):commas(d)} pc away. Note that the leftover upward scatter comes from unresolved binary stars, a real nuisance in practice.`; }
+    else { vd.className='verdict bad'; vd.textContent= off<0 ? 'The cluster stars still sit below (fainter than) the calibrated sequence. Increase the distance modulus.' : 'The cluster stars now sit above (brighter than) the calibrated sequence. Decrease the distance modulus.'; }
+    Plotly.react('plot_ms',[
+      {x:ref.map(p=>p[0]),y:ref.map(p=>p[1]),mode:'markers',marker:{color:'rgba(200,205,230,0.75)',size:6},name:'calibrated (absolute M)',hovertemplate:'calibrator<br>B−V=%{x:.2f}, M=%{y:.2f}<extra></extra>'},
+      {x:cl.map(p=>p[0]),y:cl.map(p=>p[1]-mu),mode:'markers',marker:{color:'#ffb24a',size:7,line:{color:'#0b0f22',width:1}},name:'cluster, V − trial μ',hovertemplate:'cluster star<br>B−V=%{x:.2f}, V−μ=%{y:.2f}<extra></extra>'}
+    ], baseLayout({showlegend:true,legend:{x:0.62,y:0.05,bgcolor:'rgba(0,0,0,0)'},xaxis:ax({title:'colour B − V (bluer ← → redder)',range:[-0.2,1.7]}),yaxis:ax({title:'absolute magnitude (brighter ↑)',autorange:'reversed'})}),PCFG);
+  }
+  MU.addEventListener('input',upd); CL.addEventListener('change',()=>{ MU.value=4; upd(); }); upd();
+})();
+(function(){
+  const S=$('cd_sel'), P=$('cd_P'), Mm=$('cd_m'), L=$('cd_lim');
+  function absM(kind,Pd){ return {sun:4.83, clump:-0.2, rr:0.6, t2:cepM(Pd)+1.5, cep:cepM(Pd), mira:-7.6, trgb:-4.05, jagb:-6.2}[kind]; }
+  function fmtD(pc){ if(pc>=1e6) return [(pc/1e6).toPrecision(3),'Mpc']; if(pc>=1e3) return [(pc/1e3).toPrecision(3),'kpc']; return [pc.toPrecision(3),'pc']; }
+  function upd(){
+    const Pd=Math.pow(10,+P.value), M=absM(S.value,Pd), m=+Mm.value, mu=m-M, dpc=Math.pow(10,(mu+5)/5), [dv,du]=fmtD(dpc);
+    $('cd_Plab').textContent=Pd<10?Pd.toFixed(1):Math.round(Pd); $('cd_mlab').textContent=m.toFixed(2);
+    $('cd_M').textContent=(M>=0?'+':'−')+Math.abs(M).toFixed(2); $('cd_mu').textContent=mu.toFixed(2);
+    $('cd_d').textContent=dv; $('cd_du').textContent=du; $('cd_ly').textContent=big(dpc*PC_LY);
+    P.disabled=!(S.value==='cep'||S.value==='t2');
+    const lim=+L.value, kinds=[['Sun-like MS star',4.83],['RR Lyrae',0.6],['Red clump',-0.2],['Type II Cepheid, 10 d',cepM(10)+1.5],['TRGB (I)',-4.05],['Cepheid, 10 d',-4.05],['JAGB (J)',-6.2],['Cepheid, 50 d',cepM(50)],['Mira (K)',-7.6]];
+    const reach=kinds.map(k=>Math.pow(10,(lim-k[1]+5)/5)*PC_LY);
+    Plotly.react('plot_cd',[{type:'bar',orientation:'h',y:kinds.map(k=>k[0]),x:reach,marker:{color:['#9aa3c7','#ffb24a','#ffd79a','#c9a6ff','#5ee6a8','#3fd0ff','#7ee0c0','#b08cff','#ff8a8a']},
+      hovertemplate:'%{y}: visible to %{x:.3s} ly<extra></extra>'}],
+      baseLayout({margin:{l:150,r:18,t:10,b:44},xaxis:ax({type:'log',title:'maximum distance visible (ly) · each in its own band, no dust',range:[1,10]}),yaxis:ax({}),
+        shapes:[{type:'line',x0:dpc*PC_LY,x1:dpc*PC_LY,y0:-0.5,y1:8.5,line:{color:'#5ee6a8',dash:'dash'}}],
+        annotations:[{x:Math.log10(dpc*PC_LY),y:8.5,text:'your object',showarrow:false,yanchor:'bottom',font:{color:'#5ee6a8'}}]}),PCFG);
+  }
+  [P,Mm].forEach(e=>e.addEventListener('input',upd)); [S,L].forEach(e=>e.addEventListener('change',upd)); upd();
+})();
+
+/* =======================================================================
+   8b. Galaxy-scale candles: Tully–Fisher, Phillips, reach of all candles
+======================================================================= */
+(function(){
+  const Wo=$('tf_w'), I=$('tf_i'), Mm=$('tf_m'), cv=$('tf_canvas'), x=cv.getContext('2d'), CW=cv.width, CH=cv.height;
+  const tfM=W=>-7.9*(Math.log10(W)-2.5)-21.0;
+  const r=mulberry32(1977), cal=[]; for(let i=0;i<30;i++){ const lw=2.15+0.75*r(); let u=0,v=0; while(!u)u=r(); while(!v)v=r(); cal.push([lw,tfM(Math.pow(10,lw))+0.3*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)]); }
+  function upd(){
+    const wo=+Wo.value, inc=+I.value, m=+Mm.value, W=wo/Math.sin(inc*D2R), M=tfM(W), d=Math.pow(10,(m-M+5)/5)/1e6;
+    $('tf_wlab').textContent=wo; $('tf_ilab').textContent=inc; $('tf_mlab').textContent=m.toFixed(2);
+    $('tf_W').textContent=Math.round(W); $('tf_M').textContent='−'+Math.abs(M).toFixed(2); $('tf_d').textContent=d<10?d.toFixed(1):Math.round(d);
+    Plotly.react('plot_tf',[
+      {x:cal.map(p=>p[0]),y:cal.map(p=>p[1]),mode:'markers',marker:{color:'#5ee6a8',size:7},hovertemplate:'calibrator (Cepheid/TRGB distance)<extra></extra>'},
+      {x:[2.1,2.95],y:[tfM(Math.pow(10,2.1)),tfM(Math.pow(10,2.95))],mode:'lines',line:{color:'#b08cff',dash:'dash'},hoverinfo:'skip'},
+      {x:[Math.log10(W)],y:[M],mode:'markers',marker:{color:'#ffb24a',size:16,symbol:'star'},hovertemplate:'your galaxy<extra></extra>'}
+    ], baseLayout({xaxis:ax({title:'log₁₀ W (km/s)'}),yaxis:ax({title:'M_I (brighter ↑)',autorange:'reversed'})}),PCFG);
+    // 21-cm profile
+    x.fillStyle='#04050b'; x.fillRect(0,0,CW,CH);
+    const vmax=420, X=v=>CW/2+v/vmax*(CW/2-20), base=CH-40;
+    x.strokeStyle='rgba(140,160,230,0.4)'; x.beginPath(); x.moveTo(10,base); x.lineTo(CW-10,base); x.stroke();
+    x.strokeStyle='#3fd0ff'; x.lineWidth=2; x.beginPath();
+    for(let px=10;px<=CW-10;px++){ const v=(px-CW/2)/(CW/2-20)*vmax, h=wo/2; let f=0;
+      if(Math.abs(v)<h){ f=1/Math.sqrt(Math.max(0.07,1-(v/h)**2)); } else { f=3.78*Math.exp(-Math.pow((Math.abs(v)-h)/10,2)); }
+      const y=base-Math.min(3.8,f)*48; px===10?x.moveTo(px,y):x.lineTo(px,y); } x.stroke();
+    x.strokeStyle='#ffb24a'; x.lineWidth=1.4; x.beginPath(); x.moveTo(X(-wo/2),base+10); x.lineTo(X(wo/2),base+10); x.stroke();
+    label(x,'W_obs = '+wo+' km/s',CW/2,base+28,'#ffb24a','center'); label(x,'approaching ←',14,20,'#3fd0ff'); label(x,'→ receding',CW-14,20,'#ff6b9d','right');
+  }
+  [Wo,I,Mm].forEach(e=>e.addEventListener('input',upd)); upd();
+})();
+(function(){
+  const D=$('ph_d'), Mm=$('ph_m');
+  function lc(dm,M){ const t=[],y=[]; for(let d=-12;d<=45;d+=0.5){ let dl; if(d<0) dl=0.012*d*d*(1.1/dm); else if(d<=15) dl=dm*d/15; else dl=dm+0.028*(d-15)*(1.5/(0.6+dm*0.8)); t.push(d); y.push(M+dl); } return [t,y]; }
+  function upd(){ const dm=+D.value, m=+Mm.value, M=-19.3+0.78*(dm-1.1), dc=Math.pow(10,(m-M+5)/5)/1e6, du=Math.pow(10,(m+19.3+5)/5)/1e6;
+    $('ph_dlab').textContent=dm.toFixed(2); $('ph_mlab').textContent=m.toFixed(2); $('ph_M').textContent='−'+Math.abs(M).toFixed(2);
+    $('ph_dc').textContent=dc<10?dc.toFixed(1):round3(dc); $('ph_du').textContent=du<10?du.toFixed(1):round3(du); $('ph_err').textContent=pct(du/dc-1);
+    const [t0,y0]=lc(1.1,-19.3), [t1,y1]=lc(dm,M);
+    Plotly.react('plot_ph',[
+      {x:t0,y:y0,mode:'lines',line:{color:'rgba(200,205,230,0.6)',dash:'dash'},hovertemplate:'template Δm15 = 1.1<extra></extra>'},
+      {x:t1,y:y1,mode:'lines',line:{color:'#ff6b9d',width:3},hovertemplate:'day %{x}: M=%{y:.2f}<extra></extra>'},
+      {x:[0,15],y:[M,M+dm],mode:'markers',marker:{color:'#ffb24a',size:9},hoverinfo:'skip'}
+    ], baseLayout({xaxis:ax({title:'days from peak'}),yaxis:ax({title:'absolute B magnitude',autorange:'reversed'}),
+      annotations:[{x:15,y:M+dm,text:'Δm₁₅ = '+dm.toFixed(2),showarrow:true,arrowcolor:'#ffb24a',ax:40,ay:-30,font:{color:'#ffb24a'}}]}),PCFG);
+  }
+  [D,Mm].forEach(e=>e.addEventListener('input',upd)); upd();
+})();
+(function(){
+  const F={geo:'#e8ecff',star:'#3fd0ff',puls:'#b08cff',pop:'#5ee6a8',gal:'#7ee0c0',boom:'#ff6b9d',gw:'#ffb24a'};
+  const C=[ // name, min ly, max ly, family, calibrated by
+    ['Parallax (Gaia), the anchor',1,3e4,'geo','geometry: the AU'],
+    ['Main-sequence fitting',3e2,2e5,'star','parallaxes of the Hyades and Pleiades'],
+    ['Red clump giants',1e3,3e6,'star','Gaia parallaxes'],
+    ['RR Lyrae',1e2,3e6,'puls','Gaia parallaxes'],
+    ['Type II Cepheids',1e3,3e6,'puls','Gaia parallaxes'],
+    ['Classical Cepheids',1e3,1.3e8,'puls','Gaia parallaxes, LMC eclipsing binaries, NGC 4258 maser'],
+    ['Mira variables',1e3,1e8,'puls','Gaia parallaxes, LMC'],
+    ['Tip of the red giant branch',1e4,1.3e8,'pop','LMC, NGC 4258, Gaia'],
+    ['JAGB stars',1e5,2e8,'pop','LMC, SMC, NGC 4258'],
+    ['Classical novae',1e5,1e8,'boom','Local Group novae'],
+    ['Planetary nebula luminosity function',1e6,1e8,'pop','Cepheid/TRGB galaxies'],
+    ['Globular cluster luminosity function',1e6,3e8,'pop','Milky Way and M31 clusters'],
+    ['Surface brightness fluctuations',1e7,5e8,'gal','TRGB and Cepheid galaxies'],
+    ['Tully–Fisher (spirals)',1e7,1e9,'gal','Cepheid/TRGB galaxies'],
+    ['Fundamental plane (ellipticals)',1e7,1.5e9,'gal','SBF and Tully–Fisher clusters'],
+    ['Type II-P supernovae',1e7,3e9,'boom','Cepheid hosts'],
+    ['Type Ia supernovae',1e7,1e10,'boom','Cepheid, TRGB and JAGB hosts'],
+    ['Standard sirens (gravitational waves)',1e8,1e10,'gw','general relativity, no ladder at all']];
+  Plotly.newPlot('plot_allc',[{type:'bar',orientation:'h',y:C.map(c=>c[0]),base:C.map(c=>c[1]),x:C.map(c=>c[2]-c[1]),marker:{color:C.map(c=>F[c[3]])},
+    customdata:C.map(c=>c[4]),hovertemplate:'%{y}<br>calibrated by: %{customdata}<extra></extra>'}],
+    baseLayout({margin:{l:250,r:18,t:10,b:48},xaxis:ax({type:'log',title:'distance (light-years)',range:[0,10.3]}),yaxis:ax({autorange:'reversed'}),
+      shapes:[[2.5e6,'Andromeda'],[5.4e7,'Virgo Cluster'],[3.2e8,'Coma Cluster']].map(([v])=>({type:'line',x0:v,x1:v,y0:-0.5,y1:C.length-0.5,line:{color:'rgba(154,163,199,0.45)',dash:'dot'}})),
+      annotations:[[2.5e6,'Andromeda'],[5.4e7,'Virgo'],[3.2e8,'Coma']].map(([v,t])=>({x:Math.log10(v),y:-0.5,text:t,showarrow:false,yanchor:'bottom',font:{color:'#9aa3c7',size:11}}))}),PCFG);
+})();
+
+/* =======================================================================
+   9. Redshift
+======================================================================= */
+(function(){
+  const Z=$('rs_z'), HS=$('rs_H'), cv=$('rs_canvas'), x=cv.getContext('2d'), W=cv.width;
+  const L0=380, L1=720, lines=[{l:393.37,n:'K'},{l:396.85,n:'H'},{l:486.13,n:'Hβ'},{l:656.28,n:'Hα'}];
+  if(narrow(cv)) cv.height=200;   // room for the enlarged labels
+  const LY=cv.height>150?152:134, NY=cv.height>150?192:148;
+  const X=l=>(l-L0)/(L1-L0)*W;
+  function upd(){ const z=+Z.value, H0=+HS.value, v=C_KMS*z, d=v/H0;
+    $('rs_zlab').textContent=z.toFixed(4); $('rs_ha').textContent=(656.28*(1+z)).toFixed(1); $('rs_v').textContent=commas(v);
+    $('rs_d').textContent=d.toFixed(1); $('rs_ly').textContent=big(d*1e6*PC_LY);
+    $('rs_gap').textContent=z>0?`${(v/73).toFixed(0)} vs ${(v/67.4).toFixed(0)} Mpc`:'—';
+    x.fillStyle='#04050b'; x.fillRect(0,0,W,cv.height);
+    for(let px=0;px<W;px++){ x.fillStyle=wlRGB(L0+(L1-L0)*px/W); x.fillRect(px,18,1,90); }
+    lines.forEach(o=>{ const lo=o.l*(1+z);
+      x.fillStyle='rgba(0,0,0,0.88)'; x.fillRect(X(lo)-2.5,18,5,90);
+      x.strokeStyle='rgba(255,255,255,0.85)'; x.setLineDash([3,3]); x.beginPath(); x.moveTo(X(o.l),4); x.lineTo(X(o.l),18); x.moveTo(X(o.l),108); x.lineTo(X(o.l),120); x.stroke(); x.setLineDash([]);
+      const [al,dx]=(narrow(cv)&&o.n==='K')?['right',-4]:((narrow(cv)&&o.n==='H')?['left',4]:['center',0]); label(x,o.n,X(o.l)+dx,LY,'#e8ecff',al); });
+    label(x,'380 nm',4,NY,'#9aa3c7'); label(x,'720 nm',W-4,NY,'#9aa3c7','right');
+  }
+  Z.addEventListener('input',upd); HS.addEventListener('change',upd); upd();
+})();
+
+/* =======================================================================
+   10. Whole ladder + error propagation
+======================================================================= */
+(function(){
+  const LY=9.461e15; // m
+  const R=[ // name, min m, max m, calibrated by, colour
+    ['Eratosthenes: Earth',6.4e6,6.4e6*1.6,'a shadow angle and a pacing distance','#3fd0ff'],
+    ['Eclipse: Moon',3.8e8/1.6,3.8e8*1.6,"Earth's radius",'#9fd4ff'],
+    ['Half Moon / radar: Sun',1.5e11/1.6,1.5e11*1.6,'Moon distance (now: radar)','#ffd65a'],
+    ['Copernicus + Kepler: planets',5.8e10,4.5e12,'ratios in AU','#ffb24a'],
+    ['Mars parallax, radar: AU in km',4e10,4e11,"Earth's radius as baseline",'#ff9d3a'],
+    ['Stellar parallax (Gaia)',1*LY,3e4*LY,'the AU','#5ee6a8'],
+    ['Stellar candles: RR Lyrae, Cepheids, TRGB, JAGB',1e2*LY,2e8*LY,'Gaia parallaxes','#b08cff'],
+    ['Galaxy candles: Tully–Fisher, SBF, FP',1e7*LY,1.5e9*LY,'Cepheid/TRGB galaxies','#7ee0c0'],
+    ['Type Ia supernovae',1e7*LY,1e10*LY,'Cepheid, TRGB and JAGB hosts','#ff6b9d'],
+    ['Standard sirens',1e8*LY,1e10*LY,'general relativity (no ladder)','#ffd79a'],
+    ['Redshift (Hubble law)',3e7*LY,4.6e10*LY,'supernovae → H₀','#e8ecff']];
+  Plotly.newPlot('plot_ladder',[{type:'bar',orientation:'h',y:R.map(r=>r[0]),base:R.map(r=>r[1]),x:R.map(r=>r[2]-r[1]),marker:{color:R.map(r=>r[4])},
+    customdata:R.map(r=>r[3]),hovertemplate:'%{y}<br>calibrated by: %{customdata}<extra></extra>'}],
+    baseLayout({margin:{l:210,r:18,t:10,b:48},xaxis:ax({type:'log',title:'distance (metres)',range:[6.5,27]}),yaxis:ax({autorange:'reversed'}),
+      shapes:[[LY,'1 ly'],[3.086e22,'1 Mpc']].map(([v])=>({type:'line',x0:v,x1:v,y0:-0.5,y1:10.5,line:{color:'rgba(154,163,199,0.5)',dash:'dot'}})),
+      annotations:[[LY,'1 light-year'],[3.086e22,'1 Mpc']].map(([v,t])=>({x:Math.log10(v),y:-0.5,text:t,showarrow:false,yanchor:'bottom',font:{color:'#9aa3c7',size:11}}))}),PCFG);
+
+  const E=[['Gaia parallax zero point',1.0],['Cepheid period–luminosity',1.5],['Dust & metallicity corrections',1.0],['Supernova calibration',2.0],['Hubble-flow sample',1.0]];
+  const box=$('er_ctls');
+  E.forEach((e,i)=>{ const d=document.createElement('div'); d.className='ctl';
+    d.innerHTML=`<label>${e[0]} <b><span id="ep_l${i}">${e[1].toFixed(1)}</span>%</b></label><input id="ep_${i}" type="range" min="0" max="6" step="0.1" value="${e[1]}">`; box.appendChild(d); });
+  function upd(){ const v=E.map((e,i)=>+$('ep_'+i).value); v.forEach((a,i)=>$('ep_l'+i).textContent=a.toFixed(1));
+    const q=Math.sqrt(v.reduce((s,a)=>s+a*a,0)), l=v.reduce((s,a)=>s+a,0), gap=8.3;
+    $('ep_q').textContent=q.toFixed(1); $('ep_l').textContent=l.toFixed(1); $('ep_s').textContent=(gap/q).toFixed(1)+'×';
+    const vd=$('ep_verdict');
+    if(l<gap){ vd.className='verdict good'; vd.textContent=`Even if every rung erred in the same direction (${l.toFixed(1)}%), it wouldn't close the 8.3% gap between 73.0 and 67.4. Either something unknown is hiding in the ladder, or the cosmological model needs new physics.`; }
+    else { vd.className='verdict bad'; vd.textContent=`With these error budgets, systematic errors adding up (${l.toFixed(1)}%) could explain the 8.3% gap. The tension would be a measurement problem, not new physics.`; }
+  }
+  E.forEach((e,i)=>$('ep_'+i).addEventListener('input',upd)); upd();
+})();
+
+/* =======================================================================
+   Background starfield
+======================================================================= */
+(function(){
+  const cv=$('starfield'), x=cv.getContext('2d'); let stars=[];
+  function resize(){ cv.width=innerWidth; cv.height=innerHeight;
+    stars=Array.from({length:Math.min(280,(innerWidth*innerHeight)/7000)},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,r:Math.random()*1.3+0.2,tw:Math.random()*6.28,sp:0.5+Math.random()*1.5})); }
+  let t=0;
+  function frame(){ t+=0.02; x.clearRect(0,0,cv.width,cv.height);
+    stars.forEach(s=>{ const a=0.4+0.6*Math.abs(Math.sin(t*s.sp+s.tw)); x.fillStyle=`rgba(220,228,255,${a*0.7})`; x.beginPath(); x.arc(s.x,s.y,s.r,0,7); x.fill(); });
+    requestAnimationFrame(frame); }
+  addEventListener('resize',resize); resize(); frame();
+})();
+</script>
+
+<!-- =======================================================================
+     GLOSSARY ENGINE — inline hover terms + dynamic left rail
+======================================================================= -->
+<script>
+(function(){
+  const W='https://en.wikipedia.org/wiki/';
+  // slug -> {label, def, wiki, terms:[phrases to match, longest/most-specific first]}
+  const GLOSS={
+    'distance-ladder':{label:'Cosmic distance ladder',wiki:W+'Cosmic_distance_ladder',
+      def:'The chain of overlapping methods astronomers use to measure distances. Each method is calibrated by the one below it.',terms:['cosmic distance ladder','distance ladder']},
+    'circumference':{label:'Earth’s circumference',wiki:W+'Earth%27s_circumference',
+      def:'About 40,075 km around the equator, first measured geometrically by Eratosthenes around 240 BC.',terms:['circumference']},
+    'stadion':{label:'Stadion (unit)',wiki:W+'Stadion_(unit)',
+      def:'An ancient Greek length of roughly 157–185 m. Its exact value in Eratosthenes’ work is still debated.',terms:['stadion','stadia']},
+    'solstice':{label:'Summer solstice',wiki:W+'Summer_solstice',
+      def:'The day the noon Sun is highest. At the Tropic of Cancer, near ancient Syene, it passes straight overhead.',terms:['summer solstice','solstice']},
+    'lunar-eclipse':{label:'Lunar eclipse',wiki:W+'Lunar_eclipse',
+      def:'When the full Moon passes through Earth’s shadow. The shadow’s curved edge showed the Earth is round, and its size measured the Moon.',terms:['lunar eclipse','eclipse']},
+    'umbra':{label:'Umbra',wiki:W+'Umbra,_penumbra_and_antumbra',
+      def:'The darkest, central part of a shadow, where the light source is completely blocked.',terms:['umbra']},
+    'angular-diameter':{label:'Angular diameter',wiki:W+'Angular_diameter',
+      def:'How large an object appears, as an angle. For small angles, true size ≈ distance × angle (in radians).',terms:['angular diameter','angular size']},
+    'small-angle':{label:'Small-angle approximation',wiki:W+'Small-angle_approximation',
+      def:'For small angles θ (in radians), sin θ ≈ tan θ ≈ θ. This makes size = distance × angle.',terms:['small-angle']},
+    'quarter':{label:'Lunar phase (quarter Moon)',wiki:W+'Lunar_phase',
+      def:'At first and last quarter the Moon is half lit, so the Sun–Moon–Earth angle is 90°. That’s the basis of Aristarchus’ method.',terms:['first or last quarter','half Moon','half lit']},
+    'heliocentrism':{label:'Heliocentrism',wiki:W+'Heliocentrism',
+      def:'The model with the Sun at the centre and Earth orbiting it. Aristarchus proposed it around 270 BC, and Copernicus revived it in 1543.',terms:['heliocentric']},
+    'au':{label:'Astronomical unit (AU)',wiki:W+'Astronomical_unit',
+      def:'The mean Earth–Sun distance, 149,597,870.7 km. It’s the natural ruler of the solar system and the baseline for stellar parallax.',terms:['astronomical unit','AU']},
+    'elongation':{label:'Elongation',wiki:W+'Elongation_(astronomy)',
+      def:'The angle between a planet and the Sun as seen from Earth. An inner planet’s greatest elongation reveals its orbital radius.',terms:['maximum elongation','greatest elongation','elongation']},
+    'synodic':{label:'Synodic period',wiki:W+'Orbital_period#Synodic_period',
+      def:'The time between repeat alignments with the Sun as seen from Earth, such as opposition to opposition. It differs from the true (sidereal) period.',terms:['synodic period']},
+    'opposition':{label:'Opposition',wiki:W+'Opposition_(astronomy)',
+      def:'When an outer planet is directly opposite the Sun in our sky. It’s closest to Earth and brightest then.',terms:['oppositions','opposition']},
+    'kepler-laws':{label:'Kepler’s laws',wiki:W+'Kepler%27s_laws_of_planetary_motion',
+      def:'(1) Orbits are ellipses with the Sun at one focus. (2) Equal areas are swept in equal times. (3) P² ∝ a³.',terms:['Kepler’s laws','Kepler’s third law','Kepler III']},
+    'ellipse':{label:'Ellipse',wiki:W+'Ellipse',
+      def:'An oval curve: all points whose distances to two foci add up to a constant. Its eccentricity e measures how stretched it is.',terms:['ellipse']},
+    'eccentricity':{label:'Orbital eccentricity',wiki:W+'Orbital_eccentricity',
+      def:'How far an orbit departs from a circle. e = 0 is a circle. Mars has e ≈ 0.093.',terms:['eccentricity']},
+    'triangulation':{label:'Triangulation',wiki:W+'Triangulation',
+      def:'Locating a point by measuring the directions to it from two known positions.',terms:['triangulate','triangulation']},
+    'arcminute':{label:'Arcminute / arcsecond',wiki:W+'Minute_and_second_of_arc',
+      def:'1° = 60 arcminutes (′), and 1′ = 60 arcseconds (″). One arcsecond is about a coin seen from 4 km away.',terms:['arcminutes','arcminute','arcseconds','arcsecond']},
+    'solar-parallax':{label:'Solar parallax',wiki:W+'Parallax#Solar_parallax',
+      def:'The angle Earth’s radius subtends as seen from the Sun, 8.794″. Equivalent to knowing the AU in km.',terms:['solar parallax']},
+    'transit-venus':{label:'Transit of Venus',wiki:W+'Transit_of_Venus',
+      def:'Venus crossing the Sun’s face. Timing it from distant sites (1761, 1769, 1874, 1882) was used to measure the AU.',terms:['transits of Venus','transit of Venus']},
+    'speed-of-light':{label:'Rømer’s determination of the speed of light',wiki:W+'R%C3%B8mer%27s_determination_of_the_speed_of_light',
+      def:'Rømer found in 1676 that Io’s eclipses run late when Jupiter is far away, because light takes time to cross the extra distance.',terms:['speed of light']},
+    'parallax':{label:'Stellar parallax',wiki:W+'Stellar_parallax',
+      def:'The yearly shift in a nearby star’s position as Earth orbits the Sun. Distance in parsecs = 1 / parallax in arcseconds.',terms:['stellar parallax','parallaxes','parallax']},
+    'parsec':{label:'Parsec',wiki:W+'Parsec',
+      def:'The distance at which 1 AU subtends one arcsecond: 206,265 AU, or 3.26 light-years.',terms:['parsecs','parsec']},
+    'proper-motion':{label:'Proper motion',wiki:W+'Proper_motion',
+      def:'A star’s slow drift across the sky. A large one hints that the star is nearby.',terms:['proper motion']},
+    'gaia':{label:'Gaia (spacecraft)',wiki:W+'Gaia_(spacecraft)',
+      def:'ESA’s astrometry mission (2013–2025). It measured positions and parallaxes of nearly two billion stars to microarcsecond precision.',terms:['Gaia']},
+    'hipparcos':{label:'Hipparcos',wiki:W+'Hipparcos',
+      def:'ESA’s first astrometry satellite (1989–93). It measured about 118,000 parallaxes to about 1 milliarcsecond.',terms:['Hipparcos']},
+    'standard-candle':{label:'Standard candle',wiki:W+'Cosmic_distance_ladder#Standard_candles',
+      def:'An object of known luminosity. Its apparent brightness gives its distance through the inverse-square law.',terms:['standard candles','standard candle','candle']},
+    'inverse-square':{label:'Inverse-square law',wiki:W+'Inverse-square_law',
+      def:'Light spreads over a sphere of area 4πd², so brightness falls as 1/d².',terms:['inverse-square','1/d²']},
+    'magnitude':{label:'Apparent & absolute magnitude',wiki:W+'Absolute_magnitude',
+      def:'Apparent magnitude m is how bright something looks. Absolute magnitude M is how bright it would look from 10 pc away. Smaller numbers are brighter, and 5 mag is a factor of 100.',terms:['apparent magnitude','absolute magnitude','apparent brightness']},
+    'distance-modulus':{label:'Distance modulus',wiki:W+'Distance_modulus',
+      def:'m − M = 5 log₁₀(d / 10 pc). The difference between how bright an object looks and how bright it is encodes its distance.',terms:['distance modulus']},
+    'cepheid':{label:'Cepheid variable',wiki:W+'Cepheid_variable',
+      def:'A pulsating supergiant whose period reveals its luminosity (Leavitt’s law). Visible out to about 40 Mpc with Hubble and JWST.',terms:['Cepheid variable','Cepheids','Cepheid']},
+    'rr-lyrae':{label:'RR Lyrae variable',wiki:W+'RR_Lyrae_variable',
+      def:'An old pulsating star with nearly uniform luminosity (M ≈ +0.6), used for distances within and near the Milky Way.',terms:['RR Lyrae']},
+    'sn1a':{label:'Type Ia supernova',wiki:W+'Type_Ia_supernova',
+      def:'The thermonuclear explosion of a white dwarf. Its peak luminosity is nearly standard (M ≈ −19.3), visible across billions of light-years.',terms:['Type Ia supernovae','Type Ia supernova','supernovae','supernova']},
+    'redshift':{label:'Redshift',wiki:W+'Redshift',
+      def:'z = Δλ/λ, the stretching of light toward longer wavelengths. For galaxies it’s mostly due to the expansion of space.',terms:['redshifted','redshift']},
+    'hubble-law':{label:'Hubble–Lemaître law',wiki:W+'Hubble%27s_law',
+      def:'v = H₀ d. Galaxies recede at speeds proportional to their distance.',terms:['Hubble law','Hubble’s law']},
+    'hubble-constant':{label:'Hubble constant',wiki:W+'Hubble%27s_law#Hubble_constant',
+      def:'H₀, today’s expansion rate in km/s per megaparsec. It’s about 67–73, and the disagreement between methods is the Hubble tension.',terms:['Hubble constant','H₀']},
+    'hubble-tension':{label:'Hubble tension',wiki:W+'Hubble%27s_law#Hubble_tension',
+      def:'The ~8% disagreement between H₀ from the distance ladder (~73) and from the CMB with standard cosmology (~67.4).',terms:['Hubble tension']},
+    'cmb':{label:'Cosmic microwave background',wiki:W+'Cosmic_microwave_background',
+      def:'The afterglow of the hot early universe. Its pattern of fluctuations gives an independent value of H₀ that doesn’t depend on the ladder.',terms:['cosmic microwave background','CMB']},
+    'spectral-line':{label:'Spectral lines',wiki:W+'Spectral_line',
+      def:'Narrow features at wavelengths set by specific atoms. Their shifts reveal motion.',terms:['spectral lines','spectral line']},
+    'megaparsec':{label:'Megaparsec',wiki:W+'Parsec#Megaparsecs_and_gigaparsecs',
+      def:'One million parsecs, about 3.26 million light-years. The natural unit for distances between galaxies.',terms:['megaparsecs','megaparsec','Mpc']},
+    'ms-fitting':{label:'Main-sequence fitting',wiki:W+'Spectroscopic_parallax',
+      def:'Measuring a star cluster’s distance by shifting its colour–magnitude diagram until its main sequence matches a parallax-calibrated one.',terms:['main-sequence fitting']},
+    'cmd':{label:'Colour–magnitude (H–R) diagram',wiki:W+'Hertzsprung%E2%80%93Russell_diagram',
+      def:'A plot of stars’ brightness against colour (temperature). Most stars lie on a diagonal main sequence.',terms:['colour–magnitude diagrams','colour–magnitude diagram','main sequence']},
+    'red-clump':{label:'Red clump',wiki:W+'Red_clump',
+      def:'Metal-rich helium-burning giants that cluster at nearly one luminosity, useful as a standard candle within the Local Group.',terms:['red clump']},
+    'trgb':{label:'Tip of the red giant branch',wiki:W+'Tip_of_the_red-giant_branch',
+      def:'The sharp bright limit of the red giant branch, set by helium ignition in the core (M_I ≈ −4.05). A precise candle in old stellar populations.',terms:['tip of the red giant branch','TRGB']},
+    'jagb':{label:'J-region AGB stars',wiki:W+'Asymptotic_giant_branch',
+      def:'Carbon-rich asymptotic-giant-branch stars with a nearly constant near-infrared (J-band) luminosity. A new candle cross-checked by JWST.',terms:['JAGB']},
+    'mira':{label:'Mira variable',wiki:W+'Mira_variable',
+      def:'A cool, pulsating AGB giant with a period of 100–1000 days. It follows an infrared period–luminosity law.',terms:['Mira variables','Miras','Mira']},
+    'type2-cepheid':{label:'Type II Cepheid',wiki:W+'Type_II_Cepheid',
+      def:'An old, low-mass pulsating star (such as W Virginis), about 1.5 mag fainter than a classical Cepheid of the same period.',terms:['Type II Cepheids','Type II Cepheid']},
+    'period-luminosity':{label:'Period–luminosity relation',wiki:W+'Period-luminosity_relation',
+      def:'Leavitt’s law: a pulsating star’s period predicts its luminosity.',terms:['period–luminosity law','period–luminosity']},
+    'nova':{label:'Nova',wiki:W+'Nova',
+      def:'A thermonuclear flash on a white dwarf’s surface. Brighter novae fade faster (the MMRD relation), a rough candle.',terms:['novae','nova']},
+    'pnlf':{label:'Planetary nebula luminosity function',wiki:W+'Planetary_nebula_luminosity_function',
+      def:'The [O III] brightness distribution of a galaxy’s planetary nebulae has a sharp, nearly universal bright cutoff.',terms:['planetary nebulae','planetary nebula']},
+    'gclf':{label:'Globular cluster luminosity function',wiki:W+'Globular_cluster#Luminosity_function',
+      def:'The bell-shaped brightness distribution of a galaxy’s globular clusters, which peaks near M_V ≈ −7.4.',terms:['globular clusters']},
+    'sbf':{label:'Surface brightness fluctuation',wiki:W+'Surface_brightness_fluctuation',
+      def:'The pixel-to-pixel graininess of a galaxy image from its discrete giant stars. It shrinks with distance, so it measures distance.',terms:['surface brightness fluctuations']},
+    'tully-fisher':{label:'Tully–Fisher relation',wiki:W+'Tully%E2%80%93Fisher_relation',
+      def:'For spiral galaxies, luminosity scales roughly as rotation speed to the 4th power, measured from the 21-cm line width.',terms:['Tully–Fisher relation','Tully–Fisher']},
+    'hi21':{label:'21-cm line',wiki:W+'Hydrogen_line',
+      def:'Radio emission from neutral hydrogen at 1420 MHz. Its Doppler width measures a galaxy’s rotation.',terms:['21-cm']},
+    'fundamental-plane':{label:'Fundamental plane',wiki:W+'Fundamental_plane_(elliptical_galaxies)',
+      def:'A tight relation among elliptical galaxies’ size, surface brightness and velocity dispersion, used to predict their true size.',terms:['fundamental plane']},
+    'phillips':{label:'Phillips relation',wiki:W+'Type_Ia_supernova#Use_as_standard_candles',
+      def:'Mark Phillips (1993): Type Ia supernovae that decline faster after peak are intrinsically fainter. Correcting for this standardizes them.',terms:['Phillips']},
+    'sn2p':{label:'Type II-P supernova',wiki:W+'Type_II_supernova',
+      def:'The core-collapse explosion of a red supergiant, with a long brightness plateau. It can be standardized using its expansion velocity.',terms:['Type II-P']},
+    'siren':{label:'Standard siren',wiki:W+'Standard_siren',
+      def:'A compact-object merger whose gravitational-wave signal gives its distance directly from general relativity, with no ladder needed.',terms:['standard sirens','standard siren']},
+    'dark-energy':{label:'Dark energy',wiki:W+'Dark_energy',
+      def:'The unknown cause of the accelerating cosmic expansion, discovered in 1998 using Type Ia supernovae.',terms:['dark energy','accelerating']},
+    'light-year':{label:'Light-year',wiki:W+'Light-year',
+      def:'The distance light travels in a year, about 9.46 trillion km.',terms:['light-years','light-year']}
+  };
+  // process longer phrases first so multiword terms win over their fragments
+  const ORDER=Object.keys(GLOSS).sort((a,b)=>{
+    const la=Math.max(...GLOSS[a].terms.map(t=>t.length));
+    const lb=Math.max(...GLOSS[b].terms.map(t=>t.length));
+    return lb-la;
+  });
+
+  // case-insensitive phrase find with non-letter boundaries (handles "Sgr A*")
+  function findPhrase(text, phrase){
+    const lt=text.toLowerCase(), lp=phrase.toLowerCase();
+    let i=0;
+    while((i=lt.indexOf(lp,i))!==-1){
+      const b=i>0?text[i-1]:' ';
+      const a=(i+lp.length<text.length)?text[i+lp.length]:' ';
+      if(/[^A-Za-z]/.test(b)&&/[^A-Za-z]/.test(a)) return i;
+      i+=lp.length;
+    }
+    return -1;
+  }
+  // wrap first match of phrase inside container; skip math/links/already-wrapped
+  function tryWrap(container, phrase, slug){
+    const walker=document.createTreeWalker(container, NodeFilter.SHOW_TEXT, {
+      acceptNode(n){
+        if(!n.nodeValue || n.nodeValue.indexOf('$')!==-1) return NodeFilter.FILTER_REJECT;
+        let p=n.parentNode;
+        while(p && p!==container){
+          const nm=(p.nodeName||'').toLowerCase();
+          if(p.classList && p.classList.contains('term')) return NodeFilter.FILTER_REJECT;
+          if(nm==='a'||nm==='b'||nm==='script'||nm==='style'||nm.indexOf('mjx')===0) return NodeFilter.FILTER_REJECT;
+          p=p.parentNode;
+        }
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    let node;
+    while(node=walker.nextNode()){
+      const idx=findPhrase(node.nodeValue, phrase);
+      if(idx!==-1){
+        const t=node.nodeValue;
+        const span=document.createElement('span');
+        span.className='term'; span.dataset.key=slug; span.textContent=t.slice(idx, idx+phrase.length);
+        const frag=document.createDocumentFragment();
+        if(idx>0) frag.appendChild(document.createTextNode(t.slice(0,idx)));
+        frag.appendChild(span);
+        const rest=t.slice(idx+phrase.length);
+        if(rest) frag.appendChild(document.createTextNode(rest));
+        node.parentNode.replaceChild(frag, node);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  let sections;
+  function wrapGlossary(){
+    sections=document.querySelectorAll('section.chapter');
+    sections.forEach(sec=>{
+      const done=new Set();
+      const containers=sec.querySelectorAll('.beat p, .lab .hint, .who, .zoo-card .zd');
+      containers.forEach(c=>{
+        ORDER.forEach(slug=>{
+          if(done.has(slug)) return;
+          for(const phrase of GLOSS[slug].terms){
+            if(tryWrap(c, phrase, slug)){ done.add(slug); break; }
+          }
+        });
+      });
+      const seen=[];
+      sec.querySelectorAll('.term').forEach(t=>{ const k=t.dataset.key; if(!seen.includes(k)) seen.push(k); });
+      sec.__terms=seen;
+    });
+  }
+
+  /* ---- floating tooltip ---- */
+  const tip=document.createElement('div'); tip.id='termTip'; document.body.appendChild(tip);
+  let hideT;
+  function showTip(el){
+    const g=GLOSS[el.dataset.key]; if(!g) return;
+    tip.innerHTML='<div class="tt-term">'+g.label+'</div><div>'+g.def+'</div>'+
+      (g.wiki?'<a class="tt-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'');
+    tip.classList.add('show');
+    const r=el.getBoundingClientRect();
+    const tw=tip.offsetWidth, th=tip.offsetHeight;
+    let left=r.left+r.width/2-tw/2; left=Math.max(10, Math.min(left, innerWidth-tw-10));
+    let top=r.top-th-10; if(top<10) top=r.bottom+10;
+    tip.style.left=left+'px'; tip.style.top=top+'px';
+  }
+  function hideTip(){ tip.classList.remove('show'); }
+  document.addEventListener('mouseover',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); } });
+  document.addEventListener('mouseout', e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ hideT=setTimeout(hideTip,260); } });
+  tip.addEventListener('mouseenter',()=>clearTimeout(hideT));
+  tip.addEventListener('mouseleave',hideTip);
+  document.addEventListener('click',e=>{ const t=e.target.closest&&e.target.closest('.term'); if(t){ clearTimeout(hideT); showTip(t); hideT=setTimeout(hideTip,4500); } });
+
+  /* ---- left rail ---- */
+  const panel=document.getElementById('glossaryPanel');
+  function renderPanel(sec){
+    if(!sec) return;
+    const slugs=sec.__terms||[];
+    const title=(sec.querySelector('h2')||{}).textContent||'';
+    let h='<div class="gp-card"><div class="gp-sec">In this section <span class="gp-count">'+slugs.length+' term'+(slugs.length===1?'':'s')+'</span></div><h4>'+title+'</h4>';
+    if(!slugs.length){ h+='<p class="gp-empty">No glossary terms in this section.</p>'; }
+    else slugs.forEach(slug=>{ const g=GLOSS[slug];
+      h+='<div class="gp-item"><span class="gp-term" data-jump="'+slug+'">'+g.label+'</span>'+
+         '<p class="gp-def">'+g.def+'</p>'+
+         (g.wiki?'<a class="gp-wiki" href="'+g.wiki+'" target="_blank" rel="noopener">Wikipedia ↗</a>':'')+'</div>';
+    });
+    h+='</div>';
+    panel.innerHTML=h;
+    panel.querySelectorAll('[data-jump]').forEach(s=>s.addEventListener('click',()=>{
+      const el=sec.querySelector('.term[data-key="'+s.dataset.jump+'"]');
+      if(el){ el.scrollIntoView({behavior:'smooth',block:'center'}); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+    }));
+  }
+
+  function init(){
+    wrapGlossary();
+    if(sections.length) renderPanel(sections[0]);
+    // track the most-visible section and repopulate the rail
+    let current=sections[0];
+    const ratios=new Map();
+    const io=new IntersectionObserver(es=>{
+      es.forEach(e=>ratios.set(e.target, e.isIntersecting? e.intersectionRatio:0));
+      let best=current, bv=-1;
+      ratios.forEach((v,k)=>{ if(v>bv){ bv=v; best=k; } });
+      if(best && best!==current){ current=best; renderPanel(best); }
+    },{threshold:[0,0.12,0.3,0.55,0.8]});
+    sections.forEach(s=>io.observe(s));
+  }
+
+  // run after MathJax finishes (so prose text nodes are clean), with a safe fallback
+  let ran=false; const go=()=>{ if(ran) return; ran=true; init(); };
+  if(window.MathJax && MathJax.startup && MathJax.startup.promise){ MathJax.startup.promise.then(go).catch(go); }
+  setTimeout(go, 2600);
+})();
+</script>
+<script>
+(function(){
+  var nav=document.querySelector('nav');
+  var btn=nav&&nav.querySelector('.navToggle');
+  var links=nav&&nav.querySelector('.links');
+  if(!nav||!btn||!links)return;
+  links.id=links.id||'navLinks';
+  function close(){ nav.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+  btn.addEventListener('click',function(){
+    var open=nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
+  });
+  links.querySelectorAll('a').forEach(function(a){ a.addEventListener('click',close); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape')close(); });
+})();
+</script>
+</body>
+</html>
