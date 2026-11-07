@@ -122,6 +122,11 @@
   .imgslot b{color:var(--ink)}
 
   .eq{overflow-x:auto; margin:6px 0}
+  .vars{margin:6px 0 2px; padding:10px 14px 4px; border-top:1px dashed var(--line); font-size:13.5px; color:var(--muted); line-height:1.5}
+  .vars .vh{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--violet); font-weight:700; margin-bottom:6px}
+  .vars dl{display:grid; grid-template-columns:max-content minmax(0,1fr); gap:6px 14px; margin:0}
+  .vars dt{color:var(--ink); text-align:right; white-space:nowrap}
+  .vars dd{margin:0}
   .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
 
   footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
@@ -384,7 +389,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>The night sky is sprinkled with faint, fuzzy patches called nebulae. In 1755 the philosopher Immanuel Kant guessed that some were whole star systems like our own, so far away that their stars blur together. These were "island universes." William Herschel counted stars in different directions and mapped the Milky Way as a flattened "grindstone" with the Sun near its middle.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>In 1845 Lord Rosse's giant 72-inch "Leviathan" telescope showed that some nebulae, like M51, had a <i>spiral</i> shape. A swirl looks like a rotating system of stars. But it could equally be a solar system forming out of gas, close by inside our own galaxy.</p></div>
+      <p>The goal was to settle what the spiral nebulae are: whole galaxies far outside the Milky Way, or small clouds of gas inside it. Deciding that requires knowing how far away they are. In 1845 Lord Rosse's giant 72-inch "Leviathan" telescope showed that some nebulae, like M51, had a <i>spiral</i> shape. A swirl looks like a rotating system of stars. But it could equally be a solar system forming out of gas, close by inside our own galaxy.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Around 1898–1900 James Keeler photographed the sky with the Crossley reflector at Lick Observatory. Faint spiral nebulae turned up on almost every plate. He estimated that around 120,000 of them were within reach of his telescope.</p></div>
     <div class="beat found"><div class="tag">Where things stood</div>
@@ -417,6 +422,12 @@ nav .navToggle{ display:none; }
     <figure><canvas id="is_canvas" width="900" height="300"></canvas>
       <figcaption id="is_cap">Andromeda as a tilted spiral, drawn procedurally. The ruler shows the 3.2° it covers on the sky.</figcaption></figure>
     <div class="eq">$$ d=\frac{D}{\theta}\quad(\theta\ \text{in radians}),\qquad \theta=3.2^\circ\times\frac{\pi}{180}=0.0559\ \text{rad} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$d$</dt><dd>the distance to Andromeda.</dd>
+        <dt>$D$</dt><dd>Andromeda's assumed true diameter (in the same units you want $d$ in, for example light-years).</dd>
+        <dt>$\theta$</dt><dd>Andromeda's angular size on the sky, in radians.</dd>
+        <dt>$\pi/180$</dt><dd>the factor that converts degrees to radians.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -466,7 +477,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>A star's apparent magnitude mixes up two things: how luminous it really is and how far away it is. A faint star could be a dim one nearby or a brilliant one far away. Parallax could untangle the two, but only for stars within a few hundred light-years.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Leavitt was a Harvard "computer," paid a few cents an hour to compare photographic plates. She catalogued over 1,700 variable stars in the Magellanic Clouds. The trick was that every star in the Small Magellanic Cloud is at about the <i>same</i> distance from us. So differences in apparent brightness there are differences in true brightness.</p></div>
+      <p>The goal was to find a way to know a star's true luminosity without already knowing its distance. Then how bright the star looks would reveal how far away it is. Leavitt was a Harvard "computer," paid a few cents an hour to compare photographic plates. She catalogued over 1,700 variable stars in the Magellanic Clouds. The trick was that every star in the Small Magellanic Cloud is at about the <i>same</i> distance from us. So differences in apparent brightness there are differences in true brightness.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In 1912 she plotted 25 Cepheid variables in the Small Magellanic Cloud, brightness against pulsation period. The points fell on a clean line: the longer a Cepheid takes to pulse, the brighter it is.</p></div>
     <div class="beat found"><div class="tag">What she found</div>
@@ -493,6 +504,12 @@ nav .navToggle{ display:none; }
         <figcaption>A Cepheid breathing in and out. It's brightest and hottest just after minimum size. (Pulsation sped up for display.)</figcaption></figure>
     </div>
     <div class="eq">$$ M_V=-2.43\,(\log_{10}P-1)-4.05,\qquad \frac{F_1}{F_2}=10^{-0.4\,(m_1-m_2)} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$M_V$</dt><dd>the Cepheid's absolute magnitude in the V (visual) band: how bright it would look from 10 pc.</dd>
+        <dt>$P$</dt><dd>the pulsation period, in days.</dd>
+        <dt>$F_1,\ F_2$</dt><dd>the fluxes (apparent brightnesses) of two stars.</dd>
+        <dt>$m_1,\ m_2$</dt><dd>the apparent magnitudes of the same two stars. Larger magnitudes are fainter, and 5 magnitudes is a factor of 100.</dd>
+    </dl></div>
   </div>
 
   <div class="figrow two">
@@ -551,7 +568,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Leavitt's law gave <i>relative</i> brightness. To turn it into distances, someone needed the absolute magnitude of at least one Cepheid. But no Cepheid was close enough for direct parallax with 1913 equipment.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Hertzsprung used statistical parallax. Nearby Cepheids drift across the sky (proper motion) because of the Sun's own motion through space. If you average many of them, the size of that drift tells you their typical distance, and therefore their luminosity.</p></div>
+      <p>The goal was to measure the true luminosity (absolute magnitude) of at least one Cepheid. That single number turns Leavitt's relative brightnesses into real distances. Hertzsprung used statistical parallax. Nearby Cepheids drift across the sky (proper motion) because of the Sun's own motion through space. If you average many of them, the size of that drift tells you their typical distance, and therefore their luminosity.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>From about a dozen Milky Way Cepheids he set the zero point and applied it to the Small Magellanic Cloud. The published paper gave the cloud's distance as about 3,000 light-years. That was apparently a slip for a figure about ten times larger.</p></div>
     <div class="beat found"><div class="tag">The lesson</div>
@@ -574,6 +591,13 @@ nav .navToggle{ display:none; }
     </div>
     <div id="plot_cb" class="plot" style="height:230px"></div>
     <div class="eq">$$ m-M=5\log_{10}\!\left(\frac{d}{10\ \text{pc}}\right)\;\Longrightarrow\; d=10^{\,(m-M+5)/5}\ \text{pc},\qquad 1\ \text{pc}=3.26\ \text{ly} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$m$</dt><dd>the apparent magnitude: how bright the star looks from Earth.</dd>
+        <dt>$M$</dt><dd>the absolute magnitude: how bright it would look from 10 pc.</dd>
+        <dt>$m-M$</dt><dd>the distance modulus, which depends only on distance.</dd>
+        <dt>$d$</dt><dd>the star's distance, in parsecs.</dd>
+        <dt>pc, ly</dt><dd>parsec and light-year (1 pc = 3.26 ly).</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -624,7 +648,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Stars in the Milky Way move at a few tens of km/s. The Doppler effect turns that motion into a tiny shift of spectral lines. A blueshift means the source is approaching; a redshift means it's receding.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Lowell wanted spectra of spirals because he suspected they were forming solar systems. Slipher made his spectrograph fast enough to record the faint light of a nebula, using exposures that ran over several nights.</p></div>
+      <p>The goal was to measure how fast the spiral nebulae move toward or away from us, using the Doppler shift of the lines in their spectra. Lowell wanted spectra of spirals because he suspected they were forming solar systems. Slipher made his spectrograph fast enough to record the faint light of a nebula, using exposures that ran over several nights.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In late 1912 Andromeda's lines turned out to be shifted toward the blue by about 300 km/s. That was the fastest speed ever measured for any celestial object. Then he found the Sombrero nebula (M104) <i>receding</i> at about 1,000 km/s.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -658,6 +682,14 @@ nav .navToggle{ display:none; }
     <figure><canvas id="sl_canvas" width="900" height="150"></canvas>
       <figcaption>Simulated spectrum: dashed white ticks show the rest positions, dark bands show the observed lines.</figcaption></figure>
     <div class="eq">$$ \frac{\Delta\lambda}{\lambda_0}=\frac{v}{c}\quad(v\ll c),\qquad \lambda_{\text{obs}}=\lambda_0\left(1+\frac{v}{c}\right) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$\lambda_0$</dt><dd>a spectral line's rest wavelength, as measured in a laboratory.</dd>
+        <dt>$\lambda_{\text{obs}}$</dt><dd>the wavelength at which we observe that line in the nebula.</dd>
+        <dt>$\Delta\lambda$</dt><dd>the shift, $\lambda_{\text{obs}}-\lambda_0$.</dd>
+        <dt>$v$</dt><dd>the radial velocity along our line of sight: positive means receding (redshift), negative means approaching (blueshift).</dd>
+        <dt>$c$</dt><dd>the speed of light, 299,792 km/s.</dd>
+        <dt>$v\ll c$</dt><dd>the formula holds only for speeds much smaller than light's.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -707,7 +739,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>A globular cluster is a tight ball of hundreds of thousands of stars. About a hundred were catalogued. Solon Bailey at Harvard had found that they swarm with short-period variable stars, which Shapley called "cluster variables" and we now call RR Lyrae stars. Leavitt's law, freshly calibrated, gave a way to read distances from pulsating stars.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Shapley arrived at Mount Wilson in 1914. He reasoned that if cluster variables are all roughly equally luminous, each one is a standard candle. Time it, measure its apparent magnitude, and the distance modulus gives the distance to the whole cluster.</p></div>
+      <p>The goal was to measure the distances to the globular clusters, and through them the size of the Milky Way. Shapley arrived at Mount Wilson in 1914. He reasoned that if cluster variables are all roughly equally luminous, each one is a standard candle. Time it, measure its apparent magnitude, and the distance modulus gives the distance to the whole cluster.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Using the 60-inch reflector, he measured cluster variables in the nearer clusters. He calibrated them with his own statistical-parallax zero point, treating them as short-period members of the Cepheid family. For clusters too remote for their variables to be seen, he built a ladder. Bright giant stars and then the clusters' apparent diameters stood in for the distance.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -748,6 +780,13 @@ nav .navToggle{ display:none; }
         <figcaption>A globular cluster drawn procedurally. The circled stars are RR Lyrae variables pulsing on their roughly half-day cycle (sped up).</figcaption></figure>
     </div>
     <div class="eq">$$ d=10^{\,(m-M-A_V+5)/5}\ \text{pc},\qquad M_V(\text{RR Lyrae})\approx+0.6\ \ (\text{nearly the same for all}) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$d$</dt><dd>the cluster's distance, in parsecs.</dd>
+        <dt>$m$</dt><dd>the mean apparent magnitude of the cluster's RR Lyrae stars.</dd>
+        <dt>$M$</dt><dd>the absolute magnitude assigned to an RR Lyrae star.</dd>
+        <dt>$A_V$</dt><dd>the extinction: how many magnitudes interstellar dust dims the light in the V band.</dd>
+        <dt>$M_V(\text{RR Lyrae})$</dt><dd>the modern absolute magnitude of an RR Lyrae star.</dd>
+    </dl></div>
   </div>
 
   <div class="spotlight"><b>Why RR Lyrae stars work so well.</b> Cepheids need a period to tell you their luminosity. RR Lyrae stars are simpler: they're old, low-mass stars burning helium on the horizontal branch, and nearly all have about the same luminosity, around 40–50 Suns. Find one, and you've effectively found a 45-Sun light bulb. Shapley's mistake wasn't the method. It was the wattage: his calibration made them about twice as bright as they really are.</div>
@@ -820,7 +859,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>It was an old puzzle that globular clusters aren't spread evenly over the sky. Almost all of them lie in one half of it, and about a third crowd into Sagittarius, Scorpius and Ophiuchus. Nobody had a good explanation.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>With a distance for each cluster, Shapley could do more than note the lopsided sky. He combined each cluster's galactic longitude, galactic latitude and distance to plot it in 3-D. If the clusters belong to the galaxy, the <i>centre of their swarm</i> should mark the centre of the galaxy.</p></div>
+      <p>The goal was to locate the centre of the Milky Way, and so find out where the Sun sits within it. With a distance for each cluster, Shapley could do more than note the lopsided sky. He combined each cluster's galactic longitude, galactic latitude and distance to plot it in 3-D. If the clusters belong to the galaxy, the <i>centre of their swarm</i> should mark the centre of the galaxy.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>He plotted the clusters as seen from above the galactic plane and edge-on. They didn't form a shell around the Sun. They formed a roughly spherical swarm, symmetric above and below the Milky Way's plane, whose centre lay far away toward Sagittarius.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -872,6 +911,15 @@ nav .navToggle{ display:none; }
       <div id="plot_hist" class="plot" style="height:330px"></div>
     </div>
     <div class="eq">$$ x=d\cos b\cos l,\quad y=d\cos b\sin l,\quad z=d\sin b,\qquad \vec r_{\text{centre}}=\frac{1}{N}\sum_{i=1}^{N}\vec r_i $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$x,\ y,\ z$</dt><dd>a cluster's 3-D position with the Sun at the origin: $x$ points toward Sagittarius ($l=0^\circ$), $y$ toward $l=90^\circ$, and $z$ out of the galactic plane.</dd>
+        <dt>$d$</dt><dd>the cluster's distance from the Sun.</dd>
+        <dt>$l$</dt><dd>galactic longitude: the angle along the Milky Way's plane, measured from the direction of Sagittarius.</dd>
+        <dt>$b$</dt><dd>galactic latitude: the angle above (+) or below (−) the plane.</dd>
+        <dt>$\vec r_i$</dt><dd>the position $(x,y,z)$ of cluster $i$.</dd>
+        <dt>$N$</dt><dd>the number of clusters.</dd>
+        <dt>$\vec r_{\text{centre}}$</dt><dd>the average position of all the clusters: the centre of the swarm.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -921,7 +969,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Jacobus Kapteyn had spent decades counting stars in every direction. His "Kapteyn universe" was a flattened system about 30,000–40,000 light-years across, with the Sun close to its centre. Star counts thinned out evenly whichever way he looked.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Shapley's clusters told a different story. If the halo is centred 50,000 light-years away toward Sagittarius, then the Sun is far out in the galaxy's suburbs. In that case Kapteyn's star counts were being cut off by something.</p></div>
+      <p>The goal was to explain why Kapteyn's star counts put the Sun at the centre of the galaxy while Shapley's clusters put the centre far away, and to decide which picture was right. Shapley's clusters told a different story. If the halo is centred 50,000 light-years away toward Sagittarius, then the Sun is far out in the galaxy's suburbs. In that case Kapteyn's star counts were being cut off by something.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>The answer was dust. In 1930 Robert Trumpler showed that distant open clusters look dimmer than their size implies. Interstellar dust absorbs starlight along the galactic plane like a fog, so star counts in the plane only reach a few thousand light-years in any direction. That's why Kapteyn appeared to be at the centre. The globular clusters, which mostly lie high above or below the plane, could be seen over the fog.</p></div>
     <div class="beat found"><div class="tag">What it meant</div>
@@ -959,6 +1007,16 @@ nav .navToggle{ display:none; }
       <figcaption id="dt_cap">Top-down Milky Way (procedural).</figcaption></figure>
     <div class="verdict good" id="dt_verdict"></div>
     <div class="eq">$$ m=M+5\log_{10}\!\left(\frac{d}{10\,\text{pc}}\right)+a\,d,\qquad P=\frac{2\pi R_0}{v},\qquad M_{\text{enc}}=\frac{v^2R_0}{G} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$m,\ M$</dt><dd>a star's apparent and absolute magnitudes.</dd>
+        <dt>$d$</dt><dd>the star's distance (in pc inside the logarithm, in kpc in the $a\,d$ term).</dd>
+        <dt>$a$</dt><dd>the dust's dimming rate in the plane, in magnitudes per kiloparsec. $a\,d$ is the total dimming.</dd>
+        <dt>$P$</dt><dd>the time the Sun takes to orbit the galactic centre once.</dd>
+        <dt>$R_0$</dt><dd>the Sun's distance from the galactic centre.</dd>
+        <dt>$v$</dt><dd>the Sun's orbital speed.</dd>
+        <dt>$M_{\text{enc}}$</dt><dd>the mass of the galaxy enclosed within the Sun's orbit.</dd>
+        <dt>$G$</dt><dd>Newton's gravitational constant, $6.674\times10^{-11}$ N m²/kg².</dd>
+    </dl></div>
   </div>
 
   <blockquote class="q">Shapley realised the Sun was nowhere near the centre, and called the reorganisation of the galaxy as dramatic as Copernicus's.
@@ -1012,7 +1070,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Van Maanen was a respected expert at measuring proper motion: the tiny sideways drift of stars across the sky, found by comparing photographic plates taken years apart.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>If spiral nebulae rotate, comparing old and new plates should show knots in their arms shifting along the spiral. The angular rate, combined with the distance, gives a physical speed.</p></div>
+      <p>The goal was to detect whether spiral nebulae rotate, and how fast, by watching features in their arms move over the years. If spiral nebulae rotate, comparing old and new plates should show knots in their arms shifting along the spiral. The angular rate, combined with the distance, gives a physical speed. The farther away a spiral is, the faster it must really spin to show any visible drift, so the measurement also tests how far away spirals can be.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>From 1916 on he reported motions of about 0.02″ per year in M101 and other spirals. If real, a spiral millions of light-years away would have to spin faster than light. So spirals must be small and nearby.</p></div>
     <div class="beat found"><div class="tag">The verdict</div>
@@ -1039,6 +1097,14 @@ nav .navToggle{ display:none; }
     </div>
     <div class="verdict good" id="vm_verdict"></div>
     <div class="eq">$$ v_t\,[\text{km/s}]=4.74\,\mu\,[''/\text{yr}]\;d\,[\text{pc}],\qquad P=\frac{2\pi r}{\mu} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$v_t$</dt><dd>the tangential speed: how fast the feature moves across our line of sight, in km/s.</dd>
+        <dt>$\mu$</dt><dd>the proper motion: how fast the feature drifts across the sky, in arcseconds per year.</dd>
+        <dt>$d$</dt><dd>the assumed distance to the spiral, in parsecs.</dd>
+        <dt>$4.74$</dt><dd>the unit conversion: 1 AU per year is 4.74 km/s.</dd>
+        <dt>$P$</dt><dd>the rotation period of the spiral, in years.</dd>
+        <dt>$r$</dt><dd>the angular distance of the feature from the spiral's centre, in arcseconds (the lab uses 11′ = 660″). $2\pi r$ is the length of one lap.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -1085,7 +1151,7 @@ nav .navToggle{ display:none; }
 
   <div class="beats">
     <div class="beat known"><div class="tag">The setting</div>
-      <p>The National Academy in Washington staged a debate on "The Scale of the Universe." Shapley defended his Big Galaxy: a Milky Way 300,000 light-years across that contains everything, spirals included. Curtis defended a smaller Milky Way and argued that the spirals are island universes far beyond it.</p></div>
+      <p>The goal of the debate was to decide the scale of the universe: is the Milky Way everything, or one galaxy among many? The National Academy in Washington staged a debate on "The Scale of the Universe." Shapley defended his Big Galaxy: a Milky Way 300,000 light-years across that contains everything, spirals included. Curtis defended a smaller Milky Way and argued that the spirals are island universes far beyond it.</p></div>
     <div class="beat idea"><div class="tag">Shapley's case</div>
       <p>Globular-cluster distances made the galaxy enormous. If the spirals were comparable galaxies, they would have to be absurdly far away. Van Maanen's rotations put them nearby. And the 1885 "nova" S Andromedae would have been impossibly luminous at an island-universe distance.</p></div>
     <div class="beat test"><div class="tag">Curtis's case</div>
@@ -1114,7 +1180,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>The 100-inch Hooker telescope, the largest in the world, could resolve the outskirts of nearby spirals into individual stars. Hubble began photographing Andromeda, looking for novae.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>On plate H335H, taken on the night of October 5–6, 1923, he marked three new spots with "N" for nova. Comparing with older plates, he saw that one of them brightened and faded <i>repeatedly</i>. It wasn't a nova. It was a Cepheid.</p></div>
+      <p>The goal was to find individual stars in Andromeda, ideally ones of known luminosity, which would finally give its distance. On plate H335H, taken on the night of October 5–6, 1923, he marked three new spots with "N" for nova. Comparing with older plates, he saw that one of them brightened and faded <i>repeatedly</i>. It wasn't a nova. It was a Cepheid.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>He crossed out the "N" and wrote "VAR!" The star had a period of about 31 days. Leavitt's law, with Shapley's own calibration, gave a distance of nearly a million light-years. That's far beyond even Shapley's huge Milky Way.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -1219,7 +1285,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>In 1917 Einstein applied general relativity to the whole cosmos. To keep the universe static, as everyone assumed it was, he added a cosmological constant. De Sitter's alternative solution that same year predicted that distant light would be redshifted. Friedmann (1922) showed that relativity naturally allows a universe that expands or contracts.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>In 1927 Lemaître, a Belgian priest and physicist, combined an expanding solution with Slipher's redshifts and Hubble's distances. He predicted that velocity should grow in proportion to distance and estimated the rate. He published in an obscure Belgian journal, and almost no one noticed.</p></div>
+      <p>The goal was to find out whether the universe is static or expanding, by testing whether galaxies' velocities are related to their distances. In 1927 Lemaître, a Belgian priest and physicist, combined an expanding solution with Slipher's redshifts and Hubble's distances. He predicted that velocity should grow in proportion to distance and estimated the rate. He published in an obscure Belgian journal, and almost no one noticed.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In 1929 Hubble plotted velocity against distance for 24 galaxies, using Cepheid and brightest-star distances and mostly Slipher's velocities. The trend was rough but clear. By 1931 Humason's far fainter spectra had pushed it out to about 20,000 km/s.</p></div>
     <div class="beat found"><div class="tag">What they found</div>
@@ -1248,6 +1314,15 @@ nav .navToggle{ display:none; }
     <div id="plot_ex" class="plot" style="height:400px"></div>
     <div class="verdict bad" id="ex_verdict"></div>
     <div class="eq">$$ v=H_0\,d,\qquad t_H=\frac{1}{H_0}=\frac{977.8}{H_0\,[\text{km/s/Mpc}]}\ \text{Gyr},\qquad H_{\text{fit}}=\frac{\sum v_i d_i}{\sum d_i^2} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$v$</dt><dd>a galaxy's recession velocity, in km/s.</dd>
+        <dt>$d$</dt><dd>its distance, in megaparsecs (Mpc).</dd>
+        <dt>$H_0$</dt><dd>the Hubble constant: recession speed per megaparsec of distance, in km/s/Mpc.</dd>
+        <dt>$t_H$</dt><dd>the Hubble time: a rough age of the universe, if it had always expanded at today's rate.</dd>
+        <dt>$977.8$</dt><dd>the conversion from 1/(km/s/Mpc) to billions of years (Gyr).</dd>
+        <dt>$H_{\text{fit}}$</dt><dd>the best-fitting slope of a straight line through the origin of the velocity–distance plot.</dd>
+        <dt>$v_i,\ d_i$</dt><dd>the velocity and distance of galaxy $i$; $\sum$ adds over all galaxies.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>

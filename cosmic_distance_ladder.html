@@ -122,6 +122,11 @@
   .imgslot b{color:var(--ink)}
 
   .eq{overflow-x:auto; margin:6px 0}
+  .vars{margin:6px 0 2px; padding:10px 14px 4px; border-top:1px dashed var(--line); font-size:13.5px; color:var(--muted); line-height:1.5}
+  .vars .vh{font-size:11px; letter-spacing:1.2px; text-transform:uppercase; color:var(--violet); font-weight:700; margin-bottom:6px}
+  .vars dl{display:grid; grid-template-columns:max-content minmax(0,1fr); gap:6px 14px; margin:0}
+  .vars dt{color:var(--ink); text-align:right; white-space:nowrap}
+  .vars dd{margin:0}
   .pill{display:inline-block; font-size:11.5px; color:var(--amber); border:1px solid var(--line); border-radius:999px; padding:2px 9px; margin:2px 4px 2px 0}
 
   footer{max-width:var(--maxw); margin:0 auto; padding:30px 22px 70px; color:var(--muted); font-size:13px; border-top:1px solid var(--line)}
@@ -363,7 +368,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Aristotle had already argued that the Earth is a sphere. During a lunar eclipse, Earth's shadow on the Moon is always a circular arc, and travellers going south see new stars rise above the horizon. The Sun is so far away that its rays arrive essentially parallel.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Eratosthenes heard that at noon on the summer solstice, the Sun shone straight down a well at Syene (modern Aswan) and cast no shadow. If at that same moment a stick in Alexandria, to the north, <i>did</i> cast a shadow, the angle of that shadow must equal the angle between the two cities as seen from Earth's centre.</p></div>
+      <p>The goal is to measure the size of the whole Earth using only a shadow and the distance between two cities. Eratosthenes heard that at noon on the summer solstice, the Sun shone straight down a well at Syene (modern Aswan) and cast no shadow. If at that same moment a stick in Alexandria, to the north, <i>did</i> cast a shadow, the angle of that shadow must equal the angle between the two cities as seen from Earth's centre.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In Alexandria the shadow angle was about 7.2°, one-fiftieth of a full circle. The cities were about 5,000 stadia apart, a distance measured by pacing or by camel-caravan travel times.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -400,6 +405,12 @@ nav .navToggle{ display:none; }
     <figure><canvas id="er_canvas" width="900" height="420"></canvas>
       <figcaption>Earth with the angle exaggerated so you can see it. Parallel sunlight, a stick at each city, and the matching angle at the centre.</figcaption></figure>
     <div class="eq">$$ \frac{\theta}{360^\circ}=\frac{s}{C}\;\Longrightarrow\; C=\frac{360^\circ}{\theta}\,s,\qquad R_\oplus=\frac{C}{2\pi} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$\theta$</dt><dd>the shadow angle of the stick in Alexandria, in degrees. It equals the angle between the two cities as seen from Earth's centre.</dd>
+        <dt>$s$</dt><dd>the ground distance from Syene to Alexandria (stadia or km).</dd>
+        <dt>$C$</dt><dd>Earth's circumference, in the same units as $s$.</dd>
+        <dt>$R_\oplus$</dt><dd>Earth's radius. The symbol $\oplus$ is the astronomical symbol for Earth.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -450,7 +461,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>From the first rung we have Earth's radius. During a lunar eclipse the Moon passes through Earth's shadow. The Moon also looks about half a degree across, and the Sun looks almost exactly the same size, which is why total solar eclipses are just barely total.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Time the eclipse. The Moon moves through the sky at roughly its own diameter per hour. Compare how long it takes to cross the shadow with how long it takes to move one Moon-width, and you've measured the shadow's width in Moon diameters.</p></div>
+      <p>The goal is to find the Moon's size and its distance from Earth, using Earth's radius from rung 1 as the ruler. First, use a lunar eclipse to compare the Moon's size with Earth's. Then use how big the Moon looks in the sky to turn its size into a distance. Time the eclipse. The Moon moves through the sky at roughly its own diameter per hour. Compare how long it takes to cross the shadow with how long it takes to move one Moon-width, and you've measured the shadow's width in Moon diameters.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>The umbra at the Moon's distance is about 2.6 Moon diameters wide. Because the Sun isn't a point, the shadow cone tapers. Since the Sun and Moon look the same size, the cone shrinks by about one Moon diameter over the Earth–Moon distance. So Earth is about 2.6 + 1 ≈ 3.7 Moon diameters across.</p></div>
     <div class="beat found"><div class="tag">What they found</div>
@@ -484,6 +495,17 @@ nav .navToggle{ display:none; }
     <figure><canvas id="mn_canvas" width="900" height="300"></canvas>
       <figcaption>The Moon drifting through Earth's umbra (animated). It turns copper inside because Earth's atmosphere bends red sunlight into the shadow.</figcaption></figure>
     <div class="eq">$$ \frac{D_\oplus}{D_{☾}}\approx k+1,\qquad R_{☾}=\frac{R_\oplus}{k+1},\qquad d_{☾}=\frac{2R_{☾}}{\theta_{☾}} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$D_\oplus$</dt><dd>Earth's diameter ($\oplus$ = Earth).</dd>
+        <dt>$D_{☾}$</dt><dd>the Moon's diameter ($☾$ = Moon).</dd>
+        <dt>$k$</dt><dd>the width of Earth's shadow (umbra) at the Moon's distance, measured in Moon diameters from the eclipse timings.</dd>
+        <dt>$+1$</dt><dd>the taper correction: the shadow cone narrows by about one Moon diameter between Earth and the Moon.</dd>
+        <dt>$R_\oplus$</dt><dd>Earth's radius, from rung 1.</dd>
+        <dt>$R_{☾}$</dt><dd>the Moon's radius.</dd>
+        <dt>$d_{☾}$</dt><dd>the Earth–Moon distance.</dd>
+        <dt>$\theta_{☾}$</dt><dd>the Moon's angular diameter (how wide it looks in the sky), in radians.</dd>
+        <dt>$\approx$</dt><dd>approximately equal to.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -533,7 +555,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>The Moon shines by reflected sunlight. When it is exactly half lit, at first or last quarter, the Sun–Moon–Earth angle must be a perfect right angle.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>At that moment, measure the angle between the Moon and the Sun as seen from Earth. Together with the right angle at the Moon, it fixes the shape of the triangle. And we already know one side from rung 2: the Earth–Moon distance.</p></div>
+      <p>The goal is to determine the distance to the Sun using the positions of Earth and the Moon relative to the Sun. At the moment the Moon is exactly half lit, measure the angle between the Moon and the Sun as seen from Earth. Together with the right angle at the Moon, it fixes the shape of the triangle. And we already know one side from rung 2: the Earth–Moon distance. Solve the triangle and the Sun's distance follows.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Aristarchus measured 87°, so the Sun is 1/cos 87° ≈ 19 times farther than the Moon. The real angle is 89.85°. It's so close to 90° that the method is extremely sensitive: a tiny error in the angle makes a huge difference in the result.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -566,6 +588,13 @@ nav .navToggle{ display:none; }
     <figure><canvas id="sn_canvas" width="900" height="300"></canvas>
       <figcaption>Earth, the half-lit Moon and the Sun. The right angle is at the Moon. The triangle is not to scale, since the true one is absurdly long and thin.</figcaption></figure>
     <div class="eq">$$ \frac{d_\odot}{d_{☾}}=\frac{1}{\cos\theta},\qquad R_\odot=R_{☾}\,\frac{d_\odot}{d_{☾}}\quad(\text{equal angular sizes}) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$d_\odot$</dt><dd>the Earth–Sun distance ($\odot$ = Sun).</dd>
+        <dt>$d_{☾}$</dt><dd>the Earth–Moon distance, from rung 2 ($☾$ = Moon).</dd>
+        <dt>$\theta$</dt><dd>the angle between the Moon and the Sun as seen from Earth, measured when the Moon is exactly half lit.</dd>
+        <dt>$R_\odot$</dt><dd>the Sun's radius.</dd>
+        <dt>$R_{☾}$</dt><dd>the Moon's radius, from rung 2.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -609,7 +638,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Mercury and Venus never stray far from the Sun. Venus is always an evening or morning "star," never seen at midnight. Mars, Jupiter and Saturn sometimes appear opposite the Sun and loop backwards across the sky.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Put the Sun at the centre and these oddities become geometry. An inner planet's greatest angle from the Sun, its maximum elongation, happens when our line of sight just grazes its orbit. That makes a right triangle with the Sun.</p></div>
+      <p>The goal is to find how far each planet is from the Sun, measured in units of the Earth–Sun distance (the astronomical unit, AU). Kilometres come later, at rung 6. Put the Sun at the centre and these oddities become geometry. An inner planet's greatest angle from the Sun, its maximum elongation, happens when our line of sight just grazes its orbit. That makes a right triangle with the Sun.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Venus reaches about 46° from the Sun. So its orbital radius is sin 46° ≈ 0.72 of Earth's. For outer planets, the time between oppositions (the synodic period) gives the true orbital period. Then their geometry at chosen dates gives their distances.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -649,6 +678,15 @@ nav .navToggle{ display:none; }
     <figure><canvas id="pl_canvas" width="900" height="440"></canvas>
       <figcaption>Top-down solar system. The tangent sightline from Earth grazes the inner orbit at greatest elongation.</figcaption></figure>
     <div class="eq">$$ r=\sin\varepsilon\ \text{AU},\qquad \frac{1}{P}=\frac{1}{P_\oplus}-\frac{1}{S}\ \ (\text{outer planet}),\qquad a^3=P^2\ (\text{AU, yr}) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$r$</dt><dd>the inner planet's orbital radius.</dd>
+        <dt>$\varepsilon$</dt><dd>the greatest elongation: the largest angle between the planet and the Sun as seen from Earth.</dd>
+        <dt>AU</dt><dd>the astronomical unit, the average Earth–Sun distance.</dd>
+        <dt>$P$</dt><dd>the planet's true orbital period (its year).</dd>
+        <dt>$P_\oplus$</dt><dd>Earth's orbital period, 1 year = 365.25 days.</dd>
+        <dt>$S$</dt><dd>the synodic period: the time between two successive oppositions, as seen from Earth.</dd>
+        <dt>$a$</dt><dd>the semi-major axis of the orbit (the planet's average distance from the Sun), in AU when $P$ is in years.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -695,7 +733,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Tycho Brahe left decades of naked-eye positions of Mars, accurate to about 1–2 arcminutes. Every observation is just a <i>direction</i> from a moving Earth. There's no depth. How do you turn directions into a map?</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Mars takes 687 days to orbit the Sun. So observations exactly 687 days apart show Mars at the <i>same point</i> in space, while Earth is in two different places. Two sightlines from two known Earth positions cross at Mars, the same way surveyors triangulate. Kepler also turned this around: by holding Mars fixed, he first mapped Earth's own orbit.</p></div>
+      <p>The goal is to find the true shape of Mars' orbit by turning Tycho's directions-only observations into actual positions of Mars in space. Mars takes 687 days to orbit the Sun. So observations exactly 687 days apart show Mars at the <i>same point</i> in space, while Earth is in two different places. Two sightlines from two known Earth positions cross at Mars, the same way surveyors triangulate. Kepler also turned this around: by holding Mars fixed, he first mapped Earth's own orbit.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Pair after pair, he plotted points on Mars' orbit. They didn't lie on a circle. They missed by 8 arcminutes, an error Kepler refused to ignore because he trusted Tycho's data.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -730,6 +768,15 @@ nav .navToggle{ display:none; }
     <figure><canvas id="kp_canvas" width="900" height="560"></canvas>
       <figcaption>Earth's orbit (blue), Mars' true ellipse (faint red), the triangulated points (amber) and a Sun-centred circle (dashed) for comparison.</figcaption></figure>
     <div class="eq">$$ \vec E_1+s\,\hat u_1=\vec E_2+t\,\hat u_2,\qquad r_{\min}=a(1-e),\ \ r_{\max}=a(1+e),\qquad P^2=a^3 $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$\vec E_1,\ \vec E_2$</dt><dd>Earth's positions (measured from the Sun) on the two observing dates, 687 days apart.</dd>
+        <dt>$\hat u_1,\ \hat u_2$</dt><dd>unit vectors pointing from Earth toward Mars on each date: the directions Tycho actually measured.</dd>
+        <dt>$s,\ t$</dt><dd>the unknown distances from Earth to Mars along each sightline. Solving the equation finds where the two lines cross, which is Mars.</dd>
+        <dt>$a$</dt><dd>the semi-major axis of Mars' orbit (half its longest width), in AU.</dd>
+        <dt>$e$</dt><dd>the eccentricity: how stretched the ellipse is (0 is a circle).</dd>
+        <dt>$r_{\min},\ r_{\max}$</dt><dd>Mars' closest (perihelion) and farthest (aphelion) distances from the Sun.</dd>
+        <dt>$P$</dt><dd>the orbital period, in years.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -776,7 +823,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>After Kepler, every planetary distance was known as a <i>ratio</i> of the AU. Measure any one of them in kilometres, and the whole solar system is scaled at once.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Use the Earth itself as a baseline. Two observers far apart on Earth see a nearby planet in slightly different directions against the stars. The baseline comes from rung 1, Earth's size. Kepler's geometry gives the planet's distance in AU. The angle gives that distance in km.</p></div>
+      <p>The goal is to measure one solar-system distance in kilometres. Since rungs 4 and 5 give every distance as a multiple of the AU, one distance in km converts the whole map into km. Use the Earth itself as a baseline. Two observers far apart on Earth see a nearby planet in slightly different directions against the stars. The baseline comes from rung 1, Earth's size. Kepler's geometry gives the planet's distance in AU. The angle gives that distance in km.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In 1672 Cassini in Paris and Richer in Cayenne (French Guiana) observed Mars at opposition, about 0.38 AU away. The shift was only about 25 arcseconds. Later, the transits of Venus in 1761 and 1769 sent expeditions across the globe to sharpen the measurement.</p></div>
     <div class="beat found"><div class="tag">What they found</div>
@@ -807,6 +854,14 @@ nav .navToggle{ display:none; }
       <div class="stat"><div class="k">vs. true AU</div><div class="v" id="au_err">−0.2%</div></div>
     </div>
     <div class="eq">$$ d_{\text{Mars}}=\frac{B}{p\,[\text{rad}]},\qquad 1\ \text{AU}=\frac{d_{\text{Mars}}}{d_{\text{Mars}}[\text{AU}]},\qquad \pi_\odot=\frac{R_\oplus}{1\ \text{AU}} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$d_{\text{Mars}}$</dt><dd>the Earth–Mars distance in kilometres.</dd>
+        <dt>$B$</dt><dd>the baseline: the distance between the two observatories, measured perpendicular to the line of sight, in km.</dd>
+        <dt>$p\,[\text{rad}]$</dt><dd>the parallax shift: the difference in Mars' direction seen from the two sites, converted to radians.</dd>
+        <dt>$d_{\text{Mars}}[\text{AU}]$</dt><dd>the same Earth–Mars distance in AU, from Kepler's geometry for that date.</dd>
+        <dt>$\pi_\odot$</dt><dd>the solar parallax: the angle Earth's radius covers as seen from the Sun. Here $\pi$ is a name, not 3.14159.</dd>
+        <dt>$R_\oplus$</dt><dd>Earth's radius.</dd>
+    </dl></div>
   </div>
 
   <div class="lab">
@@ -875,7 +930,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>If Earth orbits the Sun, nearby stars should shift back and forth against distant ones each year. The ancient Greeks saw no such shift. That was one of their strongest arguments against a moving Earth. It worked only if the stars were unimaginably far away, and they turned out to be.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Use Earth's orbit as the baseline: 2 AU, now known in km from rung 6. Pick a star that's likely to be close, one with a large proper motion, and measure its position six months apart.</p></div>
+      <p>The goal is to measure the distance to a nearby star directly with geometry, by detecting the tiny yearly shift in its position as Earth moves around the Sun. Use Earth's orbit as the baseline: 2 AU, now known in km from rung 6. Pick a star that's likely to be close, one with a large proper motion, and measure its position six months apart.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>In 1838 Bessel measured 61 Cygni's parallax as 0.314″. That's the width of a coin seen from about 15 km away. Henderson (α Centauri) and Struve (Vega) reported results at about the same time.</p></div>
     <div class="beat found"><div class="tag">What he found</div>
@@ -884,7 +939,7 @@ nav .navToggle{ display:none; }
 
   <div class="lab">
     <h3><span class="dot"></span>Watch a star wobble</h3>
-    <p class="hint">Left: Earth circles the Sun, and the sightline to a nearby star swings. Right: the star traces a tiny ellipse against the fixed background each year (exaggerated so you can see it). Set the distance and see which instrument could detect the shift.</p>
+    <p class="hint">Left: Earth circles the Sun, and the sightline to a nearby star swings. The star is triangulated twice: once when Earth is on one side of the Sun (①), and again six months later from the other side (②). The two sightlines and the 2 AU baseline between them make a triangle whose apex angle is 2p. Right: the star traces a tiny ellipse against the fixed background each year (exaggerated so you can see it), and ① and ② mark where it appeared at the two measurements. Set the distance and see which instrument could detect the shift.</p>
     <div class="controls">
       <div class="ctl">
         <label>Star distance <b><span id="px_dlab">3.5</span> pc</b></label>
@@ -909,6 +964,13 @@ nav .navToggle{ display:none; }
     <figure><canvas id="px_canvas" width="900" height="340"></canvas>
       <figcaption>Not to scale. The real parallax ellipses are thousands of times smaller than shown.</figcaption></figure>
     <div class="eq">$$ d\,[\text{pc}]=\frac{1}{p\,['']},\qquad 1\ \text{pc}=\frac{1\ \text{AU}}{1''\ \text{in rad}}=206{,}265\ \text{AU}=3.26\ \text{ly} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$d\,[\text{pc}]$</dt><dd>the star's distance, in parsecs.</dd>
+        <dt>$p\,['']$</dt><dd>the star's parallax in arcseconds: the angle by which it shifts when Earth moves 1 AU sideways (half the full back-and-forth shift over a year).</dd>
+        <dt>pc</dt><dd>the parsec: the distance at which 1 AU covers an angle of 1″.</dd>
+        <dt>$1''$</dt><dd>one arcsecond: 1/3600 of a degree, or 1/206,265 of a radian.</dd>
+        <dt>ly</dt><dd>a light-year, the distance light travels in a year.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -955,7 +1017,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Light spreads over a growing sphere, so brightness falls as 1/d². If you knew a star's true luminosity, its apparent brightness would give its distance. But parallax gives luminosities only for stars within a few thousand light-years.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Find kinds of stars whose luminosity can be <i>recognised</i> from far away, by their colour, their pulsation period or their place in a population. Calibrate the nearby examples with parallax, and every distant example becomes a distance marker.</p></div>
+      <p>The goal is to measure distances to stars too far away for parallax. If you can know a star's true brightness (luminosity) without knowing its distance, then comparing it with how bright the star looks gives the distance. Find kinds of stars whose luminosity can be <i>recognised</i> from far away, by their colour, their pulsation period or their place in a population. Calibrate the nearby examples with parallax, and every distant example becomes a distance marker.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Hertzsprung's colour–magnitude diagrams allowed main-sequence fitting of whole clusters. Leavitt's 1912 period–luminosity law turned Cepheids into the workhorse candle. In 1952 Baade found that "Cepheids" were really two populations, and correcting the mix-up doubled the distance scale. Modern alternatives include the tip of the red giant branch (TRGB) and carbon-rich J-region AGB stars (JAGB).</p></div>
     <div class="beat found"><div class="tag">What they give</div>
@@ -1040,6 +1102,16 @@ nav .navToggle{ display:none; }
     </div>
     <div id="plot_cd" class="plot" style="height:330px"></div>
     <div class="eq">$$ F=\frac{L}{4\pi d^2},\qquad m-M=5\log_{10}\frac{d}{10\ \text{pc}},\qquad M_V^{\text{Ceph}}=-2.43(\log_{10}P-1)-4.05 $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$F$</dt><dd>the flux: the star's apparent brightness, the power arriving per square metre at Earth.</dd>
+        <dt>$L$</dt><dd>the luminosity: the total power the star emits.</dd>
+        <dt>$d$</dt><dd>the distance to the star. $4\pi d^2$ is the area of the sphere the light has spread over.</dd>
+        <dt>$m$</dt><dd>the apparent magnitude: how bright the star looks (larger numbers are fainter).</dd>
+        <dt>$M$</dt><dd>the absolute magnitude: how bright the star would look from a standard distance of 10 pc.</dd>
+        <dt>$m-M$</dt><dd>the distance modulus, which depends only on distance.</dd>
+        <dt>$M_V^{\text{Ceph}}$</dt><dd>a classical Cepheid's absolute magnitude in the V (visual) band.</dd>
+        <dt>$P$</dt><dd>the Cepheid's pulsation period, in days.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -1089,7 +1161,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>Even the brightest single stars fade from view beyond about 50–100 megaparsecs. To go further you need something far more luminous: a whole galaxy, or a star that explodes.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Look for relations that predict luminosity. A spiral galaxy that rotates faster is more massive and brighter (Tully–Fisher). Elliptical galaxies obey a "fundamental plane" linking size, brightness and velocity dispersion. And a supernova's light curve reveals its peak brightness.</p></div>
+      <p>The goal is to reach galaxies so far away that no single star in them can be picked out, using whole galaxies or exploding stars whose luminosity can be predicted from something we can measure. Look for relations that predict luminosity. A spiral galaxy that rotates faster is more massive and brighter (Tully–Fisher). Elliptical galaxies obey a "fundamental plane" linking size, brightness and velocity dispersion. And a supernova's light curve reveals its peak brightness.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>Each method is calibrated with galaxies whose distances are already known from Cepheids, TRGB or JAGB. In 1993 Mark Phillips showed that Type Ia supernovae that fade faster are intrinsically dimmer. Correcting for this makes them precise to about 5–7% each.</p></div>
     <div class="beat found"><div class="tag">What they give</div>
@@ -1136,6 +1208,15 @@ nav .navToggle{ display:none; }
         <figcaption>The double-horned 21-cm profile. One side of the disk approaches us and the other recedes, which splits the hydrogen line in two.</figcaption></figure>
     </div>
     <div class="eq">$$ W=\frac{W_{\text{obs}}}{\sin i},\qquad M_I\approx-7.9\,(\log_{10}W-2.5)-21.0,\qquad L\propto v_{\text{rot}}^{\,4} $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$W_{\text{obs}}$</dt><dd>the observed width of the galaxy's 21-cm hydrogen line, in km/s.</dd>
+        <dt>$i$</dt><dd>the inclination: how tilted the disk is to our line of sight (90° = edge-on, 0° = face-on).</dd>
+        <dt>$W$</dt><dd>the true line width after correcting for tilt, about twice the rotation speed.</dd>
+        <dt>$M_I$</dt><dd>the galaxy's absolute magnitude in the I (near-infrared) band.</dd>
+        <dt>$L$</dt><dd>the galaxy's luminosity.</dd>
+        <dt>$v_{\text{rot}}$</dt><dd>the disk's rotation speed.</dd>
+        <dt>$\propto$</dt><dd>is proportional to.</dd>
+    </dl></div>
   </div>
 
   <div class="lab">
@@ -1159,6 +1240,12 @@ nav .navToggle{ display:none; }
     </div>
     <div id="plot_ph" class="plot" style="height:320px"></div>
     <div class="eq">$$ M_B^{\max}\approx-19.3+0.78\,(\Delta m_{15}-1.1) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$M_B^{\max}$</dt><dd>the supernova's absolute magnitude at peak brightness, in the B (blue) band.</dd>
+        <dt>$\Delta m_{15}$</dt><dd>the decline rate: how many magnitudes the supernova fades in the 15 days after peak.</dd>
+        <dt>$-19.3,\ 1.1$</dt><dd>the peak absolute magnitude and decline rate of a typical Type Ia supernova.</dd>
+        <dt>$0.78$</dt><dd>the slope of the Phillips relation: each extra magnitude of decline means 0.78 mag fainter at peak.</dd>
+    </dl></div>
   </div>
 
   <div class="lab">
@@ -1213,7 +1300,7 @@ nav .navToggle{ display:none; }
     <div class="beat known"><div class="tag">What was known</div>
       <p>From 1912 Slipher found that most galaxies' spectral lines are shifted toward the red. Hubble then measured their distances with Cepheids, one rung down.</p></div>
     <div class="beat idea"><div class="tag">The idea</div>
-      <p>Plot redshift velocity against candle distance. In 1929 the relation turned out to be linear: v = H₀ d. The universe is expanding. Once you've calibrated H₀ with candles, a galaxy's redshift alone gives its distance, even when there's no candle to see.</p></div>
+      <p>The goal is to get a galaxy's distance from its spectrum alone, so that distances can be measured far beyond where any standard candle can be seen. Plot redshift velocity against candle distance. In 1929 the relation turned out to be linear: v = H₀ d. The universe is expanding. Once you've calibrated H₀ with candles, a galaxy's redshift alone gives its distance, even when there's no candle to see.</p></div>
     <div class="beat test"><div class="tag">The test</div>
       <p>A spectrum is easy to measure, even for a very faint galaxy. Redshift surveys now map millions of galaxies. At large distances "distance" has several meanings and the full cosmological model is needed, but for nearby galaxies d ≈ cz / H₀.</p></div>
     <div class="beat found"><div class="tag">Where it stands</div>
@@ -1247,6 +1334,16 @@ nav .navToggle{ display:none; }
     <figure><canvas id="rs_canvas" width="900" height="150"></canvas>
       <figcaption>A galaxy spectrum from 380 to 720 nm. Dashed ticks show the rest wavelengths of Ca K/H, Hβ and Hα. Dark bands show where we observe them.</figcaption></figure>
     <div class="eq">$$ z=\frac{\lambda_{\text{obs}}-\lambda_0}{\lambda_0},\qquad v\approx cz,\qquad d\approx\frac{cz}{H_0}\quad(z\ll1) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$z$</dt><dd>the redshift: the fractional stretch of the galaxy's light.</dd>
+        <dt>$\lambda_{\text{obs}}$</dt><dd>the wavelength at which we observe a spectral line.</dd>
+        <dt>$\lambda_0$</dt><dd>the same line's rest wavelength, as measured in a laboratory.</dd>
+        <dt>$v$</dt><dd>the galaxy's recession velocity, in km/s.</dd>
+        <dt>$c$</dt><dd>the speed of light, 299,792 km/s.</dd>
+        <dt>$d$</dt><dd>the galaxy's distance, in Mpc (megaparsecs).</dd>
+        <dt>$H_0$</dt><dd>the Hubble constant: how fast galaxies recede per megaparsec of distance, in km/s/Mpc.</dd>
+        <dt>$z\ll1$</dt><dd>the formulas hold only for redshifts much smaller than 1 (nearby galaxies).</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -1292,7 +1389,7 @@ nav .navToggle{ display:none; }
 
   <div class="beats">
     <div class="beat known"><div class="tag">The structure</div>
-      <p>Each rung borrows its yardstick from the one below. Earth's radius gives the Moon. The Moon gives the Sun, at least in principle. Kepler gives ratios, parallax across the Earth gives kilometres, the AU gives stellar parallax, parallax calibrates Cepheids, Cepheids calibrate supernovae, and supernovae calibrate H₀.</p></div>
+      <p>The goal of this final section is to see how all the rungs connect, and how an error in any one of them affects the final answer, H₀. Each rung borrows its yardstick from the one below. Earth's radius gives the Moon. The Moon gives the Sun, at least in principle. Kepler gives ratios, parallax across the Earth gives kilometres, the AU gives stellar parallax, parallax calibrates Cepheids, Cepheids calibrate supernovae, and supernovae calibrate H₀.</p></div>
     <div class="beat idea"><div class="tag">The lesson</div>
       <p>Tao's point is that ingenuity beats instruments. Most rungs were climbed with simple geometry long before precise tools existed. But a ladder is only as strong as its weakest rung, so errors that start low are carried all the way up.</p></div>
     <div class="beat test"><div class="tag">Cross-checks</div>
@@ -1318,6 +1415,13 @@ nav .navToggle{ display:none; }
     </div>
     <div class="verdict good" id="ep_verdict"></div>
     <div class="eq">$$ \frac{\sigma_{H_0}}{H_0}=\sqrt{\sum_i\left(\frac{\sigma_i}{x_i}\right)^2}\ \ (\text{independent}),\qquad \frac{\sigma_{H_0}}{H_0}\le\sum_i\frac{\sigma_i}{x_i}\ \ (\text{worst case}) $$</div>
+    <div class="vars"><div class="vh">Where</div><dl>
+        <dt>$H_0$</dt><dd>the Hubble constant, the final result of the ladder.</dd>
+        <dt>$\sigma_{H_0}$</dt><dd>the uncertainty in $H_0$; $\sigma_{H_0}/H_0$ is that uncertainty as a fraction.</dd>
+        <dt>$x_i$</dt><dd>the quantity measured at rung $i$ (a parallax, a Cepheid zero point and so on).</dd>
+        <dt>$\sigma_i$</dt><dd>the uncertainty in $x_i$; $\sigma_i/x_i$ is the fractional error that rung contributes (the sliders above).</dd>
+        <dt>$\sum_i$</dt><dd>the sum over all rungs.</dd>
+    </dl></div>
   </div>
 
   <h3>Practice problems</h3>
@@ -1626,24 +1730,72 @@ function wlRGB(wl){ let r=0,g=0,b=0;
     $('px_p').textContent= p>=0.01?p.toFixed(3):sci(p,2); $('px_ly').textContent= big(dpc*PC_LY); $('px_by').textContent=who(p); }
   const bgL=document.createElement('canvas'); bgL.width=W; bgL.height=H; bgStars(bgL.getContext('2d'),W,H,200,44);
   const rs=mulberry32(5), field=Array.from({length:70},()=>({x:520+rs()*360,y:20+rs()*300,s:rs()<0.1?1.6:0.9}));
-  let t0=performance.now();
-  function frame(now){ const ph=(now-t0)/4000*2*Math.PI; x.drawImage(bgL,0,0);
-    // left: top view
-    const cx=150, cy=200, R=70, ex=cx+R*Math.cos(ph), ey=cy+R*Math.sin(ph), sx=cx, sy=40;
-    x.strokeStyle='rgba(63,208,255,0.5)'; x.beginPath(); x.arc(cx,cy,R,0,7); x.stroke();
-    x.fillStyle='#ffd65a'; x.beginPath(); x.arc(cx,cy,9,0,7); x.fill();
-    x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(ex,ey,6,0,7); x.fill();
-    x.fillStyle='#fff'; x.beginPath(); x.arc(sx,sy,4,0,7); x.fill(); label(x,'nearby star',sx+10,sy+4,'#e8ecff');
-    x.strokeStyle='rgba(255,214,90,0.7)'; x.beginPath(); x.moveTo(ex,ey); x.lineTo(sx+(sx-ex)*0.6,sy+(sy-ey)*0.6); x.stroke();
-    label(x,narrow(x.canvas)?'top view':'top view: Earth\'s orbit (2 AU baseline)',20,H-16,'#9aa3c7');
+  // Earth starts below the Sun (ph = pi/2) and runs round the orbit. Sightline 1 is
+  // locked in when Earth reaches one side of the Sun (ph = pi), sightline 2 six months
+  // later on the other side (ph = 0). The triangle stays up until sightline 1 is retaken.
+  const TAU=2*Math.PI, PERIOD=9000;
+  let t0=performance.now(), prevPh=Math.PI/2, stage=0;
+  const arrow=(x0,y0,x1,y1,col)=>{ const a=Math.atan2(y1-y0,x1-x0); x.strokeStyle=col; x.fillStyle=col; x.lineWidth=1.4;
+    x.beginPath(); x.moveTo(x0,y0); x.lineTo(x1,y1); x.stroke();
+    x.beginPath(); x.moveTo(x1,y1); x.lineTo(x1-8*Math.cos(a-0.4),y1-8*Math.sin(a-0.4)); x.lineTo(x1-8*Math.cos(a+0.4),y1-8*Math.sin(a+0.4)); x.fill(); };
+  function frame(now){
+    const ph=(Math.PI/2+(now-t0)/PERIOD*TAU)%TAU;
+    if(prevPh<Math.PI && ph>=Math.PI) stage=1;          // reached side 1
+    if(ph<prevPh && stage===1) stage=2;                  // wrapped past ph = 0: side 2
+    prevPh=ph;
+    x.drawImage(bgL,0,0); x.lineWidth=1;
+    const nar=narrow(x.canvas);
+    // ---------- left: top view, the two triangulations ----------
+    const cx=240, cy=215, R=75, bgY=24;
+    const dist=100+70*Math.min(1,Math.log10(Math.max(1,dpc))/4.3);   // nearer star = wider triangle (exaggerated)
+    const S={x:cx,y:cy-dist}, A={x:cx-R,y:cy}, B={x:cx+R,y:cy}, E={x:cx+R*Math.cos(ph),y:cy+R*Math.sin(ph)};
+    const toBg=P=>{ const k=(bgY-P.y)/(S.y-P.y); return {x:P.x+k*(S.x-P.x),y:bgY}; };
+    // distant background
+    x.strokeStyle='rgba(154,163,199,0.35)'; x.setLineDash([2,4]); x.beginPath(); x.moveTo(20,bgY); x.lineTo(460,bgY); x.stroke(); x.setLineDash([]);
+    label(x,'distant background stars',20,bgY-8,'#9aa3c7');
+    // orbit, Sun
+    x.strokeStyle='rgba(63,208,255,0.5)'; x.beginPath(); x.arc(cx,cy,R,0,TAU); x.stroke();
+    x.fillStyle='#ffd65a'; x.beginPath(); x.arc(cx,cy,9,0,TAU); x.fill();
+    // locked sightlines
+    const sight=(P,col)=>{ const G=toBg(P); x.strokeStyle=col; x.lineWidth=1.8; x.beginPath(); x.moveTo(P.x,P.y); x.lineTo(G.x,G.y); x.stroke();
+      x.fillStyle=col; x.beginPath(); x.arc(G.x,G.y,3.5,0,TAU); x.fill(); x.lineWidth=1; return G; };
+    if(stage===2){
+      x.fillStyle='rgba(255,178,74,0.13)'; x.beginPath(); x.moveTo(A.x,A.y); x.lineTo(S.x,S.y); x.lineTo(B.x,B.y); x.closePath(); x.fill();
+      x.strokeStyle='#ffb24a'; x.lineWidth=2; x.beginPath(); x.moveTo(A.x,A.y); x.lineTo(B.x,B.y); x.stroke(); x.lineWidth=1;
+      label(x,'baseline 2 AU',cx,cy+26,'#ffb24a','center');
+      x.strokeStyle='rgba(232,236,255,0.45)'; x.setLineDash([4,4]); x.beginPath(); x.moveTo(S.x,S.y); x.lineTo(cx,cy-10); x.stroke(); x.setLineDash([]);
+      label(x,'d',cx+6,(S.y+cy)/2+18,'#e8ecff');
+      arcAng(x,S.x,S.y,26,Math.atan2(B.y-S.y,B.x-S.x),Math.atan2(A.y-S.y,A.x-S.x),'#ffb24a');
+      label(x,'2p',S.x,S.y+44,'#ffb24a','center');
+    }
+    let G1,G2;
+    if(stage>=1){ G1=sight(A,'#5ee6a8'); x.fillStyle='#5ee6a8'; x.beginPath(); x.arc(A.x,A.y,5,0,TAU); x.fill();
+      label(x,nar?'①':'① January',A.x-12,A.y+4,'#5ee6a8','right'); label(x,'①',G1.x+(G1.x>=cx?10:-10),bgY+16,'#5ee6a8',G1.x>=cx?'left':'right'); }
+    if(stage===2){ G2=sight(B,'#b08cff'); x.fillStyle='#b08cff'; x.beginPath(); x.arc(B.x,B.y,5,0,TAU); x.fill();
+      label(x,nar?'②':'② July',B.x+12,B.y+4,'#b08cff'); label(x,'②',G2.x+(G2.x>=cx?10:-10),bgY+16,'#b08cff',G2.x>=cx?'left':'right'); }
+    // live sightline from where Earth is now
+    const GE=toBg(E); x.strokeStyle='rgba(255,214,90,0.55)'; x.beginPath(); x.moveTo(E.x,E.y); x.lineTo(GE.x,GE.y); x.stroke();
+    x.fillStyle='#3b7fd0'; x.beginPath(); x.arc(E.x,E.y,6,0,TAU); x.fill();
+    x.fillStyle='#fff'; x.beginPath(); x.arc(S.x,S.y,4,0,TAU); x.fill(); label(x,'nearby star',S.x+10,S.y-6,'#e8ecff');
+    const cap=['Waiting for Earth to reach one side of the Sun…',
+               '① Sightline taken. Six months to the other side…',
+               '② Two sightlines + 2 AU baseline = a triangle'][stage];
+    if(!nar) label(x,cap,20,H-36,'#e8ecff');
+    label(x,nar?'top view':'top view: Earth\'s orbit (2 AU baseline)',20,H-16,'#9aa3c7');
     x.strokeStyle='rgba(140,160,230,0.3)'; x.beginPath(); x.moveTo(480,10); x.lineTo(480,H-10); x.stroke();
-    // right: sky view
+    // ---------- right: sky view ----------
     field.forEach(f=>{ x.fillStyle='rgba(220,228,255,0.7)'; x.fillRect(f.x,f.y,f.s,f.s); });
     const p=1/dpc, amp=Math.max(2,110*Math.min(1,Math.pow(p/0.8,0.45)));
     const px=700-amp*Math.cos(ph), py=170-amp*0.45*Math.sin(ph);
-    x.strokeStyle='rgba(255,178,74,0.4)'; x.beginPath(); x.ellipse(700,170,amp,amp*0.45,0,0,7); x.stroke();
-    x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,4.5,0,7); x.fill();
-    label(x,narrow(x.canvas)?'sky view (exaggerated)':'sky view: yearly parallax ellipse (exaggerated)',500,H-16,'#9aa3c7');
+    x.strokeStyle='rgba(255,178,74,0.4)'; x.beginPath(); x.ellipse(700,170,amp,amp*0.45,0,0,TAU); x.stroke();
+    if(stage>=1){ x.strokeStyle='#5ee6a8'; x.lineWidth=1.6; x.beginPath(); x.arc(700+amp,170,8,0,TAU); x.stroke(); x.lineWidth=1;
+      label(x,'①',700+amp+12,175,'#5ee6a8'); }
+    if(stage===2){ x.strokeStyle='#b08cff'; x.lineWidth=1.6; x.beginPath(); x.arc(700-amp,170,8,0,TAU); x.stroke(); x.lineWidth=1;
+      label(x,'②',700-amp-12,175,'#b08cff','right');
+      if(amp>16){ arrow(700,150,700+amp-10,150,'#ffb24a'); arrow(700,150,700-amp+10,150,'#ffb24a'); }
+      label(x,'shift = 2p',700,140,'#ffb24a','center'); }
+    x.fillStyle='#fff'; x.beginPath(); x.arc(px,py,4.5,0,TAU); x.fill();
+    label(x,nar?'sky view (exaggerated)':'sky view: yearly parallax ellipse (exaggerated)',500,H-16,'#9aa3c7');
     label(x,'p = '+(p>=0.01?p.toFixed(3):sci(p,2))+'″',700,170+amp*0.45+24,'#ffb24a','center');
     requestAnimationFrame(frame); }
   D.addEventListener('input',upd); PR.addEventListener('change',()=>{ D.value=PR.value; upd(); }); upd(); requestAnimationFrame(frame);
